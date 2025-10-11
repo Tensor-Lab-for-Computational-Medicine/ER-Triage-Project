@@ -4,7 +4,7 @@ Handles OpenAI API calls for natural language patient responses
 """
 
 import os
-from typing import Dict, Optional
+from typing import Dict, Optional, Generator
 from openai import OpenAI
 from dotenv import load_dotenv
 from data_loader import Case
@@ -93,4 +93,34 @@ Respond naturally to the nurse's question."""
             return response.choices[0].message.content.strip()
         except Exception as e:
             return f"[Error communicating with patient: {str(e)}]"
+    
+    def ask_with_streaming(self, case: Case, user_question: str) -> Generator[str, None, None]:
+        """
+        Get patient's response with streaming support
+        
+        Args:
+            case: Patient case data from MIETIC
+            user_question: The nurse's question
+            
+        Yields:
+            Chunks of the patient's response as they're generated
+        """
+        try:
+            stream = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": self._create_system_prompt(case)},
+                    {"role": "user", "content": user_question}
+                ],
+                temperature=0.7,
+                max_tokens=150,
+                stream=True
+            )
+            
+            for chunk in stream:
+                if chunk.choices[0].delta.content is not None:
+                    yield chunk.choices[0].delta.content
+                    
+        except Exception as e:
+            yield f"[Error communicating with patient: {str(e)}]"
 
