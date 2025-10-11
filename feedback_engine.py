@@ -18,7 +18,6 @@ class SimulationSession:
     case_id: str
     user_triage_level: int
     ground_truth_level: int
-    total_time: int
     interventions_performed: List[str]
     patient_final_state: str
     critical_interventions_missed: List[str]
@@ -26,6 +25,7 @@ class SimulationSession:
     simulation_actions: List[Dict]
     correct_triage: bool
     session_timestamp: str
+    checked_vitals: List[Dict] = None
 
 
 class FeedbackEngine:
@@ -37,7 +37,8 @@ class FeedbackEngine:
         self.session_history: List[SimulationSession] = []
     
     def create_session_record(self, case: Case, simulation: SimulationEngine, 
-                            user_triage_level: int, user_actions: List[Dict]) -> SimulationSession:
+                            user_triage_level: int, user_actions: List[Dict],
+                            checked_vitals: List[Dict] = None) -> SimulationSession:
         """Create a complete session record"""
         summary = simulation.get_simulation_summary()
         
@@ -45,11 +46,11 @@ class FeedbackEngine:
             case_id=case.id,
             user_triage_level=user_triage_level,
             ground_truth_level=case.acuity,
-            total_time=summary['total_time'],
             interventions_performed=summary['interventions_performed'],
             patient_final_state=summary['final_state'],
             critical_interventions_missed=summary['critical_interventions_missed'],
             user_actions=user_actions,
+            checked_vitals=checked_vitals if checked_vitals else [],
             simulation_actions=simulation.get_action_history(),
             correct_triage=user_triage_level == case.acuity,
             session_timestamp=datetime.now().isoformat()
@@ -59,160 +60,164 @@ class FeedbackEngine:
                                       case: Case, simulation: SimulationEngine) -> Dict:
         """Generate comprehensive feedback for a simulation session"""
         
-        # Triage analysis
-        triage_analysis = self.triage_classifier.analyze_triage_decision(
-            case, simulation, session.user_triage_level
-        )
+        # Session summary with user actions
+        session_summary = self._generate_session_summary(session, case)
         
-        # Performance metrics
-        performance_metrics = self._calculate_performance_metrics(session)
+        # Triage analysis with outcome data
+        triage_analysis = self._generate_triage_analysis(session, case)
         
-        # Clinical feedback
+        # Clinical feedback showing ground truth interventions
         clinical_feedback = self._generate_clinical_feedback(session, case, simulation)
         
-        # Learning recommendations
-        learning_recommendations = self._generate_learning_recommendations(
-            session, triage_analysis
-        )
-        
         return {
-            "session_summary": {
-                "case_id": session.case_id,
-                "timestamp": session.session_timestamp,
-                "total_time": session.total_time,
-                "patient_outcome": session.patient_final_state
-            },
+            "session_summary": session_summary,
             "triage_analysis": triage_analysis,
-            "performance_metrics": performance_metrics,
-            "clinical_feedback": clinical_feedback,
-            "learning_recommendations": learning_recommendations,
-            "detailed_analysis": self._generate_detailed_analysis(session, case, simulation)
+            "clinical_feedback": clinical_feedback
         }
     
-    def _calculate_performance_metrics(self, session: SimulationSession) -> Dict:
-        """Calculate performance metrics for the session"""
-        # Triage accuracy
-        triage_accuracy = 1.0 if session.correct_triage else 0.0
+    def _generate_session_summary(self, session: SimulationSession, case: Case) -> Dict:
+        """Generate session summary with user actions"""
+        # Map intervention database names to display names
+        display_names = {
+            "invasive_ventilation": "Perform Endotracheal Intubation",
+            "intravenous": "Start IV Access",
+            "intravenous_fluids": "Start IV Fluids",
+            "intramuscular": "Give IM Medication",
+            "oral_medications": "Give Oral Medication",
+            "nebulized_medications": "Give Nebulized Treatment",
+            "tier1_med_usage_1h": "Administer Emergency Medication",
+            "tier2_med_usage": "Administer Urgent Medication",
+            "tier3_med_usage": "Administer Stabilizing Medication",
+            "tier4_med_usage": "Administer Routine Medication",
+            "critical_procedure": "Perform Emergency Procedure",
+            "psychotropic_med_within_120min": "Administer Psychotropic Medication"
+        }
         
-        # Intervention efficiency
-        total_actions = len(session.user_actions)
-        intervention_actions = len([a for a in session.user_actions if a.get('action') == 'intervention'])
-        intervention_efficiency = intervention_actions / max(total_actions, 1)
-        
-        # Time efficiency (lower is better for triage)
-        time_efficiency = 1.0 / max(session.total_time / 10, 1)  # Normalize to 10 minutes
-        
-        # Critical intervention coverage
-        critical_missed = len(session.critical_interventions_missed)
-        critical_coverage = 1.0 - (critical_missed / max(len(session.interventions_performed) + critical_missed, 1))
-        
-        # Overall score (weighted average)
-        overall_score = (
-            triage_accuracy * 0.4 +
-            intervention_efficiency * 0.2 +
-            time_efficiency * 0.2 +
-            critical_coverage * 0.2
-        )
+        # Format interventions performed
+        interventions_display = [
+            display_names.get(i, i.replace('_', ' ').title())
+            for i in session.interventions_performed
+        ]
         
         return {
-            "triage_accuracy": triage_accuracy,
-            "intervention_efficiency": intervention_efficiency,
-            "time_efficiency": time_efficiency,
-            "critical_intervention_coverage": critical_coverage,
-            "overall_score": overall_score,
-            "total_actions": total_actions,
-            "intervention_actions": intervention_actions
+            "arrival_method": case.demographics.transport,
+            "chief_complaint": case.complaint,
+            "vitals_checked": session.checked_vitals if session.checked_vitals else [],
+            "interventions_performed": interventions_display,
+            "triage_level_assigned": session.user_triage_level
+        }
+    
+    def _generate_triage_analysis(self, session: SimulationSession, case: Case) -> Dict:
+        """Generate triage analysis with outcome data"""
+        # Determine triage direction
+        if session.user_triage_level < session.ground_truth_level:
+            direction = "Over-triaged"
+        elif session.user_triage_level > session.ground_truth_level:
+            direction = "Under-triaged"
+        else:
+            direction = "Correct triage"
+        
+        # Collect outcome data
+        outcomes = []
+        
+        # Disposition
+        if case.disposition and case.disposition != "Unknown":
+            outcomes.append(f"Disposition: {case.disposition}")
+        
+        # Transfers to surgery
+        if case.transfer2surgeryin1h:
+            outcomes.append("Patient transferred to surgery within 1 hour")
+        elif case.transfer_to_surgery_beyond_1h:
+            outcomes.append("Patient transferred to surgery after 1 hour")
+        
+        # Transfers to ICU
+        if case.transfer_to_icu_in_1h:
+            outcomes.append("Patient transferred to ICU within 1 hour")
+        elif case.transfer_to_icu_beyond_1h:
+            outcomes.append("Patient transferred to ICU after 1 hour")
+        
+        # General transfers
+        if case.transfer_within_1h:
+            outcomes.append("Patient transferred within 1 hour")
+        elif case.transfer_beyond_1h:
+            outcomes.append("Patient transferred after 1 hour")
+        
+        # Expired
+        if case.expired_within_1h:
+            outcomes.append("Patient expired within 1 hour")
+        elif case.expired_beyond_1h:
+            outcomes.append("Patient expired after 1 hour")
+        
+        # Blood transfusions
+        if case.red_cell_order_more_than_1:
+            outcomes.append("Multiple red cell units ordered")
+        
+        if case.transfusion_within_1h:
+            outcomes.append("Blood transfusion within 1 hour")
+        elif case.transfusion_beyond_1h:
+            outcomes.append("Blood transfusion after 1 hour")
+        
+        return {
+            "user_level": session.user_triage_level,
+            "expert_level": session.ground_truth_level,
+            "comparison": direction,
+            "outcomes": outcomes
         }
     
     def _generate_clinical_feedback(self, session: SimulationSession, 
                                   case: Case, simulation: SimulationEngine) -> List[str]:
-        """Generate clinical feedback based on case and simulation"""
+        """Generate clinical feedback showing ground truth interventions"""
         feedback = []
         
-        # Patient outcome feedback
-        if session.patient_final_state == "dead":
-            feedback.append("💀 CRITICAL: Patient died during simulation")
-            if session.critical_interventions_missed:
-                feedback.append(f"   Missed critical interventions: {', '.join(session.critical_interventions_missed)}")
-        elif session.patient_final_state == "deteriorating":
-            feedback.append("⚠️  Patient deteriorated during simulation")
-            feedback.append("   Consider more aggressive interventions")
-        else:
-            feedback.append("✅ Patient remained stable throughout simulation")
+        # Map intervention field names to display names
+        display_names = {
+            "invasive_ventilation": "Endotracheal intubation performed",
+            "intravenous": "IV access established",
+            "intravenous_fluids": "IV fluids administered",
+            "intramuscular": "IM medication administered",
+            "oral_medications": "Oral medication administered",
+            "nebulized_medications": "Nebulized treatment administered",
+            "tier1_med_usage_1h": "Emergency medications (Tier 1) administered",
+            "tier2_med_usage": "Urgent medications (Tier 2) administered",
+            "tier3_med_usage": "Stabilizing medications (Tier 3) administered",
+            "tier4_med_usage": "Routine medications (Tier 4) administered",
+            "critical_procedure": "Critical procedure performed",
+            "psychotropic_med_within_120min": "Psychotropic medication administered"
+        }
         
-        # Vital signs analysis
-        vitals = case.vitals
-        if vitals.o2 and vitals.o2 < 90:
-            if "oxygen" in session.interventions_performed:
-                feedback.append("✅ Correctly identified and treated low oxygen saturation")
-            else:
-                feedback.append("❌ Missed low oxygen saturation - should have provided oxygen therapy")
+        # List all ground truth interventions that occurred
+        ground_truth = case.interventions
         
-        if vitals.pain and vitals.pain >= 8:
-            if "pain_management" in session.interventions_performed:
-                feedback.append("✅ Appropriately addressed severe pain")
-            else:
-                feedback.append("⚠️  Consider pain management for severe pain (8+/10)")
+        if ground_truth.invasive_ventilation:
+            feedback.append(display_names["invasive_ventilation"])
+        if ground_truth.intravenous:
+            feedback.append(display_names["intravenous"])
+        if ground_truth.intravenous_fluids:
+            feedback.append(display_names["intravenous_fluids"])
+        if ground_truth.intramuscular:
+            feedback.append(display_names["intramuscular"])
+        if ground_truth.oral_medications:
+            feedback.append(display_names["oral_medications"])
+        if ground_truth.nebulized_medications:
+            feedback.append(display_names["nebulized_medications"])
+        if ground_truth.tier1_med_usage_1h:
+            feedback.append(display_names["tier1_med_usage_1h"])
+        if ground_truth.tier2_med_usage:
+            feedback.append(display_names["tier2_med_usage"])
+        if ground_truth.tier3_med_usage:
+            feedback.append(display_names["tier3_med_usage"])
+        if ground_truth.tier4_med_usage:
+            feedback.append(display_names["tier4_med_usage"])
+        if ground_truth.critical_procedure:
+            feedback.append(display_names["critical_procedure"])
+        if ground_truth.psychotropic_med_within_120min:
+            feedback.append(display_names["psychotropic_med_within_120min"])
         
-        # Complaint-specific feedback
-        complaint_lower = case.complaint.lower()
-        if "chest pain" in complaint_lower:
-            if "cardiac_monitoring" in session.interventions_performed:
-                feedback.append("✅ Appropriate cardiac monitoring for chest pain")
-            else:
-                feedback.append("💡 Consider cardiac monitoring for chest pain cases")
-        
-        if "bleeding" in complaint_lower or "laceration" in complaint_lower:
-            if "bleeding_control" in session.interventions_performed:
-                feedback.append("✅ Correctly addressed bleeding")
-            else:
-                feedback.append("❌ Missed bleeding control for trauma case")
-        
-        if "unresponsive" in complaint_lower:
-            if "airway" in session.interventions_performed:
-                feedback.append("✅ Appropriate airway management for unresponsive patient")
-            else:
-                feedback.append("❌ Critical: Unresponsive patients need airway assessment")
+        if not feedback:
+            feedback.append("No interventions were performed in the actual ED visit")
         
         return feedback
     
-    def _generate_learning_recommendations(self, session: SimulationSession, 
-                                         triage_analysis: Dict) -> List[str]:
-        """Generate learning recommendations based on performance"""
-        recommendations = []
-        
-        # Triage recommendations
-        if not session.correct_triage:
-            comparison = triage_analysis["comparison"]
-            if comparison["user_level"] > comparison["ground_truth_level"]:
-                recommendations.append("📚 Study ESI Level 2-3 criteria - you may be under-triaging")
-            else:
-                recommendations.append("📚 Study ESI Level 1-2 criteria - you may be over-triaging")
-        
-        # Intervention recommendations
-        if session.critical_interventions_missed:
-            recommendations.append("🔧 Practice identifying critical interventions:")
-            for intervention in session.critical_interventions_missed:
-                recommendations.append(f"   - {intervention.replace('_', ' ').title()}")
-        
-        # Time management
-        if session.total_time > 15:
-            recommendations.append("⏰ Work on faster triage decisions - aim for <15 minutes")
-        elif session.total_time < 5:
-            recommendations.append("⏰ Consider spending more time on assessment - thoroughness is important")
-        
-        # Action efficiency
-        if len(session.user_actions) > 20:
-            recommendations.append("🎯 Focus on essential actions - avoid unnecessary steps")
-        
-        # Specific learning areas
-        if session.patient_final_state == "dead":
-            recommendations.append("🚨 Review emergency protocols and critical intervention timing")
-        
-        if session.intervention_efficiency < 0.3:
-            recommendations.append("🔧 Practice identifying when interventions are needed")
-        
-        return recommendations
     
     def _generate_detailed_analysis(self, session: SimulationSession, 
                                   case: Case, simulation: SimulationEngine) -> Dict:
@@ -248,46 +253,51 @@ class FeedbackEngine:
     def display_feedback(self, feedback: Dict):
         """Display formatted feedback to user"""
         print("\n" + "="*80)
-        print("📊 SIMULATION FEEDBACK REPORT")
+        print("SIMULATION FEEDBACK REPORT")
         print("="*80)
         
         # Session summary
         summary = feedback["session_summary"]
-        print(f"\n📋 SESSION SUMMARY")
-        print(f"Case ID: {summary['case_id']}")
-        print(f"Total Time: {summary['total_time']} minutes")
-        print(f"Patient Outcome: {summary['patient_outcome'].upper()}")
+        print(f"\nSESSION SUMMARY")
+        print(f"Arrival Method: {summary['arrival_method']}")
+        print(f"Chief Complaint: {summary['chief_complaint']}")
         
-        # Performance metrics
-        metrics = feedback["performance_metrics"]
-        print(f"\n📈 PERFORMANCE METRICS")
-        print(f"Overall Score: {metrics['overall_score']:.1%}")
-        print(f"Triage Accuracy: {'✅ Correct' if metrics['triage_accuracy'] == 1.0 else '❌ Incorrect'}")
-        print(f"Intervention Efficiency: {metrics['intervention_efficiency']:.1%}")
-        print(f"Time Efficiency: {metrics['time_efficiency']:.1%}")
-        print(f"Critical Intervention Coverage: {metrics['critical_intervention_coverage']:.1%}")
+        print(f"\nVitals Checked:")
+        if summary['vitals_checked']:
+            for vital in summary['vitals_checked']:
+                print(f"  - {vital['name']}: {vital['value']}")
+        else:
+            print("  None")
+        
+        print(f"\nInterventions Performed:")
+        if summary['interventions_performed']:
+            for intervention in summary['interventions_performed']:
+                print(f"  - {intervention}")
+        else:
+            print("  None")
+        
+        print(f"\nTriage Level Assigned: ESI Level {summary['triage_level_assigned']}")
         
         # Triage analysis
         triage = feedback["triage_analysis"]
-        print(f"\n🏷️  TRIAGE ANALYSIS")
-        print(f"Your Decision: ESI Level {triage['user_decision']['level']} ({triage['user_decision']['description']['name']})")
-        print(f"Expert Decision: ESI Level {triage['ground_truth']['level']} ({triage['ground_truth']['description']['name']})")
-        print(f"Result: {triage['comparison']['accuracy']}")
-        print(f"Direction: {triage['comparison']['direction']}")
+        print(f"\nTRIAGE ANALYSIS")
+        print(f"Your Decision: ESI Level {triage['user_level']}")
+        print(f"Expert Decision: ESI Level {triage['expert_level']}")
+        print(f"Result: {triage['comparison']}")
+        
+        # Patient outcomes
+        if triage['outcomes']:
+            print(f"\nPatient Outcomes:")
+            for outcome in triage['outcomes']:
+                print(f"  - {outcome}")
         
         # Clinical feedback
         clinical = feedback["clinical_feedback"]
         if clinical:
-            print(f"\n🏥 CLINICAL FEEDBACK")
+            print(f"\nACTUAL INTERVENTIONS IN ED")
+            print("The following interventions were actually performed:")
             for item in clinical:
-                print(f"  {item}")
-        
-        # Learning recommendations
-        learning = feedback["learning_recommendations"]
-        if learning:
-            print(f"\n📚 LEARNING RECOMMENDATIONS")
-            for item in learning:
-                print(f"  {item}")
+                print(f"  - {item}")
         
         print("\n" + "="*80)
     
@@ -306,7 +316,6 @@ class FeedbackEngine:
         
         total_sessions = len(self.session_history)
         correct_triages = sum(1 for s in self.session_history if s.correct_triage)
-        avg_time = sum(s.total_time for s in self.session_history) / total_sessions
         avg_score = sum(
             self._calculate_performance_metrics(s)["overall_score"] 
             for s in self.session_history
@@ -315,13 +324,11 @@ class FeedbackEngine:
         return {
             "total_sessions": total_sessions,
             "triage_accuracy": correct_triages / total_sessions,
-            "average_time": avg_time,
             "average_score": avg_score,
             "sessions": [
                 {
                     "case_id": s.case_id,
                     "correct_triage": s.correct_triage,
-                    "time": s.total_time,
                     "outcome": s.patient_final_state
                 }
                 for s in self.session_history

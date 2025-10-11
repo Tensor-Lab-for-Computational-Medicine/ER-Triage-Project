@@ -30,6 +30,30 @@ class Vitals:
 
 
 @dataclass
+class Interventions:
+    """Ground truth interventions from MIETIC dataset"""
+    # Procedures
+    invasive_ventilation: bool = False
+    intravenous: bool = False
+    intravenous_fluids: bool = False
+    intramuscular: bool = False
+    oral_medications: bool = False
+    nebulized_medications: bool = False
+    
+    # Medication tiers
+    tier1_med_usage_1h: bool = False
+    tier2_med_usage: bool = False
+    tier3_med_usage: bool = False
+    tier4_med_usage: bool = False
+    
+    # Critical procedures
+    critical_procedure: bool = False
+    
+    # Psychiatric
+    psychotropic_med_within_120min: bool = False
+
+
+@dataclass
 class Case:
     """Complete case information for simulation"""
     id: str
@@ -42,6 +66,20 @@ class Case:
     outcome: str
     expert_opinions: Dict[str, str]
     final_decision: str
+    interventions: Interventions
+    # Outcome data
+    outtime: Optional[str] = None
+    transfer2surgeryin1h: bool = False
+    transfer_to_surgery_beyond_1h: bool = False
+    transfer_to_icu_in_1h: bool = False
+    transfer_to_icu_beyond_1h: bool = False
+    transfer_within_1h: bool = False
+    transfer_beyond_1h: bool = False
+    expired_within_1h: bool = False
+    expired_beyond_1h: bool = False
+    red_cell_order_more_than_1: bool = False
+    transfusion_within_1h: bool = False
+    transfusion_beyond_1h: bool = False
 
 
 class DataLoader:
@@ -71,10 +109,10 @@ class DataLoader:
             
             for _, row in df.iterrows():
                 case = self._create_case_from_row(row)
-                if case:
+                if case and self._is_valid_case(case):
                     self.cases.append(case)
             
-            print(f"Loaded {len(self.cases)} cases from {self.csv_path}")
+            print(f"Loaded {len(self.cases)} valid cases from {self.csv_path}")
             
         except Exception as e:
             print(f"Error loading data: {e}")
@@ -96,6 +134,34 @@ class DataLoader:
                 return 9.0   # Very high pain
             else:
                 return None  # Unknown string value
+    
+    def _is_valid_case(self, case: Case) -> bool:
+        """Validate that all critical patient data is present"""
+        # Check all vitals are present
+        if any([
+            case.vitals.temp is None,
+            case.vitals.hr is None,
+            case.vitals.rr is None,
+            case.vitals.o2 is None,
+            case.vitals.sbp is None,
+            case.vitals.dbp is None,
+            case.vitals.pain is None
+        ]):
+            return False
+        
+        # Check complaint is valid
+        if not case.complaint or case.complaint == 'Unknown complaint':
+            return False
+        
+        # Check history is valid
+        if not case.history or case.history == 'No medical history available':
+            return False
+        
+        # Check acuity is valid (should be 1-5)
+        if case.acuity is None or case.acuity < 1 or case.acuity > 5:
+            return False
+        
+        return True
     
     def _create_case_from_row(self, row: pd.Series) -> Optional[Case]:
         """Convert a CSV row to a Case object"""
@@ -120,10 +186,10 @@ class DataLoader:
             
             # Extract case information
             case_id = f"{row.get('subject_id', 'unknown')}_{row.get('stay_id', 'unknown')}"
-            complaint = str(row.get('chiefcomplaint', 'Unknown complaint'))
-            history = str(row.get('tiragecase', 'No medical history available'))
+            complaint = str(row.get('chiefcomplaint')) if pd.notna(row.get('chiefcomplaint')) else 'Unknown complaint'
+            history = str(row.get('tiragecase')) if pd.notna(row.get('tiragecase')) else 'No medical history available'
             # Handle acuity - some values are strings like 'Critical', 'uta', etc.
-            acuity_value = row.get('acuity', 1)
+            acuity_value = row.get('acuity')
             if pd.notna(acuity_value):
                 try:
                     acuity = int(acuity_value)
@@ -135,9 +201,9 @@ class DataLoader:
                     elif 'uta' in acuity_str or 'unable' in acuity_str:
                         acuity = 1
                     else:
-                        acuity = 1  # Default to level 1 for unknown strings
+                        acuity = None  # Unknown string value - will be filtered out
             else:
-                acuity = 1
+                acuity = None  # Missing acuity - will be filtered out
             disposition = str(row.get('disposition', 'Unknown'))
             outcome = str(row.get('tiragecase', 'No outcome information'))
             
@@ -150,6 +216,25 @@ class DataLoader:
             
             final_decision = str(row.get('Final Decision', 'Unknown'))
             
+            # Extract intervention ground truth data
+            interventions = Interventions(
+                invasive_ventilation=bool(row.get('invasive_ventilation', 0)),
+                intravenous=bool(row.get('intravenous', 0)),
+                intravenous_fluids=bool(row.get('intravenous_fluids', 0)),
+                intramuscular=bool(row.get('intramuscular', 0)),
+                oral_medications=bool(row.get('oral_medications', 0)),
+                nebulized_medications=bool(row.get('nebulized_medications', 0)),
+                tier1_med_usage_1h=bool(row.get('tier1_med_usage_1h', 0)),
+                tier2_med_usage=bool(row.get('tier2_med_usage', 0)),
+                tier3_med_usage=bool(row.get('tier3_med_usage', 0)),
+                tier4_med_usage=bool(row.get('tier4_med_usage', 0)),
+                critical_procedure=bool(row.get('critical_procedure', 0)),
+                psychotropic_med_within_120min=bool(row.get('psychotropic_med_within_120min', 0))
+            )
+            
+            # Extract outcome data
+            outtime = str(row.get('outtime')) if pd.notna(row.get('outtime')) else None
+            
             return Case(
                 id=case_id,
                 demographics=demographics,
@@ -160,7 +245,21 @@ class DataLoader:
                 disposition=disposition,
                 outcome=outcome,
                 expert_opinions=expert_opinions,
-                final_decision=final_decision
+                final_decision=final_decision,
+                interventions=interventions,
+                # Outcome data
+                outtime=outtime,
+                transfer2surgeryin1h=bool(row.get('transfer2surgeryin1h', 0)),
+                transfer_to_surgery_beyond_1h=bool(row.get('transfer_to_surgery_beyond_1h', 0)),
+                transfer_to_icu_in_1h=bool(row.get('transfer_to_icu_in_1h', 0)),
+                transfer_to_icu_beyond_1h=bool(row.get('transfer_to_icu_beyond_1h', 0)),
+                transfer_within_1h=bool(row.get('transfer_within_1h', 0)),
+                transfer_beyond_1h=bool(row.get('transfer_beyond_1h', 0)),
+                expired_within_1h=bool(row.get('expired_within_1h', 0)),
+                expired_beyond_1h=bool(row.get('expired_beyond_1h', 0)),
+                red_cell_order_more_than_1=bool(row.get('red_cell_order_more_than_1', 0)),
+                transfusion_within_1h=bool(row.get('transfusion_within_1h', 0)),
+                transfusion_beyond_1h=bool(row.get('transfusion_beyond_1h', 0))
             )
             
         except Exception as e:

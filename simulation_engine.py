@@ -18,12 +18,25 @@ class PatientCondition(Enum):
 
 class InterventionType(Enum):
     """Types of interventions available"""
-    OXYGEN = "oxygen"
-    AIRWAY = "airway"
-    BLEEDING_CONTROL = "bleeding_control"
-    IV_FLUIDS = "iv_fluids"
-    PAIN_MANAGEMENT = "pain_management"
-    CARDIAC_MONITORING = "cardiac_monitoring"
+    # Procedures
+    INVASIVE_VENTILATION = "invasive_ventilation"
+    INTRAVENOUS = "intravenous"
+    INTRAVENOUS_FLUIDS = "intravenous_fluids"
+    INTRAMUSCULAR = "intramuscular"
+    ORAL_MEDICATIONS = "oral_medications"
+    NEBULIZED_MEDICATIONS = "nebulized_medications"
+    
+    # Medication tiers
+    TIER1_CRITICAL = "tier1_med_usage_1h"
+    TIER2_URGENT = "tier2_med_usage"
+    TIER3_MODERATE = "tier3_med_usage"
+    TIER4_ROUTINE = "tier4_med_usage"
+    
+    # Critical procedures
+    CRITICAL_PROCEDURE = "critical_procedure"
+    
+    # Psychiatric
+    PSYCHOTROPIC = "psychotropic_med_within_120min"
 
 
 @dataclass
@@ -33,10 +46,6 @@ class PatientState:
     deteriorating: bool = False
     dead: bool = False
     interventions: Set[InterventionType] = field(default_factory=set)
-    time_elapsed: int = 0  # in minutes
-    deterioration_timer: int = 0  # timer for deterioration progression
-    bleeding_present: bool = False
-    low_oxygen: bool = False
     
     def get_state(self) -> PatientCondition:
         """Get current patient state"""
@@ -60,24 +69,8 @@ class SimulationEngine:
     
     def _initialize_patient_conditions(self):
         """Initialize patient conditions based on case data"""
-        # Check for bleeding indicators in complaint/history
-        bleeding_keywords = ['bleeding', 'hemorrhage', 'laceration', 'wound', 'trauma', 'injury']
-        complaint_lower = self.case.complaint.lower()
-        history_lower = self.case.history.lower()
-        
-        self.patient_state.bleeding_present = any(
-            keyword in complaint_lower or keyword in history_lower 
-            for keyword in bleeding_keywords
-        )
-        
-        # Check for low oxygen saturation
-        if self.case.vitals.o2 is not None and self.case.vitals.o2 < 90:
-            self.patient_state.low_oxygen = True
-        
         # Log initial conditions
         self._log_action("Initial Assessment", {
-            "bleeding_detected": self.patient_state.bleeding_present,
-            "low_oxygen": self.patient_state.low_oxygen,
             "initial_vitals": {
                 "hr": self.case.vitals.hr,
                 "bp": f"{self.case.vitals.sbp}/{self.case.vitals.dbp}",
@@ -89,7 +82,6 @@ class SimulationEngine:
     def _log_action(self, action: str, details: Dict):
         """Log an action taken during simulation"""
         self.action_history.append({
-            "time": self.patient_state.time_elapsed,
             "action": action,
             "details": details,
             "patient_state": self.patient_state.get_state().value
@@ -103,129 +95,66 @@ class SimulationEngine:
         # Add intervention
         self.patient_state.interventions.add(intervention)
         
-        # Update patient state based on intervention
-        result = {"success": True, "message": f"{intervention.value} intervention performed."}
+        # Map to display names
+        intervention_names = {
+            InterventionType.INVASIVE_VENTILATION: "Perform Endotracheal Intubation",
+            InterventionType.INTRAVENOUS: "Start IV Access",
+            InterventionType.INTRAVENOUS_FLUIDS: "Start IV Fluids",
+            InterventionType.INTRAMUSCULAR: "Give IM Medication",
+            InterventionType.ORAL_MEDICATIONS: "Give Oral Medication",
+            InterventionType.NEBULIZED_MEDICATIONS: "Give Nebulized Treatment",
+            InterventionType.TIER1_CRITICAL: "Administer Emergency Medication",
+            InterventionType.TIER2_URGENT: "Administer Urgent Medication",
+            InterventionType.TIER3_MODERATE: "Administer Stabilizing Medication",
+            InterventionType.TIER4_ROUTINE: "Administer Routine Medication",
+            InterventionType.CRITICAL_PROCEDURE: "Perform Emergency Procedure",
+            InterventionType.PSYCHOTROPIC: "Administer Psychotropic Medication"
+        }
         
-        if intervention == InterventionType.OXYGEN:
-            if self.patient_state.low_oxygen:
-                self.patient_state.low_oxygen = False
-                result["message"] += " Oxygen saturation improving."
-            else:
-                result["message"] += " Oxygen administered prophylactically."
-        
-        elif intervention == InterventionType.BLEEDING_CONTROL:
-            if self.patient_state.bleeding_present:
-                self.patient_state.bleeding_present = False
-                result["message"] += " Bleeding controlled."
-            else:
-                result["message"] += " No active bleeding found."
-        
-        elif intervention == InterventionType.AIRWAY:
-            result["message"] += " Airway secured."
-        
-        elif intervention == InterventionType.IV_FLUIDS:
-            result["message"] += " IV access established and fluids started."
-        
-        elif intervention == InterventionType.PAIN_MANAGEMENT:
-            result["message"] += " Pain medication administered."
-        
-        elif intervention == InterventionType.CARDIAC_MONITORING:
-            result["message"] += " Cardiac monitoring initiated."
+        display_name = intervention_names.get(intervention, intervention.value)
+        result = {"success": True, "message": f"{display_name} performed."}
         
         self._log_action(f"Intervention: {intervention.value}", result)
         return result
     
-    def advance_time(self, minutes: int = 5) -> Dict:
-        """Advance simulation time and check for deterioration"""
+    def check_patient_status(self) -> Dict:
+        """Check current patient status and update state accordingly"""
         if self.patient_state.dead:
-            return {"message": "Patient is deceased. Time cannot advance."}
+            return {"message": "Patient is deceased."}
         
-        self.patient_state.time_elapsed += minutes
-        
-        # Check deterioration conditions
-        deterioration_occurred = False
-        
-        # Rule 1: Low oxygen without oxygen intervention
-        if (self.patient_state.low_oxygen and 
-            InterventionType.OXYGEN not in self.patient_state.interventions):
-            if not self.patient_state.deteriorating:
-                self.patient_state.deteriorating = True
-                self.patient_state.deterioration_timer = 0
-                deterioration_occurred = True
-                self._log_action("Deterioration", {"reason": "Low oxygen saturation without intervention"})
-        
-        # Rule 2: Bleeding without bleeding control
-        if (self.patient_state.bleeding_present and 
-            InterventionType.BLEEDING_CONTROL not in self.patient_state.interventions):
-            if not self.patient_state.deteriorating:
-                self.patient_state.deteriorating = True
-                self.patient_state.deterioration_timer = 0
-                deterioration_occurred = True
-                self._log_action("Deterioration", {"reason": "Active bleeding without control"})
-        
-        # If deteriorating, increment timer
-        if self.patient_state.deteriorating:
-            self.patient_state.deterioration_timer += minutes
-            
-            # Check if patient dies (after 10 minutes of deterioration)
-            if self.patient_state.deterioration_timer >= 10:
-                self.patient_state.dead = True
-                self._log_action("Death", {"reason": "Prolonged deterioration without intervention"})
-                return {"message": "Patient has died due to prolonged deterioration."}
-        
-        # Check if patient stabilizes (interventions were effective)
-        if (self.patient_state.deteriorating and 
-            not self.patient_state.low_oxygen and 
-            not self.patient_state.bleeding_present):
-            self.patient_state.deteriorating = False
-            self.patient_state.deterioration_timer = 0
-            self._log_action("Stabilization", {"reason": "Effective interventions applied"})
-            return {"message": "Patient has stabilized with interventions."}
-        
-        if deterioration_occurred:
-            return {"message": f"Patient is deteriorating. Time elapsed: {self.patient_state.time_elapsed} minutes."}
-        
-        return {"message": f"Time advanced by {minutes} minutes. Patient remains stable."}
+        # Patient status is now based on MIETIC ground truth, not artificial rules
+        return {"message": "Patient remains stable."}
     
     def get_patient_status(self) -> Dict:
         """Get current patient status"""
         return {
             "state": self.patient_state.get_state().value,
-            "time_elapsed": self.patient_state.time_elapsed,
-            "interventions_performed": [i.value for i in self.patient_state.interventions],
-            "active_conditions": {
-                "bleeding": self.patient_state.bleeding_present,
-                "low_oxygen": self.patient_state.low_oxygen
-            },
-            "deterioration_timer": self.patient_state.deterioration_timer if self.patient_state.deteriorating else 0
+            "interventions_performed": [i.value for i in self.patient_state.interventions]
         }
     
     def get_available_interventions(self) -> List[InterventionType]:
-        """Get list of available interventions"""
+        """Get list of available interventions (excluding already performed)"""
         if self.patient_state.dead:
             return []
         
-        available = []
+        # All possible interventions
+        all_interventions = [
+            InterventionType.INVASIVE_VENTILATION,
+            InterventionType.INTRAVENOUS,
+            InterventionType.INTRAVENOUS_FLUIDS,
+            InterventionType.INTRAMUSCULAR,
+            InterventionType.ORAL_MEDICATIONS,
+            InterventionType.NEBULIZED_MEDICATIONS,
+            InterventionType.TIER1_CRITICAL,
+            InterventionType.TIER2_URGENT,
+            InterventionType.TIER3_MODERATE,
+            InterventionType.TIER4_ROUTINE,
+            InterventionType.CRITICAL_PROCEDURE,
+            InterventionType.PSYCHOTROPIC
+        ]
         
-        # Always available interventions
-        available.extend([
-            InterventionType.IV_FLUIDS,
-            InterventionType.PAIN_MANAGEMENT,
-            InterventionType.CARDIAC_MONITORING
-        ])
-        
-        # Condition-specific interventions
-        if self.patient_state.low_oxygen:
-            available.append(InterventionType.OXYGEN)
-        
-        if self.patient_state.bleeding_present:
-            available.append(InterventionType.BLEEDING_CONTROL)
-        
-        # Airway intervention for severe cases
-        if (self.case.acuity == 1 or 
-            "unresponsive" in self.case.complaint.lower() or
-            "respiratory distress" in self.case.complaint.lower()):
-            available.append(InterventionType.AIRWAY)
+        # Filter out interventions that have already been performed
+        available = [i for i in all_interventions if i not in self.patient_state.interventions]
         
         return available
     
@@ -238,7 +167,6 @@ class SimulationEngine:
         return {
             "case_id": self.case.id,
             "final_state": self.patient_state.get_state().value,
-            "total_time": self.patient_state.time_elapsed,
             "interventions_performed": [i.value for i in self.patient_state.interventions],
             "total_actions": len(self.action_history),
             "deterioration_occurred": self.patient_state.deteriorating or self.patient_state.dead,
@@ -246,16 +174,26 @@ class SimulationEngine:
         }
     
     def _get_missed_critical_interventions(self) -> List[str]:
-        """Identify critical interventions that were missed"""
+        """Identify critical interventions that were missed based on ground truth"""
         missed = []
         
-        if (self.patient_state.low_oxygen and 
-            InterventionType.OXYGEN not in self.patient_state.interventions):
-            missed.append("oxygen")
+        # Compare user's interventions against ground truth from case data
+        ground_truth = self.case.interventions
+        user_interventions = {i.value for i in self.patient_state.interventions}
         
-        if (self.patient_state.bleeding_present and 
-            InterventionType.BLEEDING_CONTROL not in self.patient_state.interventions):
-            missed.append("bleeding_control")
+        # Check each ground truth intervention
+        if ground_truth.invasive_ventilation and 'invasive_ventilation' not in user_interventions:
+            missed.append("invasive_ventilation")
+        if ground_truth.intravenous and 'intravenous' not in user_interventions:
+            missed.append("intravenous")
+        if ground_truth.intravenous_fluids and 'intravenous_fluids' not in user_interventions:
+            missed.append("intravenous_fluids")
+        if ground_truth.tier1_med_usage_1h and 'tier1_med_usage_1h' not in user_interventions:
+            missed.append("tier1_critical")
+        if ground_truth.tier2_med_usage and 'tier2_med_usage' not in user_interventions:
+            missed.append("tier2_urgent")
+        if ground_truth.critical_procedure and 'critical_procedure' not in user_interventions:
+            missed.append("critical_procedure")
         
         return missed
 
