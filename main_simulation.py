@@ -1,16 +1,16 @@
 """
 Main Simulation Loop for ER Triage Simulation
-Integrates all components to provide complete simulation experience
+Integrates all components to provide structured triage workflow
 """
 
 import sys
 import os
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 from data_loader import DataLoader, Case
-from simulation_engine import SimulationEngine
 from user_interface import UserInterface
-from triage_classification import TriageClassifier
 from feedback_engine import FeedbackEngine, SimulationSession
+from llm_interface import PatientLLM
+from structured_triage import StructuredTriageWorkflow
 
 
 class ERTriageSimulation:
@@ -21,11 +21,23 @@ class ERTriageSimulation:
         self.csv_path = csv_path
         self.data_loader: Optional[DataLoader] = None
         self.user_interface = UserInterface()
-        self.triage_classifier = TriageClassifier()
         self.feedback_engine = FeedbackEngine()
-        self.current_case: Optional[Case] = None
-        self.current_simulation: Optional[SimulationEngine] = None
         self.session_history: List[SimulationSession] = []
+        
+        # Initialize LLM interface
+        try:
+            self.llm = PatientLLM()
+        except ValueError as e:
+            print(f"Error initializing LLM: {e}")
+            print("Please create a .env file with your OPENAI_API_KEY")
+            sys.exit(1)
+        
+        # Initialize structured workflow
+        self.workflow = StructuredTriageWorkflow(
+            self.user_interface, 
+            self.llm,
+            self.feedback_engine
+        )
         
         # Initialize data loader
         try:
@@ -36,7 +48,7 @@ class ERTriageSimulation:
             sys.exit(1)
     
     def run_single_simulation(self, case: Optional[Case] = None) -> Optional[SimulationSession]:
-        """Run a single simulation session"""
+        """Run a single structured triage simulation"""
         # Get case
         if case is None:
             case = self.data_loader.get_random_case()
@@ -45,92 +57,16 @@ class ERTriageSimulation:
             print("No cases available")
             return None
         
-        self.current_case = case
-        self.current_simulation = SimulationEngine(case)
-        
-        # Reset tracked vitals for new simulation
+        # Reset UI state for new simulation
         self.user_interface.checked_vitals = []
+        self.user_interface.chief_complaint_question = None
+        self.user_interface.medical_history_question = None
         
-        # Display case summary
-        self.user_interface.display_case_summary(case)
+        # Run the structured workflow
+        session = self.workflow.run_complete_workflow(case)
         
-        # Display available commands
-        self.user_interface.display_commands()
-        
-        # Run interactive session
-        user_actions = []
-        self.user_interface.current_simulation = self.current_simulation
-        
-        try:
-            # Main interaction loop
-            while True:
-                if self.current_simulation.patient_state.dead:
-                    print("Patient has died. Simulation ending.")
-                    break
-                
-                # Display status summary before each command
-                self.user_interface.display_status_summary(self.current_simulation)
-                
-                command = self.user_interface.get_user_input("\nEnter your next command: ")
-                
-                if command == 'help':
-                    self.user_interface.display_help()
-                elif command == 'vitals':
-                    self.user_interface.display_vitals(case)
-                elif command == 'history':
-                    self.user_interface.display_medical_history(case)
-                elif command == 'complaint':
-                    self.user_interface.display_complaint(case)
-                elif command == 'interventions':
-                    self.user_interface.display_available_interventions(self.current_simulation)
-                elif command == 'triage':
-                    self.user_interface.display_triage_options()
-                    triage_level = self.user_interface.get_triage_classification()
-                    if triage_level:
-                        print(f"[SUCCESS] Triage Level {triage_level} assigned.")
-                        user_actions.append({
-                            'action': 'triage',
-                            'level': triage_level
-                        })
-                        break
-                    else:
-                        continue
-                elif command == 'quit':
-                    print("Exiting simulation...")
-                    return None
-                else:
-                    print("Unknown command. Type 'help' for available commands.")
-        
-        except KeyboardInterrupt:
-            print("\nSimulation interrupted by user.")
-            return None
-        
-        # Create session record
-        if user_actions:
-            last_triage_action = next((a for a in reversed(user_actions) if a['action'] == 'triage'), None)
-            if last_triage_action:
-                triage_level = last_triage_action['level']
-            else:
-                print("[WARNING] No triage level assigned. Using suggested level.")
-                triage_level = self.triage_classifier.suggest_triage_level(case, self.current_simulation)
-        else:
-            print("[WARNING] No actions taken. Using suggested triage level.")
-            triage_level = self.triage_classifier.suggest_triage_level(case, self.current_simulation)
-        
-        session = self.feedback_engine.create_session_record(
-            case, self.current_simulation, triage_level, user_actions,
-            self.user_interface.checked_vitals
-        )
-        
-        # Generate and display feedback
-        feedback = self.feedback_engine.generate_comprehensive_feedback(
-            session, case, self.current_simulation
-        )
-        self.feedback_engine.display_feedback(feedback)
-        
-        # Save session
-        self.feedback_engine.save_session(session)
-        self.session_history.append(session)
+        if session:
+            self.session_history.append(session)
         
         return session
     

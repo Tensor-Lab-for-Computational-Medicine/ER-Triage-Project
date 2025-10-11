@@ -15,8 +15,9 @@ class UserInterface:
     def __init__(self):
         """Initialize the user interface"""
         self.current_simulation: Optional[SimulationEngine] = None
-        self.user_actions: List[Dict] = []
         self.checked_vitals: List[Dict] = []  # Track vitals that have been checked
+        self.chief_complaint_question: Optional[str] = None
+        self.medical_history_question: Optional[str] = None
     
     def display_welcome(self):
         """Display welcome message and instructions"""
@@ -290,15 +291,121 @@ class UserInterface:
             choice = self.get_user_input("Enter triage level (1-5): ")
             if choice in ['1', '2', '3', '4', '5']:
                 triage_level = int(choice)
-                self.user_actions.append({
-                    'action': 'triage',
-                    'level': triage_level
-                })
                 return triage_level
             elif choice == 'quit':
                 return None
             else:
                 print("Invalid choice. Please enter 1, 2, 3, 4, or 5.")
+    
+    def prompt_chief_complaint_question(self) -> str:
+        """Prompt user to ask about chief complaint"""
+        print("\nWhat would you like to ask the patient about their chief complaint?")
+        question = input("> ").strip()
+        return question
+    
+    def prompt_medical_history_question(self) -> str:
+        """Prompt user to ask about medical history"""
+        print("\nWhat would you like to ask the patient about their medical history?")
+        question = input("> ").strip()
+        return question
+    
+    def display_llm_response(self, response: str):
+        """Display patient's response from LLM"""
+        print(f"\nPatient: {response}")
+    
+    def prompt_vitals_selection(self, available_vitals: List[tuple]) -> List[int]:
+        """
+        Prompt user to select multiple vitals
+        
+        Args:
+            available_vitals: List of (name, value) tuples
+            
+        Returns:
+            List of selected indices
+        """
+        print("\nAvailable vital signs:")
+        for i, (name, _) in enumerate(available_vitals, 1):
+            print(f"  {i}. {name}")
+        
+        while True:
+            print("\nEnter vital sign numbers separated by commas (e.g., 1,2,4)")
+            print("Or type 'all' to select all vitals:")
+            choice = input("> ").strip().lower()
+            
+            if choice == 'all':
+                return list(range(len(available_vitals)))
+            
+            try:
+                # Parse comma-separated numbers
+                selections = [int(x.strip()) - 1 for x in choice.split(',')]
+                
+                # Validate all selections
+                if all(0 <= sel < len(available_vitals) for sel in selections):
+                    return selections
+                else:
+                    print(f"Invalid selection. Please enter numbers between 1 and {len(available_vitals)}")
+            except ValueError:
+                print("Invalid input. Please enter numbers separated by commas (e.g., 1,2,4)")
+    
+    def display_all_vital_results(self, vital_results: List[Dict]):
+        """Display all vital sign results at once"""
+        print("\n" + "="*60)
+        print("VITAL SIGNS RESULTS")
+        print("="*60)
+        for vital in vital_results:
+            print(f"  {vital['name']}: {vital['value']}")
+        print("="*60)
+    
+    def prompt_intervention_selection(self, available_interventions: List) -> List:
+        """
+        Prompt user to select multiple interventions
+        
+        Args:
+            available_interventions: List of InterventionType enums
+            
+        Returns:
+            List of selected InterventionType objects
+        """
+        # Map to display names
+        display_names = {
+            "invasive_ventilation": "Perform Endotracheal Intubation",
+            "intravenous": "Start IV Access",
+            "intravenous_fluids": "Start IV Fluids",
+            "intramuscular": "Give IM Medication",
+            "oral_medications": "Give Oral Medication",
+            "nebulized_medications": "Give Nebulized Treatment",
+            "tier1_med_usage_1h": "Administer Emergency Medication",
+            "tier2_med_usage": "Administer Urgent Medication",
+            "tier3_med_usage": "Administer Stabilizing Medication",
+            "tier4_med_usage": "Administer Routine Medication",
+            "critical_procedure": "Perform Emergency Procedure",
+            "psychotropic_med_within_120min": "Administer Psychotropic Medication"
+        }
+        
+        print("\nAvailable interventions:")
+        for i, intervention in enumerate(available_interventions, 1):
+            display_name = display_names.get(intervention.value, intervention.value.replace('_', ' ').title())
+            print(f"  {i}. {display_name}")
+        
+        while True:
+            print("\nEnter intervention numbers separated by commas (e.g., 1,2,7)")
+            print("Or type 'none' to skip interventions:")
+            choice = input("> ").strip().lower()
+            
+            if choice == 'none':
+                return []
+            
+            try:
+                # Parse comma-separated numbers
+                selections = [int(x.strip()) - 1 for x in choice.split(',')]
+                
+                # Validate all selections
+                if all(0 <= sel < len(available_interventions) for sel in selections):
+                    return [available_interventions[sel] for sel in selections]
+                else:
+                    print(f"Invalid selection. Please enter numbers between 1 and {len(available_interventions)}")
+            except ValueError:
+                print("Invalid input. Please enter numbers separated by commas (e.g., 1,2,7)")
     
     def display_help(self):
         """Display help information"""

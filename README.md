@@ -1,15 +1,15 @@
 # ER Triage Simulation (MIMIC/MIETIC)
 
-An interactive simulation where users practice emergency department triage by evaluating patients and assigning triage classifications based on real MIETIC validation samples.
+An interactive simulation that provides a structured, realistic ED triage experience using OpenAI LLMs for natural patient interactions and real MIETIC validation data.
 
 ## Features
 
-- **Real Data**: Uses MIETIC validation samples with expert annotations
-- **Interactive Simulation**: CLI-based interface for patient assessment
-- **Selective Assessment**: Check vitals interactively and perform interventions as needed
-- **Triage Classification**: ESI Level 1-5 classification with expert comparison
-- **Comprehensive Feedback**: Analysis comparing user decisions with ground truth
-- **Continuous Practice**: Keep practicing with new cases until you choose to exit
+- **Structured Workflow**: Follows authentic ED triage process (5 steps, 3-5 minutes)
+- **AI-Powered Patient Responses**: Natural language conversations using OpenAI GPT models
+- **Real MIETIC Data**: Patient information grounded in validated emergency department data
+- **Interactive Assessment**: Ask questions, select vitals, order interventions
+- **Expert Comparison**: Compare your decisions to real ED outcomes and expert assessments
+- **Continuous Practice**: Practice multiple cases in succession
 
 ## Installation
 
@@ -18,7 +18,12 @@ An interactive simulation where users practice emergency department triage by ev
    ```bash
    pip install -r requirements.txt
    ```
-3. Ensure `MIETIC-validate-samples.csv` is in the project directory
+3. Create a `.env` file with your OpenAI API key:
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your OPENAI_API_KEY
+   ```
+4. Ensure `MIETIC-validate-samples.csv` is in the project directory
 
 ## Usage
 
@@ -27,57 +32,63 @@ Run the main simulation:
 python main_simulation.py
 ```
 
-The simulation will start immediately with a new patient case. After completing each case, you'll be asked if you want to continue with another simulation or exit.
+The simulation follows a structured 5-step triage workflow. After completing each case, you'll be asked if you want to continue with another simulation or exit.
 
-### Available Commands During Simulation
+### Structured Triage Workflow
 
-- `help` - Show available commands
-- `vitals` - Check patient vital signs (interactive selection)
-- `history` - Review patient medical history
-- `complaint` - Review chief complaint
-- `interventions` - Perform interventions (interactive selection)
-- `triage` - Assign triage classification (ESI Level 1-5)
-- `quit` - Exit simulation
+The simulation guides you through a realistic ED triage process:
 
-### Available Interventions (Based on MIETIC Data)
+**Step 1: Patient Identification**
+- Patient's age, sex, and arrival transport method are displayed
 
-**Procedures:**
-- Endotracheal Intubation
-- IV Access
-- IV Fluids
-- IM Medication
-- Oral Medication
-- Nebulized Treatment
+**Step 2: Chief Complaint** 
+- Ask the patient about their chief complaint in natural language
+- The AI patient responds based on real MIETIC data
+- Example: "What brought you to the emergency department today?"
 
-**Medications:**
-- Emergency Medication (Tier 1)
-- Urgent Medication (Tier 2)
-- Stabilizing Medication (Tier 3)
-- Routine Medication (Tier 4)
+**Step 3: Vital Signs Measurement**
+- Select which vitals to check (can select multiple at once)
+- Options: Heart Rate, Blood Pressure, Respiratory Rate, O2 Saturation, Temperature, Pain Level
+- Results displayed all at once
+- You get one chance to select vitals
 
-**Critical Procedures:**
-- Emergency Procedure
-- Psychotropic Medication
+**Step 4: Medical History**
+- Ask one question about the patient's medical history
+- The AI patient responds as a layperson based on their actual medical history
+- Example: "Do you have any chronic medical conditions?"
 
-### How It Works
+**Step 5: Triage Assignment**
+- Assign an ESI triage level (1-5)
 
-1. A patient arrives with limited information (age, sex, transport method, chief complaint)
-2. You check vitals and review history/complaint as needed
-3. You perform interventions based on your assessment
-4. Before each command, you see a summary of vitals checked and interventions performed
-5. You assign a triage level (ESI 1-5)
-6. You receive feedback comparing your decisions to expert assessment and actual outcomes
-7. Continue with another case or exit
+**Step 6: Intervention Ordering**
+- Select interventions to perform (can select multiple at once)
+- Available interventions based on real MIETIC data
+- You get one chance to order interventions
+
+**Step 7: Feedback Report**
+- Comprehensive feedback comparing your assessment to expert decisions
+- Patient outcomes from actual ED visit
+- Ground truth interventions that were performed
+
+### Available Interventions
+
+Based on MIETIC dataset:
+- **Procedures**: Intubation, IV Access, IV Fluids, IM/Oral/Nebulized Medications
+- **Medications**: Emergency (Tier 1), Urgent (Tier 2), Stabilizing (Tier 3), Routine (Tier 4)
+- **Critical**: Emergency Procedures, Psychotropic Medications
 
 ## Project Structure
 
-- `main_simulation.py` - Main entry point and continuous simulation loop
+- `main_simulation.py` - Main entry point and simulation orchestration
+- `structured_triage.py` - Manages the 7-step triage workflow
+- `llm_interface.py` - OpenAI integration for patient responses
 - `data_loader.py` - Loads and processes MIETIC CSV data into Case objects
 - `simulation_engine.py` - Patient state tracking and intervention management
-- `user_interface.py` - CLI interface with interactive vital/intervention selection
-- `triage_classification.py` - ESI triage level classification and validation
-- `feedback_engine.py` - Feedback generation comparing user actions to ground truth
-- `requirements.txt` - Python dependencies (pandas, numpy, jupyter)
+- `user_interface.py` - CLI interface for user interactions
+- `triage_classification.py` - ESI triage level classification
+- `feedback_engine.py` - Feedback generation with outcome analysis
+- `requirements.txt` - Python dependencies
+- `.env` - OpenAI API credentials (create from .env.example)
 - `MIETIC-validate-samples.csv` - Patient data source with expert annotations
 
 ## Data Source
@@ -91,12 +102,12 @@ The simulation uses the MIETIC (MIMIC-IV Emergency Department Triage Classificat
 
 ## Learning Objectives
 
-- Practice emergency department triage decision-making
-- Learn ESI (Emergency Severity Index) classification criteria (Levels 1-5)
-- Develop systematic patient assessment skills
+- Practice realistic emergency department triage workflows
+- Learn ESI (Emergency Severity Index) classification (Levels 1-5)
+- Develop systematic patient assessment and interview skills
 - Compare decisions with expert assessments and real patient outcomes
-- Learn which interventions are typically performed for different conditions
-- Improve clinical reasoning and prioritization skills
+- Learn appropriate interventions for different clinical presentations
+- Practice natural language patient communication
 
 ## Example Session
 
@@ -105,24 +116,36 @@ The simulation uses the MIETIC (MIMIC-IV Emergency Department Triage Classificat
 ER TRIAGE SIMULATION - MIETIC/MIMIC
 ============================================================
 
-NEW PATIENT ARRIVAL
+Data loaded successfully: 150 cases available
+
+============================================================
+PATIENT ARRIVAL
+============================================================
 Age: 62 years
 Sex: M
 Arrival Transport: AMBULANCE
-Chief Complaint: Epigastric pain
-
-Simulation started.
-Type 'help' for available commands.
-
-============================================================
-VITALS CHECKED: None
-
-INTERVENTIONS PERFORMED: None
 ============================================================
 
-Enter your next command: vitals
+============================================================
+STEP 1: CHIEF COMPLAINT
+============================================================
+Ask the patient about their chief complaint.
 
-AVAILABLE VITAL SIGNS:
+What would you like to ask the patient about their chief complaint?
+> What brought you to the emergency department today?
+
+Asking patient...
+
+Patient: I've been having really bad pain in my upper stomach, right in the 
+middle. It started about 2 hours ago and it's getting worse.
+
+============================================================
+STEP 2: VITAL SIGNS MEASUREMENT
+============================================================
+Select which vital signs you want to measure.
+You can select multiple vitals at once.
+
+Available vital signs:
   1. Heart Rate
   2. Blood Pressure
   3. Respiratory Rate
@@ -130,68 +153,76 @@ AVAILABLE VITAL SIGNS:
   5. Temperature
   6. Pain Level
 
-Enter vital sign number (1-6) or 'back' to return: 1
+Enter vital sign numbers separated by commas (e.g., 1,2,4)
+Or type 'all' to select all vitals:
+> 1,2,4,6
 
 ============================================================
-VITALS CHECKED:
-  - Heart Rate: 85 bpm
-
-INTERVENTIONS PERFORMED: None
+VITAL SIGNS RESULTS
+============================================================
+  Heart Rate: 85 bpm
+  Blood Pressure: 132/78 mmHg
+  Oxygen Saturation: 98%
+  Pain Level: 8/10
 ============================================================
 
-Enter your next command: vitals
+============================================================
+STEP 3: MEDICAL HISTORY
+============================================================
+Ask the patient one question about their medical history.
 
-AVAILABLE VITAL SIGNS:
-  1. Heart Rate
-  2. Blood Pressure
-  ...
+What would you like to ask the patient about their medical history?
+> Do you have any chronic medical conditions?
 
-Enter vital sign number (1-6) or 'back' to return: 6
+Asking patient...
 
-[ALERT] Severe pain (pain level 10/10)
+Patient: Yes, I have diabetes and high blood pressure. I take metformin and 
+lisinopril daily.
 
 ============================================================
-VITALS CHECKED:
-  - Heart Rate: 85 bpm
-  - Pain Level: 10/10
-
-INTERVENTIONS PERFORMED: None
+STEP 4: TRIAGE ASSIGNMENT
 ============================================================
-
-Enter your next command: interventions
-
-AVAILABLE INTERVENTIONS:
-  1. Perform Endotracheal Intubation
-  2. Start IV Access
-  3. Start IV Fluids
-  ...
-
-Enter intervention number (1-12) or 'back' to return: 7
-
-[SUCCESS] Administer Emergency Medication performed.
-
-============================================================
-VITALS CHECKED:
-  - Heart Rate: 85 bpm
-  - Pain Level: 10/10
-
-INTERVENTIONS PERFORMED:
-  - Administer Emergency Medication
-============================================================
-
-Enter your next command: triage
-
-TRIAGE CLASSIFICATION
-Please select the appropriate triage level:
-1. ESI Level 1 - Resuscitation (Immediate life-threatening)
-2. ESI Level 2 - Emergent (High risk, unstable)
-3. ESI Level 3 - Urgent (Stable but needs prompt care)
-4. ESI Level 4 - Less Urgent (Stable, can wait)
+ESI TRIAGE LEVELS:
+1. ESI Level 1 - Resuscitation (Immediate, life-threatening)
+2. ESI Level 2 - Emergent (High risk, severe pain/distress)
+3. ESI Level 3 - Urgent (Moderate risk, stable vitals)
+4. ESI Level 4 - Less Urgent (Minor injuries, stable)
 5. ESI Level 5 - Non-Urgent (Minor conditions)
 
+Type the number (1-5) to select triage level.
 Enter triage level (1-5): 2
 
 [SUCCESS] Triage Level 2 assigned.
+
+============================================================
+STEP 5: INTERVENTION ORDERING
+============================================================
+Select which interventions you want to perform.
+You can select multiple interventions at once.
+
+Available interventions:
+  1. Perform Endotracheal Intubation
+  2. Start IV Access
+  3. Start IV Fluids
+  4. Give IM Medication
+  5. Give Oral Medication
+  6. Give Nebulized Treatment
+  7. Administer Emergency Medication
+  8. Administer Urgent Medication
+  9. Administer Stabilizing Medication
+  10. Administer Routine Medication
+  11. Perform Emergency Procedure
+  12. Administer Psychotropic Medication
+
+Enter intervention numbers separated by commas (e.g., 1,2,7)
+Or type 'none' to skip interventions:
+> 2,3,7
+
+[SUCCESS] 3 intervention(s) performed.
+
+============================================================
+GENERATING FEEDBACK REPORT
+============================================================
 
 ================================================================================
 SIMULATION FEEDBACK REPORT
@@ -201,11 +232,19 @@ SESSION SUMMARY
 Arrival Method: AMBULANCE
 Chief Complaint: Epigastric pain
 
+Questions Asked:
+  Chief Complaint: What brought you to the emergency department today?
+  Medical History: Do you have any chronic medical conditions?
+
 Vitals Checked:
   - Heart Rate: 85 bpm
-  - Pain Level: 10/10
+  - Blood Pressure: 132/78 mmHg
+  - Oxygen Saturation: 98%
+  - Pain Level: 8/10
 
 Interventions Performed:
+  - Start IV Access
+  - Start IV Fluids
   - Administer Emergency Medication
 
 Triage Level Assigned: ESI Level 2
@@ -216,15 +255,19 @@ Expert Decision: ESI Level 2
 Result: Correct triage
 
 Patient Outcomes:
-  - Disposition: ADMIT
+  - Disposition: Admitted
+  - Patient transferred to surgery within 1 hour
+  - Multiple red cell units ordered
 
 ACTUAL INTERVENTIONS IN ED
 The following interventions were actually performed:
   - IV access established
+  - IV fluids administered
   - Emergency medications (Tier 1) administered
 
 ================================================================================
 
+============================================================
 Start another simulation? (yes/no):
 ```
 

@@ -26,6 +26,8 @@ class SimulationSession:
     correct_triage: bool
     session_timestamp: str
     checked_vitals: List[Dict] = None
+    chief_complaint_question: Optional[str] = None
+    medical_history_question: Optional[str] = None
 
 
 class FeedbackEngine:
@@ -102,6 +104,8 @@ class FeedbackEngine:
         return {
             "arrival_method": case.demographics.transport,
             "chief_complaint": case.complaint,
+            "chief_complaint_question": session.chief_complaint_question,
+            "medical_history_question": session.medical_history_question,
             "vitals_checked": session.checked_vitals if session.checked_vitals else [],
             "interventions_performed": interventions_display,
             "triage_level_assigned": session.user_triage_level
@@ -261,6 +265,12 @@ class FeedbackEngine:
         print(f"\nSESSION SUMMARY")
         print(f"Arrival Method: {summary['arrival_method']}")
         print(f"Chief Complaint: {summary['chief_complaint']}")
+        
+        print(f"\nQuestions Asked:")
+        if summary.get('chief_complaint_question'):
+            print(f"  Chief Complaint: {summary['chief_complaint_question']}")
+        if summary.get('medical_history_question'):
+            print(f"  Medical History: {summary['medical_history_question']}")
         
         print(f"\nVitals Checked:")
         if summary['vitals_checked']:
