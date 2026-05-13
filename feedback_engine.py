@@ -28,6 +28,7 @@ class SimulationSession:
     checked_vitals: List[Dict] = None
     chief_complaint_question: Optional[str] = None
     medical_history_question: Optional[str] = None
+    triage_rationale: Optional[str] = None
 
 
 class FeedbackEngine:
@@ -106,6 +107,7 @@ class FeedbackEngine:
             "chief_complaint": case.complaint,
             "chief_complaint_question": session.chief_complaint_question,
             "medical_history_question": session.medical_history_question,
+            "triage_rationale": session.triage_rationale,
             "vitals_checked": session.checked_vitals if session.checked_vitals else [],
             "interventions_performed": interventions_display,
             "triage_level_assigned": session.user_triage_level
@@ -161,11 +163,29 @@ class FeedbackEngine:
         elif case.transfusion_beyond_1h:
             outcomes.append("Blood transfusion after 1 hour")
         
+        all_vitals = self._format_all_vitals(case)
+        abnormal_vitals = self._identify_abnormal_vitals(case)
+        checked_names = {vital.get("name") for vital in session.checked_vitals or []}
+        missing_vitals = [
+            vital["name"] for vital in all_vitals
+            if vital["name"] not in checked_names
+        ]
+        reference_reasoning = self._generate_reference_reasoning(case, abnormal_vitals)
+        missed_assessment = self._generate_missed_assessment(
+            session, case, missing_vitals, abnormal_vitals
+        )
+        
         return {
             "user_level": session.user_triage_level,
             "expert_level": session.ground_truth_level,
             "comparison": direction,
-            "outcomes": outcomes
+            "outcomes": outcomes,
+            "all_vitals": all_vitals,
+            "abnormal_vitals": abnormal_vitals,
+            "missing_vitals": missing_vitals,
+            "reference_reasoning": reference_reasoning,
+            "missed_assessment": missed_assessment,
+            "rationale_feedback": self._generate_rationale_feedback(session, case)
         }
     
     def _generate_clinical_feedback(self, session: SimulationSession, 
@@ -175,52 +195,202 @@ class FeedbackEngine:
         
         # Map intervention field names to display names
         display_names = {
-            "invasive_ventilation": "Endotracheal intubation performed",
-            "intravenous": "IV access established",
-            "intravenous_fluids": "IV fluids administered",
-            "intramuscular": "IM medication administered",
-            "oral_medications": "Oral medication administered",
-            "nebulized_medications": "Nebulized treatment administered",
-            "tier1_med_usage_1h": "Emergency medications (Tier 1) administered",
-            "tier2_med_usage": "Urgent medications (Tier 2) administered",
-            "tier3_med_usage": "Stabilizing medications (Tier 3) administered",
-            "tier4_med_usage": "Routine medications (Tier 4) administered",
-            "critical_procedure": "Critical procedure performed",
-            "psychotropic_med_within_120min": "Psychotropic medication administered"
+            "invasive_ventilation": ("Endotracheal intubation performed", "Airway protection or ventilatory failure was serious enough to require definitive airway management."),
+            "intravenous": ("IV access established", "IV access supports blood draws, medication delivery, fluids, contrast imaging, and rapid escalation if the patient worsens."),
+            "intravenous_fluids": ("IV fluids administered", "Fluids are commonly used when dehydration, poor perfusion, sepsis, bleeding, or hypotension is part of the early ED concern."),
+            "intramuscular": ("IM medication administered", "IM medication suggests a need for treatment when oral or IV delivery was not the best immediate route."),
+            "oral_medications": ("Oral medication administered", "Oral medication suggests the patient was stable enough for non-parenteral symptom treatment or routine therapy."),
+            "nebulized_medications": ("Nebulized treatment administered", "Nebulized therapy is most often tied to wheezing, bronchospasm, or respiratory symptoms needing inhaled treatment."),
+            "tier1_med_usage_1h": ("Emergency medications (Tier 1) administered", "A time-sensitive medication was given early, which is a strong signal that the ED team treated this as potentially high acuity."),
+            "tier2_med_usage": ("Urgent medications (Tier 2) administered", "Urgent medication use suggests active treatment needs beyond a low-resource visit."),
+            "tier3_med_usage": ("Stabilizing medications (Tier 3) administered", "Stabilizing medication use supports an ESI resource need even when the patient is not crashing."),
+            "tier4_med_usage": ("Routine medications (Tier 4) administered", "Routine medication use may reflect lower acuity treatment, but it still helps estimate resource needs."),
+            "critical_procedure": ("Critical procedure performed", "A critical procedure is a major escalation signal and should push the learner to revisit acuity and immediate safety risks."),
+            "psychotropic_med_within_120min": ("Psychotropic medication administered", "Psychotropic medication can indicate agitation, severe distress, or behavioral health needs requiring monitored ED care.")
         }
         
         # List all ground truth interventions that occurred
         ground_truth = case.interventions
         
         if ground_truth.invasive_ventilation:
-            feedback.append(display_names["invasive_ventilation"])
+            feedback.append(self._intervention_feedback_item("invasive_ventilation", display_names))
         if ground_truth.intravenous:
-            feedback.append(display_names["intravenous"])
+            feedback.append(self._intervention_feedback_item("intravenous", display_names))
         if ground_truth.intravenous_fluids:
-            feedback.append(display_names["intravenous_fluids"])
+            feedback.append(self._intervention_feedback_item("intravenous_fluids", display_names))
         if ground_truth.intramuscular:
-            feedback.append(display_names["intramuscular"])
+            feedback.append(self._intervention_feedback_item("intramuscular", display_names))
         if ground_truth.oral_medications:
-            feedback.append(display_names["oral_medications"])
+            feedback.append(self._intervention_feedback_item("oral_medications", display_names))
         if ground_truth.nebulized_medications:
-            feedback.append(display_names["nebulized_medications"])
+            feedback.append(self._intervention_feedback_item("nebulized_medications", display_names))
         if ground_truth.tier1_med_usage_1h:
-            feedback.append(display_names["tier1_med_usage_1h"])
+            feedback.append(self._intervention_feedback_item("tier1_med_usage_1h", display_names))
         if ground_truth.tier2_med_usage:
-            feedback.append(display_names["tier2_med_usage"])
+            feedback.append(self._intervention_feedback_item("tier2_med_usage", display_names))
         if ground_truth.tier3_med_usage:
-            feedback.append(display_names["tier3_med_usage"])
+            feedback.append(self._intervention_feedback_item("tier3_med_usage", display_names))
         if ground_truth.tier4_med_usage:
-            feedback.append(display_names["tier4_med_usage"])
+            feedback.append(self._intervention_feedback_item("tier4_med_usage", display_names))
         if ground_truth.critical_procedure:
-            feedback.append(display_names["critical_procedure"])
+            feedback.append(self._intervention_feedback_item("critical_procedure", display_names))
         if ground_truth.psychotropic_med_within_120min:
-            feedback.append(display_names["psychotropic_med_within_120min"])
-        
-        if not feedback:
-            feedback.append("No interventions were performed in the actual ED visit")
+            feedback.append(self._intervention_feedback_item("psychotropic_med_within_120min", display_names))
         
         return feedback
+
+    def _intervention_feedback_item(self, value: str, display_names: Dict) -> Dict:
+        """Create a structured intervention teaching item."""
+        name, explanation = display_names[value]
+        return {
+            "value": value,
+            "name": name,
+            "explanation": explanation
+        }
+
+    def _format_all_vitals(self, case: Case) -> List[Dict]:
+        """Return the complete triage vital set for feedback."""
+        vitals = case.vitals
+        formatted = []
+
+        if vitals.hr is not None:
+            formatted.append({"name": "Heart Rate", "value": f"{vitals.hr} bpm"})
+        if vitals.sbp is not None or vitals.dbp is not None:
+            sbp = int(vitals.sbp) if vitals.sbp is not None else "?"
+            dbp = int(vitals.dbp) if vitals.dbp is not None else "?"
+            formatted.append({"name": "Blood Pressure", "value": f"{sbp}/{dbp} mmHg"})
+        if vitals.rr is not None:
+            formatted.append({"name": "Respiratory Rate", "value": f"{vitals.rr} breaths/min"})
+        if vitals.o2 is not None:
+            formatted.append({"name": "Oxygen Saturation", "value": f"{vitals.o2}%"})
+        if vitals.temp is not None:
+            formatted.append({"name": "Temperature", "value": f"{vitals.temp}°F"})
+        if vitals.pain is not None:
+            formatted.append({"name": "Pain Level", "value": f"{vitals.pain}/10"})
+
+        return formatted
+
+    def _identify_abnormal_vitals(self, case: Case) -> List[Dict]:
+        """Flag vital signs that should affect triage reasoning."""
+        vitals = case.vitals
+        abnormal = []
+
+        if vitals.hr is not None:
+            if vitals.hr >= 130 or vitals.hr < 50:
+                abnormal.append({"name": "Heart Rate", "value": f"{vitals.hr} bpm", "severity": "critical", "reason": "danger-zone heart rate"})
+            elif vitals.hr >= 110 or vitals.hr < 60:
+                abnormal.append({"name": "Heart Rate", "value": f"{vitals.hr} bpm", "severity": "watch", "reason": "abnormal heart rate"})
+        if vitals.sbp is not None:
+            if vitals.sbp < 90 or vitals.sbp >= 180:
+                abnormal.append({"name": "Blood Pressure", "value": f"{int(vitals.sbp)}/{int(vitals.dbp)} mmHg", "severity": "critical", "reason": "danger-zone blood pressure"})
+            elif vitals.sbp < 100 or vitals.sbp >= 160:
+                abnormal.append({"name": "Blood Pressure", "value": f"{int(vitals.sbp)}/{int(vitals.dbp)} mmHg", "severity": "watch", "reason": "abnormal blood pressure"})
+        if vitals.rr is not None:
+            if vitals.rr >= 30 or vitals.rr < 8:
+                abnormal.append({"name": "Respiratory Rate", "value": f"{vitals.rr} breaths/min", "severity": "critical", "reason": "danger-zone respiratory rate"})
+            elif vitals.rr >= 22 or vitals.rr < 12:
+                abnormal.append({"name": "Respiratory Rate", "value": f"{vitals.rr} breaths/min", "severity": "watch", "reason": "abnormal respiratory rate"})
+        if vitals.o2 is not None:
+            if vitals.o2 < 90:
+                abnormal.append({"name": "Oxygen Saturation", "value": f"{vitals.o2}%", "severity": "critical", "reason": "hypoxemia"})
+            elif vitals.o2 < 94:
+                abnormal.append({"name": "Oxygen Saturation", "value": f"{vitals.o2}%", "severity": "watch", "reason": "borderline oxygenation"})
+        if vitals.temp is not None:
+            if vitals.temp >= 103 or vitals.temp < 95:
+                abnormal.append({"name": "Temperature", "value": f"{vitals.temp}°F", "severity": "critical", "reason": "danger-zone temperature"})
+            elif vitals.temp >= 100.4 or vitals.temp < 96.8:
+                abnormal.append({"name": "Temperature", "value": f"{vitals.temp}°F", "severity": "watch", "reason": "abnormal temperature"})
+        if vitals.pain is not None:
+            if vitals.pain >= 8:
+                abnormal.append({"name": "Pain Level", "value": f"{vitals.pain}/10", "severity": "critical", "reason": "severe pain or distress"})
+            elif vitals.pain >= 5:
+                abnormal.append({"name": "Pain Level", "value": f"{vitals.pain}/10", "severity": "watch", "reason": "moderate pain"})
+
+        return abnormal
+
+    def _generate_reference_reasoning(self, case: Case, abnormal_vitals: List[Dict]) -> List[str]:
+        """Create concise case-specific reasoning for the reference ESI level."""
+        reasoning = [
+            f"The reference ESI level was {case.acuity} for a patient presenting with {case.complaint}."
+        ]
+
+        if abnormal_vitals:
+            vital_text = "; ".join(
+                f"{item['name']} {item['value']} ({item['reason']})"
+                for item in abnormal_vitals
+            )
+            reasoning.append(f"Vital-sign clues that should be reconciled: {vital_text}.")
+        else:
+            reasoning.append("The available vital signs do not show an obvious danger-zone abnormality, so resource need and complaint risk become more important.")
+
+        ground_truth_items = self._generate_clinical_feedback(None, case, None)
+        if ground_truth_items:
+            reasoning.append(
+                f"Actual ED care included {len(ground_truth_items)} recorded intervention category/categories, supporting the resource estimate."
+            )
+        else:
+            reasoning.append("No tracked ED intervention category was recorded, so the main learning target is acuity/resource estimation rather than procedure selection.")
+
+        if case.disposition and case.disposition != "Unknown":
+            reasoning.append(f"The recorded disposition was {case.disposition}.")
+
+        return reasoning
+
+    def _generate_missed_assessment(
+        self,
+        session: SimulationSession,
+        case: Case,
+        missing_vitals: List[str],
+        abnormal_vitals: List[Dict]
+    ) -> List[str]:
+        """Explain what the learner should revisit."""
+        missed = []
+
+        if missing_vitals:
+            missed.append(
+                "A complete triage vital set was not documented: "
+                + ", ".join(missing_vitals)
+                + ". In real triage these are baseline data, not optional extras."
+            )
+
+        if session.user_triage_level > session.ground_truth_level:
+            missed.append(
+                f"The assigned ESI {session.user_triage_level} was lower acuity than the reference ESI {session.ground_truth_level}; revisit resource needs and high-risk complaint features."
+            )
+        elif session.user_triage_level < session.ground_truth_level:
+            missed.append(
+                f"The assigned ESI {session.user_triage_level} was higher acuity than the reference ESI {session.ground_truth_level}; identify which danger signals were absent or less severe."
+            )
+
+        if abnormal_vitals:
+            missed.append("Abnormal vital signs should be explicitly named in the triage rationale.")
+
+        if not session.triage_rationale:
+            missed.append("No written rationale was documented, so the debrief cannot assess the learner's reasoning.")
+
+        return missed
+
+    def _generate_rationale_feedback(self, session: SimulationSession, case: Case) -> str:
+        """Give feedback on the learner's written ESI rationale."""
+        rationale = (session.triage_rationale or "").strip()
+        if not rationale:
+            return "Document a one- to two-sentence ESI rationale so the debrief can separate a lucky guess from clinical reasoning."
+
+        lower = rationale.lower()
+        signals = []
+        if str(case.acuity) in lower or "esi" in lower:
+            signals.append("acuity level")
+        if any(term in lower for term in ["vital", "bp", "heart", "oxygen", "sat", "pain", "temperature", "respiratory"]):
+            signals.append("vital signs")
+        if any(term in lower for term in ["resource", "lab", "imaging", "iv", "med", "procedure"]):
+            signals.append("resource needs")
+        if any(term in lower for term in ["risk", "danger", "unstable", "distress", "severe"]):
+            signals.append("risk language")
+
+        if len(signals) >= 2:
+            return f"Your rationale included {', '.join(signals)}. Strong ESI rationales connect complaint risk, vital signs, and expected resources."
+
+        return "Your rationale was recorded, but it should more clearly connect the complaint, vital signs, and expected ED resources."
     
     
     def _generate_detailed_analysis(self, session: SimulationSession, 

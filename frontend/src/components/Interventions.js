@@ -1,142 +1,173 @@
 import React, { useState, useEffect } from 'react';
 import { getInterventions, selectInterventions } from '../services/api';
 
-function Interventions({ sessionId, onNext }) {
-  const [availableInterventions, setAvailableInterventions] = useState([]);
+const GROUP_ORDER = [
+  'Airway and breathing',
+  'Access and circulation',
+  'Medications',
+  'Critical procedures',
+  'Behavioral health and safety',
+  'Other actions'
+];
+
+function groupActions(actions) {
+  const grouped = actions.reduce((acc, action) => {
+    const key = action.category || 'Other actions';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(action);
+    return acc;
+  }, {});
+
+  return GROUP_ORDER.filter((group) => grouped[group]?.length).map((group) => ({
+    title: group,
+    items: grouped[group]
+  }));
+}
+
+function Interventions({ sessionId, onNext, onCapture }) {
+  const [availableActions, setAvailableActions] = useState([]);
   const [selectedIndices, setSelectedIndices] = useState([]);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   useEffect(() => {
-    const fetchInterventions = async () => {
+    const fetchActions = async () => {
       try {
         const interventions = await getInterventions(sessionId);
-        setAvailableInterventions(interventions);
-        setLoading(false);
+        setAvailableActions(interventions);
       } catch (err) {
-        setError('Failed to load interventions');
+        setError('Failed to load triage action options.');
+      } finally {
         setLoading(false);
       }
     };
-    
-    fetchInterventions();
+
+    fetchActions();
   }, [sessionId]);
-  
+
   const handleToggle = (index) => {
-    if (results) return; // Can't change after submitting
-    
-    setSelectedIndices(prev => {
+    if (results) return;
+
+    setSelectedIndices((prev) => {
       if (prev.includes(index)) {
-        return prev.filter(i => i !== index);
-      } else {
-        return [...prev, index];
+        return prev.filter((item) => item !== index);
       }
+      return [...prev, index];
     });
   };
-  
-  const handleSubmit = async () => {
+
+  const submitActions = async (indices) => {
     try {
+      setError('');
       setLoading(true);
-      const performedInterventions = await selectInterventions(sessionId, selectedIndices);
-      setResults(performedInterventions);
-      setLoading(false);
+      const performedActions = await selectInterventions(sessionId, indices);
+      setResults(performedActions);
+      if (onCapture) {
+        onCapture({ interventions: performedActions });
+      }
     } catch (err) {
-      setError('Failed to perform interventions');
+      setError('Failed to record triage action choices.');
+    } finally {
       setLoading(false);
     }
   };
-  
-  const handleSkip = async () => {
-    try {
-      setLoading(true);
-      const performedInterventions = await selectInterventions(sessionId, []);
-      setResults(performedInterventions);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to skip interventions');
-      setLoading(false);
-    }
-  };
-  
+
   if (loading && !results) {
     return (
-      <div className="step-card">
-        <div className="loading">Loading...</div>
-      </div>
+      <section className="step-card">
+        <div className="loading">Loading initial triage actions...</div>
+      </section>
     );
   }
-  
+
   return (
-    <div className="step-card">
-      <div className="step-header">
-        <h2>Step 6: Intervention Ordering</h2>
-        <div className="step-indicator">Step 6 of 7</div>
+    <section className="step-card">
+      <div className="section-header">
+        <div>
+          <span className="eyebrow">Initial stabilization</span>
+          <h3>Initial triage actions</h3>
+        </div>
+        <span className="clinical-badge">{selectedIndices.length} selected</span>
       </div>
-      
+
       {!results && (
         <p className="instruction">
-          Select which interventions you want to perform. You can select multiple at once.
+          Choose the actions you would initiate or escalate from triage. These
+          are framed as learning signals: airway, access, medications,
+          procedures, and monitored safety needs.
         </p>
       )}
-      
+
       {!results ? (
         <>
-          <div className="checkbox-list interventions-list">
-            {availableInterventions.map((intervention) => (
-              <label key={intervention.index} className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={selectedIndices.includes(intervention.index)}
-                  onChange={() => handleToggle(intervention.index)}
-                />
-                <span>{intervention.name}</span>
-              </label>
+          <div className="order-groups">
+            {groupActions(availableActions).map((group) => (
+              <fieldset className="order-group" key={group.title}>
+                <legend>{group.title}</legend>
+                {group.items.map((action) => (
+                  <label
+                    key={action.index}
+                    className={`order-row action-row ${
+                      selectedIndices.includes(action.index) ? 'selected' : ''
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIndices.includes(action.index)}
+                      onChange={() => handleToggle(action.index)}
+                    />
+                    <span>
+                      <strong>{action.name}</strong>
+                      <small>{action.description}</small>
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
             ))}
           </div>
-          
+
           {error && <div className="error-message">{error}</div>}
-          
+
           <div className="button-group">
-            <button className="btn-secondary" onClick={handleSkip}>
-              Skip Interventions
+            <button className="btn-secondary" onClick={() => submitActions([])}>
+              No immediate triage actions
             </button>
-            <button 
-              className="btn-primary" 
-              onClick={handleSubmit}
-              disabled={selectedIndices.length === 0}
+            <button
+              className="btn-primary"
+              onClick={() => submitActions(selectedIndices)}
+              disabled={selectedIndices.length === 0 || loading}
             >
-              Perform Selected Interventions
+              Record selected actions
             </button>
           </div>
         </>
       ) : (
         <>
           <div className="results-section">
+            <span className="eyebrow">Actions recorded</span>
             {results.length > 0 ? (
-              <>
-                <h3>Interventions Performed:</h3>
-                <div className="interventions-results">
-                  {results.map((intervention, index) => (
-                    <div key={index} className="intervention-result">
-                      ✓ {intervention.name}
-                    </div>
-                  ))}
-                </div>
-              </>
+              <div className="interventions-results">
+                {results.map((action) => (
+                  <div key={action.value} className="intervention-result">
+                    <span>Selected</span>
+                    <strong>{action.name}</strong>
+                    <small>{action.description}</small>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <div className="no-interventions">No interventions performed.</div>
+              <p className="no-interventions">No immediate triage actions recorded.</p>
             )}
           </div>
-          
+
           <button className="btn-primary" onClick={onNext}>
-            Continue to Feedback
+            Continue to debrief
           </button>
         </>
       )}
-    </div>
+    </section>
   );
 }
 
 export default Interventions;
-

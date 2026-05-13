@@ -1,11 +1,11 @@
 # ER Triage Simulation (MIMIC/MIETIC)
 
-An interactive simulation that provides a structured, realistic ED triage experience using OpenAI LLMs for natural patient interactions and real MIETIC validation data.
+An interactive simulation that provides a structured, realistic ED triage experience using OpenRouter-hosted LLMs for natural patient interactions and real MIETIC validation data.
 
 ## Features
 
 - **Structured Workflow**: Follows authentic ED triage process (5 steps, 3-5 minutes)
-- **AI-Powered Patient Responses**: Natural language conversations using OpenAI GPT models
+- **AI-Powered Patient Responses**: Natural language conversations using OpenRouter models
 - **Real MIETIC Data**: Patient information grounded in validated emergency department data
 - **Interactive Assessment**: Ask questions, select vitals, order interventions
 - **Expert Comparison**: Compare your decisions to real ED outcomes and expert assessments
@@ -18,10 +18,10 @@ An interactive simulation that provides a structured, realistic ED triage experi
    ```bash
    pip install -r requirements.txt
    ```
-3. Create a `.env` file with your OpenAI API key:
+3. Create a `.env` file with your OpenRouter API key:
    ```bash
    cp .env.example .env
-   # Edit .env and add your OPENAI_API_KEY
+   # Edit .env and add your OPENROUTER_API_KEY
    ```
 4. Ensure `MIETIC-validate-samples.csv` is in the project directory
 
@@ -81,14 +81,14 @@ Based on MIETIC dataset:
 
 - `main_simulation.py` - Main entry point and simulation orchestration
 - `structured_triage.py` - Manages the 7-step triage workflow
-- `llm_interface.py` - OpenAI integration for patient responses
+- `llm_interface.py` - OpenRouter/OpenAI-compatible integration for patient responses
 - `data_loader.py` - Loads and processes MIETIC CSV data into Case objects
 - `simulation_engine.py` - Patient state tracking and intervention management
 - `user_interface.py` - CLI interface for user interactions
 - `triage_classification.py` - ESI triage level classification
 - `feedback_engine.py` - Feedback generation with outcome analysis
 - `requirements.txt` - Python dependencies
-- `.env` - OpenAI API credentials (create from .env.example)
+- `.env` - Local LLM API credentials (create from .env.example; ignored by git)
 - `MIETIC-validate-samples.csv` - Patient data source with expert annotations
 
 ## Data Source

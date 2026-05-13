@@ -28,6 +28,106 @@ print(f"Loaded {len(data_loader.cases)} cases")
 
 # In-memory session storage (dict by session_id)
 sessions: Dict[str, Dict[str, Any]] = {}
+completed_sessions: Dict[str, Dict[str, Any]] = {}
+
+
+INTERVENTION_DISPLAY = {
+    "invasive_ventilation": {
+        "name": "Airway escalation: endotracheal intubation",
+        "category": "Airway and breathing",
+        "description": "Definitive airway or ventilatory support. This is an immediate escalation signal, not a routine triage order."
+    },
+    "intravenous": {
+        "name": "Establish IV access",
+        "category": "Access and circulation",
+        "description": "Enables blood draws, medications, fluids, contrast imaging, and rapid escalation if the patient worsens."
+    },
+    "intravenous_fluids": {
+        "name": "Start IV fluids",
+        "category": "Access and circulation",
+        "description": "Consider when dehydration, sepsis, bleeding, hypotension, or poor perfusion is part of the concern."
+    },
+    "intramuscular": {
+        "name": "Give IM medication",
+        "category": "Medications",
+        "description": "Medication route used when IM therapy is clinically practical or urgent."
+    },
+    "oral_medications": {
+        "name": "Give oral medication",
+        "category": "Medications",
+        "description": "Treatment route that usually implies the patient can safely take oral therapy."
+    },
+    "nebulized_medications": {
+        "name": "Give nebulized treatment",
+        "category": "Airway and breathing",
+        "description": "Respiratory treatment commonly associated with wheeze, bronchospasm, or breathing symptoms."
+    },
+    "tier1_med_usage_1h": {
+        "name": "Time-sensitive emergency medication",
+        "category": "Medications",
+        "description": "Early emergency medication use is a strong marker of acuity and active stabilization."
+    },
+    "tier2_med_usage": {
+        "name": "Urgent medication",
+        "category": "Medications",
+        "description": "Suggests active ED treatment and at least one expected resource."
+    },
+    "tier3_med_usage": {
+        "name": "Stabilizing medication",
+        "category": "Medications",
+        "description": "Supports resource-based triage even when the patient is not in immediate danger."
+    },
+    "tier4_med_usage": {
+        "name": "Routine medication",
+        "category": "Medications",
+        "description": "May fit a lower-acuity visit, but still counts toward resource planning."
+    },
+    "critical_procedure": {
+        "name": "Critical procedure",
+        "category": "Critical procedures",
+        "description": "Major escalation signal. Revisit ESI and immediate safety risks if this appears in the reference record."
+    },
+    "psychotropic_med_within_120min": {
+        "name": "Psychotropic medication",
+        "category": "Behavioral health and safety",
+        "description": "Can indicate agitation, severe distress, behavioral health risk, or need for monitored care."
+    }
+}
+
+
+def _format_vitals(case):
+    """Return the complete triage vital set for a case."""
+    vitals = case.vitals
+    formatted = []
+
+    if vitals.hr is not None:
+        formatted.append({'index': 0, 'name': 'Heart Rate', 'value': f"{vitals.hr} bpm"})
+    if vitals.sbp is not None or vitals.dbp is not None:
+        sbp_str = str(int(vitals.sbp)) if vitals.sbp is not None else '?'
+        dbp_str = str(int(vitals.dbp)) if vitals.dbp is not None else '?'
+        formatted.append({'index': 1, 'name': 'Blood Pressure', 'value': f"{sbp_str}/{dbp_str} mmHg"})
+    if vitals.rr is not None:
+        formatted.append({'index': 2, 'name': 'Respiratory Rate', 'value': f"{vitals.rr} breaths/min"})
+    if vitals.o2 is not None:
+        formatted.append({'index': 3, 'name': 'Oxygen Saturation', 'value': f"{vitals.o2}%"})
+    if vitals.temp is not None:
+        formatted.append({'index': 4, 'name': 'Temperature', 'value': f"{vitals.temp}°F"})
+    if vitals.pain is not None:
+        formatted.append({'index': 5, 'name': 'Pain Level', 'value': f"{vitals.pain}/10"})
+
+    return formatted
+
+
+def _intervention_payload(index, intervention):
+    """Return frontend metadata for an intervention/action option."""
+    metadata = INTERVENTION_DISPLAY.get(intervention.value, {})
+    return {
+        'index': index,
+        'value': intervention.value,
+        'name': metadata.get('name', intervention.value.replace('_', ' ').title()),
+        'category': metadata.get('category', 'Other actions'),
+        'description': metadata.get('description', 'Recorded ED action from the MIETIC dataset.')
+    }
 
 
 @app.route('/api/start-simulation', methods=['POST'])
@@ -52,6 +152,7 @@ def start_simulation():
             'medical_history_question': '',
             'medical_history_response': '',
             'triage_level': None,
+            'triage_rationale': '',
             'interventions': []
         }
         
@@ -207,13 +308,15 @@ def assign_triage(session_id):
         
         data = request.get_json()
         triage_level = data.get('level')
+        rationale = str(data.get('rationale', '')).strip()
         
         if triage_level not in [1, 2, 3, 4, 5]:
             return jsonify({'error': 'Invalid triage level'}), 400
         
         sessions[session_id]['triage_level'] = triage_level
+        sessions[session_id]['triage_rationale'] = rationale
         
-        return jsonify({'success': True, 'level': triage_level})
+        return jsonify({'success': True, 'level': triage_level, 'rationale': rationale})
     
     except Exception as e:
         print(f"Error in assign_triage: {e}")
@@ -250,11 +353,7 @@ def get_interventions(session_id):
         
         interventions_list = []
         for i, intervention in enumerate(available):
-            interventions_list.append({
-                'index': i,
-                'value': intervention.value,
-                'name': display_names.get(intervention.value, intervention.value.replace('_', ' ').title())
-            })
+            interventions_list.append(_intervention_payload(i, intervention))
         
         return jsonify({'interventions': interventions_list})
     
@@ -299,10 +398,7 @@ def select_interventions(session_id):
                 intervention = available[idx]
                 result = simulation.perform_intervention(intervention)
                 if result['success']:
-                    performed.append({
-                        'value': intervention.value,
-                        'name': display_names.get(intervention.value, intervention.value.replace('_', ' ').title())
-                    })
+                    performed.append(_intervention_payload(idx, intervention))
         
         session['interventions'] = performed
         
@@ -339,7 +435,11 @@ def get_feedback(session_id):
         user_actions = [
             {'action': 'chief_complaint_question', 'question': session['chief_complaint_question']},
             {'action': 'medical_history_question', 'question': session['medical_history_question']},
-            {'action': 'triage', 'level': triage_level}
+            {
+                'action': 'triage',
+                'level': triage_level,
+                'rationale': session['triage_rationale']
+            }
         ]
         
         print("Creating feedback session record...")
@@ -351,6 +451,7 @@ def get_feedback(session_id):
         # Add questions to session
         feedback_session.chief_complaint_question = session['chief_complaint_question']
         feedback_session.medical_history_question = session['medical_history_question']
+        feedback_session.triage_rationale = session['triage_rationale']
         
         # Generate feedback
         print("Generating comprehensive feedback...")
@@ -360,7 +461,17 @@ def get_feedback(session_id):
         
         print("Feedback generated successfully!")
         
-        # Clean up session
+        completed_sessions[session_id] = {
+            'case': case,
+            'feedback': feedback,
+            'triage_rationale': session['triage_rationale'],
+            'checked_vitals': session['checked_vitals'],
+            'chief_complaint_question': session['chief_complaint_question'],
+            'medical_history_question': session['medical_history_question'],
+            'interventions': session['interventions']
+        }
+
+        # Clean up active session
         del sessions[session_id]
         print(f"Session {session_id} cleaned up")
         
@@ -373,17 +484,44 @@ def get_feedback(session_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/tutor/<session_id>', methods=['POST'])
+def ask_tutor(session_id):
+    """Answer a post-case learner question using case and debrief context."""
+    try:
+        if session_id not in completed_sessions:
+            return jsonify({'error': 'Completed session not found. Finish feedback before asking the tutor.'}), 404
+
+        data = request.get_json() or {}
+        question = str(data.get('question', '')).strip()
+        if not question:
+            return jsonify({'error': 'Question is required'}), 400
+
+        completed = completed_sessions[session_id]
+        answer = llm.ask_tutor_question(
+            completed['case'],
+            completed['feedback'],
+            question
+        )
+
+        return jsonify({'answer': answer})
+
+    except Exception as e:
+        print(f"Error in ask_tutor: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
         'cases_loaded': len(data_loader.cases),
-        'active_sessions': len(sessions)
+        'active_sessions': len(sessions),
+        'completed_sessions': len(completed_sessions)
     })
 
 
 if __name__ == '__main__':
     print("Starting Flask server on http://localhost:5001")
-    app.run(debug=True, port=5001, threaded=True)
+    app.run(debug=True, port=5001, threaded=True, use_reloader=False)
 

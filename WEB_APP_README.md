@@ -8,7 +8,7 @@ A modern web-based version of the ER Triage Simulation with Flask backend and Re
 
 - Python 3.7+ with dependencies installed
 - Node.js 14+ and npm
-- OpenAI API key in `.env` file
+- OpenRouter API key in `.env` file
 
 ### Running the Application
 
@@ -37,7 +37,7 @@ Then open http://localhost:3000 in your browser.
 
 ## Architecture
 
-### Backend (Flask - Port 5000)
+### Backend (Flask - Port 5001)
 
 - **File**: `app.py`
 - **REST API** endpoints for each workflow step
@@ -122,7 +122,7 @@ Flask-CORS is enabled to allow requests from React dev server (localhost:3000)
 
 ### Streaming Implementation
 - Uses Server-Sent Events (SSE) via EventSource API
-- OpenAI streaming API with `stream=True` parameter
+- OpenRouter OpenAI-compatible streaming API with `stream=True` parameter
 - Chunks yielded in real-time to frontend
 
 ### State Management
@@ -170,8 +170,8 @@ Frontend uses React hooks:
 
 ### Backend won't start
 - Check that all Python dependencies are installed: `pip install -r requirements.txt`
-- Ensure `.env` file exists with valid `OPENAI_API_KEY`
-- Verify port 5000 is not already in use
+- Ensure `.env` file exists with valid `OPENROUTER_API_KEY`
+- Verify port 5001 is not already in use
 
 ### Frontend won't start
 - Run `npm install` in the `frontend/` directory
@@ -179,14 +179,14 @@ Frontend uses React hooks:
 - Verify port 3000 is not already in use
 
 ### "Failed to start simulation" error
-- Make sure Flask backend is running on port 5000
+- Make sure Flask backend is running on port 5001
 - Check browser console for CORS errors
-- Verify backend health at http://localhost:5000/api/health
+- Verify backend health at http://localhost:5001/api/health
 
 ### Streaming not working
 - Ensure browser supports EventSource (all modern browsers do)
 - Check network tab for SSE connection
-- Verify OpenAI API key is valid and has credits
+- Verify the OpenRouter API key is valid and has credits
 
 ### Build for Production
 ```bash

@@ -1,17 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 function StreamingText({ text, isStreaming }) {
-  const [displayText, setDisplayText] = useState('');
-  
-  useEffect(() => {
-    setDisplayText(text);
-  }, [text]);
-  
   return (
     <div className="streaming-response">
-      <div className="patient-label">Patient:</div>
+      <div className="patient-label">Patient response</div>
       <div className="response-text">
-        {displayText}
+        {text}
         {isStreaming && <span className="cursor">|</span>}
       </div>
     </div>
@@ -19,4 +13,3 @@ function StreamingText({ text, isStreaming }) {
 }
 
 export default StreamingText;
-

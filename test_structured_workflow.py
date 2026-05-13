@@ -141,7 +141,7 @@ def test_workflow_initialization():
         ui = UserInterface()
         fe = FeedbackEngine()
         
-        # We can't initialize PatientLLM without API key, so we skip that
+        # We don't initialize PatientLLM here because live LLM clients require .env config.
         print("✓ Workflow components available")
         print("  (Note: LLM initialization requires valid API key in .env)")
         
@@ -179,7 +179,7 @@ def main():
     if all_passed:
         print("ALL TESTS PASSED")
         print("\nNext steps:")
-        print("1. Add your OpenAI API key to .env file")
+        print("1. Add your OpenRouter API key to .env file")
         print("2. Run: python main_simulation.py")
     else:
         print("SOME TESTS FAILED")

@@ -5,7 +5,7 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api';
 
 /**
  * Start a new simulation session
@@ -96,9 +96,10 @@ export const streamMedicalHistory = (sessionId, question, onChunk, onDone, onErr
 /**
  * Assign triage level
  */
-export const assignTriage = async (sessionId, level) => {
+export const assignTriage = async (sessionId, level, rationale = '') => {
   const response = await axios.post(`${API_BASE_URL}/assign-triage/${sessionId}`, {
-    level: level
+    level: level,
+    rationale: rationale
   });
   return response.data;
 };
@@ -135,6 +136,16 @@ export const getFeedback = async (sessionId) => {
     }
     throw error;
   }
+};
+
+/**
+ * Ask the post-case clinical tutor a question
+ */
+export const askTutorQuestion = async (sessionId, question) => {
+  const response = await axios.post(`${API_BASE_URL}/tutor/${sessionId}`, {
+    question: question
+  });
+  return response.data.answer;
 };
 
 /**

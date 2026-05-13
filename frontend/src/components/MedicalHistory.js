@@ -2,32 +2,46 @@ import React, { useState } from 'react';
 import StreamingText from './StreamingText';
 import { streamMedicalHistory } from '../services/api';
 
-function MedicalHistory({ sessionId, onNext }) {
+const PROMPT_BANK = [
+  'What medical problems do you live with?',
+  'Do you take any daily medicines or blood thinners?',
+  'Have you had anything like this before?'
+];
+
+function MedicalHistory({ sessionId, onNext, onCapture }) {
   const [question, setQuestion] = useState('');
   const [response, setResponse] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [hasAsked, setHasAsked] = useState(false);
   const [error, setError] = useState('');
-  
+
   const handleAskQuestion = () => {
     if (!question.trim()) {
-      setError('Please enter a question');
+      setError('Enter a focused history question before continuing.');
       return;
     }
-    
+
+    let fullResponse = '';
     setError('');
     setResponse('');
     setIsStreaming(true);
     setHasAsked(true);
-    
+
     streamMedicalHistory(
       sessionId,
       question,
       (chunk) => {
-        setResponse(prev => prev + chunk);
+        fullResponse += chunk;
+        setResponse(fullResponse);
       },
       () => {
         setIsStreaming(false);
+        if (onCapture) {
+          onCapture({
+            historyQuestion: question,
+            historyResponse: fullResponse
+          });
+        }
       },
       (err) => {
         setError(err);
@@ -35,57 +49,77 @@ function MedicalHistory({ sessionId, onNext }) {
       }
     );
   };
-  
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleAskQuestion();
     }
   };
-  
+
   return (
-    <div className="step-card">
-      <div className="step-header">
-        <h2>Step 4: Medical History</h2>
-        <div className="step-indicator">Step 4 of 7</div>
+    <section className="step-card">
+      <div className="section-header">
+        <div>
+          <span className="eyebrow">Risk context</span>
+          <h3>Focused history</h3>
+        </div>
+        <span className="clinical-badge">One question</span>
       </div>
-      
+
       <p className="instruction">
-        Ask the patient one question about their medical history.
+        Choose the highest-yield question for risk stratification. Medication
+        risk, prior disease, and recurrence can change the ESI call quickly.
       </p>
-      
+
+      {!hasAsked && (
+        <div className="prompt-bank" aria-label="Suggested history prompts">
+          {PROMPT_BANK.map((prompt) => (
+            <button
+              type="button"
+              className="prompt-chip"
+              key={prompt}
+              onClick={() => setQuestion(prompt)}
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="question-input">
-        <label htmlFor="history-question">Your Question:</label>
+        <label htmlFor="history-question">Focused history question</label>
         <textarea
           id="history-question"
           value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="e.g., Do you have any chronic medical conditions?"
-          rows="3"
+          onChange={(event) => setQuestion(event.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask about a risk factor, medication, or prior condition."
+          rows="4"
           disabled={hasAsked}
         />
       </div>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
+
       {!hasAsked ? (
         <button className="btn-primary" onClick={handleAskQuestion}>
-          Ask Patient
+          Ask patient
         </button>
       ) : (
         <>
           <StreamingText text={response} isStreaming={isStreaming} />
           {!isStreaming && (
-            <button className="btn-primary" onClick={onNext}>
-              Continue
-            </button>
+            <div className="button-group">
+              <button className="btn-primary" onClick={onNext}>
+                Continue to ESI decision
+              </button>
+            </div>
           )}
         </>
       )}
-    </div>
+    </section>
   );
 }
 
 export default MedicalHistory;
-
