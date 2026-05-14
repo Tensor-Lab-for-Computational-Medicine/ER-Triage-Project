@@ -1,0 +1,26 @@
+signal,column,support_type,present_in_dataset,nonzero_cases,total_cases
+reference_esi,acuity,Direct reference label,True,50,50
+resource_count,resources_used,Direct resource count,True,48,50
+labs,lab_event_count,Direct resource evidence,True,43,50
+microbiology,microbio_event_count,Direct resource evidence,True,26,50
+imaging_exams,exam_count,Direct resource evidence,True,37,50
+procedures,procedure_count,Direct resource evidence,True,20,50
+iv_access,intravenous,Direct ED intervention,True,31,50
+iv_fluids,intravenous_fluids,Direct ED intervention,True,5,50
+im_medication,intramuscular,Direct ED intervention,True,4,50
+oral_medication,oral_medications,Direct ED intervention,True,18,50
+nebulized_medication,nebulized_medications,Direct ED intervention,True,2,50
+tier1_medication_1h,tier1_med_usage_1h,Direct ED intervention,True,3,50
+tier2_medication,tier2_med_usage,Direct ED intervention,True,4,50
+tier3_medication,tier3_med_usage,Direct ED intervention,True,6,50
+tier4_medication,tier4_med_usage,Direct ED intervention,True,7,50
+invasive_ventilation_1h,invasive_ventilation,Direct ED intervention,True,1,50
+critical_procedure,critical_procedure,Direct ED intervention,True,5,50
+psychotropic_medication_120m,psychotropic_med_within_120min,Direct ED intervention,True,1,50
+red_cell_order,red_cell_order_more_than_1,Direct transfusion evidence,True,1,50
+transfusion_1h,transfusion_within_1h,Direct transfusion evidence,True,1,50
+transfusion_after_1h,transfusion_beyond_1h,Direct transfusion evidence,True,7,50
+icu_transfer_1h,transfer_to_icu_in_1h,Direct outcome evidence,True,0,50
+icu_transfer_after_1h,transfer_to_icu_beyond_1h,Direct outcome evidence,True,13,50
+death_1h,expired_within_1h,Direct outcome evidence,True,0,50
+death_after_1h,expired_beyond_1h,Direct outcome evidence,True,0,50

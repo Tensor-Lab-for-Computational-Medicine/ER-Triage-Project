@@ -1,26 +1,17 @@
 #!/bin/bash
 
-# Stop development servers
+# Stop ED Triage Trainer local Vite server
 
-echo "Stopping development servers..."
+echo "Stopping ED Triage Trainer frontend..."
 
-# Kill by port
-echo "Killing processes on ports 5001 and 3000..."
-lsof -ti:5001 | xargs kill -9 2>/dev/null
-lsof -ti:3000 | xargs kill -9 2>/dev/null
-
-# Kill by PID if available
-if [ -f logs/flask.pid ]; then
-    FLASK_PID=$(cat logs/flask.pid)
-    kill -9 $FLASK_PID 2>/dev/null
-    rm logs/flask.pid
+if [ -f logs/vite.pid ]; then
+  VITE_PID=$(cat logs/vite.pid)
+  kill -9 "$VITE_PID" 2>/dev/null || true
+  rm logs/vite.pid
 fi
 
-if [ -f logs/react.pid ]; then
-    REACT_PID=$(cat logs/react.pid)
-    kill -9 $REACT_PID 2>/dev/null
-    rm logs/react.pid
+if command -v lsof >/dev/null 2>&1; then
+  lsof -ti:3000 | xargs kill -9 2>/dev/null || true
 fi
 
-echo "✓ Servers stopped!"
-
+echo "Frontend stopped."

@@ -1,4 +1,8 @@
-data/
 physionet.org/files/mietic/1.0.0/MIETIC-validate-samples.csv
 physionet.org/files/mietic/1.0.0/MIETIC.csv
 .env
+.env.*
+*.env
+*.env.*
+frontend/.env
+frontend/.env.*

@@ -1,0 +1,34 @@
+#!/bin/sh
+set -eu
+
+env_files="$(git diff --cached --name-only --diff-filter=ACMR | while IFS= read -r file; do
+  case "$file" in
+    .env.example|*/.env.example)
+      ;;
+    .env|.env.*|*.env|*.env.*|*/.env|*/.env.*|*/*.env|*/*.env.*)
+      echo "$file"
+      ;;
+  esac
+done)"
+
+if [ -n "$env_files" ]; then
+  echo "Commit blocked: staged environment files may contain local secrets."
+  echo "$env_files"
+  exit 1
+fi
+
+openrouter_prefix='sk-or-v1-'
+openai_project_prefix='sk-proj-'
+secret_regex="(${openrouter_prefix}|${openai_project_prefix})[A-Za-z0-9_-]{20,}|(OPENROUTER_API_KEY|OPENAI_API_KEY)=sk-[A-Za-z0-9_-]{10,}"
+
+matches="$(git diff --cached --name-only --diff-filter=ACMR | while IFS= read -r file; do
+  [ -f "$file" ] || continue
+  [ "$file" = ".githooks/pre-commit" ] && continue
+  git grep --cached -I -n -E "$secret_regex" -- "$file" || true
+done)"
+
+if [ -n "$matches" ]; then
+  echo "Commit blocked: staged files contain an API-key-like secret."
+  echo "$matches" | sed -E 's/(sk-or-v1-|sk-proj-)[A-Za-z0-9_-]{20,}/\1[REDACTED]/g; s/((OPENROUTER_API_KEY|OPENAI_API_KEY)=)sk-[A-Za-z0-9_-]{10,}/\1[REDACTED]/g'
+  exit 1
+fi
