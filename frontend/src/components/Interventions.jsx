@@ -60,6 +60,10 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
     });
   };
 
+  const clearSelection = () => {
+    if (!results) setSelectedIds([]);
+  };
+
   const submitActions = async (ids) => {
     const trimmedRationale = rationale.trim();
     if (trimmedRationale.length < 20) {
@@ -114,6 +118,32 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
 
       {!results ? (
         <>
+          <div className="evidence-legend">
+            <span>Evidence basis</span>
+            <strong>ESI/vitals</strong>
+            <strong>MIETIC record</strong>
+            <strong>case text</strong>
+          </div>
+
+          {selectedIds.length > 0 && (
+            <div className="action-selection-summary" aria-live="polite">
+              <div>
+                <span>Selected actions</span>
+                <strong>{selectedIds.length}</strong>
+              </div>
+              <div className="selected-action-list">
+                {availableActions
+                  .filter((action) => selectedIds.includes(action.id))
+                  .map((action) => (
+                    <span className="selected-action-chip" key={action.id}>{action.name}</span>
+                  ))}
+              </div>
+              <button type="button" className="btn-secondary clear-selection" onClick={clearSelection}>
+                Clear selection
+              </button>
+            </div>
+          )}
+
           <div className="order-groups">
             {groupActions(availableActions).map((group) => (
               <fieldset className="order-group" key={group.title}>
@@ -156,7 +186,7 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
           {error && <div className="error-message">{error}</div>}
 
           <div className="button-group">
-            <button className="btn-secondary" onClick={() => submitActions([])}>
+            <button className="btn-secondary" onClick={() => submitActions([])} disabled={loading || selectedIds.length > 0}>
               No immediate escalation
             </button>
             <button

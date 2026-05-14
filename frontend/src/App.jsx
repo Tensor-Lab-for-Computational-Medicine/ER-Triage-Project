@@ -110,6 +110,7 @@ function WorkflowRail({ currentStep }) {
               <span>
                 <strong>{item.label}</strong>
                 <small>{item.title}</small>
+                {status === 'active' && <em>{item.detail}</em>}
               </span>
             </li>
           );
@@ -119,16 +120,23 @@ function WorkflowRail({ currentStep }) {
   );
 }
 
-function CaseChart({ patientData, caseRecord }) {
+function CaseChart({ patientData, caseRecord, activeStep }) {
   const triageLabel = caseRecord.triageLevel
     ? `ESI ${caseRecord.triageLevel}`
     : 'Pending';
+  const modeLabels = {
+    assessment: 'Assessment',
+    intermediate: 'Practice',
+    beginner: 'Guided'
+  };
+  const activeMode = modeLabels[caseRecord.interviewMode] || 'Assessment';
 
   return (
     <aside className="case-chart" aria-label="Current case chart">
       <div className="chart-card patient-identity">
         <span className="eyebrow">Arrival record</span>
         <h2>{patientData ? `${patientData.age} year old ${patientData.sex}` : 'Loading case'}</h2>
+        <p className="chart-note">{patientData?.complaint || 'Chief concern pending'}</p>
         <div className="chart-row">
           <span>Transport</span>
           <strong>{patientData?.transport || 'Pending'}</strong>
@@ -142,8 +150,16 @@ function CaseChart({ patientData, caseRecord }) {
       <div className="chart-card">
         <span className="eyebrow">Case worksheet</span>
         <div className="chart-row">
+          <span>Current stage</span>
+          <strong>{activeStep?.label || 'Pending'}</strong>
+        </div>
+        <div className="chart-row">
           <span>First look</span>
           <strong>{caseRecord.firstLookDecision ? 'Recorded' : 'Pending'}</strong>
+        </div>
+        <div className="chart-row">
+          <span>Interview mode</span>
+          <strong>{activeMode}</strong>
         </div>
         <div className="chart-row">
           <span>Chief concern</span>
@@ -160,6 +176,10 @@ function CaseChart({ patientData, caseRecord }) {
         <div className="chart-row">
           <span>Focused history</span>
           <strong>{caseRecord.historyResponse ? 'Captured' : 'Pending'}</strong>
+        </div>
+        <div className="chart-row">
+          <span>Supports used</span>
+          <strong>{caseRecord.interviewSupports.length || 'None'}</strong>
         </div>
         <div className="chart-row">
           <span>Acuity level</span>
@@ -572,7 +592,7 @@ function App() {
           )}
         </main>
 
-        <CaseChart patientData={patientData} caseRecord={caseRecord} />
+        <CaseChart patientData={patientData} caseRecord={caseRecord} activeStep={activeStep} />
       </div>
     </div>
   );

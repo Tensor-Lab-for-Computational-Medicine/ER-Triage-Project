@@ -26,8 +26,7 @@ function FocusedInterview({
   const [supportUses, setSupportUses] = useState([]);
   const [question, setQuestion] = useState('');
   const [log, setLog] = useState([]);
-  const [showSupportPanel, setShowSupportPanel] = useState(false);
-  const [activeSupport, setActiveSupport] = useState(null);
+  const [queuedSupportId, setQueuedSupportId] = useState('');
   const [lastInsertedStem, setLastInsertedStem] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -39,8 +38,7 @@ function FocusedInterview({
     setSupportUses([]);
     setQuestion('');
     setLog([]);
-    setShowSupportPanel(false);
-    setActiveSupport(null);
+    setQueuedSupportId('');
     setLastInsertedStem('');
   }, [sessionId]);
 
@@ -56,8 +54,26 @@ function FocusedInterview({
       ];
   const activeMode = modes.find((item) => item.id === selectedMode) || modes[0];
   const supportsEnabled = Boolean(activeMode?.supports_enabled);
+  const isGuidedMode = selectedMode === 'beginner';
+  const isPracticeMode = selectedMode === 'intermediate';
   const questionsRemaining = Math.max((maxQuestions || 4) - log.length, 0);
   const canContinue = log.length >= 2;
+  const minimumQuestions = 2;
+  const modeLocked = log.length > 0 || supportUses.length > 0;
+  const budgetSlots = Array.from({ length: maxQuestions || 4 }, (_, index) => index);
+
+  const modeBadge = (mode) => {
+    if (mode.id === 'assessment') return 'No prompts';
+    if (mode.id === 'intermediate') return '+20s per support';
+    return 'No support cost';
+  };
+
+  const supportCostLabel = (support) => {
+    const used = supportUses.find((item) => item.id === support.id);
+    if (used?.cost_seconds) return `+${used.cost_seconds}s used`;
+    if (isPracticeMode) return '+20s';
+    return 'No clock cost';
+  };
 
   const chooseMode = async (mode) => {
     if (mode.id === selectedMode || modeLoading || log.length > 0 || supportUses.length > 0) return;
@@ -69,8 +85,7 @@ function FocusedInterview({
       setSelectedMode(data.mode.id);
       setSupportUses(data.support_uses || []);
       if (data.mode.id === 'assessment') {
-        setShowSupportPanel(false);
-        setActiveSupport(null);
+        setQueuedSupportId('');
         setLastInsertedStem('');
       }
       if (onClock) onClock(data.clock);
@@ -97,7 +112,7 @@ function FocusedInterview({
       const stem = supportRecord.question_stem || support.question_stem || '';
 
       setSupportUses(data.support_uses || []);
-      setActiveSupport(supportRecord);
+      setQueuedSupportId(support.id);
       if (stem) {
         setQuestion((current) => {
           if (!current.trim() || current === lastInsertedStem) {
@@ -119,12 +134,6 @@ function FocusedInterview({
     } finally {
       setLoading(false);
     }
-  };
-
-  const useSupportStem = () => {
-    if (!activeSupport?.question_stem) return;
-    setQuestion(activeSupport.question_stem);
-    setLastInsertedStem(activeSupport.question_stem);
   };
 
   const submitQuestion = async () => {
@@ -187,9 +196,27 @@ function FocusedInterview({
         <span className="clinical-badge">{questionsRemaining} questions left</span>
       </div>
 
-      <p className="instruction">
-        Ask questions in your own words. Concept coverage is scored after the case.
-      </p>
+      <div className="interview-brief">
+        <p className="instruction">
+          Ask questions that change acuity, immediate risk, or escalation decisions.
+        </p>
+        <div className="question-progress-panel" aria-label="Question budget">
+          <div>
+            <span>Question budget</span>
+            <strong>{log.length} / {maxQuestions || 4} used</strong>
+          </div>
+          <div className="question-budget" aria-hidden="true">
+            {budgetSlots.map((slot) => (
+              <span key={slot} className={slot < log.length ? 'used' : ''} />
+            ))}
+          </div>
+          <small>
+            {canContinue
+              ? 'Minimum interview complete'
+              : `${Math.max(minimumQuestions - log.length, 0)} more question${minimumQuestions - log.length === 1 ? '' : 's'} needed to continue`}
+          </small>
+        </div>
+      </div>
 
       <div className="mode-selector" role="radiogroup" aria-label="Interview mode">
         {modes.map((mode) => (
@@ -198,8 +225,10 @@ function FocusedInterview({
             key={mode.id}
             className={selectedMode === mode.id ? 'selected' : ''}
             onClick={() => chooseMode(mode)}
-            disabled={modeLoading || loading || log.length > 0 || supportUses.length > 0}
+            disabled={modeLoading || loading || modeLocked}
+            aria-pressed={selectedMode === mode.id}
           >
+            <span className="mode-kicker">{modeBadge(mode)}</span>
             <strong>{mode.label}</strong>
             <span>{mode.description}</span>
           </button>
@@ -207,39 +236,49 @@ function FocusedInterview({
       </div>
 
       {supportsEnabled ? (
-        <>
-          <button
-            type="button"
-            className="btn-secondary scaffold-toggle"
-            onClick={() => setShowSupportPanel((value) => !value)}
-          >
-            {showSupportPanel ? 'Hide interview supports' : 'Open interview supports'}
-          </button>
-
-          {showSupportPanel && (
-            <div className="support-panel" aria-label="Interview supports">
-              {interviewSupports.map((item) => {
-                const used = supportUses.some((support) => support.id === item.id);
-                const active = activeSupport?.id === item.id;
-                return (
-                  <button
-                    type="button"
-                    className={`support-card ${used ? 'used' : ''} ${active ? 'active' : ''}`}
-                    key={item.id}
-                    onClick={() => openSupport(item)}
-                    disabled={loading || questionsRemaining === 0}
-                  >
-                    <strong>{item.label}</strong>
-                    <span>{item.cue}</span>
-                    {active ? <small>Selected</small> : used && <small>Opened</small>}
-                  </button>
-                );
-              })}
+        <div className={`support-workspace ${isGuidedMode ? 'guided' : 'practice'}`}>
+          <div className="support-toolbar">
+            <div>
+              <span className="eyebrow">{isGuidedMode ? 'Guided question plan' : 'Practice prompt bank'}</span>
+              <h4>{isGuidedMode ? 'Build a complete triage interview' : 'Use prompts only when needed'}</h4>
+              <p>
+                {isGuidedMode
+                  ? 'Each card keeps an editable question frame visible. Selecting a card places the frame in the question box.'
+                  : 'Prompt cards insert editable question frames and add simulated time when first opened.'}
+              </p>
             </div>
-          )}
-        </>
+            <span className="clinical-badge">{isPracticeMode ? '+20s support cost' : 'No support cost'}</span>
+          </div>
+
+          <div className={isGuidedMode ? 'guided-support-grid' : 'practice-support-strip'} aria-label="Interview supports">
+            {interviewSupports.map((item, index) => {
+              const used = supportUses.some((support) => support.id === item.id);
+              const queued = queuedSupportId === item.id;
+              const nextGuided = isGuidedMode && !used && supportUses.length === index;
+              return (
+                <button
+                  type="button"
+                  className={`support-card ${used ? 'used' : ''} ${queued ? 'active' : ''} ${nextGuided ? 'next' : ''}`}
+                  key={item.id}
+                  onClick={() => openSupport(item)}
+                  disabled={loading || questionsRemaining === 0}
+                  aria-pressed={queued}
+                >
+                  <span className="support-card-meta">{supportCostLabel(item)}</span>
+                  <strong>{item.label}</strong>
+                  <span>{item.cue}</span>
+                  {isGuidedMode && <small className="support-stem">{item.question_stem}</small>}
+                  <em>{used ? 'Used in this interview' : queued ? 'Queued in question box' : 'Insert editable frame'}</em>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       ) : (
-        <p className="mode-note">Assessment mode keeps interview supports closed until the debrief.</p>
+        <div className="mode-note mode-note-panel">
+          <strong>Independent interview</strong>
+          <span>Question support is off. The debrief scores concept coverage after the case.</span>
+        </div>
       )}
 
       {supportUses.length > 0 && (
@@ -253,33 +292,19 @@ function FocusedInterview({
         </div>
       )}
 
-      {activeSupport && (
-        <div className="active-support" aria-live="polite">
-          <span className="eyebrow">Interview support</span>
-          <h4>{activeSupport.label}</h4>
-          <p>{activeSupport.intent || activeSupport.cue}</p>
-          {activeSupport.question_stem && (
-            <div className="question-frame">
-              <strong>Editable question frame</strong>
-              <p>{activeSupport.question_stem}</p>
-              <button type="button" className="btn-secondary" onClick={useSupportStem} disabled={loading}>
-                Use this frame
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
       <div className="question-input">
-        <label htmlFor="focused-question">Focused triage question</label>
+        <label htmlFor="focused-question">Question to patient</label>
         <textarea
           id="focused-question"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
-          placeholder="Type the question you would ask next."
+          placeholder="Ask one focused question."
           rows="3"
           disabled={loading || questionsRemaining === 0}
         />
+        <small className="field-hint">
+          Keep each entry to one question so the debrief can score concept coverage accurately.
+        </small>
       </div>
 
       {error && <div className="error-message">{error}</div>}

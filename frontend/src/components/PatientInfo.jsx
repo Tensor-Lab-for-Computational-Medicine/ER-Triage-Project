@@ -9,7 +9,8 @@ function PatientInfo({ sessionId, patientData, firstLook, onNext, onCapture, onC
   const identityRows = [
     { label: 'Age', value: `${patientData.age} years` },
     { label: 'Sex', value: patientData.sex },
-    { label: 'Arrival mode', value: patientData.transport }
+    { label: 'Arrival mode', value: patientData.transport },
+    { label: 'Chief concern', value: patientData.complaint, wide: true }
   ];
 
   const handleSubmit = async () => {
@@ -45,7 +46,7 @@ function PatientInfo({ sessionId, patientData, firstLook, onNext, onCapture, onC
 
       <div className="arrival-grid">
         {identityRows.map((item) => (
-          <div className="metric-card" key={item.label}>
+          <div className={`metric-card ${item.wide ? 'wide' : ''}`} key={item.label}>
             <span>{item.label}</span>
             <strong>{item.value}</strong>
           </div>
@@ -76,6 +77,7 @@ function PatientInfo({ sessionId, patientData, firstLook, onNext, onCapture, onC
             className={`choice-button ${selectedDecision === option.id ? 'selected' : ''}`}
             onClick={() => setSelectedDecision(option.id)}
             disabled={submitting}
+            aria-pressed={selectedDecision === option.id}
           >
             <strong>{option.label}</strong>
             <small>{option.description}</small>
@@ -83,9 +85,16 @@ function PatientInfo({ sessionId, patientData, firstLook, onNext, onCapture, onC
         ))}
       </div>
 
+      {selectedDecision && (
+        <div className="decision-preview" aria-live="polite">
+          <span>Initial disposition</span>
+          <strong>{firstLook?.options?.find((item) => item.id === selectedDecision)?.label}</strong>
+        </div>
+      )}
+
       {error && <div className="error-message">{error}</div>}
 
-      <button className="btn-primary" onClick={handleSubmit} disabled={submitting}>
+      <button className="btn-primary" onClick={handleSubmit} disabled={submitting || !selectedDecision}>
         Start focused interview
       </button>
     </section>

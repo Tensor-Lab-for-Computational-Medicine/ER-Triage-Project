@@ -9,7 +9,7 @@ const TUTOR_SESSION_KEY = 'ed_triage_openrouter_key';
 const TUTOR_LOCAL_KEY = 'ed_triage_openrouter_key';
 const TUTOR_MODEL_KEY = 'ed_triage_openrouter_model';
 const TUTOR_STORAGE_KEY = 'ed_triage_openrouter_storage';
-const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v1';
+const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v2';
 const PATIENT_RESPONSE_CACHE_LIMIT = 250;
 const REASONING_REVIEW_CACHE_KEY = 'ed_triage_reasoning_review_cache_v1';
 const REASONING_REVIEW_CACHE_LIMIT = 60;
@@ -107,25 +107,28 @@ const QUESTION_DOMAIN_CHECKS = [
   ['allergies', ['allerg']]
 ];
 
+const QUESTION_DOMAIN_ORDER = QUESTION_CATALOG.map((item) => item.id);
+const BACKGROUND_DOMAINS = ['medical_history', 'medications', 'allergies', 'prior_episode', 'pregnancy'];
+
 const INTERVIEW_MODES = [
   {
     id: 'assessment',
     label: 'Assessment',
-    description: 'Free-text or dictated questions only; concept coverage appears after the case.',
+    description: 'Independent questioning with no prompts; concept coverage appears after the case.',
     supports_enabled: false,
     support_cost_seconds: 0
   },
   {
     id: 'intermediate',
     label: 'Practice',
-    description: 'Editable question frames are available and add simulated time when opened.',
+    description: 'A timed prompt bank is available; each support adds simulated interview time.',
     supports_enabled: true,
     support_cost_seconds: 20
   },
   {
     id: 'beginner',
     label: 'Guided',
-    description: 'Editable question frames are available for early practice without clock cost.',
+    description: 'A visible question plan provides editable frames with no simulated time cost.',
     supports_enabled: true,
     support_cost_seconds: 0
   }
@@ -418,6 +421,31 @@ function classifyQuestion(question) {
   return classifyQuestionDomains(question)[0];
 }
 
+function orderedQuestionDomains(domains = []) {
+  const set = new Set(domains.filter(Boolean));
+  return QUESTION_DOMAIN_ORDER.filter((domain) => set.has(domain));
+}
+
+function domainSignature(domains = []) {
+  return orderedQuestionDomains(domains).join('+') || 'general';
+}
+
+function isSpecialRiskQuestion(question, domains = []) {
+  const q = String(question || '').toLowerCase();
+  const domainSet = new Set(domains);
+  const asksRiskContext = /\b(risk|blood thinner|blood thinners|anticoagul|pregnan|immune|immuno|frail|frailty|elder|chemo|cancer|transplant|steroid)\b/.test(q);
+  return asksRiskContext && ['medications', 'pregnancy', 'medical_history'].some((domain) => domainSet.has(domain));
+}
+
+function isBroadBackgroundQuestion(question, domains = []) {
+  const q = String(question || '').toLowerCase();
+  const background = orderedQuestionDomains(domains).filter((domain) => BACKGROUND_DOMAINS.includes(domain));
+  const asksMultipleBackgroundItems =
+    /\b(medical problems?|medical history|medicines?|medications?|meds|allerg(?:y|ies)|prior episodes?|similar prior|blood thinners?)\b/.test(q) &&
+    background.length >= 2;
+  return background.length >= 3 || asksMultipleBackgroundItems;
+}
+
 function symptomIntentKeys(question) {
   const q = String(question || '').toLowerCase();
   const symptomIntents = [
@@ -445,13 +473,25 @@ function questionIntentKey(question, category, coveredCategories = []) {
   if (isAnswerKeyQuestion(q)) return 'answer_key';
   if (isGeneralStatusQuestion(q)) return 'general_status';
 
-  const domains = [...new Set(coveredCategories.length ? coveredCategories : [category])].sort();
+  const domains = orderedQuestionDomains(coveredCategories.length ? coveredCategories : [category]);
+  const backgroundDomains = domains.filter((domain) => BACKGROUND_DOMAINS.includes(domain));
+  if (isSpecialRiskQuestion(q, domains)) {
+    return `risk_context:${domainSignature(backgroundDomains.length ? backgroundDomains : domains)}`;
+  }
+  if (isBroadBackgroundQuestion(q, domains)) {
+    return `background:${domainSignature(backgroundDomains)}`;
+  }
   const symptoms = symptomIntentKeys(q);
   if (domains.includes('red_flags')) {
     const redFlagSymptoms = symptoms.filter((symptom) => symptom !== 'pain' || symptoms.length === 1);
     return `red_flags:${redFlagSymptoms.length ? redFlagSymptoms.join(',') : 'broad'}`;
   }
-  if (domains.includes('medications')) return 'medications';
+  if (domains.includes('medications')) {
+    if (/\b(blood thinner|blood thinners|anticoagul\w*|warfarin|xarelto|eliquis|plavix|aspirin)\b/.test(q)) {
+      return 'medications:blood_thinners';
+    }
+    return 'medications:current';
+  }
   if (domains.includes('allergies')) return 'allergies';
   if (domains.includes('pregnancy')) return 'pregnancy';
   if (domains.includes('medical_history')) return 'medical_history';
@@ -600,7 +640,9 @@ function compactList(text, maxItems = 4) {
   return String(text || '')
     .split(/,|;|\band\b/i)
     .map((item) => item.replace(/\b(history of|past medical history includes|a history of)\b/gi, '').trim())
+    .map((item) => item.replace(/\b(allergic to|allergies include|allergy to|was transferred|transferred|presented|presents|arrived|came in|with chief complaint).*$/i, '').trim())
     .filter(Boolean)
+    .filter((item) => !/\b(vital signs|initial vital|chief complaint|allerg|transferred|arrived|presented|presents)\b/i.test(item))
     .slice(0, maxItems)
     .join(', ');
 }
@@ -649,6 +691,7 @@ function allergyAnswer(caseData) {
     return 'I do not have any known medication allergies.';
   }
   const allergy = extractListAfter(caseData.history, [
+    /allergic\s+to\s+([^.;]+)/i,
     /allerg(?:y|ies)\s*(?:to|include|includes)?\s+([^.;]+)/i
   ]);
   if (allergy) return `I'm allergic to ${compactList(allergy, 3)}.`;
@@ -761,6 +804,62 @@ function pregnancyAnswer(caseData) {
   return "I'm not sure; you would need to check.";
 }
 
+function uniqueSentences(items = []) {
+  const seen = new Set();
+  return items
+    .map((item) => String(item || '').trim())
+    .filter(Boolean)
+    .filter((item) => {
+      const key = item.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function broadBackgroundAnswer(caseData, domains = []) {
+  const domainSet = new Set(domains);
+  const parts = [];
+  if (domainSet.has('medical_history')) parts.push(medicalHistoryAnswer(caseData));
+  if (domainSet.has('medications')) parts.push(medicationAnswer(caseData));
+  if (domainSet.has('allergies')) parts.push(allergyAnswer(caseData));
+  if (domainSet.has('prior_episode')) parts.push(priorEpisodeAnswer(caseData));
+  if (domainSet.has('pregnancy')) parts.push(pregnancyAnswer(caseData));
+  return uniqueSentences(parts).join(' ') || medicalHistoryAnswer(caseData);
+}
+
+function specialRiskAnswer(caseData, domains = [], question = '') {
+  const domainSet = new Set(domains);
+  const text = complaintText(caseData);
+  const questionText = String(question || '').toLowerCase();
+  const parts = [];
+
+  if (domainSet.has('pregnancy') || /\bpregnan/.test(questionText)) {
+    const pregnancy = pregnancyAnswer(caseData);
+    parts.push(pregnancy === 'No.' ? 'No pregnancy concern that I know of.' : pregnancy);
+  }
+
+  if (domainSet.has('medications') || /\b(warfarin|xarelto|eliquis|plavix|aspirin|blood thinner|anticoagul)/i.test(`${text} ${questionText}`)) {
+    const medication = medicationAnswer(caseData);
+    if (/\b(warfarin|xarelto|eliquis|plavix|aspirin|blood thinner|anticoagul)/i.test(medication)) {
+      parts.push(medication);
+    } else {
+      parts.push("I don't think I'm on blood thinners.");
+    }
+  }
+
+  if (domainSet.has('medical_history') || /\b(immune|immuno|frail|frailty|risk)\b/i.test(questionText)) {
+    const history = medicalHistoryAnswer(caseData);
+    if (/\b(diabetes|cancer|transplant|immune|immuno|steroid|hiv|chemo|cirrhosis|kidney|heart|copd|frail)\b/i.test(history)) {
+      parts.push(history);
+    } else {
+      parts.push("I don't know of immune problems or frailty concerns.");
+    }
+  }
+
+  return uniqueSentences(parts).join(' ') || "I don't know of special risk factors like that.";
+}
+
 function isAnswerKeyQuestion(question) {
   const q = String(question || '').toLowerCase();
   if (/\b(esi|triage level|acuity|disposition|final decision|expert opinion|expert answer)\b/.test(q)) return true;
@@ -774,6 +873,14 @@ function isAnswerKeyQuestion(question) {
 function categoryResponse(caseData, category, question = '') {
   if (isAnswerKeyQuestion(question)) {
     return "I don't know that as the patient. I can tell you what I'm feeling, what happened, and what medical history I know.";
+  }
+
+  const domains = classifyQuestionDomains(question);
+  if (isSpecialRiskQuestion(question, domains)) {
+    return specialRiskAnswer(caseData, domains, question);
+  }
+  if (isBroadBackgroundQuestion(question, domains)) {
+    return broadBackgroundAnswer(caseData, domains);
   }
 
   const responses = {
@@ -935,10 +1042,20 @@ function clinicalSemanticSimilarity(left, right) {
   return (2 * overlap.length) / (a.size + b.size);
 }
 
-function readClinicalSemanticPatientCache(caseData, question) {
+function patientCacheIntentMatches(intentKey, payload) {
+  return Boolean(intentKey && payload?.intent_key === intentKey);
+}
+
+function readClinicalSemanticPatientCache(caseData, question, intentKey) {
   const casePrefix = `${caseData.id || 'case'}::`;
   const candidates = Object.entries(patientCacheStore())
-    .filter(([key, payload]) => key.startsWith(casePrefix) && payload?.question && payload?.answer && payload.intent_key !== 'answer_key')
+    .filter(([key, payload]) =>
+      key.startsWith(casePrefix) &&
+      payload?.question &&
+      payload?.answer &&
+      payload.intent_key !== 'answer_key' &&
+      patientCacheIntentMatches(intentKey, payload)
+    )
     .map(([key, payload]) => ({
       key,
       payload,
@@ -955,15 +1072,15 @@ function readClinicalSemanticPatientCache(caseData, question) {
   };
 }
 
-async function readSemanticPatientCache(caseData, question, category, coveredCategories = []) {
-  const clinicalMatch = readClinicalSemanticPatientCache(caseData, question);
+async function readSemanticPatientCache(caseData, question, category, coveredCategories = [], intentKey = '') {
+  const clinicalMatch = readClinicalSemanticPatientCache(caseData, question, intentKey);
   if (clinicalMatch) return clinicalMatch;
 
   const casePrefix = `${caseData.id || 'case'}::`;
   const candidates = Object.entries(patientCacheStore())
     .filter(([key, payload]) => {
       if (!key.startsWith(casePrefix) || !payload?.question || !payload?.answer) return false;
-      return payload.intent_key !== 'answer_key';
+      return payload.intent_key !== 'answer_key' && patientCacheIntentMatches(intentKey, payload);
     })
     .sort((a, b) => String(b[1]?.updated_at || '').localeCompare(String(a[1]?.updated_at || '')))
     .map(([key, payload]) => ({ id: key, payload }));
@@ -972,6 +1089,7 @@ async function readSemanticPatientCache(caseData, question, category, coveredCat
     const match = await findSemanticMatch({
       namespace: `patient_response:${caseData.id || 'case'}`,
       queryText: patientSemanticText({
+        intent_key: intentKey,
         question,
         category,
         covered_categories: coveredCategories.length ? coveredCategories : [category]
@@ -1097,22 +1215,37 @@ function writeReasoningReviewCache(completed, model, review) {
   }
 }
 
-async function callOpenRouter(messages, { model, key, maxTokens = 220, temperature = 0.25 }) {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'ED Triage Trainer'
-    },
-    body: JSON.stringify({
-      model: model || DEFAULT_TUTOR_MODEL,
-      messages,
-      temperature,
-      max_tokens: maxTokens
-    })
-  });
+async function callOpenRouter(messages, { model, key, maxTokens = 220, temperature = 0.25, responseFormat = null, timeoutMs = 30000 }) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  let response;
+
+  try {
+    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'ED Triage Trainer'
+      },
+      body: JSON.stringify({
+        model: model || DEFAULT_TUTOR_MODEL,
+        messages,
+        temperature,
+        max_tokens: maxTokens,
+        ...(responseFormat ? { response_format: responseFormat } : {})
+      })
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('OpenRouter request timed out. Try a shorter question or a faster model.');
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const message = await response.text();
@@ -1163,6 +1296,27 @@ function cleanPatientResponse(value, fallback = '') {
     .replace(/\bchestpain\b/gi, 'chest pain')
     .replace(/\brightnow\b/gi, 'right now')
     .trim();
+}
+
+function normalizedAnswerText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function repeatedAnswerFromDifferentIntent(session, answer, intentKey) {
+  const normalized = normalizedAnswerText(answer);
+  if (normalized.length < 48) return false;
+
+  return (session.interview_log || []).some((item) => {
+    if (!item?.answer || item.intent_key === intentKey) return false;
+    const prior = normalizedAnswerText(item.answer);
+    if (prior.length < 48) return false;
+    if (prior === normalized) return true;
+    return clinicalSemanticSimilarity(prior, normalized) >= 0.9;
+  });
 }
 
 async function askOpenRouterPatient(session, question, category, intentKey) {
@@ -2217,6 +2371,81 @@ function priorityFeedback(session, caseData, workflow, scorecard) {
   return items.slice(0, 3);
 }
 
+function sexLabel(value) {
+  const sex = String(value || '').toUpperCase();
+  if (sex.startsWith('F')) return 'female patient';
+  if (sex.startsWith('M')) return 'male patient';
+  return 'patient';
+}
+
+function vitalSummaryText(caseData) {
+  const flags = vitalFlags(caseData);
+  if (flags.length) {
+    return flags.slice(0, 3).map((item) => `${item.name} ${item.value}`).join('; ');
+  }
+  return 'No danger-zone vital signs were flagged by the app thresholds.';
+}
+
+function resourceSummaryText(caseData) {
+  const resources = [];
+  if (caseData.resources_used) resources.push(`${caseData.resources_used} resources`);
+  if (caseData.lab_event_count) resources.push(`${caseData.lab_event_count} lab events`);
+  if (caseData.exam_count) resources.push(`${caseData.exam_count} imaging or exam events`);
+  if (caseData.procedure_count) resources.push(`${caseData.procedure_count} procedures`);
+  return resources.length ? resources.slice(0, 3).join(', ') : 'No counted ED resources were recorded.';
+}
+
+function expectedActionText(workflow) {
+  const expected = workflow?.escalation?.expected || [];
+  if (expected.length) return expected.slice(0, 3).map((item) => item.name).join('; ');
+  return 'Focused ED evaluation with reassessment if symptoms or vital signs change.';
+}
+
+function buildGoldStandardSbar(caseData, workflow) {
+  const age = Math.round(Number(caseData.demographics.age || 0));
+  const patient = `${age}-year-old ${sexLabel(caseData.demographics.sex)}`;
+  const complaint = plainComplaint(caseData.complaint);
+  const transport = caseData.demographics.transport && caseData.demographics.transport !== 'UNKNOWN'
+    ? caseData.demographics.transport.toLowerCase()
+    : 'unspecified arrival mode';
+  const backgroundParts = uniqueSentences([
+    `Arrived by ${transport}.`,
+    medicalHistoryAnswer(caseData),
+    medicationAnswer(caseData),
+    allergyAnswer(caseData)
+  ]);
+
+  return {
+    situation: `${capitalizeSentence(patient)} with ${complaint}; reference acuity is ESI ${caseData.acuity}.`,
+    background: backgroundParts.join(' '),
+    assessment: `${vitalSummaryText(caseData)} ${resourceSummaryText(caseData)}.`,
+    recommendation: `${expectedActionText(workflow)} Reference disposition: ${caseData.disposition || 'not recorded'}.`
+  };
+}
+
+function buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityItems = []) {
+  const age = Math.round(Number(caseData.demographics.age || 0));
+  const complaint = plainComplaint(caseData.complaint);
+  const comparison = session.triage_level < caseData.acuity
+    ? 'higher acuity than the reference'
+    : session.triage_level > caseData.acuity
+      ? 'lower acuity than the reference'
+      : 'aligned with the reference acuity';
+  const topPriorities = (priorityItems || []).slice(0, 3).map((item) => ({
+    title: item.title,
+    evidence: item.evidence,
+    action: item.action
+  }));
+
+  return {
+    case_summary: `${age}-year-old ${sexLabel(caseData.demographics.sex)} with ${complaint}. The reference acuity is ESI ${caseData.acuity}; the learner assigned ESI ${session.triage_level || 'not recorded'}, which was ${comparison}.`,
+    physician_read: `${vitalSummaryText(caseData)} Expected resource signal: ${resourceSummaryText(caseData)}.`,
+    gold_standard_sbar: buildGoldStandardSbar(caseData, workflow),
+    next_steps: topPriorities,
+    score_percent: scorecard?.percentage || 0
+  };
+}
+
 function generateFeedback(session) {
   const caseData = session.case;
   const first = firstLook(caseData);
@@ -2245,6 +2474,7 @@ function generateFeedback(session) {
   const comparison = session.triage_level < caseData.acuity ? 'Over-triaged' : session.triage_level > caseData.acuity ? 'Under-triaged' : 'Correct triage';
   const recordedActions = clinicalFeedback(caseData);
   const scorecard = generateScorecard(session, caseData, workflow);
+  const priorityItems = priorityFeedback(session, caseData, workflow, scorecard);
   const feedback = {
     session_summary: {
       arrival_method: caseData.demographics.transport,
@@ -2282,7 +2512,8 @@ function generateFeedback(session) {
     scorecard,
     action_feedback: generateActionFeedback(session, caseData, workflow, scorecard.details),
     simulation_strategy: simulationStrategy(),
-    priority_feedback: priorityFeedback(session, caseData, workflow, scorecard),
+    priority_feedback: priorityItems,
+    physician_debrief: buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityItems),
     case_evidence: caseEvidence(caseData, recordedActions),
     reasoning_rubrics: reasoningRubrics(),
     feedback_sources: [
@@ -2437,7 +2668,7 @@ export async function askStaticPatientQuestion(id, question) {
       };
       session.response_cache[cacheKey] = clone(answerPayload);
     } else if (getTutorSettings().hasKey) {
-      const semanticCached = await readSemanticPatientCache(session.case, text, category, coveredCategories);
+      const semanticCached = await readSemanticPatientCache(session.case, text, category, coveredCategories, intentKey);
       if (semanticCached) {
         answerPayload = {
           question: text,
@@ -2469,9 +2700,15 @@ export async function askStaticPatientQuestion(id, question) {
     try {
       const aiAnswer = await askOpenRouterPatient(session, text, category, intentKey);
       if (aiAnswer) {
-        answer = cleanPatientResponse(aiAnswer, fallbackAnswer);
-        source = 'OpenRouter patient response';
-        usedAi = true;
+        const cleanedAiAnswer = cleanPatientResponse(aiAnswer, fallbackAnswer);
+        if (repeatedAnswerFromDifferentIntent(session, cleanedAiAnswer, intentKey)) {
+          answer = fallbackAnswer;
+          aiError = 'OpenRouter repeated a prior answer for a different question; local patient response used.';
+        } else {
+          answer = cleanedAiAnswer;
+          source = 'OpenRouter patient response';
+          usedAi = true;
+        }
       }
     } catch (error) {
       aiError = error.message || 'OpenRouter patient response failed.';
@@ -2646,52 +2883,161 @@ export function clearTutorSettings() {
   return getTutorSettings();
 }
 
+function conciseTutorContext(completed) {
+  const feedback = completed.feedback || {};
+  const summary = feedback.session_summary || {};
+  const triage = feedback.triage_analysis || {};
+  const workflow = feedback.workflow_analysis || {};
+  return {
+    patient: {
+      age: Math.round(Number(completed.case?.demographics?.age || 0)),
+      sex: completed.case?.demographics?.sex || '',
+      arrival_method: completed.case?.demographics?.transport || '',
+      chief_complaint: plainComplaint(completed.case?.complaint),
+      reference_esi: completed.case?.acuity,
+      learner_esi: triage.user_level,
+      comparison: triage.comparison
+    },
+    physician_debrief: feedback.physician_debrief,
+    learner_decisions: {
+      first_look: summary.first_look_decision,
+      provisional_esi: summary.provisional_triage_level,
+      final_esi: summary.triage_level_assigned,
+      escalation_actions: (summary.escalation_actions || []).map((item) => item.name),
+      sbar_handoff: summary.sbar_handoff
+    },
+    interview: {
+      questions: (summary.interview_log || []).map((item) => ({
+        question: item.question,
+        category: item.category_label || item.category
+      })),
+      covered: workflow.interview?.covered_domains || [],
+      missed: workflow.interview?.missed_domains || []
+    },
+    escalation: {
+      matched: workflow.escalation?.matched?.map((item) => item.name) || [],
+      missed: workflow.escalation?.missed?.map((item) => item.name) || []
+    },
+    priority_feedback: feedback.priority_feedback || [],
+    score_domains: (feedback.scorecard?.domains || []).map((item) => ({
+      label: item.label,
+      score: item.score,
+      possible: item.possible,
+      message: item.message
+    }))
+  };
+}
+
+function stripMarkdown(value) {
+  return String(value || '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/\|[-:\s|]+\|/g, '')
+    .replace(/^\s*\|/gm, '')
+    .replace(/\*\*/g, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/\s+\n/g, '\n')
+    .trim();
+}
+
+function normalizeTutorResponse(raw, model, fallbackContext = {}) {
+  const data = raw && typeof raw === 'object' ? raw : { summary: raw };
+  const nextSteps = Array.isArray(data.next_steps)
+    ? data.next_steps.slice(0, 4).map((item) => ({
+        title: cleanText(stripMarkdown(item.title), 'Next step'),
+        evidence: cleanText(stripMarkdown(item.evidence), ''),
+        action: cleanText(stripMarkdown(item.action), '')
+      }))
+    : [];
+  const sbar = data.gold_standard_sbar || data.sbar || fallbackContext?.physician_debrief?.gold_standard_sbar || {};
+  return {
+    source: 'OpenRouter',
+    model,
+    role: 'Emergency physician tutor',
+    summary: cleanText(stripMarkdown(data.summary), fallbackContext?.physician_debrief?.case_summary || 'Case review completed.'),
+    teaching_point: cleanText(stripMarkdown(data.teaching_point), stripMarkdown(data.key_takeaway) || 'Use the reference case evidence to connect acuity, resources, and escalation.'),
+    gold_standard_sbar: {
+      situation: cleanText(stripMarkdown(sbar.situation), ''),
+      background: cleanText(stripMarkdown(sbar.background), ''),
+      assessment: cleanText(stripMarkdown(sbar.assessment), ''),
+      recommendation: cleanText(stripMarkdown(sbar.recommendation), '')
+    },
+    next_steps: nextSteps.length ? nextSteps : (fallbackContext?.priority_feedback || []).slice(0, 3),
+    bullets: cleanTextList(data.bullets || data.high_yield_points).map(stripMarkdown).filter(Boolean)
+  };
+}
+
 export async function askOpenRouterTutor(sessionIdValue, question) {
   const completed = getCompletedSession(sessionIdValue);
   if (!completed) throw new Error('Complete the case before asking the AI tutor.');
   const settings = getTutorSettings();
   if (!settings.key) throw new Error('Use AI settings in the header to enable the clinical tutor.');
 
+  const context = conciseTutorContext(completed);
   const messages = [
     {
       role: 'system',
       content: [
-        'You are a clinical educator for an emergency department triage training app.',
-        'Use only the supplied case data and debrief data.',
-        'Keep answers concise and educational.',
-        'Do not invent diagnoses, tests, or procedures not documented in the case data.'
+        'You are an experienced emergency room physician teaching a triage learner after a simulation.',
+        'Use only the supplied case summary, scoring fields, and deterministic debrief evidence.',
+        'Return strict JSON only. No Markdown, tables, HTML, preface, or prose outside JSON.',
+        'Keep the response concise: one short summary, one teaching point, at most three next steps.',
+        'Do not invent diagnoses, tests, procedures, protocols, or hidden chart details.'
       ].join(' ')
     },
     {
       role: 'user',
       content: JSON.stringify({
         learner_question: question,
-        case: completed.case,
-        feedback: completed.feedback
+        expected_json_schema: {
+          summary: 'one concise paragraph',
+          teaching_point: 'one sentence',
+          gold_standard_sbar: {
+            situation: 'one sentence',
+            background: 'one sentence',
+            assessment: 'one sentence',
+            recommendation: 'one sentence'
+          },
+          next_steps: [
+            {
+              title: 'short label',
+              evidence: 'case evidence phrase',
+              action: 'specific action for next case'
+            }
+          ],
+          bullets: ['optional short point']
+        },
+        case_context: context
       })
     }
   ];
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${settings.key}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'ED Triage Trainer'
-    },
-    body: JSON.stringify({
-      model: settings.model || DEFAULT_TUTOR_MODEL,
-      messages,
-      temperature: 0.2,
-      max_tokens: 500
-    })
-  });
+  let content;
+  const requestOptions = {
+    key: settings.key,
+    model: settings.model || DEFAULT_TUTOR_MODEL,
+    maxTokens: 360,
+    temperature: 0.15,
+    timeoutMs: 15000
+  };
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `OpenRouter request failed with status ${response.status}.`);
+  try {
+    content = await callOpenRouter(messages, {
+      ...requestOptions,
+      responseFormat: { type: 'json_object' }
+    });
+  } catch (err) {
+    if (!/response[_\s-]?format|json_object/i.test(err.message || '')) throw err;
+    content = await callOpenRouter(messages, requestOptions);
   }
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || 'The AI tutor returned an empty response.';
+
+  try {
+    return normalizeTutorResponse(extractJsonObject(content), settings.model || DEFAULT_TUTOR_MODEL, context);
+  } catch {
+    return normalizeTutorResponse({
+      summary: context?.physician_debrief?.case_summary || stripMarkdown(content),
+      teaching_point: 'Review the reference ESI, missed safety signals, and next escalation action before the next case.',
+      gold_standard_sbar: context?.physician_debrief?.gold_standard_sbar,
+      next_steps: (context?.priority_feedback || []).slice(0, 3)
+    }, settings.model || DEFAULT_TUTOR_MODEL, context);
+  }
 }

@@ -6,9 +6,18 @@ function SbarHandoff({ sessionId, onNext, onCapture, onClock }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const handoffLength = handoff.trim().length;
+  const handoffReady = handoffLength >= 20;
 
   const insertStructure = () => {
-    setHandoff('S: \nB: \nA: \nR: ');
+    setHandoff((current) => {
+      const trimmed = current.trim();
+      if (!trimmed) return 'S: \nB: \nA: \nR: ';
+      return ['S:', 'B:', 'A:', 'R:'].reduce((text, label) => {
+        if (text.includes(label)) return text;
+        return `${text}\n${label} `;
+      }, trimmed);
+    });
   };
 
   const handleSubmit = async () => {
@@ -47,6 +56,21 @@ function SbarHandoff({ sessionId, onNext, onCapture, onClock }) {
         Give the receiving team a concise situation, background, assessment, and recommendation.
       </p>
 
+      <div className="sbar-framework" aria-label="SBAR structure">
+        {[
+          ['S', 'Situation', 'Current problem and immediate concern.'],
+          ['B', 'Background', 'Age, arrival context, history, medications, or risks.'],
+          ['A', 'Assessment', 'Acuity, vital-sign interpretation, and resource needs.'],
+          ['R', 'Recommendation', 'Placement, monitoring, clinician evaluation, or action.']
+        ].map(([letter, label, text]) => (
+          <div className="sbar-guide-card" key={letter}>
+            <span>{letter}</span>
+            <strong>{label}</strong>
+            <small>{text}</small>
+          </div>
+        ))}
+      </div>
+
       <div className="question-input">
         <label htmlFor="sbar-handoff">Handoff</label>
         <textarea
@@ -57,6 +81,9 @@ function SbarHandoff({ sessionId, onNext, onCapture, onClock }) {
           rows="7"
           disabled={submitted || loading}
         />
+        <small className={`field-hint ${handoffReady ? 'ready' : ''}`}>
+          {handoffLength} / 20 minimum characters
+        </small>
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -69,7 +96,7 @@ function SbarHandoff({ sessionId, onNext, onCapture, onClock }) {
           </button>
         )}
         {!submitted ? (
-          <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+          <button className="btn-primary" onClick={handleSubmit} disabled={loading || !handoffReady}>
             Record SBAR
           </button>
         ) : (

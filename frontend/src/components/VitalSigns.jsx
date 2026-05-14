@@ -46,7 +46,6 @@ function getVitalTone(vital) {
 
 function VitalSigns({ sessionId, onNext, onCapture, onClock }) {
   const [results, setResults] = useState([]);
-  const [showChecklist, setShowChecklist] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -93,6 +92,17 @@ function VitalSigns({ sessionId, onNext, onCapture, onClock }) {
     );
   }
 
+  const toneCounts = results.reduce(
+    (acc, vital) => {
+      const tone = getVitalTone(vital);
+      if (tone === 'critical') acc.critical += 1;
+      else if (tone === 'attention') acc.attention += 1;
+      else acc.stable += 1;
+      return acc;
+    },
+    { critical: 0, attention: 0, stable: 0 }
+  );
+
   return (
     <section className="step-card">
       <div className="section-header">
@@ -112,6 +122,21 @@ function VitalSigns({ sessionId, onNext, onCapture, onClock }) {
         <div className="error-message">{error}</div>
       ) : (
         <>
+          <div className="vitals-summary" aria-label="Vital sign summary">
+            <div className="summary-pill critical">
+              <span>Critical</span>
+              <strong>{toneCounts.critical}</strong>
+            </div>
+            <div className="summary-pill attention">
+              <span>Watch</span>
+              <strong>{toneCounts.attention}</strong>
+            </div>
+            <div className="summary-pill stable">
+              <span>Within threshold</span>
+              <strong>{toneCounts.stable}</strong>
+            </div>
+          </div>
+
           <div className="monitor-grid">
             {results.map((vital) => {
               const tone = getVitalTone(vital);
@@ -129,28 +154,22 @@ function VitalSigns({ sessionId, onNext, onCapture, onClock }) {
             })}
           </div>
 
-          <button
-            type="button"
-            className="btn-secondary scaffold-toggle"
-            onClick={() => setShowChecklist((value) => !value)}
-          >
-            {showChecklist ? 'Hide interpretation checklist' : 'Open interpretation checklist'}
-          </button>
-
-          {showChecklist && (
-            <div className="instruction-panel scaffold-panel">
-              <strong>Clinical pause</strong>
-              <p>
-                Decide whether the vital signs change acuity, escalation, or resource needs before assigning final ESI.
-              </p>
-            </div>
-          )}
+          <div className="interpretation-prompts">
+            <strong>Clinical pause</strong>
+            <ul>
+              <li>Identify danger-zone vital signs before final ESI.</li>
+              <li>Connect abnormal findings to monitoring, resources, or rooming.</li>
+              <li>Change the provisional estimate when objective data raise or lower risk.</li>
+            </ul>
+          </div>
         </>
       )}
 
-      <button className="btn-primary" onClick={onNext} disabled={Boolean(error)}>
-        Continue to final ESI
-      </button>
+      <div className="button-group">
+        <button className="btn-primary" onClick={onNext} disabled={Boolean(error)}>
+          Continue to final ESI
+        </button>
+      </div>
     </section>
   );
 }

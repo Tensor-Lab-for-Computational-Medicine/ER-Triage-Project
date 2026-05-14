@@ -38,10 +38,12 @@ function TriageAssignment({ sessionId, variant = 'final', onNext, onCapture, onC
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [rationale, setRationale] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [showChecklist, setShowChecklist] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const isProvisional = variant === 'provisional';
+  const selectedMeta = TRIAGE_LEVELS.find((level) => level.level === selectedLevel);
+  const rationaleLength = rationale.trim().length;
+  const rationaleReady = isProvisional || rationaleLength >= 20;
 
   const handleSubmit = async () => {
     if (!selectedLevel) {
@@ -111,6 +113,7 @@ function TriageAssignment({ sessionId, variant = 'final', onNext, onCapture, onC
                 } level-${level.level}`}
                 onClick={() => setSelectedLevel(level.level)}
                 disabled={loading || submitted}
+                aria-pressed={selectedLevel === level.level}
               >
                 <span>{level.label}</span>
                 <strong>{level.name}</strong>
@@ -131,29 +134,28 @@ function TriageAssignment({ sessionId, variant = 'final', onNext, onCapture, onC
               rows="4"
               disabled={submitted}
             />
+            <small className={`field-hint ${rationaleReady ? 'ready' : ''}`}>
+              {isProvisional
+                ? `${rationaleLength} characters recorded`
+                : `${rationaleLength} / 20 minimum characters`}
+            </small>
           </div>
         </div>
 
         <aside className="decision-aid">
-          <button
-            type="button"
-            className="btn-secondary scaffold-toggle full"
-            onClick={() => setShowChecklist((value) => !value)}
-          >
-            {showChecklist ? 'Hide ESI checklist' : 'Open ESI checklist'}
-          </button>
-          {showChecklist && (
-            <div className="scaffold-panel">
-              <span className="eyebrow">Decision check</span>
-              <h4>Name the evidence</h4>
-              <ul>
-                <li>Immediate life-saving intervention?</li>
-                <li>High-risk complaint or severe distress?</li>
-                <li>Danger-zone vital signs?</li>
-                <li>Expected ED resources?</li>
-              </ul>
-            </div>
-          )}
+          <span className="eyebrow">Decision check</span>
+          <h4>Name the evidence</h4>
+          <ul>
+            <li>Immediate life-saving intervention?</li>
+            <li>High-risk complaint or severe distress?</li>
+            <li>Danger-zone vital signs?</li>
+            <li>Expected ED resources?</li>
+          </ul>
+          <div className="selected-decision">
+            <span>Selected level</span>
+            <strong>{selectedMeta ? selectedMeta.label : 'None selected'}</strong>
+            <small>{selectedMeta ? selectedMeta.description : 'Choose the acuity level that best matches the evidence.'}</small>
+          </div>
         </aside>
       </div>
 
@@ -167,7 +169,7 @@ function TriageAssignment({ sessionId, variant = 'final', onNext, onCapture, onC
 
       <div className="button-group">
         {!submitted ? (
-          <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+          <button className="btn-primary" onClick={handleSubmit} disabled={loading || !selectedLevel || !rationaleReady}>
             {isProvisional ? 'Record provisional ESI' : 'Lock final ESI'}
           </button>
         ) : (
