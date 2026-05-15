@@ -3,8 +3,7 @@ import {
   askTutorQuestion,
   getFeedback,
   getTutorSettings,
-  gradeReasoningReview,
-  saveTutorSettings
+  gradeReasoningReview
 } from '../services/api';
 
 function getComparisonClass(comparison) {
@@ -17,6 +16,60 @@ function scoreClass(percentage = 0) {
   if (percentage >= 85) return 'strong';
   if (percentage >= 65) return 'developing';
   return 'needs-review';
+}
+
+function getDomain(domains = [], key) {
+  return domains.find((domain) => domain.key === key);
+}
+
+function averagePercentage(domains = []) {
+  const valid = domains.filter(Boolean);
+  if (!valid.length) return 0;
+  const total = valid.reduce((sum, domain) => sum + (Number(domain.score) || 0), 0);
+  const possible = valid.reduce((sum, domain) => sum + (Number(domain.possible) || 0), 0);
+  return possible ? Math.round((total / possible) * 100) : 0;
+}
+
+function judgmentRows(domains = [], workflowAnalysis = {}, triageAnalysis = {}) {
+  const safety = getDomain(domains, 'safety');
+  const interview = getDomain(domains, 'interview');
+  const provisional = getDomain(domains, 'provisional_esi');
+  const finalEsi = getDomain(domains, 'esi');
+  const escalation = getDomain(domains, 'escalation');
+  const sbar = getDomain(domains, 'sbar');
+
+  return [
+    {
+      label: 'Noticing',
+      score: averagePercentage([safety, interview]),
+      evidence: workflowAnalysis?.interview?.message || safety?.message || 'Initial cue recognition was scored from intake and interview coverage.',
+      action: workflowAnalysis?.interview?.missed_domains?.length
+        ? `Missed domains: ${workflowAnalysis.interview.missed_domains.join(', ')}.`
+        : 'Arrival cues and focused questions covered the main risk signals.'
+    },
+    {
+      label: 'Interpreting',
+      score: averagePercentage([provisional, finalEsi]),
+      evidence: triageAnalysis?.rationale_feedback || finalEsi?.message || 'Acuity interpretation was scored from provisional and final ESI decisions.',
+      action: finalEsi?.message || 'Connect risk, vital signs, and expected resources in the ESI rationale.'
+    },
+    {
+      label: 'Responding',
+      score: averagePercentage([escalation, safety]),
+      evidence: workflowAnalysis?.escalation?.message || escalation?.message || 'Response scoring used placement, monitoring, and escalation priorities.',
+      action: workflowAnalysis?.escalation?.missed?.length
+        ? `Missed actions: ${workflowAnalysis.escalation.missed.map((item) => item.name).join(', ')}.`
+        : 'Escalation choices matched the main data-grounded priorities.'
+    },
+    {
+      label: 'Reflecting',
+      score: averagePercentage([sbar]),
+      evidence: workflowAnalysis?.sbar?.message || sbar?.message || 'Reflection was scored from handoff completeness.',
+      action: workflowAnalysis?.sbar?.missing?.length
+        ? `Missing SBAR elements: ${workflowAnalysis.sbar.missing.join(', ')}.`
+        : 'The handoff included the expected SBAR structure.'
+    }
+  ];
 }
 
 function DomainScore({ domain }) {
@@ -114,52 +167,206 @@ function SbarBlock({ sbar }) {
   );
 }
 
-function PhysicianDebrief({ debrief, triageAnalysis, scorecard, scorePercent, comparisonClass }) {
-  if (!debrief) return null;
+function SoapNote({ note }) {
+  if (!note) return null;
 
   return (
-    <section className="physician-debrief">
-      <div className="physician-summary">
+    <section className="soap-note-panel">
+      <div className="section-header compact">
         <div>
-          <span className="eyebrow">Emergency physician read</span>
-          <h4>Case summary</h4>
-          <p>{debrief.case_summary}</p>
-          {debrief.physician_read && <p>{debrief.physician_read}</p>}
-        </div>
-        <div className="debrief-score-card">
-          <span className={`result-badge ${comparisonClass}`}>{triageAnalysis.comparison}</span>
-          <strong>{scorecard?.total ?? 0} / {scorecard?.possible ?? 100}</strong>
-          <small>{scorePercent}% case score</small>
+          <span className="eyebrow">Case report</span>
+          <h4>Physician assessment and plan</h4>
         </div>
       </div>
 
-      <div className="gold-standard-panel">
-        <div className="section-header compact">
-          <div>
-            <span className="eyebrow">Gold standard</span>
-            <h4>Reference SBAR</h4>
+      <div className="soap-priority-grid">
+        <article className="soap-section assessment-section">
+          <span>A</span>
+          <h5>Assessment</h5>
+          <p><strong>Primary Diagnosis:</strong> {note.assessment?.primary_diagnosis}</p>
+          <div className="soap-ddx">
+            <strong>DDx:</strong>
+            <ul>
+              {(note.assessment?.ddx || []).map((item) => (
+                <li key={item.diagnosis}>
+                  <b>{item.diagnosis}</b>
+                  <small>{item.rationale}</small>
+                </li>
+              ))}
+            </ul>
           </div>
-          <span className="clinical-badge">ESI {triageAnalysis.expert_level}</span>
-        </div>
-        <SbarBlock sbar={debrief.gold_standard_sbar} />
+          <p><strong>Justification:</strong> {note.assessment?.justification}</p>
+        </article>
+
+        <article className="soap-section plan-section">
+          <span>P</span>
+          <h5>Plan</h5>
+          <ol>
+            {(note.plan || []).map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </article>
       </div>
 
-      <div className="next-step-panel">
-        <div className="section-header compact">
+      <details className="soap-source-details">
+        <summary>Subjective and objective findings</summary>
+        <div className="soap-grid soap-source-grid">
+          <article className="soap-section">
+            <span>S</span>
+            <h5>Subjective</h5>
+            <p><strong>Chief concern:</strong> {note.subjective?.chief_concern}</p>
+            <p>{note.subjective?.history}</p>
+          </article>
+
+          <article className="soap-section">
+            <span>O</span>
+            <h5>Objective</h5>
+            <ul>
+              {(note.objective || []).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+        </div>
+      </details>
+    </section>
+  );
+}
+
+function PhysicianCaseReview({ review, triageAnalysis }) {
+  if (!review) return null;
+
+  return (
+    <section className="physician-case-review">
+      <div className="physician-review-overview">
+        <div>
+          <span className="eyebrow">Physician case review</span>
+          <h4>Clinical read</h4>
+          <p>{review.case_summary}</p>
+          {review.physician_read && <p>{review.physician_read}</p>}
+        </div>
+        <dl className="case-review-summary">
           <div>
-            <span className="eyebrow">Next case</span>
-            <h4>What to improve</h4>
+            <dt>Reference ESI</dt>
+            <dd>ESI {review.reference_esi || triageAnalysis?.expert_level}</dd>
           </div>
+          <div>
+            <dt>Learner ESI</dt>
+            <dd>{review.learner_esi ? `ESI ${review.learner_esi}` : 'Not recorded'}</dd>
+          </div>
+          <div>
+            <dt>Disposition</dt>
+            <dd>{review.disposition || 'Not recorded'}</dd>
+          </div>
+          <div>
+            <dt>Final status</dt>
+            <dd>{review.final_status || triageAnalysis?.comparison}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <SoapNote note={review.soap_note} />
+    </section>
+  );
+}
+
+function DecisionDeltas({ deltas }) {
+  if (!deltas || deltas.length === 0) return null;
+
+  return (
+    <section className="decision-deltas-panel">
+      <div className="section-header compact">
+        <div>
+          <span className="eyebrow">Acuity reasoning</span>
+          <h4>What changed the acuity</h4>
         </div>
-        <div className="next-step-grid">
-          {(debrief.next_steps || []).map((item) => (
-            <article className="next-step-card" key={`${item.title}-${item.evidence}`}>
-              <span>{item.title}</span>
-              <strong>{item.evidence}</strong>
-              <p>{item.action}</p>
-            </article>
-          ))}
+      </div>
+
+      <div className="decision-delta-list">
+        {deltas.map((delta, index) => (
+          <article className="decision-delta-card" key={`${delta.finding}-${index}`}>
+            <div className="delta-main">
+              <span>Clinical finding</span>
+              <strong>{delta.finding}</strong>
+              <p>{delta.clinical_significance}</p>
+            </div>
+            <div className="delta-comparison">
+              <div>
+                <span>Learner action</span>
+                <p>{delta.learner_action}</p>
+              </div>
+              <div>
+                <span>Reference action</span>
+                <p>{delta.reference_action}</p>
+              </div>
+              <div>
+                <span>Recommended next step</span>
+                <p>{delta.recommended_next_step}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function NextCaseChecklist({ items }) {
+  if (!items || items.length === 0) return null;
+
+  return (
+    <section className="next-case-checklist">
+      <div className="section-header compact">
+        <div>
+          <span className="eyebrow">Next case</span>
+          <h4>Next case checklist</h4>
         </div>
+      </div>
+      <ol>
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function ReferenceSbarPanel({ sbar, triageAnalysis }) {
+  if (!sbar) return null;
+
+  return (
+    <section className="gold-standard-panel">
+      <div className="section-header compact">
+        <div>
+          <span className="eyebrow">Reference handoff</span>
+          <h4>Reference SBAR</h4>
+        </div>
+        <span className="clinical-badge">ESI {triageAnalysis?.expert_level}</span>
+      </div>
+      <SbarBlock sbar={sbar} />
+    </section>
+  );
+}
+
+function JudgmentRubricAudit({ domains, workflowAnalysis, triageAnalysis }) {
+  const rows = judgmentRows(domains, workflowAnalysis, triageAnalysis);
+  if (!rows.length) return null;
+
+  return (
+    <section className="feedback-section full-width">
+      <h4>Clinical judgment rubric</h4>
+      <div className="judgment-rubric-grid audit-rubric-grid">
+        {rows.map((row) => (
+          <article className={`judgment-rubric-item ${scoreClass(row.score)}`} key={row.label}>
+            <div className="rubric-heading">
+              <strong>{row.label}</strong>
+              <span>{row.score}%</span>
+            </div>
+            <p>{row.evidence}</p>
+            <small>{row.action}</small>
+          </article>
+        ))}
       </div>
     </section>
   );
@@ -175,7 +382,6 @@ function TutorResponse({ response }) {
           <span className="eyebrow">{response.role || 'Emergency physician tutor'}</span>
           <h4>Case guidance</h4>
         </div>
-        <span className="clinical-badge">{response.source || 'OpenRouter'}</span>
       </div>
       {response.summary && <p className="tutor-summary">{response.summary}</p>}
       {response.teaching_point && (
@@ -222,7 +428,7 @@ function TutorPanel({ sessionId, aiSettings }) {
     }
     const activeSettings = getTutorSettings();
     if (!activeSettings.hasKey) {
-      setError('Use AI settings in the header to enable the clinical tutor.');
+      setError('Enable AI in settings to ask follow-up questions.');
       return;
     }
 
@@ -235,7 +441,7 @@ function TutorPanel({ sessionId, aiSettings }) {
       const answer = await askTutorQuestion(sessionId, trimmed);
       setMessages((prev) => [...prev, { role: 'tutor', response: answer }]);
     } catch (err) {
-      setError(err.message || 'The clinical tutor could not answer right now.');
+      setError('The clinical tutor could not answer right now.');
     } finally {
       setLoading(false);
     }
@@ -257,14 +463,8 @@ function TutorPanel({ sessionId, aiSettings }) {
       </div>
 
       <p className="instruction">
-        Ask for a concise attending-style explanation after the debrief. The tutor uses the global AI settings in the header.
+        Ask a follow-up question about the case.
       </p>
-
-      <div className="source-card tutor-source">
-        <span>{settings.hasKey ? 'AI tutor enabled' : 'AI tutor off'}</span>
-        <strong>{settings.model}</strong>
-        <small>{settings.hasKey ? 'OpenRouter key saved in this browser.' : 'The core debrief remains available in static mode.'}</small>
-      </div>
 
       <div className="prompt-bank">
         {suggestedQuestions.map((item) => (
@@ -313,12 +513,6 @@ function TutorPanel({ sessionId, aiSettings }) {
 }
 
 function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
-  const [retryModel, setRetryModel] = useState(settings?.model || 'openrouter/free');
-
-  useEffect(() => {
-    setRetryModel(settings?.model || 'openrouter/free');
-  }, [settings?.model]);
-
   if (!review && !loading && !error) {
     return (
       <section className="feedback-section full-width reasoning-review-panel">
@@ -327,10 +521,9 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
             <span className="eyebrow">Reasoning review</span>
             <h4>Clinical critique</h4>
           </div>
-          <span className="clinical-badge">{settings?.hasKey ? 'Ready' : 'Local'}</span>
         </div>
         <p className="instruction">
-          Save an OpenRouter key in AI settings to request an educator-style critique.
+          Enable AI in settings to request an educator-style critique.
         </p>
       </section>
     );
@@ -343,12 +536,11 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
           <span className="eyebrow">Reasoning review</span>
           <h4>Clinical critique</h4>
         </div>
-        <span className="clinical-badge">{loading ? 'Reviewing' : review?.source || 'Unavailable'}</span>
       </div>
 
       {loading && (
         <div className="loading compact-loading">
-          {review ? 'Requesting OpenRouter critique. Local rubric feedback remains available.' : 'Reviewing clinical reasoning with OpenRouter.'}
+          Reviewing clinical reasoning.
         </div>
       )}
 
@@ -357,18 +549,8 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
           <div className="error-message compact-message">{error}</div>
           {settings?.hasKey && (
             <div className="retry-controls">
-              <label htmlFor="reasoning-review-model">
-                Retry model
-                <input
-                  id="reasoning-review-model"
-                  type="text"
-                  value={retryModel}
-                  onChange={(event) => setRetryModel(event.target.value)}
-                  placeholder="openrouter/free"
-                />
-              </label>
-              <button type="button" className="btn-secondary" onClick={() => onRetry?.(retryModel)} disabled={loading}>
-                Retry AI review
+              <button type="button" className="btn-secondary" onClick={() => onRetry?.()} disabled={loading}>
+                Retry review
               </button>
             </div>
           )}
@@ -377,15 +559,15 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
 
       {!settings?.hasKey && review?.source === 'Local rubric review' && (
         <p className="instruction">
-          Local rubric feedback is available without an API key. AI critique can be requested from the header settings.
+          Core rubric feedback is shown.
         </p>
       )}
 
       {settings?.hasKey && review?.source === 'Local rubric review' && !loading && !error && (
         <div className="review-retry-panel compact-ai-action">
-          <p className="instruction">Local rubric feedback is shown. An AI critique can be requested when deeper free-text review is needed.</p>
-          <button type="button" className="btn-secondary" onClick={() => onRetry?.(retryModel)}>
-            Request AI critique
+          <p className="instruction">Request a deeper free-text critique when needed.</p>
+          <button type="button" className="btn-secondary" onClick={() => onRetry?.()}>
+            Request critique
           </button>
         </div>
       )}
@@ -399,7 +581,6 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
             </div>
             <p>{review.overall?.summary}</p>
             <small>{review.overall?.priority}</small>
-            {review.semantic_score && <small>Semantic cache match: {Math.round(review.semantic_score * 100)}%</small>}
           </div>
 
           <div className="reasoning-section-grid">
@@ -530,19 +711,10 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
     setReviewLoading(false);
   }, [feedback]);
 
-  const requestReasoningReview = async (nextModel) => {
+  const requestReasoningReview = async () => {
     const activeSettings = getTutorSettings();
-    const trimmedModel = String(nextModel || activeSettings.model || '').trim();
-    if (activeSettings.key && trimmedModel && trimmedModel !== activeSettings.model) {
-      const next = saveTutorSettings({
-        key: activeSettings.key,
-        model: trimmedModel
-      });
-      onAiSettingsChange?.(next);
-    }
-
     if (!activeSettings.hasKey) {
-      setReviewError('Save an OpenRouter key in AI settings to request an AI critique.');
+      setReviewError('Enable AI in settings to request a critique.');
       return;
     }
 
@@ -554,7 +726,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
       setReasoningReview(review);
     } catch (err) {
       setReasoningReview(feedback?.local_reasoning_review || null);
-      setReviewError(err.message || 'AI reasoning review could not be generated.');
+      setReviewError('The critique could not be generated.');
     } finally {
       setReviewLoading(false);
     }
@@ -585,8 +757,10 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
     workflow_analysis,
     scorecard,
     action_feedback,
-    simulation_strategy,
     physician_debrief,
+    physician_case_review,
+    decision_deltas,
+    next_case_checklist,
     case_evidence
   } = feedback;
   const comparisonClass = getComparisonClass(triage_analysis.comparison);
@@ -600,20 +774,36 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
       <div className="section-header">
         <div>
           <span className="eyebrow">Case debrief</span>
-          <h3>Expert comparison</h3>
+          <h3>Physician case review</h3>
         </div>
         <span className={`result-badge ${comparisonClass}`}>{triage_analysis.comparison}</span>
       </div>
 
-      <PhysicianDebrief
-        debrief={physician_debrief}
+      <PhysicianCaseReview
+        review={physician_case_review || {
+          case_summary: physician_debrief?.case_summary,
+          physician_read: physician_debrief?.physician_read,
+          reference_esi: triage_analysis?.expert_level,
+          learner_esi: triage_analysis?.user_level,
+          disposition: case_evidence?.outcomes?.find((item) => item.label === 'Disposition')?.value,
+          final_status: triage_analysis?.comparison,
+          soap_note: physician_debrief?.soap_note
+        }}
         triageAnalysis={triage_analysis}
-        scorecard={scorecard}
-        scorePercent={scorePercent}
-        comparisonClass={comparisonClass}
       />
 
+      <DecisionDeltas deltas={decision_deltas || physician_case_review?.decision_deltas} />
+
+      <NextCaseChecklist items={next_case_checklist || physician_case_review?.next_case_checklist} />
+
       <div className="debrief-accordion-stack simplified">
+        <DebriefAccordion title="Reference SBAR" badge={`ESI ${triage_analysis?.expert_level}`}>
+          <ReferenceSbarPanel
+            sbar={physician_case_review?.gold_standard_sbar || physician_debrief?.gold_standard_sbar}
+            triageAnalysis={triage_analysis}
+          />
+        </DebriefAccordion>
+
         <DebriefAccordion title="Reasoning review" badge={`${reasoningReview?.overall?.score ?? 0} / ${reasoningReview?.overall?.possible ?? 65}`}>
           <ReasoningReviewPanel
             review={reasoningReview}
@@ -655,16 +845,21 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                 <strong>{workflow_analysis?.sbar?.score} / {workflow_analysis?.sbar?.possible}</strong>
               </div>
               <p>{workflow_analysis?.sbar?.message}</p>
-              {workflow_analysis?.sbar?.missing?.length > 0 && (
-                <p>Missing elements: {workflow_analysis.sbar.missing.join(', ')}.</p>
+              {(workflow_analysis?.sbar?.gaps?.length > 0 || workflow_analysis?.sbar?.missing?.length > 0) && (
+                <p>
+                  Weak or missing elements: {(workflow_analysis.sbar.gaps?.length
+                    ? workflow_analysis.sbar.gaps.slice(0, 6)
+                    : workflow_analysis.sbar.missing
+                  ).join('; ')}.
+                </p>
               )}
             </div>
           </section>
         </DebriefAccordion>
 
-        <DebriefAccordion title="Score details" badge={`${scorecard?.total ?? 0} / ${scorecard?.possible ?? 100}`}>
+        <DebriefAccordion title="Score audit" badge={`${scorecard?.total ?? 0} / ${scorecard?.possible ?? 100}`}>
           <section className="feedback-section full-width">
-            <h4>Score method</h4>
+            <h4>Case score</h4>
             <div className="score-meter" aria-label={`Case score ${scorePercent}%`}>
               <span style={{ width: `${Math.max(0, Math.min(scorePercent, 100))}%` }} />
             </div>
@@ -681,9 +876,15 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
           </section>
 
           <ActionLedger items={action_feedback} />
+
+          <JudgmentRubricAudit
+            domains={domains}
+            workflowAnalysis={workflow_analysis}
+            triageAnalysis={triage_analysis}
+          />
         </DebriefAccordion>
 
-        <DebriefAccordion title="Case evidence" badge="Data sources">
+        <DebriefAccordion title="Case evidence" badge="Review">
           <div className="feedback-grid">
             <section className="feedback-section">
               <h4>Vital signs and resources</h4>
@@ -695,7 +896,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                 />
                 <EvidenceList
                   items={case_evidence?.resources}
-                  emptyText="No counted resource fields were recorded."
+                  emptyText="No resource needs were recorded for this case."
                   renderItem={(item) => `${item.label}: ${item.value}`}
                 />
               </div>
@@ -707,7 +908,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                 <p>{workflow_analysis?.interview?.message}</p>
                 <div className="mini-list">
                   <span>Mode</span>
-                  <strong>{workflow_analysis?.interview?.mode_label || 'Assessment'}</strong>
+                  <strong>{workflow_analysis?.interview?.mode_label || 'Focused interview'}</strong>
                   <span>Covered</span>
                   <strong>{workflow_analysis?.interview?.covered_domains?.join(', ') || 'None'}</strong>
                   <span>Missed</span>
@@ -755,31 +956,17 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
             </section>
           </div>
 
-          <div className="feedback-grid">
-            <section className="feedback-section">
-              <h4>Outcome signals</h4>
-              <EvidenceList
-                items={case_evidence?.outcomes}
-                emptyText="No disposition or outcome signal was available for this case."
-                renderItem={(item) => `${item.label}: ${item.value}`}
-              />
-            </section>
-
-            <section className="feedback-section">
-              <h4>Simulation realism</h4>
-              <div className="priority-grid single-column">
-                {(simulation_strategy || []).map((item) => (
-                  <div className="priority-item" key={item.title}>
-                    <span>{item.title}</span>
-                    <p>{item.text}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
+          <section className="feedback-section">
+            <h4>Outcome signals</h4>
+            <EvidenceList
+              items={case_evidence?.outcomes}
+              emptyText="No disposition or outcome signal was available for this case."
+              renderItem={(item) => `${item.label}: ${item.value}`}
+            />
+          </section>
         </DebriefAccordion>
 
-        <DebriefAccordion title="Clinical tutor" badge={(aiSettings || getTutorSettings()).hasKey ? 'OpenRouter' : 'Optional'}>
+        <DebriefAccordion title="Clinical tutor" badge={(aiSettings || getTutorSettings()).hasKey ? 'Enabled' : 'Optional'}>
           <TutorPanel sessionId={sessionId} aiSettings={aiSettings} />
         </DebriefAccordion>
       </div>

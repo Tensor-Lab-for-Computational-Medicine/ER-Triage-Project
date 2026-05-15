@@ -7,7 +7,6 @@ import {
   saveTutorSettings,
   startSimulation
 } from './services/api';
-import PatientInfo from './components/PatientInfo';
 import FocusedInterview from './components/FocusedInterview';
 import VitalSigns from './components/VitalSigns';
 import TriageAssignment from './components/TriageAssignment';
@@ -17,22 +16,16 @@ import Feedback from './components/Feedback';
 
 const WORKFLOW_STEPS = [
   {
-    id: 'arrival',
-    label: 'First look',
-    title: 'Arrival safety screen',
-    detail: 'Separate stable presentations from immediate threats.'
-  },
-  {
     id: 'interview',
-    label: 'Interview',
-    title: 'Focused interview',
-    detail: 'Use a focused question budget for risk-changing information.'
+    label: 'Conversation',
+    title: 'Patient conversation',
+    detail: 'Gather the history that changes risk, acuity, or next actions.'
   },
   {
     id: 'provisional',
-    label: 'Early ESI',
-    title: 'Provisional acuity',
-    detail: 'Make an early ESI estimate before complete objective review.'
+    label: 'First ESI',
+    title: 'Initial acuity call',
+    detail: 'State the working ESI level before the complete objective review.'
   },
   {
     id: 'vitals',
@@ -48,9 +41,9 @@ const WORKFLOW_STEPS = [
   },
   {
     id: 'orders',
-    label: 'Escalate',
-    title: 'Triage escalation',
-    detail: 'Choose placement, protocol, monitoring, and safety actions.'
+    label: 'Priorities',
+    title: 'Care priorities',
+    detail: 'Choose placement, monitoring, and escalation actions.'
   },
   {
     id: 'handoff',
@@ -60,14 +53,13 @@ const WORKFLOW_STEPS = [
   },
   {
     id: 'debrief',
-    label: 'Debrief',
-    title: 'Data-grounded debrief',
-    detail: 'Review decisions against MIETIC data and deterministic scoring.'
+    label: 'Report',
+    title: 'Performance report',
+    detail: 'Review clinical judgment, safety decisions, and next practice steps.'
   }
 ];
 
 const INITIAL_CASE_RECORD = {
-  firstLookDecision: '',
   chiefQuestion: '',
   chiefResponse: '',
   interviewLog: [],
@@ -92,12 +84,22 @@ function formatClock(seconds = 0) {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
-function WorkflowRail({ currentStep }) {
+function realElapsedSeconds(clock = {}, _tick = 0) {
+  if (clock.started_at_ms && !clock.completed_at_ms) {
+    return Math.max(clock.elapsed_seconds || 0, Math.floor((Date.now() - clock.started_at_ms) / 1000));
+  }
+  return clock.elapsed_seconds || 0;
+}
+
+function WorkflowStrip({ currentStep }) {
+  const active = WORKFLOW_STEPS[currentStep] || WORKFLOW_STEPS[0];
+
   return (
-    <aside className="workflow-rail" aria-label="Case workflow">
-      <div className="rail-header">
-        <span className="eyebrow">Case pathway</span>
-        <strong>{WORKFLOW_STEPS.length} stage simulation</strong>
+    <nav className="workflow-strip" aria-label="Case workflow">
+      <div className="workflow-current">
+        <span className="workflow-strip-status">Step {currentStep + 1} of {WORKFLOW_STEPS.length}</span>
+        <strong>{active.title}</strong>
+        <span>{active.detail}</span>
       </div>
       <ol className="workflow-list">
         {WORKFLOW_STEPS.map((item, index) => {
@@ -105,60 +107,63 @@ function WorkflowRail({ currentStep }) {
             index < currentStep ? 'complete' : index === currentStep ? 'active' : 'pending';
 
           return (
-            <li key={item.id} className={`workflow-item ${status}`}>
-              <span className="workflow-index">{index + 1}</span>
-              <span>
-                <strong>{item.label}</strong>
-                <small>{item.title}</small>
-                {status === 'active' && <em>{item.detail}</em>}
-              </span>
+            <li
+              key={item.id}
+              className={`workflow-item ${status}`}
+              aria-label={`${item.label}: ${status}`}
+            >
+              <span className="workflow-index" aria-hidden="true">{index + 1}</span>
+              <span className="workflow-label">{item.label}</span>
             </li>
           );
         })}
       </ol>
-    </aside>
+    </nav>
   );
 }
 
 function CaseChart({ patientData, caseRecord, activeStep }) {
+  const intake = patientData?.intake || {};
   const triageLabel = caseRecord.triageLevel
     ? `ESI ${caseRecord.triageLevel}`
     : 'Pending';
   const modeLabels = {
-    assessment: 'Assessment',
-    intermediate: 'Practice',
-    beginner: 'Guided'
+    assessment: 'Focused interview'
   };
-  const activeMode = modeLabels[caseRecord.interviewMode] || 'Assessment';
+  const activeMode = modeLabels[caseRecord.interviewMode] || 'Focused interview';
+  const latestAnswer = caseRecord.interviewLog.length
+    ? caseRecord.interviewLog[caseRecord.interviewLog.length - 1].answer
+    : '';
 
   return (
     <aside className="case-chart" aria-label="Current case chart">
       <div className="chart-card patient-identity">
-        <span className="eyebrow">Arrival record</span>
+        <span className="eyebrow">Intake report</span>
         <h2>{patientData ? `${patientData.age} year old ${patientData.sex}` : 'Loading case'}</h2>
-        <p className="chart-note">{patientData?.complaint || 'Chief concern pending'}</p>
-        <div className="chart-row">
-          <span>Transport</span>
-          <strong>{patientData?.transport || 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Case source</span>
-          <strong>MIETIC validation sample</strong>
+        <p className="chart-note">Reported: {intake.reported_concern || patientData?.complaint || 'Concern pending'}</p>
+        <div className="chart-pill-row">
+          <span>{patientData?.transport || 'Transport pending'}</span>
+          {intake.source && <span>{intake.source}</span>}
+          <span>{triageLabel}</span>
         </div>
       </div>
 
-      <div className="chart-card">
-        <span className="eyebrow">Case worksheet</span>
+      <details className="chart-card chart-details">
+        <summary>Case details</summary>
         <div className="chart-row">
           <span>Current stage</span>
           <strong>{activeStep?.label || 'Pending'}</strong>
         </div>
         <div className="chart-row">
-          <span>First look</span>
-          <strong>{caseRecord.firstLookDecision ? 'Recorded' : 'Pending'}</strong>
+          <span>Questions used</span>
+          <strong>{caseRecord.interviewLog.length || 'Pending'}</strong>
         </div>
         <div className="chart-row">
-          <span>Interview mode</span>
+          <span>Acuity level</span>
+          <strong>{triageLabel}</strong>
+        </div>
+        <div className="chart-row">
+          <span>Interview</span>
           <strong>{activeMode}</strong>
         </div>
         <div className="chart-row">
@@ -166,53 +171,37 @@ function CaseChart({ patientData, caseRecord, activeStep }) {
           <strong>{caseRecord.chiefResponse ? 'Captured' : 'Pending'}</strong>
         </div>
         <div className="chart-row">
-          <span>Questions used</span>
-          <strong>{caseRecord.interviewLog.length || 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
           <span>Vitals measured</span>
           <strong>{caseRecord.vitals.length ? caseRecord.vitals.length : 'Pending'}</strong>
         </div>
         <div className="chart-row">
-          <span>Focused history</span>
-          <strong>{caseRecord.historyResponse ? 'Captured' : 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Supports used</span>
-          <strong>{caseRecord.interviewSupports.length || 'None'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Acuity level</span>
-          <strong>{triageLabel}</strong>
+          <span>Latest answer</span>
+          <strong>{latestAnswer || 'Pending'}</strong>
         </div>
         <div className="chart-row">
           <span>Provisional ESI</span>
           <strong>{caseRecord.provisionalTriageLevel ? `ESI ${caseRecord.provisionalTriageLevel}` : 'Pending'}</strong>
         </div>
         <div className="chart-row">
-          <span>Escalation actions</span>
+          <span>Actions</span>
           <strong>{caseRecord.interventions.length || 'None yet'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Escalation rationale</span>
-          <strong>{caseRecord.escalationRationale ? 'Recorded' : 'Pending'}</strong>
         </div>
         <div className="chart-row">
           <span>SBAR</span>
           <strong>{caseRecord.sbarHandoff ? 'Recorded' : 'Pending'}</strong>
         </div>
-      </div>
+      </details>
 
-      <div className="chart-card reference-card">
-        <span className="eyebrow">ESI anchors</span>
+      <details className="chart-card chart-details reference-card">
+        <summary>ESI anchors</summary>
         <ul>
-          <li>Life-saving intervention needed: ESI 1</li>
-          <li>High risk, confusion, lethargy, or severe distress: ESI 2</li>
-          <li>Stable but likely multiple resources: ESI 3</li>
-          <li>One resource: ESI 4</li>
-          <li>No resources: ESI 5</li>
+          <li>ESI 1: life-saving intervention</li>
+          <li>ESI 2: high risk or severe distress</li>
+          <li>ESI 3: stable, multiple resources</li>
+          <li>ESI 4: one resource</li>
+          <li>ESI 5: no resources</li>
         </ul>
-      </div>
+      </details>
     </aside>
   );
 }
@@ -247,17 +236,12 @@ function ErrorScreen({ error, onRetry }) {
   );
 }
 
-function AiSettingsMenu({ settings, onSettingsChange, semanticStatus }) {
+function AiSettingsMenu({ settings, onSettingsChange }) {
   const [open, setOpen] = useState(false);
   const [apiKey, setApiKey] = useState('');
-  const [model, setModel] = useState(settings.model);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const menuRef = useRef(null);
-
-  useEffect(() => {
-    setModel(settings.model);
-  }, [settings]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -280,21 +264,21 @@ function AiSettingsMenu({ settings, onSettingsChange, semanticStatus }) {
       const activeSettings = getTutorSettings();
       const next = saveTutorSettings({
         key: apiKey || activeSettings.key,
-        model
+        model: activeSettings.model
       });
       setApiKey('');
       onSettingsChange(next);
-      setMessage('AI responses enabled for this browser.');
+      setMessage('AI responses enabled.');
       setOpen(false);
     } catch (err) {
-      setError(err.message || 'OpenRouter settings could not be saved.');
+      setError('AI settings could not be saved.');
     }
   };
 
   const clearSettings = () => {
     const next = clearTutorSettings();
     setApiKey('');
-    setMessage('AI key cleared from this browser.');
+    setMessage('AI key cleared.');
     setError('');
     onSettingsChange(next);
     setOpen(false);
@@ -302,17 +286,21 @@ function AiSettingsMenu({ settings, onSettingsChange, semanticStatus }) {
 
   return (
     <div className="ai-menu" ref={menuRef}>
-      <button type="button" className="ai-menu-trigger" onClick={() => setOpen((value) => !value)}>
-        <span>{settings.hasKey ? 'AI enabled' : 'Local mode'}</span>
-        <strong>AI settings</strong>
-        {semanticStatus && <small>{semanticStatus}</small>}
+      <button
+        type="button"
+        className="ai-menu-trigger"
+        aria-label="AI settings"
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span>{settings.hasKey ? 'AI on' : 'Local'}</span>
+        <strong>Settings</strong>
       </button>
 
       {open && (
         <div className="ai-menu-panel">
           <div className="section-header compact">
             <div>
-              <span className="eyebrow">OpenRouter</span>
+              <span className="eyebrow">Optional AI</span>
               <h3>AI settings</h3>
             </div>
             <span className="clinical-badge">{settings.hasKey ? 'Enabled' : 'Off'}</span>
@@ -330,17 +318,6 @@ function AiSettingsMenu({ settings, onSettingsChange, semanticStatus }) {
             />
           </div>
 
-          <div className="question-input compact-input">
-            <label htmlFor="global-openrouter-model">Model</label>
-            <input
-              id="global-openrouter-model"
-              type="text"
-              value={model}
-              onChange={(event) => setModel(event.target.value)}
-              placeholder="openrouter/free"
-            />
-          </div>
-
           <div className="button-group">
             <button type="button" className="btn-primary" onClick={saveSettings}>
               Save
@@ -348,15 +325,6 @@ function AiSettingsMenu({ settings, onSettingsChange, semanticStatus }) {
             <button type="button" className="btn-secondary" onClick={clearSettings}>
               Clear
             </button>
-          </div>
-
-          <div className="source-card">
-            <span>{settings.hasKey ? 'OpenRouter ready' : 'Static mode'}</span>
-            <strong>{settings.model}</strong>
-            <small>
-              Keys are cached on this device until cleared. Repeated patient question intents are cached before any API call.
-            </small>
-            {semanticStatus && <small>{semanticStatus}</small>}
           </div>
 
           {message && <div className="success-message compact-message">{message}</div>}
@@ -371,14 +339,12 @@ function App() {
   const [step, setStep] = useState(-1);
   const [sessionId, setSessionId] = useState(null);
   const [patientData, setPatientData] = useState(null);
-  const [firstLook, setFirstLook] = useState(null);
-  const [interviewModes, setInterviewModes] = useState([]);
   const [interviewSupports, setInterviewSupports] = useState([]);
   const [maxQuestions, setMaxQuestions] = useState(4);
   const [clock, setClock] = useState({ elapsed_seconds: 0, timing_events: {} });
+  const [timerTick, setTimerTick] = useState(0);
   const [caseRecord, setCaseRecord] = useState(INITIAL_CASE_RECORD);
   const [aiSettings, setAiSettings] = useState(() => getTutorSettings());
-  const [semanticStatus, setSemanticStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -394,13 +360,13 @@ function App() {
         age: data.age,
         sex: data.sex,
         transport: data.transport,
-        complaint: data.complaint
+        complaint: data.complaint,
+        intake: data.intake || null
       });
-      setFirstLook(data.first_look);
-      setInterviewModes(data.interview_modes || []);
       setInterviewSupports(data.interview_supports || []);
       setMaxQuestions(data.max_questions || 4);
       setClock(data.clock || { elapsed_seconds: 0, timing_events: {} });
+      setTimerTick(0);
       setStep(0);
     } catch (err) {
       setError('Failed to start the simulation. Refresh the page and try again.');
@@ -421,10 +387,9 @@ function App() {
     setStep(-1);
     setSessionId(null);
     setPatientData(null);
-    setFirstLook(null);
-    setInterviewModes([]);
     setInterviewSupports([]);
     setClock({ elapsed_seconds: 0, timing_events: {} });
+    setTimerTick(0);
     setError('');
     await handleStart();
   };
@@ -434,24 +399,28 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (!clock.started_at_ms || clock.completed_at_ms) return undefined;
+    const intervalId = window.setInterval(() => {
+      setTimerTick((value) => value + 1);
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [clock.started_at_ms, clock.completed_at_ms]);
+
+  useEffect(() => {
     if (!aiSettings.hasKey) {
-      setSemanticStatus('Static scoring');
       return undefined;
     }
 
     let cancelled = false;
     const runPrewarm = async () => {
       if (cancelled) return;
-      setSemanticStatus('Preparing cache');
       try {
         await prewarmSemanticCache();
-        if (!cancelled) setSemanticStatus('Semantic cache ready');
       } catch {
-        if (!cancelled) setSemanticStatus('Semantic cache unavailable');
+        // The case remains fully usable if the local similarity cache is unavailable.
       }
     };
 
-    setSemanticStatus('Cache queued');
     const idleId = window.requestIdleCallback
       ? window.requestIdleCallback(runPrewarm, { timeout: 2000 })
       : window.setTimeout(runPrewarm, 800);
@@ -476,6 +445,7 @@ function App() {
 
   const activeStep = WORKFLOW_STEPS[step];
   const progressPercent = Math.round(((step + 1) / WORKFLOW_STEPS.length) * 100);
+  const displayElapsed = realElapsedSeconds(clock, timerTick);
 
   return (
     <div className="app">
@@ -486,13 +456,11 @@ function App() {
         </div>
         <div className="case-meta">
           <span>Case clock</span>
-          <strong>{formatClock(clock.elapsed_seconds)}</strong>
-          <small>{sessionId ? sessionId.slice(0, 8).toUpperCase() : 'Pending'}</small>
+          <strong>{formatClock(displayElapsed)}</strong>
         </div>
         <AiSettingsMenu
           settings={aiSettings}
           onSettingsChange={setAiSettings}
-          semanticStatus={semanticStatus}
         />
       </header>
 
@@ -500,33 +468,13 @@ function App() {
         <span style={{ width: `${progressPercent}%` }} />
       </div>
 
+      <WorkflowStrip currentStep={step} />
+
       <div className="app-layout">
-        <WorkflowRail currentStep={step} />
-
         <main className="case-stage">
-          <div className="stage-context">
-            <span className="eyebrow">
-              Step {step + 1} of {WORKFLOW_STEPS.length}
-            </span>
-            <h2>{activeStep.title}</h2>
-            <p>{activeStep.detail}</p>
-          </div>
-
           {step === 0 && (
-            <PatientInfo
-              sessionId={sessionId}
-              patientData={patientData}
-              firstLook={firstLook}
-              onNext={handleNext}
-              onCapture={handleCapture}
-              onClock={setClock}
-            />
-          )}
-
-          {step === 1 && (
             <FocusedInterview
               sessionId={sessionId}
-              interviewModes={interviewModes}
               interviewSupports={interviewSupports}
               maxQuestions={maxQuestions}
               onNext={handleNext}
@@ -535,7 +483,7 @@ function App() {
             />
           )}
 
-          {step === 2 && (
+          {step === 1 && (
             <TriageAssignment
               sessionId={sessionId}
               variant="provisional"
@@ -545,7 +493,7 @@ function App() {
             />
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <VitalSigns
               sessionId={sessionId}
               onNext={handleNext}
@@ -554,7 +502,7 @@ function App() {
             />
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <TriageAssignment
               sessionId={sessionId}
               onNext={handleNext}
@@ -563,7 +511,7 @@ function App() {
             />
           )}
 
-          {step === 5 && (
+          {step === 4 && (
             <Interventions
               sessionId={sessionId}
               onNext={handleNext}
@@ -572,7 +520,7 @@ function App() {
             />
           )}
 
-          {step === 6 && (
+          {step === 5 && (
             <SbarHandoff
               sessionId={sessionId}
               onNext={handleNext}
@@ -581,7 +529,7 @@ function App() {
             />
           )}
 
-          {step === 7 && (
+          {step === 6 && (
             <Feedback
               sessionId={sessionId}
               caseRecord={caseRecord}

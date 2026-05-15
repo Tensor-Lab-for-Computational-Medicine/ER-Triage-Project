@@ -1,28 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   askPatientQuestion,
-  getTutorSettings,
-  recordInterviewSupport,
-  setInterviewMode
+  recordInterviewSupport
 } from '../services/api';
-
-function responseSourceLabel(item) {
-  if (item.semantic_score) return `Semantic cache ${Math.round(item.semantic_score * 100)}% - ${item.time_cost_seconds}s elapsed`;
-  if (item.cached) return `Cached response - ${item.time_cost_seconds}s elapsed`;
-  if (item.used_ai) return `OpenRouter response - ${item.time_cost_seconds}s elapsed`;
-  return `Local response - ${item.time_cost_seconds}s elapsed`;
-}
 
 function FocusedInterview({
   sessionId,
-  interviewModes = [],
   interviewSupports = [],
   maxQuestions,
   onNext,
   onCapture,
   onClock
 }) {
-  const [selectedMode, setSelectedMode] = useState('assessment');
   const [supportUses, setSupportUses] = useState([]);
   const [question, setQuestion] = useState('');
   const [log, setLog] = useState([]);
@@ -30,76 +19,33 @@ function FocusedInterview({
   const [lastInsertedStem, setLastInsertedStem] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
-  const [modeLoading, setModeLoading] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState('');
   const [error, setError] = useState('');
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
-    setSelectedMode('assessment');
     setSupportUses([]);
     setQuestion('');
     setLog([]);
     setQueuedSupportId('');
     setLastInsertedStem('');
+    setVoiceStatus('');
   }, [sessionId]);
 
-  const modes = interviewModes.length > 0
-    ? interviewModes
-    : [
-        {
-          id: 'assessment',
-          label: 'Assessment',
-          description: 'Free-text questions only.',
-          supports_enabled: false
-        }
-      ];
-  const activeMode = modes.find((item) => item.id === selectedMode) || modes[0];
-  const supportsEnabled = Boolean(activeMode?.supports_enabled);
-  const isGuidedMode = selectedMode === 'beginner';
-  const isPracticeMode = selectedMode === 'intermediate';
+  useEffect(() => () => {
+    if (recognitionRef.current) recognitionRef.current.abort();
+  }, []);
+
+  const supportsEnabled = interviewSupports.length > 0;
   const questionsRemaining = Math.max((maxQuestions || 4) - log.length, 0);
   const canContinue = log.length >= 2;
   const minimumQuestions = 2;
-  const modeLocked = log.length > 0 || supportUses.length > 0;
   const budgetSlots = Array.from({ length: maxQuestions || 4 }, (_, index) => index);
-
-  const modeBadge = (mode) => {
-    if (mode.id === 'assessment') return 'No prompts';
-    if (mode.id === 'intermediate') return '+20s per support';
-    return 'No support cost';
-  };
 
   const supportCostLabel = (support) => {
     const used = supportUses.find((item) => item.id === support.id);
-    if (used?.cost_seconds) return `+${used.cost_seconds}s used`;
-    if (isPracticeMode) return '+20s';
-    return 'No clock cost';
-  };
-
-  const chooseMode = async (mode) => {
-    if (mode.id === selectedMode || modeLoading || log.length > 0 || supportUses.length > 0) return;
-    setModeLoading(true);
-    setError('');
-
-    try {
-      const data = await setInterviewMode(sessionId, mode.id);
-      setSelectedMode(data.mode.id);
-      setSupportUses(data.support_uses || []);
-      if (data.mode.id === 'assessment') {
-        setQueuedSupportId('');
-        setLastInsertedStem('');
-      }
-      if (onClock) onClock(data.clock);
-      if (onCapture) {
-        onCapture({
-          interviewMode: data.mode.id,
-          interviewSupports: data.support_uses || []
-        });
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'Interview mode could not be changed.');
-    } finally {
-      setModeLoading(false);
-    }
+    if (used) return 'Used';
+    return 'Prompt';
   };
 
   const openSupport = async (support) => {
@@ -125,7 +71,7 @@ function FocusedInterview({
       if (onClock) onClock(data.clock);
       if (onCapture) {
         onCapture({
-          interviewMode: selectedMode,
+          interviewMode: 'assessment',
           interviewSupports: data.support_uses || []
         });
       }
@@ -134,6 +80,47 @@ function FocusedInterview({
     } finally {
       setLoading(false);
     }
+  };
+
+  const startVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setError('Voice input is not available in this browser.');
+      return;
+    }
+
+    if (recognitionRef.current) {
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
+      setVoiceStatus('');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onstart = () => setVoiceStatus('Listening');
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript || '')
+        .join(' ')
+        .trim();
+      if (transcript) {
+        setQuestion((current) => [current.trim(), transcript].filter(Boolean).join(' '));
+      }
+    };
+    recognition.onerror = () => {
+      setVoiceStatus('');
+      setError('Voice input could not be captured.');
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setVoiceStatus('');
+    };
+    recognitionRef.current = recognition;
+    setError('');
+    recognition.start();
   };
 
   const submitQuestion = async () => {
@@ -148,15 +135,10 @@ function FocusedInterview({
     }
 
     setLoading(true);
-    setLoadingMessage(getTutorSettings().hasKey ? 'Checking semantic cache before OpenRouter.' : 'Using local patient response rules.');
+    setLoadingMessage('Getting patient response.');
     setError('');
-    const statusTimers = [];
 
     try {
-      if (getTutorSettings().hasKey) {
-        statusTimers.push(window.setTimeout(() => setLoadingMessage('Preparing local similarity check.'), 900));
-        statusTimers.push(window.setTimeout(() => setLoadingMessage('Requesting OpenRouter patient response if no cache matches.'), 3500));
-      }
       const data = await askPatientQuestion(sessionId, trimmed);
       const nextLog = [...log, data.response];
       setLog(nextLog);
@@ -173,14 +155,13 @@ function FocusedInterview({
           chiefResponse: chief?.answer || '',
           historyQuestion: history?.question || '',
           historyResponse: history?.answer || '',
-          interviewMode: selectedMode,
+          interviewMode: 'assessment',
           interviewSupports: supportUses
         });
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Patient response could not be recorded.');
     } finally {
-      statusTimers.forEach((timerId) => window.clearTimeout(timerId));
       setLoading(false);
       setLoadingMessage('');
     }
@@ -198,7 +179,7 @@ function FocusedInterview({
 
       <div className="interview-brief">
         <p className="instruction">
-          Ask questions that change acuity, immediate risk, or escalation decisions.
+          Speak or type one question at a time. The patient answer appears in the transcript, and the report scores whether the interview covered the risk-changing history.
         </p>
         <div className="question-progress-panel" aria-label="Question budget">
           <div>
@@ -218,66 +199,46 @@ function FocusedInterview({
         </div>
       </div>
 
-      <div className="mode-selector" role="radiogroup" aria-label="Interview mode">
-        {modes.map((mode) => (
-          <button
-            type="button"
-            key={mode.id}
-            className={selectedMode === mode.id ? 'selected' : ''}
-            onClick={() => chooseMode(mode)}
-            disabled={modeLoading || loading || modeLocked}
-            aria-pressed={selectedMode === mode.id}
-          >
-            <span className="mode-kicker">{modeBadge(mode)}</span>
-            <strong>{mode.label}</strong>
-            <span>{mode.description}</span>
-          </button>
-        ))}
-      </div>
-
       {supportsEnabled ? (
-        <div className={`support-workspace ${isGuidedMode ? 'guided' : 'practice'}`}>
-          <div className="support-toolbar">
+        <details className="support-workspace">
+          <summary>
             <div>
-              <span className="eyebrow">{isGuidedMode ? 'Guided question plan' : 'Practice prompt bank'}</span>
-              <h4>{isGuidedMode ? 'Build a complete triage interview' : 'Use prompts only when needed'}</h4>
-              <p>
-                {isGuidedMode
-                  ? 'Each card keeps an editable question frame visible. Selecting a card places the frame in the question box.'
-                  : 'Prompt cards insert editable question frames and add simulated time when first opened.'}
-              </p>
+              <span className="eyebrow">Question prompts</span>
+              <h4>Use prompts</h4>
             </div>
-            <span className="clinical-badge">{isPracticeMode ? '+20s support cost' : 'No support cost'}</span>
-          </div>
+            <strong>{supportUses.length} used</strong>
+          </summary>
 
-          <div className={isGuidedMode ? 'guided-support-grid' : 'practice-support-strip'} aria-label="Interview supports">
+          <p className="support-note">
+            Use a prompt when you need a question frame.
+          </p>
+
+          <div className="prompt-support-grid" aria-label="Interview supports">
             {interviewSupports.map((item, index) => {
               const used = supportUses.some((support) => support.id === item.id);
               const queued = queuedSupportId === item.id;
-              const nextGuided = isGuidedMode && !used && supportUses.length === index;
+              const nextPrompt = !used && supportUses.length === index;
               return (
                 <button
                   type="button"
-                  className={`support-card ${used ? 'used' : ''} ${queued ? 'active' : ''} ${nextGuided ? 'next' : ''}`}
+                  className={`support-card ${used ? 'used' : ''} ${queued ? 'active' : ''} ${nextPrompt ? 'next' : ''}`}
                   key={item.id}
                   onClick={() => openSupport(item)}
                   disabled={loading || questionsRemaining === 0}
                   aria-pressed={queued}
                 >
-                  <span className="support-card-meta">{supportCostLabel(item)}</span>
                   <strong>{item.label}</strong>
                   <span>{item.cue}</span>
-                  {isGuidedMode && <small className="support-stem">{item.question_stem}</small>}
-                  <em>{used ? 'Used in this interview' : queued ? 'Queued in question box' : 'Insert editable frame'}</em>
+                  <em>{used ? 'Used' : queued ? 'Queued' : supportCostLabel(item)}</em>
                 </button>
               );
             })}
           </div>
-        </div>
+        </details>
       ) : (
         <div className="mode-note mode-note-panel">
-          <strong>Independent interview</strong>
-          <span>Question support is off. The debrief scores concept coverage after the case.</span>
+          <strong>Focused interview</strong>
+          <span>Use free-text questions. The debrief scores concept coverage after the case.</span>
         </div>
       )}
 
@@ -286,7 +247,6 @@ function FocusedInterview({
           {supportUses.map((support) => (
             <span key={support.id}>
               {support.label}
-              {support.cost_seconds ? ` +${support.cost_seconds}s` : ''}
             </span>
           ))}
         </div>
@@ -294,14 +254,25 @@ function FocusedInterview({
 
       <div className="question-input">
         <label htmlFor="focused-question">Question to patient</label>
-        <textarea
-          id="focused-question"
-          value={question}
-          onChange={(event) => setQuestion(event.target.value)}
-          placeholder="Ask one focused question."
-          rows="3"
-          disabled={loading || questionsRemaining === 0}
-        />
+        <div className="conversation-composer">
+          <textarea
+            id="focused-question"
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
+            placeholder="Ask one focused question."
+            rows="3"
+            disabled={loading || questionsRemaining === 0}
+          />
+          <button
+            type="button"
+            className={`voice-button ${voiceStatus ? 'active' : ''}`}
+            onClick={startVoiceInput}
+            disabled={loading || questionsRemaining === 0}
+            aria-pressed={Boolean(voiceStatus)}
+          >
+            {voiceStatus || 'Voice input'}
+          </button>
+        </div>
         <small className="field-hint">
           Keep each entry to one question so the debrief can score concept coverage accurately.
         </small>
@@ -328,8 +299,6 @@ function FocusedInterview({
                 <strong>{item.question}</strong>
               </div>
               <p>{item.answer}</p>
-              <small>{responseSourceLabel(item)}</small>
-              {item.ai_error && <small className="fallback-note">AI fallback: {item.ai_error}</small>}
             </div>
           ))}
         </div>

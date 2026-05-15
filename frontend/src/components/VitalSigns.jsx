@@ -110,7 +110,7 @@ function VitalSigns({ sessionId, onNext, onCapture, onClock }) {
           <span className="eyebrow">Primary survey</span>
           <h3>Baseline vital signs</h3>
         </div>
-        <span className="clinical-badge">60s elapsed</span>
+        <span className="clinical-badge">Vitals review</span>
       </div>
 
       <p className="instruction">

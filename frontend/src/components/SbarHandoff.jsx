@@ -53,7 +53,7 @@ function SbarHandoff({ sessionId, onNext, onCapture, onClock }) {
       </div>
 
       <p className="instruction">
-        Give the receiving team a concise situation, background, assessment, and recommendation.
+        Call report to the receiving team with the current situation, relevant background, clinical assessment, and recommended next action.
       </p>
 
       <div className="sbar-framework" aria-label="SBAR structure">

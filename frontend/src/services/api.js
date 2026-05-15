@@ -13,9 +13,7 @@ import {
   recordStaticVitalsReview,
   saveTutorSettings,
   selectStaticEscalationActions,
-  setStaticInterviewMode,
   startStaticSimulation,
-  submitStaticFirstLook,
   submitStaticSbar
 } from './staticEngine';
 
@@ -29,12 +27,6 @@ const asyncReturn = (factory) =>
   });
 
 export const startSimulation = async () => asyncReturn(startStaticSimulation);
-
-export const submitFirstLook = async (sessionId, decision) =>
-  asyncReturn(() => submitStaticFirstLook(sessionId, decision));
-
-export const setInterviewMode = async (sessionId, mode) =>
-  asyncReturn(() => setStaticInterviewMode(sessionId, mode));
 
 export const recordInterviewSupport = async (sessionId, supportId) =>
   asyncReturn(() => recordStaticInterviewSupport(sessionId, supportId));

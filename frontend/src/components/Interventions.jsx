@@ -104,22 +104,22 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
     <section className="step-card">
       <div className="section-header">
         <div>
-          <span className="eyebrow">Escalation and placement</span>
-          <h3>Triage actions</h3>
+          <span className="eyebrow">Placement and escalation</span>
+          <h3>Care priorities</h3>
         </div>
         <span className="clinical-badge">{selectedIds.length} actions</span>
       </div>
 
       {!results && (
         <p className="instruction">
-          Choose the actions a triage learner should request or escalate before the patient enters the routine queue.
+          Choose the placement, monitoring, and care actions needed before the patient enters the routine queue.
         </p>
       )}
 
       {!results ? (
         <>
           <div className="evidence-legend">
-            <span>Evidence basis</span>
+            <span>Reference signals</span>
             <strong>ESI/vitals</strong>
             <strong>MIETIC record</strong>
             <strong>case text</strong>
@@ -187,21 +187,21 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
 
           <div className="button-group">
             <button className="btn-secondary" onClick={() => submitActions([])} disabled={loading || selectedIds.length > 0}>
-              No immediate escalation
+              Routine waiting with reassessment
             </button>
             <button
               className="btn-primary"
               onClick={() => submitActions(selectedIds)}
               disabled={selectedIds.length === 0 || loading}
             >
-              Record actions
+              Record care priorities
             </button>
           </div>
         </>
       ) : (
         <>
           <div className="results-section">
-            <span className="eyebrow">Escalation recorded</span>
+            <span className="eyebrow">Care priorities recorded</span>
             {results.length > 0 ? (
               <div className="interventions-results">
                 {results.map((action) => (
