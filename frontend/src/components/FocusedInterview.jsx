@@ -3,11 +3,65 @@ import {
   askPatientQuestion,
   recordInterviewSupport
 } from '../services/api';
+import {
+  getStoredPatientVoiceEnabled,
+  preparePatientVoicePlayback,
+  setStoredPatientVoiceEnabled,
+  speakPatientAnswer,
+  stopPatientVoice,
+  warmPatientVoice
+} from '../services/patientVoiceService';
+
+const MINIMUM_QUESTIONS = 2;
+
+function localhostVoiceUrl() {
+  if (typeof window === 'undefined') return '';
+  const { protocol, hostname, port, pathname, search, hash } = window.location;
+  const localHost = hostname === 'localhost' || hostname === '127.0.0.1';
+  if (protocol === 'https:' || localHost) return '';
+  if (protocol !== 'http:') return '';
+  return `http://127.0.0.1${port ? `:${port}` : ''}${pathname}${search}${hash}`;
+}
+
+function microphoneBlockedByOrigin() {
+  return typeof window !== 'undefined' && window.isSecureContext === false && Boolean(localhostVoiceUrl());
+}
+
+function voiceInputErrorMessage(errorCode = '') {
+  if (microphoneBlockedByOrigin()) {
+    return 'Voice input needs localhost or HTTPS for microphone access.';
+  }
+
+  switch (errorCode) {
+    case 'not-allowed':
+    case 'service-not-allowed':
+      return 'Microphone access is blocked. Allow microphone access in the browser and try again.';
+    case 'audio-capture':
+      return 'No microphone was detected. Check the active input device and browser permission.';
+    case 'no-speech':
+      return 'No speech was detected. Try again closer to the microphone.';
+    case 'network':
+      return 'Speech recognition could not connect. Try again or type the question.';
+    default:
+      return 'Voice input could not be captured.';
+  }
+}
+
+function normalizeProgress(progress) {
+  return {
+    required_domains: progress?.required_domains || [],
+    covered_domains: progress?.covered_domains || [],
+    missed_domains: progress?.missed_domains || progress?.required_domains || [],
+    optional_domains: progress?.optional_domains || [],
+    optional_covered_domains: progress?.optional_covered_domains || []
+  };
+}
 
 function FocusedInterview({
   sessionId,
   interviewSupports = [],
-  maxQuestions,
+  initialProgress = null,
+  patientSex = '',
   onNext,
   onCapture,
   onClock
@@ -20,7 +74,12 @@ function FocusedInterview({
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [voiceStatus, setVoiceStatus] = useState('');
+  const [patientVoiceEnabled, setPatientVoiceEnabled] = useState(() => getStoredPatientVoiceEnabled());
+  const [patientVoiceStatus, setPatientVoiceStatus] = useState('');
+  const [speakingIndex, setSpeakingIndex] = useState(null);
+  const [interviewProgress, setInterviewProgress] = useState(() => normalizeProgress(initialProgress));
   const [error, setError] = useState('');
+  const [voiceHelpUrl, setVoiceHelpUrl] = useState('');
   const recognitionRef = useRef(null);
 
   useEffect(() => {
@@ -30,17 +89,44 @@ function FocusedInterview({
     setQueuedSupportId('');
     setLastInsertedStem('');
     setVoiceStatus('');
-  }, [sessionId]);
+    setPatientVoiceStatus('');
+    setSpeakingIndex(null);
+    setInterviewProgress(normalizeProgress(initialProgress));
+    setVoiceHelpUrl('');
+    stopPatientVoice();
+  }, [sessionId, initialProgress]);
 
   useEffect(() => () => {
     if (recognitionRef.current) recognitionRef.current.abort();
+    stopPatientVoice();
   }, []);
 
+  useEffect(() => {
+    if (!patientVoiceEnabled) return undefined;
+    let cancelled = false;
+    setPatientVoiceStatus((current) => current || 'Loading patient voice');
+    void warmPatientVoice({
+      onStatus: (status) => {
+        if (!cancelled) setPatientVoiceStatus(status);
+      }
+    })
+      .then(() => {
+        if (!cancelled) setPatientVoiceStatus('Patient voice ready');
+      })
+      .catch(() => {
+        if (!cancelled) setPatientVoiceStatus('Voice unavailable');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [patientVoiceEnabled]);
+
   const supportsEnabled = interviewSupports.length > 0;
-  const questionsRemaining = Math.max((maxQuestions || 4) - log.length, 0);
-  const canContinue = log.length >= 2;
-  const minimumQuestions = 2;
-  const budgetSlots = Array.from({ length: maxQuestions || 4 }, (_, index) => index);
+  const canContinue = log.length >= MINIMUM_QUESTIONS;
+  const coveredDomains = interviewProgress.covered_domains || [];
+  const stillNeededDomains = interviewProgress.missed_domains || [];
+  const optionalDomains = interviewProgress.optional_domains || [];
+  const optionalCoveredDomains = interviewProgress.optional_covered_domains || [];
 
   const supportCostLabel = (support) => {
     const used = supportUses.find((item) => item.id === support.id);
@@ -84,8 +170,16 @@ function FocusedInterview({
 
   const startVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const localUrl = localhostVoiceUrl();
+    if (microphoneBlockedByOrigin()) {
+      setVoiceHelpUrl(localUrl);
+      setError(voiceInputErrorMessage());
+      return;
+    }
+
     if (!SpeechRecognition) {
-      setError('Voice input is not available in this browser.');
+      setVoiceHelpUrl(localUrl);
+      setError('Voice input is available in Chrome or Edge with microphone access.');
       return;
     }
 
@@ -93,6 +187,7 @@ function FocusedInterview({
       recognitionRef.current.abort();
       recognitionRef.current = null;
       setVoiceStatus('');
+      setVoiceHelpUrl('');
       return;
     }
 
@@ -100,7 +195,11 @@ function FocusedInterview({
     recognition.lang = 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    recognition.onstart = () => setVoiceStatus('Listening');
+    recognition.onstart = () => {
+      setVoiceStatus('Listening');
+      setVoiceHelpUrl('');
+      setError('');
+    };
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
         .map((result) => result[0]?.transcript || '')
@@ -110,9 +209,14 @@ function FocusedInterview({
         setQuestion((current) => [current.trim(), transcript].filter(Boolean).join(' '));
       }
     };
-    recognition.onerror = () => {
+    recognition.onnomatch = () => {
       setVoiceStatus('');
-      setError('Voice input could not be captured.');
+      setError('No speech was recognized. Try again closer to the microphone.');
+    };
+    recognition.onerror = (event) => {
+      setVoiceStatus('');
+      setVoiceHelpUrl(localhostVoiceUrl());
+      setError(voiceInputErrorMessage(event?.error));
     };
     recognition.onend = () => {
       recognitionRef.current = null;
@@ -120,7 +224,49 @@ function FocusedInterview({
     };
     recognitionRef.current = recognition;
     setError('');
-    recognition.start();
+    setVoiceHelpUrl('');
+    try {
+      recognition.start();
+    } catch {
+      recognitionRef.current = null;
+      setVoiceStatus('');
+      setVoiceHelpUrl(localhostVoiceUrl());
+      setError(voiceInputErrorMessage());
+    }
+  };
+
+  const setPatientVoice = (enabled) => {
+    setPatientVoiceEnabled(enabled);
+    setStoredPatientVoiceEnabled(enabled);
+    if (!enabled) {
+      stopPatientVoice();
+      setPatientVoiceStatus('');
+      setSpeakingIndex(null);
+    } else {
+      setPatientVoiceStatus('Loading patient voice');
+      void warmPatientVoice({ onStatus: setPatientVoiceStatus })
+        .then(() => setPatientVoiceStatus('Patient voice ready'))
+        .catch(() => setPatientVoiceStatus('Voice unavailable'));
+    }
+  };
+
+  const playPatientAnswer = async (answer, index) => {
+    const text = String(answer || '').trim();
+    if (!text) return;
+    setSpeakingIndex(index);
+    setError('');
+    void preparePatientVoicePlayback().catch(() => {});
+    try {
+      await speakPatientAnswer(text, {
+        sex: patientSex,
+        onStatus: setPatientVoiceStatus
+      });
+      setPatientVoiceStatus('Patient voice ready');
+    } catch {
+      setPatientVoiceStatus('Voice unavailable');
+    } finally {
+      setSpeakingIndex(null);
+    }
   };
 
   const submitQuestion = async () => {
@@ -129,19 +275,20 @@ function FocusedInterview({
       setError('Enter a focused triage question.');
       return;
     }
-    if (questionsRemaining <= 0) {
-      setError('Question budget used.');
-      return;
-    }
 
     setLoading(true);
     setLoadingMessage('Getting patient response.');
     setError('');
+    setVoiceHelpUrl('');
+    if (patientVoiceEnabled) {
+      void preparePatientVoicePlayback().catch(() => {});
+    }
 
     try {
       const data = await askPatientQuestion(sessionId, trimmed);
       const nextLog = [...log, data.response];
       setLog(nextLog);
+      setInterviewProgress(normalizeProgress(data.interview_progress || interviewProgress));
       setQuestion('');
       if (onClock) onClock(data.clock);
       if (onCapture) {
@@ -159,6 +306,9 @@ function FocusedInterview({
           interviewSupports: supportUses
         });
       }
+      if (patientVoiceEnabled) {
+        void playPatientAnswer(data.response?.answer, nextLog.length - 1);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Patient response could not be recorded.');
     } finally {
@@ -174,27 +324,51 @@ function FocusedInterview({
           <span className="eyebrow">Focused assessment</span>
           <h3>Focused triage interview</h3>
         </div>
-        <span className="clinical-badge">{questionsRemaining} questions left</span>
+        <span className="clinical-badge">{log.length} questions asked</span>
       </div>
 
       <div className="interview-brief">
         <p className="instruction">
           Speak or type one question at a time. The patient answer appears in the transcript, and the report scores whether the interview covered the risk-changing history.
         </p>
-        <div className="question-progress-panel" aria-label="Question budget">
+        <div className="question-progress-panel interview-progress-panel" aria-label="Interview coverage">
           <div>
-            <span>Question budget</span>
-            <strong>{log.length} / {maxQuestions || 4} used</strong>
+            <span>Interview coverage</span>
+            <strong>{coveredDomains.length} / {Math.max((coveredDomains.length + stillNeededDomains.length), 1)} required</strong>
           </div>
-          <div className="question-budget" aria-hidden="true">
-            {budgetSlots.map((slot) => (
-              <span key={slot} className={slot < log.length ? 'used' : ''} />
-            ))}
+          <div className="coverage-block">
+            <span>Covered</span>
+            <div className="coverage-chip-row">
+              {coveredDomains.length
+                ? coveredDomains.map((domain) => <em className="coverage-chip covered" key={domain}>{domain}</em>)
+                : <em className="coverage-chip muted">None yet</em>}
+            </div>
+          </div>
+          <div className="coverage-block">
+            <span>Still needed</span>
+            <div className="coverage-chip-row">
+              {stillNeededDomains.length
+                ? stillNeededDomains.map((domain) => <em className="coverage-chip needed" key={domain}>{domain}</em>)
+                : <em className="coverage-chip covered">Core domains covered</em>}
+            </div>
+          </div>
+          <div className="coverage-block optional">
+            <span>Optional</span>
+            <div className="coverage-chip-row">
+              {[...optionalCoveredDomains, ...optionalDomains].slice(0, 4).map((domain) => (
+                <em
+                  className={`coverage-chip ${optionalCoveredDomains.includes(domain) ? 'covered' : 'optional'}`}
+                  key={domain}
+                >
+                  {domain}
+                </em>
+              ))}
+            </div>
           </div>
           <small>
             {canContinue
               ? 'Minimum interview complete'
-              : `${Math.max(minimumQuestions - log.length, 0)} more question${minimumQuestions - log.length === 1 ? '' : 's'} needed to continue`}
+              : `${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} needed to continue`}
           </small>
         </div>
       </div>
@@ -224,7 +398,7 @@ function FocusedInterview({
                   className={`support-card ${used ? 'used' : ''} ${queued ? 'active' : ''} ${nextPrompt ? 'next' : ''}`}
                   key={item.id}
                   onClick={() => openSupport(item)}
-                  disabled={loading || questionsRemaining === 0}
+                  disabled={loading}
                   aria-pressed={queued}
                 >
                   <strong>{item.label}</strong>
@@ -252,6 +426,18 @@ function FocusedInterview({
         </div>
       )}
 
+      <div className="patient-voice-control">
+        <label>
+          <input
+            type="checkbox"
+            checked={patientVoiceEnabled}
+            onChange={(event) => setPatientVoice(event.target.checked)}
+          />
+          <span>Patient voice</span>
+        </label>
+        <small>{patientVoiceStatus || 'Reads patient answers aloud when enabled.'}</small>
+      </div>
+
       <div className="question-input">
         <label htmlFor="focused-question">Question to patient</label>
         <div className="conversation-composer">
@@ -261,13 +447,13 @@ function FocusedInterview({
             onChange={(event) => setQuestion(event.target.value)}
             placeholder="Ask one focused question."
             rows="3"
-            disabled={loading || questionsRemaining === 0}
+            disabled={loading}
           />
           <button
             type="button"
             className={`voice-button ${voiceStatus ? 'active' : ''}`}
             onClick={startVoiceInput}
-            disabled={loading || questionsRemaining === 0}
+            disabled={loading}
             aria-pressed={Boolean(voiceStatus)}
           >
             {voiceStatus || 'Voice input'}
@@ -278,11 +464,20 @@ function FocusedInterview({
         </small>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          {error}
+          {voiceHelpUrl && (
+            <a className="voice-help-link" href={voiceHelpUrl}>
+              Open local voice URL
+            </a>
+          )}
+        </div>
+      )}
       {loadingMessage && <div className="loading compact-loading">{loadingMessage}</div>}
 
       <div className="button-group">
-        <button className="btn-primary" onClick={submitQuestion} disabled={loading || questionsRemaining === 0}>
+        <button className="btn-primary" onClick={submitQuestion} disabled={loading}>
           {loading ? 'Asking patient...' : 'Ask patient'}
         </button>
         <button className="btn-secondary" onClick={onNext} disabled={!canContinue || loading}>
@@ -298,7 +493,17 @@ function FocusedInterview({
                 <span>Question {index + 1}</span>
                 <strong>{item.question}</strong>
               </div>
-              <p>{item.answer}</p>
+              <div className="patient-answer-row">
+                <p>{item.answer}</p>
+                <button
+                  type="button"
+                  className={`listen-button ${speakingIndex === index ? 'active' : ''}`}
+                  onClick={() => playPatientAnswer(item.answer, index)}
+                  aria-label={`Replay patient answer ${index + 1}`}
+                >
+                  {speakingIndex === index ? 'Speaking' : 'Listen'}
+                </button>
+              </div>
             </div>
           ))}
         </div>

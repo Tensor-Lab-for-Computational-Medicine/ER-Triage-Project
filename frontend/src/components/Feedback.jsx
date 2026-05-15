@@ -271,42 +271,53 @@ function PhysicianCaseReview({ review, triageAnalysis }) {
   );
 }
 
-function DecisionDeltas({ deltas }) {
-  if (!deltas || deltas.length === 0) return null;
+function ClinicalDecisionReview({ review, fallbackDeltas }) {
+  const findings = review?.findings || fallbackDeltas || [];
+  if (!findings || findings.length === 0) return null;
 
   return (
     <section className="decision-deltas-panel">
       <div className="section-header compact">
         <div>
-          <span className="eyebrow">Acuity reasoning</span>
-          <h4>What changed the acuity</h4>
+          <span className="eyebrow">Clinical decision review</span>
+          <h4>Clinical findings and actions</h4>
         </div>
       </div>
+      {review?.summary && <p className="clinical-review-summary">{review.summary}</p>}
 
       <div className="decision-delta-list">
-        {deltas.map((delta, index) => (
-          <article className="decision-delta-card" key={`${delta.finding}-${index}`}>
-            <div className="delta-main">
-              <span>Clinical finding</span>
-              <strong>{delta.finding}</strong>
-              <p>{delta.clinical_significance}</p>
-            </div>
-            <div className="delta-comparison">
-              <div>
-                <span>Learner action</span>
-                <p>{delta.learner_action}</p>
+        {findings.map((finding, index) => {
+          const whyItMatters = finding.why_it_matters || finding.clinical_significance;
+          const learnerGap = finding.learner_gap || finding.learner_action;
+          const expectedAction = finding.expected_action || finding.reference_action;
+          const practiceRule = finding.practice_rule || finding.recommended_next_step;
+          return (
+            <article className="decision-delta-card" key={`${finding.finding}-${index}`}>
+              <div className="delta-main">
+                <span>{finding.finding_type || 'Clinical finding'}</span>
+                <strong>{finding.finding}</strong>
               </div>
-              <div>
-                <span>Reference action</span>
-                <p>{delta.reference_action}</p>
+              <div className="delta-comparison">
+                <div>
+                  <span>Why it matters</span>
+                  <p>{whyItMatters}</p>
+                </div>
+                <div>
+                  <span>Expected action</span>
+                  <p>{expectedAction}</p>
+                </div>
+                <div>
+                  <span>Learner gap</span>
+                  <p>{learnerGap}</p>
+                </div>
+                <div>
+                  <span>Practice rule</span>
+                  <p>{practiceRule}</p>
+                </div>
               </div>
-              <div>
-                <span>Recommended next step</span>
-                <p>{delta.recommended_next_step}</p>
-              </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -759,6 +770,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
     action_feedback,
     physician_debrief,
     physician_case_review,
+    clinical_decision_review,
     decision_deltas,
     next_case_checklist,
     case_evidence
@@ -792,7 +804,10 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
         triageAnalysis={triage_analysis}
       />
 
-      <DecisionDeltas deltas={decision_deltas || physician_case_review?.decision_deltas} />
+      <ClinicalDecisionReview
+        review={clinical_decision_review || physician_case_review?.clinical_decision_review}
+        fallbackDeltas={decision_deltas || physician_case_review?.decision_deltas}
+      />
 
       <NextCaseChecklist items={next_case_checklist || physician_case_review?.next_case_checklist} />
 

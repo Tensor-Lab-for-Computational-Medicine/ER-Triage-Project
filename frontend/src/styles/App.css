@@ -974,7 +974,7 @@ summary:focus-visible {
   border-radius: 8px;
 }
 
-.question-progress-panel div:first-child {
+.question-progress-panel > div:first-child {
   display: flex;
   justify-content: space-between;
   gap: 10px;
@@ -1002,6 +1002,53 @@ summary:focus-visible {
 
 .question-budget span.used {
   background: var(--teal);
+}
+
+.interview-progress-panel {
+  align-content: start;
+}
+
+.coverage-block {
+  display: grid;
+  gap: 5px;
+}
+
+.coverage-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.coverage-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 7px;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: none;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.coverage-chip.covered {
+  color: var(--green);
+  background: #eff8f2;
+  border-color: #bfdfc8;
+}
+
+.coverage-chip.needed {
+  color: var(--blue-dark);
+  background: #edf4ff;
+  border-color: #c8d8f0;
+}
+
+.coverage-chip.optional,
+.coverage-chip.muted {
+  color: var(--muted);
 }
 
 .support-card {
@@ -1194,6 +1241,37 @@ summary:focus-visible {
   border-radius: 999px;
 }
 
+.patient-voice-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.patient-voice-control label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.patient-voice-control input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--teal);
+}
+
+.patient-voice-control small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
 .question-input {
   display: grid;
   gap: 8px;
@@ -1272,6 +1350,26 @@ summary:focus-visible {
   opacity: 0.55;
 }
 
+.voice-help-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 34px;
+  margin-top: 10px;
+  padding: 7px 10px;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-decoration: none;
+  background: var(--blue-dark);
+  border-radius: 8px;
+}
+
+.voice-help-link:hover {
+  background: var(--teal);
+}
+
 .field-hint {
   color: var(--muted);
   font-size: 0.82rem;
@@ -1325,6 +1423,33 @@ summary:focus-visible {
 
 .interview-entry p {
   line-height: 1.55;
+}
+
+.patient-answer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.listen-button {
+  min-width: 76px;
+  min-height: 36px;
+  padding: 8px 10px;
+  color: var(--blue-dark);
+  font-size: 0.78rem;
+  font-weight: 900;
+  background: #ffffff;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.listen-button:hover,
+.listen-button.active {
+  color: #ffffff;
+  background: var(--teal);
+  border-color: var(--teal);
 }
 
 .interview-entry small {
@@ -2290,13 +2415,13 @@ summary:focus-visible {
 
 .decision-delta-list {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .decision-delta-card {
   display: grid;
-  gap: 12px;
-  padding: 15px;
+  gap: 14px;
+  padding: 17px;
   background: var(--surface-soft);
   border: 1px solid var(--line);
   border-left: 5px solid var(--teal);
@@ -2321,6 +2446,7 @@ summary:focus-visible {
   line-height: 1.35;
 }
 
+.clinical-review-summary,
 .delta-main p,
 .delta-comparison p,
 .next-case-checklist li {
@@ -2329,9 +2455,14 @@ summary:focus-visible {
   line-height: 1.5;
 }
 
+.clinical-review-summary {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
 .delta-comparison {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -3134,6 +3265,7 @@ summary:focus-visible {
   .physician-review-overview,
   .case-review-summary,
   .delta-comparison,
+  .patient-answer-row,
   .audit-rubric-grid,
   .encounter-brief,
   .conversation-composer,

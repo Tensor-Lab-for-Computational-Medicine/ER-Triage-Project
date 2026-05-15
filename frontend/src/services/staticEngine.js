@@ -1375,6 +1375,9 @@ function evaluateInterview(caseData, interviewLog, supportUses = [], mode = 'ass
   const required = interviewRequirements(caseData);
   const covered = [...required].filter((item) => askedSet.has(item)).sort();
   const missed = [...required].filter((item) => !askedSet.has(item)).sort();
+  const optional = QUESTION_DOMAIN_ORDER.filter((item) => !required.has(item));
+  const optionalCovered = optional.filter((item) => askedSet.has(item));
+  const optionalOpen = optional.filter((item) => !askedSet.has(item));
   const duplicateCount = Math.max(0, asked.length - askedSet.size);
   const lowYield = (interviewLog || []).filter((item) => {
     const concepts = new Set(item.covered_categories || (item.category ? [item.category] : []));
@@ -1389,6 +1392,10 @@ function evaluateInterview(caseData, interviewLog, supportUses = [], mode = 'ass
     covered_domains: covered.map((item) => CATEGORY_LABELS[item] || item),
     missed_categories: missed,
     missed_domains: missed.map((item) => CATEGORY_LABELS[item] || item),
+    optional_categories: optionalOpen,
+    optional_domains: optionalOpen.map((item) => CATEGORY_LABELS[item] || item),
+    optional_covered_categories: optionalCovered,
+    optional_covered_domains: optionalCovered.map((item) => CATEGORY_LABELS[item] || item),
     duplicate_count: duplicateCount,
     low_yield_count: lowYield.length,
     support_count: supportUses.length,
@@ -1884,7 +1891,7 @@ function interviewScoreDetails(workflow) {
     penalty: interviewPenalty,
     message: interview.message,
     action: interview.missed_domains.length
-      ? 'Use the limited question budget for domains that change acuity, safety, or resources.'
+      ? 'Prioritize domains that change acuity, safety, or resources before assigning final ESI.'
       : 'The focused interview covered the required triage domains for this case.'
   };
 }
@@ -2640,8 +2647,61 @@ function actionBehavior(action, caseData) {
   }
 }
 
-function buildDecisionDeltas(session, caseData, workflow, soapNote) {
-  const deltas = [];
+function painFindingLabel(caseData) {
+  const pain = Number(caseData.vitals?.pain);
+  if (!Number.isFinite(pain)) return 'Pain level';
+  if (pain >= 8) return `Severe pain ${formatVitalNumber(pain)}/10`;
+  if (pain >= 5) return `Moderate pain ${formatVitalNumber(pain)}/10`;
+  return `Pain ${formatVitalNumber(pain)}/10`;
+}
+
+function clinicalReviewKey({ key, actionId, finding, findingType }) {
+  if (key) return key;
+  if (actionId === 'pain_reassessment') return 'pain_reassessment';
+  const source = lowerClinicalText(`${findingType || ''} ${finding || ''}`);
+  if (/\bpain\b/.test(source)) return 'pain_reassessment';
+  if (/\boxygen|breath|respiratory|dyspnea|shortness\b/.test(source)) return actionId || 'airway_breathing';
+  if (/\bblood pressure|heart rate|bleed|transfusion|shock|circulation\b/.test(source)) return actionId || 'circulation';
+  if (/\bmental|confus|neurolog|weak|numb|head injury\b/.test(source)) return actionId || 'neurologic';
+  if (/\btemperature|fever\b/.test(source)) return actionId || 'temperature';
+  if (actionId) return actionId;
+  return source.replace(/\d+(\.\d+)?/g, '').slice(0, 90);
+}
+
+function priorityForClinicalFinding({ key, actionId, findingType, finding_type, session, caseData, flag }) {
+  const type = findingType || finding_type;
+  if (key === 'esi_decision' && session.triage_level !== caseData.acuity) return 100;
+  if (['resuscitation_bay', 'immediate_bedside_evaluation'].includes(actionId)) return 90;
+  if (['airway_oxygenation_support', 'bleeding_transfusion_readiness', 'behavioral_safety'].includes(actionId)) return 84;
+  if (['monitored_bed', 'critical_procedure_team'].includes(actionId)) return 78;
+  if (flag?.severity === 'critical') return flag.name === 'Pain Level' ? 66 : 74;
+  if (key === 'pain_reassessment' || actionId === 'pain_reassessment') return 62;
+  if (['vascular_access', 'medication_route_priority'].includes(actionId)) return 58;
+  if (type === 'Interview gap') return 44;
+  return 50;
+}
+
+function actionFindingLabel(action, caseData, evidence) {
+  if (action?.id === 'pain_reassessment') return painFindingLabel(caseData);
+  if (action?.id === 'airway_oxygenation_support') return `Breathing concern: ${capitalizeSentence(presentingProblemText(caseData))}`;
+  if (action?.id === 'bleeding_transfusion_readiness') return `Bleeding or transfusion risk: ${capitalizeSentence(presentingProblemText(caseData))}`;
+  if (action?.id === 'monitored_bed' && /reference esi/i.test(evidence || '')) return `${capitalizeSentence(presentingProblemText(caseData))}: reference ESI ${caseData.acuity}`;
+  return capitalizeSentence(evidence || action?.name || presentingProblemText(caseData));
+}
+
+function mergeClinicalText(current, next) {
+  const parts = [];
+  for (const value of [current, next]) {
+    const cleaned = String(value || '').replace(/\s+/g, ' ').trim();
+    if (cleaned && !parts.some((item) => lowerClinicalText(item) === lowerClinicalText(cleaned))) {
+      parts.push(cleaned);
+    }
+  }
+  return parts.join(' ');
+}
+
+function buildClinicalDecisionReview(session, caseData, workflow, soapNote) {
+  const entries = new Map();
   const problem = capitalizeSentence(presentingProblemText(caseData));
   const diagnosis = soapNote?.assessment?.primary_diagnosis || soapPrimaryDiagnosis(caseData);
   const referenceAction = referenceActionText(caseData, workflow);
@@ -2651,73 +2711,128 @@ function buildDecisionDeltas(session, caseData, workflow, soapNote) {
   const vitalFlagsList = vitalFlags(caseData);
   const resourceText = resourceSummaryText(caseData);
 
-  if (session.triage_level !== caseData.acuity) {
-    deltas.push({
-      finding: `${problem} with ${diagnosis.toLowerCase()}`,
-      clinical_significance: `Reference ESI ${caseData.acuity} reflects the documented complaint, ${vitalSummaryText(caseData).toLowerCase()}, and ${resourceText.toLowerCase()}.`,
-      learner_action: learnerAction,
-      reference_action: referenceAction,
-      recommended_next_step: caseData.acuity <= 2
-        ? `Escalate ESI ${caseData.acuity} presentations before final disposition decisions.`
-        : `Tie the ESI level to the complaint, vital signs, and expected ED resources.`
+  const upsert = (item) => {
+    const key = clinicalReviewKey(item);
+    const priority = item.priority ?? priorityForClinicalFinding({ ...item, key, session, caseData });
+    const existing = entries.get(key);
+    const normalized = {
+      finding: item.finding,
+      finding_type: item.finding_type || 'Clinical signal',
+      why_it_matters: item.why_it_matters,
+      expected_action: item.expected_action,
+      learner_gap: item.learner_gap,
+      practice_rule: item.practice_rule,
+      priority,
+      sort_priority: priority
+    };
+    if (!existing) {
+      entries.set(key, normalized);
+      return;
+    }
+    entries.set(key, {
+      ...existing,
+      finding: existing.finding || normalized.finding,
+      finding_type: existing.finding_type || normalized.finding_type,
+      why_it_matters: mergeClinicalText(existing.why_it_matters, normalized.why_it_matters),
+      expected_action: mergeClinicalText(existing.expected_action, normalized.expected_action),
+      learner_gap: mergeClinicalText(existing.learner_gap, normalized.learner_gap),
+      practice_rule: mergeClinicalText(existing.practice_rule, normalized.practice_rule),
+      priority: Math.max(existing.priority || 0, normalized.priority || 0),
+      sort_priority: Math.max(existing.sort_priority || 0, normalized.sort_priority || 0)
     });
-  } else {
-    deltas.push({
-      finding: `${problem} with ${diagnosis.toLowerCase()}`,
-      clinical_significance: `Reference ESI ${caseData.acuity} is supported by the complaint, vital signs, and expected ED resources.`,
-      learner_action: learnerAction,
-      reference_action: referenceAction,
-      recommended_next_step: `Use the same finding-to-action structure for the next ${problem.toLowerCase()} case.`
-    });
-  }
+  };
 
-  for (const action of (workflow?.escalation?.missed || []).slice(0, 2)) {
+  upsert({
+    key: 'esi_decision',
+    finding_type: 'Acuity anchor',
+    finding: `${problem} with ${diagnosis.toLowerCase()}`,
+    why_it_matters: session.triage_level !== caseData.acuity
+      ? `Reference ESI ${caseData.acuity} reflects the documented complaint, ${vitalSummaryText(caseData).toLowerCase()}, and ${resourceText.toLowerCase()}.`
+      : `Reference ESI ${caseData.acuity} is supported by the complaint, vital signs, and expected ED resources.`,
+    learner_gap: learnerAction,
+    expected_action: referenceAction,
+    practice_rule: session.triage_level !== caseData.acuity
+      ? (caseData.acuity <= 2
+        ? `Escalate ESI ${caseData.acuity} presentations before final disposition decisions.`
+        : `Tie the ESI level to the complaint, vital signs, and expected ED resources.`)
+      : `State why ${problem.toLowerCase()} fits ESI ${caseData.acuity} using risk, vitals, and resources.`
+  });
+
+  for (const action of (workflow?.escalation?.missed || []).slice(0, 5)) {
     const evidence = action.evidence?.length
       ? joinClinicalList(action.evidence.slice(0, 3))
       : action.description || resourceText;
-    deltas.push({
-      finding: evidence,
-      clinical_significance: `${action.name} is expected because the case contains ${String(evidence).toLowerCase()}.`,
-      learner_action: selectedNames.length
+    upsert({
+      actionId: action.id,
+      finding_type: action.category || 'Escalation priority',
+      finding: actionFindingLabel(action, caseData, evidence),
+      why_it_matters: `${action.name} is expected because the case contains ${String(evidence).toLowerCase()}.`,
+      learner_gap: selectedNames.length
         ? `Selected ${joinClinicalList(selectedNames)}; did not select ${action.name}.`
         : `No matching escalation action was selected for ${action.name}.`,
-      reference_action: action.name,
-      recommended_next_step: actionBehavior(action, caseData)
+      expected_action: action.name,
+      practice_rule: actionBehavior(action, caseData)
     });
   }
 
-  if (deltas.length < 4 && vitalFlagsList.length) {
-    for (const flag of vitalFlagsList.slice(0, 2)) {
-      deltas.push({
-        finding: `${flag.name} ${flag.value}`,
-        clinical_significance: `${flag.reason} changes the safety screen for ${presentingProblemText(caseData)}.`,
-        learner_action: selectedNames.length
-          ? `Selected ${joinClinicalList(selectedNames)}.`
-          : learnerAction,
-        reference_action: expectedNames.length ? joinClinicalList(expectedNames) : `Reference ESI ${caseData.acuity}`,
-        recommended_next_step: `Name abnormal ${flag.name.toLowerCase()} and connect it to placement, monitoring, or clinician notification.`
-      });
-    }
+  for (const flag of vitalFlagsList.slice(0, 4)) {
+    upsert({
+      finding_type: flag.name === 'Pain Level' ? 'Pain and distress' : 'Vital sign',
+      finding: flag.name === 'Pain Level' ? painFindingLabel(caseData) : `${flag.name} ${flag.value}`,
+      why_it_matters: `${flag.reason} changes the safety screen for ${presentingProblemText(caseData)}.`,
+      learner_gap: selectedNames.length ? `Selected ${joinClinicalList(selectedNames)}.` : learnerAction,
+      expected_action: expectedNames.length ? joinClinicalList(expectedNames) : `Reference ESI ${caseData.acuity}`,
+      practice_rule: flag.name === 'Pain Level'
+        ? `Treat severe pain as an ED resource and reassess response after intervention.`
+        : `Name abnormal ${flag.name.toLowerCase()} and connect it to placement, monitoring, or clinician notification.`,
+      flag
+    });
   }
 
-  if (deltas.length < 4 && workflow?.interview?.missed_domains?.length) {
+  if (workflow?.interview?.missed_domains?.length) {
     const missedDomains = workflow.interview.missed_domains.slice(0, 3);
-    deltas.push({
+    upsert({
+      key: 'interview_gap',
+      finding_type: 'Interview gap',
       finding: `Missing history: ${joinClinicalList(missedDomains)}`,
-      clinical_significance: `These questions clarify risk, resource needs, and immediate safety for ${presentingProblemText(caseData)}.`,
-      learner_action: `${workflow.interview.questions_used || 0} focused question${workflow.interview.questions_used === 1 ? '' : 's'} recorded.`,
-      reference_action: `Ask about ${joinClinicalList(missedDomains)} before final ESI.`,
-      recommended_next_step: `Ask about ${joinClinicalList(missedDomains)} in ${presentingProblemText(caseData)} before assigning final acuity.`
+      why_it_matters: `These questions clarify risk, resource needs, and immediate safety for ${presentingProblemText(caseData)}.`,
+      learner_gap: `${workflow.interview.questions_used || 0} focused question${workflow.interview.questions_used === 1 ? '' : 's'} recorded.`,
+      expected_action: `Ask about ${joinClinicalList(missedDomains)} before final ESI.`,
+      practice_rule: `Ask about ${joinClinicalList(missedDomains)} in ${presentingProblemText(caseData)} before assigning final acuity.`
     });
   }
 
-  return deltas.slice(0, 4);
+  const findings = [...entries.values()]
+    .sort((a, b) => b.sort_priority - a.sort_priority)
+    .slice(0, 6)
+    .map(({ sort_priority: _sortPriority, ...item }) => item);
+
+  return {
+    title: 'Clinical findings and actions',
+    summary: findings.length
+      ? `For ${presentingProblemText(caseData)}, connect each finding to ESI, monitoring, escalation, or reassessment.`
+      : 'No priority findings were generated for this case.',
+    findings
+  };
 }
 
-function buildNextCaseChecklist(decisionDeltas, soapNote, workflow, caseData) {
+function legacyDecisionDeltas(clinicalDecisionReview) {
+  return (clinicalDecisionReview?.findings || []).map((item) => ({
+    finding: item.finding,
+    clinical_significance: item.why_it_matters,
+    learner_action: item.learner_gap,
+    reference_action: item.expected_action,
+    recommended_next_step: item.practice_rule,
+    finding_type: item.finding_type,
+    priority: item.priority
+  }));
+}
+
+function buildNextCaseChecklist(findings, soapNote, workflow, caseData) {
   const items = [];
-  for (const delta of decisionDeltas || []) {
-    if (delta.recommended_next_step) items.push(delta.recommended_next_step);
+  for (const finding of findings || []) {
+    if (finding.practice_rule) items.push(finding.practice_rule);
+    else if (finding.recommended_next_step) items.push(finding.recommended_next_step);
   }
 
   if (workflow?.interview?.missed_domains?.length) {
@@ -2750,7 +2865,7 @@ function readableDisposition(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function buildPhysicianCaseReview(session, caseData, physicianDebrief, decisionDeltas, nextCaseChecklist) {
+function buildPhysicianCaseReview(session, caseData, physicianDebrief, clinicalDecisionReview, nextCaseChecklist) {
   return {
     case_summary: physicianDebrief.case_summary,
     physician_read: physicianDebrief.physician_read,
@@ -2760,7 +2875,8 @@ function buildPhysicianCaseReview(session, caseData, physicianDebrief, decisionD
     final_status: finalStatusText(session, caseData),
     soap_note: physicianDebrief.soap_note,
     gold_standard_sbar: physicianDebrief.gold_standard_sbar,
-    decision_deltas: decisionDeltas,
+    clinical_decision_review: clinicalDecisionReview,
+    decision_deltas: legacyDecisionDeltas(clinicalDecisionReview),
     next_case_checklist: nextCaseChecklist
   };
 }
@@ -3204,13 +3320,14 @@ function generateFeedback(session) {
   const scorecard = generateScorecard(session, caseData, workflow);
   const priorityItems = priorityFeedback(session, caseData, workflow, scorecard);
   const physicianDebrief = buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityItems);
-  const decisionDeltas = buildDecisionDeltas(session, caseData, workflow, physicianDebrief.soap_note);
-  const nextCaseChecklist = buildNextCaseChecklist(decisionDeltas, physicianDebrief.soap_note, workflow, caseData);
+  const clinicalDecisionReview = buildClinicalDecisionReview(session, caseData, workflow, physicianDebrief.soap_note);
+  const decisionDeltas = legacyDecisionDeltas(clinicalDecisionReview);
+  const nextCaseChecklist = buildNextCaseChecklist(clinicalDecisionReview.findings, physicianDebrief.soap_note, workflow, caseData);
   const physicianCaseReview = buildPhysicianCaseReview(
     session,
     caseData,
     physicianDebrief,
-    decisionDeltas,
+    clinicalDecisionReview,
     nextCaseChecklist
   );
   const feedback = {
@@ -3254,6 +3371,7 @@ function generateFeedback(session) {
       next_case_checklist: nextCaseChecklist
     },
     physician_case_review: physicianCaseReview,
+    clinical_decision_review: clinicalDecisionReview,
     decision_deltas: decisionDeltas,
     next_case_checklist: nextCaseChecklist,
     case_evidence: caseEvidence(caseData, recordedActions),
@@ -3301,11 +3419,11 @@ export function startStaticSimulation() {
     interview_log: [],
     interview_mode: 'assessment',
     support_uses: [],
-    response_cache: {},
-    max_questions: 4
+    response_cache: {}
   };
   sessions.set(id, session);
   const intake = buildIntakeReport(caseData);
+  const interviewProgress = evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode);
   return {
     session_id: id,
     age: Math.round(caseData.demographics.age),
@@ -3316,7 +3434,7 @@ export function startStaticSimulation() {
     interview_modes: clone(INTERVIEW_MODES),
     interview_supports: clone(INTERVIEW_SUPPORTS),
     interview_mode: session.interview_mode,
-    max_questions: session.max_questions,
+    interview_progress: interviewProgress,
     clock: clock(session)
   };
 }
@@ -3337,7 +3455,6 @@ export function recordStaticInterviewSupport(id, supportId) {
 
 export async function askStaticPatientQuestion(id, question) {
   const session = getSession(id);
-  if (session.interview_log.length >= session.max_questions) throw new Error('Question budget used.');
   const text = String(question || '').trim();
   if (!text) throw new Error('Question is required.');
   const category = classifyQuestion(text);
@@ -3451,7 +3568,7 @@ export async function askStaticPatientQuestion(id, question) {
   return {
     response: logItem,
     questions_used: session.interview_log.length,
-    questions_remaining: session.max_questions - session.interview_log.length,
+    interview_progress: evaluateInterview(session.case, session.interview_log, session.support_uses, session.interview_mode),
     clock: clock(session)
   };
 }

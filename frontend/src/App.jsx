@@ -340,7 +340,7 @@ function App() {
   const [sessionId, setSessionId] = useState(null);
   const [patientData, setPatientData] = useState(null);
   const [interviewSupports, setInterviewSupports] = useState([]);
-  const [maxQuestions, setMaxQuestions] = useState(4);
+  const [interviewProgress, setInterviewProgress] = useState(null);
   const [clock, setClock] = useState({ elapsed_seconds: 0, timing_events: {} });
   const [timerTick, setTimerTick] = useState(0);
   const [caseRecord, setCaseRecord] = useState(INITIAL_CASE_RECORD);
@@ -364,7 +364,7 @@ function App() {
         intake: data.intake || null
       });
       setInterviewSupports(data.interview_supports || []);
-      setMaxQuestions(data.max_questions || 4);
+      setInterviewProgress(data.interview_progress || null);
       setClock(data.clock || { elapsed_seconds: 0, timing_events: {} });
       setTimerTick(0);
       setStep(0);
@@ -388,6 +388,7 @@ function App() {
     setSessionId(null);
     setPatientData(null);
     setInterviewSupports([]);
+    setInterviewProgress(null);
     setClock({ elapsed_seconds: 0, timing_events: {} });
     setTimerTick(0);
     setError('');
@@ -476,7 +477,8 @@ function App() {
             <FocusedInterview
               sessionId={sessionId}
               interviewSupports={interviewSupports}
-              maxQuestions={maxQuestions}
+              initialProgress={interviewProgress}
+              patientSex={patientData?.sex}
               onNext={handleNext}
               onCapture={handleCapture}
               onClock={setClock}
