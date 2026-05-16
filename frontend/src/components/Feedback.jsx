@@ -979,6 +979,15 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
               renderItem={(item) => `${item.label}: ${item.value}`}
             />
           </section>
+
+          <section className="feedback-section">
+            <h4>Reviewed inferred evidence</h4>
+            <EvidenceList
+              items={case_evidence?.inferred_evidence}
+              emptyText="No reviewed inferred teaching details were attached to this case."
+              renderItem={(item) => `${item.label}: ${item.value}`}
+            />
+          </section>
         </DebriefAccordion>
 
         <DebriefAccordion title="Clinical tutor" badge={(aiSettings || getTutorSettings()).hasKey ? 'Enabled' : 'Optional'}>

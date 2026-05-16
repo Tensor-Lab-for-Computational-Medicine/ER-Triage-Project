@@ -460,6 +460,9 @@ function FocusedInterview({
     setVoiceHelpUrl('');
     if (options.resumeConversation) setConversationStatus('Patient answering');
     if (patientVoiceEnabledRef.current || options.awaitPatientVoice) {
+      void warmPatientVoice({ onStatus: setPatientVoiceStatus })
+        .then(() => setPatientVoiceStatus('Patient voice ready'))
+        .catch(() => setPatientVoiceStatus('Voice unavailable'));
       void preparePatientVoicePlayback().catch(() => {});
     }
 

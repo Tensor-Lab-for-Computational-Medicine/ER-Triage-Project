@@ -57,12 +57,12 @@ function splitSpeechChunks(text) {
 
   const chunks = [];
   sentences.forEach((sentence) => {
-    if (sentence.length <= 150) {
+    if (sentence.length <= 80) {
       chunks.push(sentence);
       return;
     }
     sentence
-      .split(/,\s+|\s+-\s+/)
+      .split(/,\s+|\s+-\s+|\s+\band\b\s+/i)
       .map((item) => item.trim())
       .filter(Boolean)
       .forEach((part) => chunks.push(part));

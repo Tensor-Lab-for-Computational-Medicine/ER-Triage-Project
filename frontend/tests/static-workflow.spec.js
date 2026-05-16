@@ -1,10 +1,127 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  buildPatientView,
+  planPatientAnswer,
+  renderPatientAnswer,
+  validatePatientSpeech
+} from '../src/services/patientDialogueEngine.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const staticCases = JSON.parse(readFileSync(resolve(__dirname, '../src/data/cases.json'), 'utf8'))
+  .filter((item) => item.complaint && !String(item.complaint).includes('#NAME?'));
+
+function caseBy(predicate, label) {
+  const match = staticCases.find(predicate);
+  if (!match) throw new Error(`Missing static case fixture: ${label}`);
+  return match;
+}
+
+function randomValueForCase(caseData) {
+  const index = staticCases.findIndex((item) => item.id === caseData.id);
+  if (index < 0) throw new Error(`Case ${caseData.id} is not playable.`);
+  return (index + 0.01) / staticCases.length;
+}
+
+async function pinStaticCase(page, caseData) {
+  await page.addInitScript((value) => {
+    Math.random = () => value;
+  }, randomValueForCase(caseData));
+}
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
   });
+});
+
+test('patient dialogue engine keeps every static case in patient language', () => {
+  const prompts = [
+    'Can you tell me why you came to the hospital today?',
+    'How long has this been going on for?',
+    'How bad is the pain or discomfort right now?',
+    'Are you having chest pain, trouble breathing, weakness, confusion, bleeding, fever, or vomiting?',
+    'What medical problems, medicines, allergies, or similar prior episodes should I know about?',
+    'What is SDH or AMS?'
+  ];
+  const forbidden = /altered level of consciousness|altered mental status|\bAMS\b|\bSDH\b|subdural|I's|my's|patient's wife|patient's husband|presents to the ED|chief complaint|IVDU|EtOH|HCV|IDDM|DM2|pedal edema|dyspnea|emergency department with/i;
+
+  for (const caseData of staticCases) {
+    const patientView = buildPatientView(caseData);
+    const turns = [];
+    for (const prompt of prompts) {
+      const plan = planPatientAnswer(prompt, patientView, turns);
+      const answer = validatePatientSpeech(renderPatientAnswer(plan, patientView), plan, patientView, turns);
+      expect(answer, `${caseData.id} ${caseData.complaint} -> ${prompt}`).toBeTruthy();
+      expect(answer).not.toMatch(forbidden);
+      turns.push({ question: prompt, patient: answer, intent: plan.signature });
+    }
+  }
+});
+
+test('patient dialogue engine handles natural dialogue regressions', () => {
+  const chestPainCase = caseBy(
+    (item) => /chest pain/i.test(item.complaint) && /atrial fibrillation|orthopnea/i.test(item.history),
+    'rest chest pain with cardiac history'
+  );
+  const alteredCase = caseBy(
+    (item) => /altered/i.test(item.complaint) && /wife|confused|not oriented/i.test(item.history),
+    'collateral altered-consciousness case'
+  );
+
+  const chestView = buildPatientView(chestPainCase);
+  const chestTurns = [];
+  const chestChiefPlan = planPatientAnswer("Can you tell me what's going on today?", chestView, chestTurns);
+  const chestChief = validatePatientSpeech(renderPatientAnswer(chestChiefPlan, chestView), chestChiefPlan, chestView, chestTurns);
+  chestTurns.push({ patient: chestChief, intent: chestChiefPlan.signature });
+  const chestTimelinePlan = planPatientAnswer('How long has this been going on for?', chestView, chestTurns);
+  const chestTimeline = validatePatientSpeech(renderPatientAnswer(chestTimelinePlan, chestView), chestTimelinePlan, chestView, chestTurns);
+  const cardiacPlan = planPatientAnswer('Do you have a history of heart attacks or any cardiovascular conditions?', chestView, chestTurns);
+  const cardiacAnswer = validatePatientSpeech(renderPatientAnswer(cardiacPlan, chestView), cardiacPlan, chestView, chestTurns);
+  expect(chestTimeline).not.toMatch(/^I have chest pain\./i);
+  expect(chestTimeline).toMatch(/rest|two months|lying flat|started|sudden/i);
+  expect(cardiacAnswer).toMatch(/atrial fibrillation|heart|blood pressure|cholesterol/i);
+  expect(cardiacAnswer).not.toMatch(/substance use|IVDU|tobacco, alcohol|methadone|HCV|EtOH|IDDM/i);
+
+  const alteredView = buildPatientView(alteredCase);
+  const alteredPlan = planPatientAnswer('When did this start and what medical conditions should I know about?', alteredView, []);
+  const alteredAnswer = validatePatientSpeech(renderPatientAnswer(alteredPlan, alteredView), alteredPlan, alteredView, []);
+  expect(alteredAnswer).toMatch(/not sure|wife|confused|today/i);
+  expect(alteredAnswer).toMatch(/cancer|stroke|COPD|chronic pain|depression/i);
+  expect(alteredAnswer).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b|I's|patient's wife/i);
+});
+
+test('static case bundle excludes non-retained validation rows and preserves provenance', () => {
+  expect(staticCases.find((item) => item.id === 'case_026')).toBeFalsy();
+  for (const caseData of staticCases) {
+    expect(caseData.schema_version).toBe('clinical_case_v1');
+    expect(caseData.source?.adjudication?.final_decision).toBe('RETAIN');
+    expect(caseData.documented_evidence?.length).toBeGreaterThan(0);
+    expect(caseData.augmentation?.review_status).not.toMatch(/draft|rejected/);
+  }
+});
+
+test('reviewed augmentation facts are explicit and cannot silently become grading truth', () => {
+  const footSwelling = staticCases.find((item) => item.id === 'case_021');
+  expect(footSwelling).toBeTruthy();
+  expect(footSwelling.augmentation.review_status).toBe('reviewed');
+  const examFact = footSwelling.augmentation.inferred_facts.find((item) => item.domain === 'physical_exam');
+  expect(examFact).toBeTruthy();
+  expect(examFact.statement).toMatch(/dorsalis pedis pulse|capillary refill|sensation/i);
+  expect(examFact.source_anchors).toEqual(expect.arrayContaining(['R Foot swelling', 'reference ESI 3']));
+  expect(examFact.use_in).toEqual(expect.arrayContaining(['physical_exam', 'soap', 'decision_review', 'grading_reference']));
+
+  for (const caseData of staticCases) {
+    for (const fact of caseData.augmentation.inferred_facts || []) {
+      if (fact.use_in.includes('grading_reference')) {
+        expect(caseData.augmentation.review_status).toBe('reviewed');
+        expect(fact.review_status).toBe('reviewed');
+      }
+    }
+  }
 });
 
 async function completeStaticWorkflow(page, options = {}) {
@@ -181,15 +298,35 @@ test('shows case-specific decision deltas for under-triage', async ({ page }) =>
 
 test('deduplicates severe pain in the clinical decision review', async ({ page }) => {
   await completeStaticWorkflow(page, {
-    randomValue: 13.01 / 30,
-    provisionalEsi: 3,
-    finalEsi: 3
+    randomValue: 12.01 / 22,
+    provisionalEsi: 4,
+    finalEsi: 4
   });
 
   await expect(page.getByRole('heading', { name: 'Clinical findings and actions' })).toBeVisible();
-  const painFindings = page.locator('.decision-delta-card').filter({ hasText: 'Severe pain 10/10' });
+  const painFindings = page.locator('.decision-delta-card').filter({ hasText: 'Severe pain 8/10' });
   await expect(painFindings).toHaveCount(1);
   await expect(painFindings.first()).toContainText('Treat severe pain as an ED resource');
+});
+
+test('uses reviewed physical exam augmentation in the physician assessment and plan', async ({ page }) => {
+  await completeStaticWorkflow(page, {
+    randomValue: 13.01 / 22,
+    provisionalEsi: 3,
+    finalEsi: 3,
+    sbarHandoff: 'S: ED patient with right foot swelling and pain. B: Walk-in patient with hypertension history. A: ESI 3 with pain, labs, and exam resource needs. R: Treat pain, assess foot and neurovascular status, and complete ED evaluation.'
+  });
+
+  await expect(page.getByRole('heading', { name: 'Physician assessment and plan' })).toBeVisible();
+  const soapNote = page.locator('.soap-note-panel');
+  await expect(soapNote).toContainText('Right foot swelling and pain requiring evaluation');
+  await expect(soapNote).toContainText('Focused exam should document right foot location of swelling');
+  await expect(soapNote).toContainText('distinguish injury, infection, crystal arthritis, or vascular compromise');
+  await expect(page.getByRole('heading', { name: 'Clinical findings and actions' })).toBeVisible();
+  const focusedExamCard = page.locator('.decision-delta-card').filter({
+    has: page.locator('strong', { hasText: 'Focused exam should document right foot location of swelling' })
+  });
+  await expect(focusedExamCard).toHaveCount(1);
 });
 
 test('enables mocked patient voice playback controls without loading a model', async ({ page }) => {
@@ -261,14 +398,13 @@ test('supports a hands-free voice conversation loop', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Start conversation' })).toBeVisible();
 });
 
-test('keeps coded diagnoses out of patient speech and answers follow-ups by domain', async ({ page }) => {
+test('keeps coded mental-status labels out of patient speech and answers follow-ups by domain', async ({ page }) => {
   await page.addInitScript(() => {
-    Math.random = () => 25.01 / 31;
+    Math.random = () => 7.01 / 22;
   });
 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
-  await expect(page.locator('body')).not.toContainText(/\bSDH\b/i);
 
   async function ask(text, questionNumber) {
     await page.getByLabel('Question to patient').fill(text);
@@ -278,37 +414,37 @@ test('keeps coded diagnoses out of patient speech and answers follow-ups by doma
   }
 
   const chiefConcern = await ask('Hi, can you tell me why you came in today?', 1);
-  expect(chiefConcern).not.toMatch(/\bSDH\b|subdural/i);
-  expect(chiefConcern).toMatch(/headache|fall|unsteady|dizz/i);
+  expect(chiefConcern).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b/i);
+  expect(chiefConcern).toMatch(/not really sure|wife|confused|not making sense|fallen|acting/i);
 
-  const termClarification = await ask('What is SDH, is that a medical condition that you have?', 2);
-  expect(termClarification).not.toMatch(/\bSDH\b|subdural/i);
+  const termClarification = await ask('What is AMS, is that a medical condition that you have?', 2);
+  expect(termClarification).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b/i);
   expect(termClarification).toMatch(/not sure|do not know|don't know/i);
-  expect(termClarification).toMatch(/headache|fall|unsteady|dizz/i);
+  expect(termClarification).toMatch(/wife|confused|not making sense|fallen|acting/i);
 
-  const timeline = await ask('How long has your headache been going on for?', 3);
-  expect(timeline).not.toMatch(/\bSDH\b|subdural/i);
+  const timeline = await ask('How long has this been going on for?', 3);
+  expect(timeline).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b/i);
   expect(timeline).not.toBe(chiefConcern);
-  expect(timeline).toMatch(/started|exact|before|worse|time|day|week|month/i);
+  expect(timeline).toMatch(/started|exact|today|time|found|wife/i);
 
-  const repeatedTimeline = await ask('How long has your headache been going on for?', 4);
-  expect(repeatedTimeline).not.toMatch(/\bSDH\b|subdural/i);
+  const repeatedTimeline = await ask('How long has this been going on for?', 4);
+  expect(repeatedTimeline).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b/i);
   expect(repeatedTimeline).not.toBe(timeline);
 });
 
 test('uses natural collateral speech for altered-consciousness cases', async ({ page }) => {
   await page.addInitScript(() => {
-    Math.random = () => 12.01 / 31;
-    const badCacheKey = 'case_013::patient_response_v4::patient_persona_v3::patient_dialogue_prompt_v3::chief_concern';
-    window.localStorage.setItem('ed_triage_patient_response_cache_v4', JSON.stringify({
+    Math.random = () => 7.01 / 22;
+    const badCacheKey = 'case_013::patient_response_v5::patient_dialogue_engine_v1::patient_dialogue_prompt_v4::chief_concern::ee6a4077';
+    window.localStorage.setItem('ed_triage_patient_response_cache_v5', JSON.stringify({
       [badCacheKey]: {
-        cache_version: 'patient_response_v4',
-        persona_version: 'patient_persona_v3',
-        prompt_version: 'patient_dialogue_prompt_v3',
+        cache_version: 'patient_response_v5',
+        persona_version: 'patient_dialogue_engine_v1',
+        prompt_version: 'patient_dialogue_prompt_v4',
         question: 'Why did you come in?',
         answer: "I'm here for altered level of consciousness.",
         source: 'Cached patient response',
-        intent_key: 'chief_concern',
+        intent_key: 'chief_concern::ee6a4077',
         category: 'chief_concern',
         covered_categories: ['chief_concern'],
         updated_at: new Date().toISOString()
@@ -342,9 +478,36 @@ test('uses natural collateral speech for altered-consciousness cases', async ({ 
   expect(clarification).toMatch(/wife|confused|not making sense/i);
 });
 
+test('answers chest-pain timeline and cardiovascular history naturally', async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 2.01 / 22;
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+
+  async function ask(text, questionNumber) {
+    await page.getByLabel('Question to patient').fill(text);
+    await page.getByRole('button', { name: 'Ask patient' }).click();
+    await expect(page.getByText(`Question ${questionNumber}`)).toBeVisible();
+    return page.locator('.interview-entry').nth(questionNumber - 1).locator('.patient-turn p').innerText();
+  }
+
+  const chiefConcern = await ask("Can you tell me what's going on today?", 1);
+  expect(chiefConcern).toMatch(/chest pain/i);
+
+  const timeline = await ask('How long has this been going on for?', 2);
+  expect(timeline).not.toMatch(/^I have chest pain\./i);
+  expect(timeline).toMatch(/rest|started|two months|breathing|lying flat/i);
+
+  const cardiacHistory = await ask('Do you have a history of heart attacks or any cardiovascular conditions?', 3);
+  expect(cardiacHistory).toMatch(/atrial fibrillation|heart|blood thinner/i);
+  expect(cardiacHistory).not.toMatch(/IVDU|substance use \(|tobacco, alcohol|methadone|HCV|EtOH|IDDM/i);
+});
+
 test('uses local patient speech quickly when OpenRouter is slow or unsafe', async ({ page }) => {
   await page.addInitScript(() => {
-    Math.random = () => 25.01 / 31;
+    Math.random = () => 7.01 / 22;
     window.localStorage.setItem('ed_triage_openrouter_key', 'test-key');
     window.localStorage.setItem('ed_triage_openrouter_storage', 'local');
     window.localStorage.setItem('ed_triage_openrouter_patient_model', 'openrouter/auto');
@@ -378,8 +541,8 @@ test('uses local patient speech quickly when OpenRouter is slow or unsafe', asyn
   expect(Date.now() - startedAt).toBeLessThan(1200);
 
   const answer = await page.locator('.interview-entry').first().locator('.patient-turn p').innerText();
-  expect(answer).not.toMatch(/\bSDH\b|subdural|ESI/i);
-  expect(answer).toMatch(/headache|fall|unsteady|dizz/i);
+  expect(answer).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b|ESI/i);
+  expect(answer).toMatch(/wife|confused|not making sense|fallen|acting|not really sure/i);
   expect(openRouterCalls).toBeGreaterThanOrEqual(1);
 });
 
