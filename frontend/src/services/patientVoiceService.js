@@ -2,7 +2,8 @@ const KOKORO_MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
 const KOKORO_DEVICE = 'wasm';
 const KOKORO_DTYPE = 'q8';
 const PATIENT_VOICE_ID = 'af_heart';
-const VOICE_CACHE_VERSION = 'kokoro_wasm_q8_af_heart_v2';
+const PATIENT_VOICE_SPEED = 0.98;
+const VOICE_CACHE_VERSION = 'kokoro_wasm_q8_af_heart_v3';
 const VOICE_STORAGE_KEY = 'ed_triage_patient_voice_enabled';
 const audioCache = new Map();
 
@@ -10,6 +11,7 @@ let ttsPromise = null;
 let currentAudio = null;
 let audioContext = null;
 let activeSource = null;
+let playbackToken = 0;
 
 function mockVoiceConfig() {
   if (typeof window === 'undefined') return null;
@@ -30,12 +32,43 @@ function speechSafeText(text) {
     .replace(/\bNPO\b/gi, 'nothing by mouth')
     .replace(/\bIV\b/g, 'I V')
     .replace(/\bTKO\b/g, 'to keep open')
+    .replace(/\bSDH\b/gi, 'head injury')
+    .replace(/\bHR\b/g, 'heart rate')
+    .replace(/\bRR\b/g, 'respiratory rate')
+    .replace(/\bSpO2\b/gi, 'oxygen level')
+    .replace(/\b(\d+)\s*-\s*year\s*-\s*old\b/gi, '$1 year old')
+    .replace(/\b(\d+)\s*yo\b/gi, '$1 year old')
     .replace(/&/g, ' and ')
     .replace(/[<>[\]{}|~^]/g, ' ')
     .replace(/([,.;:!?])(?=\S)/g, '$1 ')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 420);
+}
+
+function splitSpeechChunks(text) {
+  const safe = speechSafeText(text);
+  if (!safe) return [];
+
+  const sentences = safe
+    .split(/(?<=[.!?])\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const chunks = [];
+  sentences.forEach((sentence) => {
+    if (sentence.length <= 150) {
+      chunks.push(sentence);
+      return;
+    }
+    sentence
+      .split(/,\s+|\s+-\s+/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .forEach((part) => chunks.push(part));
+  });
+
+  return chunks.slice(0, 4);
 }
 
 function hashVoiceText(text, voice) {
@@ -103,6 +136,7 @@ async function loadKokoro(onStatus) {
 }
 
 function stopPatientVoice() {
+  playbackToken += 1;
   if (activeSource) {
     try {
       activeSource.stop();
@@ -140,12 +174,16 @@ async function synthesizePatientAnswer(text, { sex, onStatus } = {}) {
   if (onStatus) onStatus('Loading patient voice');
   const tts = await loadKokoro(onStatus);
   if (onStatus) onStatus('Preparing patient voice');
-  const rawAudio = await tts.generate(cleanedText, { voice, speed: 1 });
+  const rawAudio = await tts.generate(cleanedText, { voice, speed: PATIENT_VOICE_SPEED });
   const blob = rawAudio.toBlob();
   const objectUrl = URL.createObjectURL(blob);
   const result = { blob, objectUrl };
   audioCache.set(cacheKey, result);
   return result;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 async function playWithAudioContext(blob) {
@@ -249,15 +287,33 @@ export async function speakPatientAnswer(text, options = {}) {
   }
 
   stopPatientVoice();
+  const token = playbackToken;
   await preparePatientVoicePlayback();
-  const audio = await synthesizePatientAnswer(trimmed, options);
-  if (options.onStatus) options.onStatus('Speaking');
+  const chunks = splitSpeechChunks(trimmed);
+  if (!chunks.length) return null;
+  if (options.onStatus) options.onStatus('Loading patient voice');
 
-  try {
-    return await playWithAudioContext(audio.blob);
-  } catch {
-    return playWithAudioElement(audio.objectUrl);
+  let nextAudio = synthesizePatientAnswer(chunks[0], options);
+  let lastResult = null;
+
+  for (let index = 0; index < chunks.length; index += 1) {
+    if (token !== playbackToken) return { cancelled: true };
+    const audio = await nextAudio;
+    if (index + 1 < chunks.length) {
+      nextAudio = synthesizePatientAnswer(chunks[index + 1], options);
+    }
+    if (token !== playbackToken) return { cancelled: true };
+    if (options.onStatus) options.onStatus('Speaking');
+    try {
+      lastResult = await playWithAudioContext(audio.blob);
+    } catch {
+      lastResult = await playWithAudioElement(audio.objectUrl);
+    }
+    if (token !== playbackToken) return { cancelled: true };
+    if (index + 1 < chunks.length) await wait(90);
   }
+
+  return lastResult;
 }
 
 export { stopPatientVoice, voiceForPatientSex };

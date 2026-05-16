@@ -1272,6 +1272,48 @@ summary:focus-visible {
   font-weight: 800;
 }
 
+.voice-encounter-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 12px;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.voice-encounter-panel.active {
+  background: #edf8f8;
+  border-color: var(--teal);
+  box-shadow: inset 0 0 0 1px rgba(0, 124, 137, 0.24);
+}
+
+.voice-encounter-panel > div {
+  display: grid;
+  gap: 3px;
+}
+
+.voice-encounter-panel strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.voice-encounter-panel small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.voice-encounter-panel.active small {
+  color: var(--teal-dark);
+}
+
+.voice-encounter-panel button {
+  min-width: 160px;
+  min-height: 42px;
+}
+
 .question-input {
   display: grid;
   gap: 8px;
@@ -1407,6 +1449,29 @@ summary:focus-visible {
   border-radius: 8px;
 }
 
+.speaker-turn {
+  display: grid;
+  gap: 6px;
+}
+
+.learner-turn {
+  justify-self: end;
+  width: min(82%, 620px);
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px 8px 2px 8px;
+}
+
+.patient-turn {
+  justify-self: start;
+  width: min(92%, 720px);
+  padding: 10px 12px;
+  background: #edf8f8;
+  border: 1px solid rgba(0, 124, 137, 0.2);
+  border-radius: 8px 8px 8px 2px;
+}
+
 .interview-entry span {
   color: var(--muted);
   font-size: 0.78rem;
@@ -1423,6 +1488,10 @@ summary:focus-visible {
 
 .interview-entry p {
   line-height: 1.55;
+}
+
+.question-index {
+  justify-self: end;
 }
 
 .patient-answer-row {
@@ -3307,8 +3376,17 @@ summary:focus-visible {
   }
 
   .section-header,
-  .app-topbar {
+  .app-topbar,
+  .voice-encounter-panel {
     flex-direction: column;
+  }
+
+  .voice-encounter-panel {
+    align-items: stretch;
+  }
+
+  .voice-encounter-panel button {
+    width: 100%;
   }
 
   .case-meta {

@@ -13,6 +13,7 @@ import {
 } from '../services/patientVoiceService';
 
 const MINIMUM_QUESTIONS = 2;
+const CONVERSATION_RESTART_DELAY_MS = 650;
 
 function localhostVoiceUrl() {
   if (typeof window === 'undefined') return '';
@@ -77,10 +78,29 @@ function FocusedInterview({
   const [patientVoiceEnabled, setPatientVoiceEnabled] = useState(() => getStoredPatientVoiceEnabled());
   const [patientVoiceStatus, setPatientVoiceStatus] = useState('');
   const [speakingIndex, setSpeakingIndex] = useState(null);
+  const [conversationActive, setConversationActive] = useState(false);
+  const [conversationStatus, setConversationStatus] = useState('');
   const [interviewProgress, setInterviewProgress] = useState(() => normalizeProgress(initialProgress));
   const [error, setError] = useState('');
   const [voiceHelpUrl, setVoiceHelpUrl] = useState('');
   const recognitionRef = useRef(null);
+  const recognitionModeRef = useRef('');
+  const suppressRecognitionEndRef = useRef(false);
+  const conversationActiveRef = useRef(false);
+  const conversationWaitingRef = useRef(false);
+  const conversationRestartRef = useRef(null);
+  const pendingConversationQuestionRef = useRef('');
+  const loadingRef = useRef(false);
+  const logRef = useRef([]);
+  const patientVoiceEnabledRef = useRef(patientVoiceEnabled);
+
+  useEffect(() => {
+    logRef.current = log;
+  }, [log]);
+
+  useEffect(() => {
+    patientVoiceEnabledRef.current = patientVoiceEnabled;
+  }, [patientVoiceEnabled]);
 
   useEffect(() => {
     setSupportUses([]);
@@ -91,12 +111,27 @@ function FocusedInterview({
     setVoiceStatus('');
     setPatientVoiceStatus('');
     setSpeakingIndex(null);
+    setConversationActive(false);
+    setConversationStatus('');
+    conversationActiveRef.current = false;
+    conversationWaitingRef.current = false;
+    pendingConversationQuestionRef.current = '';
+    loadingRef.current = false;
+    logRef.current = [];
+    patientVoiceEnabledRef.current = getStoredPatientVoiceEnabled();
+    if (patientVoiceEnabledRef.current) setPatientVoiceStatus('Loading patient voice');
+    if (conversationRestartRef.current) {
+      window.clearTimeout(conversationRestartRef.current);
+      conversationRestartRef.current = null;
+    }
     setInterviewProgress(normalizeProgress(initialProgress));
     setVoiceHelpUrl('');
     stopPatientVoice();
   }, [sessionId, initialProgress]);
 
   useEffect(() => () => {
+    if (conversationRestartRef.current) window.clearTimeout(conversationRestartRef.current);
+    suppressRecognitionEndRef.current = true;
     if (recognitionRef.current) recognitionRef.current.abort();
     stopPatientVoice();
   }, []);
@@ -168,59 +203,150 @@ function FocusedInterview({
     }
   };
 
-  const startVoiceInput = () => {
+  const stopActiveRecognition = () => {
+    suppressRecognitionEndRef.current = true;
+    if (recognitionRef.current) {
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
+    }
+    recognitionModeRef.current = '';
+    setVoiceStatus('');
+  };
+
+  const scheduleConversationRestart = (status = 'Ready') => {
+    if (conversationRestartRef.current) {
+      window.clearTimeout(conversationRestartRef.current);
+      conversationRestartRef.current = null;
+    }
+    if (!conversationActiveRef.current) return;
+    setConversationStatus(status);
+    conversationRestartRef.current = window.setTimeout(() => {
+      conversationRestartRef.current = null;
+      if (!conversationActiveRef.current || loadingRef.current || recognitionRef.current) return;
+      startSpeechRecognition({ conversational: true });
+    }, CONVERSATION_RESTART_DELAY_MS);
+  };
+
+  const startSpeechRecognition = ({ conversational = false } = {}) => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const localUrl = localhostVoiceUrl();
     if (microphoneBlockedByOrigin()) {
       setVoiceHelpUrl(localUrl);
       setError(voiceInputErrorMessage());
+      if (conversational) {
+        setConversationActive(false);
+        conversationActiveRef.current = false;
+        setConversationStatus('');
+      }
       return;
     }
 
     if (!SpeechRecognition) {
       setVoiceHelpUrl(localUrl);
       setError('Voice input is available in Chrome or Edge with microphone access.');
+      if (conversational) {
+        setConversationActive(false);
+        conversationActiveRef.current = false;
+        setConversationStatus('');
+      }
       return;
     }
 
     if (recognitionRef.current) {
+      if (conversational) return;
       recognitionRef.current.abort();
       recognitionRef.current = null;
+      recognitionModeRef.current = '';
       setVoiceStatus('');
       setVoiceHelpUrl('');
       return;
     }
 
+    suppressRecognitionEndRef.current = false;
+    recognitionModeRef.current = conversational ? 'conversation' : 'manual';
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
-    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.interimResults = conversational;
     recognition.maxAlternatives = 1;
     recognition.onstart = () => {
       setVoiceStatus('Listening');
+      if (conversational) setConversationStatus('Listening');
       setVoiceHelpUrl('');
       setError('');
     };
     recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
+      const results = Array.from(event.results);
+      const transcript = results
         .map((result) => result[0]?.transcript || '')
         .join(' ')
         .trim();
-      if (transcript) {
+      const finalParts = results
+        .filter((result) => result.isFinal)
+        .map((result) => result[0]?.transcript || '')
+        .join(' ')
+        .trim();
+
+      if (conversational) {
+        if (transcript) setQuestion(transcript);
+        if (finalParts) {
+          pendingConversationQuestionRef.current = finalParts;
+          conversationWaitingRef.current = true;
+          suppressRecognitionEndRef.current = true;
+          setConversationStatus('Heard question');
+          setVoiceStatus('');
+          try {
+            recognition.stop();
+          } catch {
+            // The browser may have already stopped recognition.
+          }
+        }
+      } else if (transcript) {
         setQuestion((current) => [current.trim(), transcript].filter(Boolean).join(' '));
       }
     };
     recognition.onnomatch = () => {
       setVoiceStatus('');
-      setError('No speech was recognized. Try again closer to the microphone.');
+      if (conversational && conversationActiveRef.current) {
+        scheduleConversationRestart('Listening');
+      } else {
+        setError('No speech was recognized. Try again closer to the microphone.');
+      }
     };
     recognition.onerror = (event) => {
       setVoiceStatus('');
       setVoiceHelpUrl(localhostVoiceUrl());
-      setError(voiceInputErrorMessage(event?.error));
+      if (conversational && event?.error === 'no-speech' && conversationActiveRef.current) {
+        scheduleConversationRestart('Listening');
+      } else {
+        setError(voiceInputErrorMessage(event?.error));
+        if (conversational) {
+          setConversationActive(false);
+          conversationActiveRef.current = false;
+          setConversationStatus('');
+        }
+      }
     };
     recognition.onend = () => {
+      const mode = recognitionModeRef.current;
+      const pendingQuestion = pendingConversationQuestionRef.current;
+      const shouldRestart = (
+        mode === 'conversation' &&
+        conversationActiveRef.current &&
+        !suppressRecognitionEndRef.current &&
+        !conversationWaitingRef.current &&
+        !pendingQuestion
+      );
       recognitionRef.current = null;
+      recognitionModeRef.current = '';
       setVoiceStatus('');
+      suppressRecognitionEndRef.current = false;
+      if (mode === 'conversation' && pendingQuestion && conversationActiveRef.current) {
+        pendingConversationQuestionRef.current = '';
+        void submitQuestion(pendingQuestion, { resumeConversation: true, awaitPatientVoice: true });
+        return;
+      }
+      if (shouldRestart) scheduleConversationRestart('Listening');
     };
     recognitionRef.current = recognition;
     setError('');
@@ -229,13 +355,58 @@ function FocusedInterview({
       recognition.start();
     } catch {
       recognitionRef.current = null;
+      recognitionModeRef.current = '';
       setVoiceStatus('');
       setVoiceHelpUrl(localhostVoiceUrl());
       setError(voiceInputErrorMessage());
+      if (conversational) {
+        setConversationActive(false);
+        conversationActiveRef.current = false;
+        setConversationStatus('');
+      }
     }
   };
 
+  const startVoiceInput = () => startSpeechRecognition({ conversational: false });
+
+  const startConversation = () => {
+    if (conversationActiveRef.current) {
+      conversationActiveRef.current = false;
+      setConversationActive(false);
+      setConversationStatus('');
+      conversationWaitingRef.current = false;
+      pendingConversationQuestionRef.current = '';
+      if (conversationRestartRef.current) {
+        window.clearTimeout(conversationRestartRef.current);
+        conversationRestartRef.current = null;
+      }
+      stopActiveRecognition();
+      return;
+    }
+
+    setError('');
+    setVoiceHelpUrl('');
+    setQuestion('');
+    setConversationActive(true);
+    conversationActiveRef.current = true;
+    conversationWaitingRef.current = false;
+    pendingConversationQuestionRef.current = '';
+    setConversationStatus('Ready');
+    if (!patientVoiceEnabled) {
+      patientVoiceEnabledRef.current = true;
+      setPatientVoiceEnabled(true);
+      setStoredPatientVoiceEnabled(true);
+      setPatientVoiceStatus('Loading patient voice');
+      void warmPatientVoice({ onStatus: setPatientVoiceStatus })
+        .then(() => setPatientVoiceStatus('Patient voice ready'))
+        .catch(() => setPatientVoiceStatus('Voice unavailable'));
+    }
+    void preparePatientVoicePlayback().catch(() => {});
+    startSpeechRecognition({ conversational: true });
+  };
+
   const setPatientVoice = (enabled) => {
+    patientVoiceEnabledRef.current = enabled;
     setPatientVoiceEnabled(enabled);
     setStoredPatientVoiceEnabled(enabled);
     if (!enabled) {
@@ -256,10 +427,16 @@ function FocusedInterview({
     setSpeakingIndex(index);
     setError('');
     void preparePatientVoicePlayback().catch(() => {});
+    if (conversationActiveRef.current) setConversationStatus('Patient answering');
     try {
       await speakPatientAnswer(text, {
         sex: patientSex,
-        onStatus: setPatientVoiceStatus
+        onStatus: (status) => {
+          setPatientVoiceStatus(status);
+          if (!conversationActiveRef.current) return;
+          if (status === 'Speaking') setConversationStatus('Speaking');
+          else if (/loading|preparing/i.test(status)) setConversationStatus('Patient answering');
+        }
       });
       setPatientVoiceStatus('Patient voice ready');
     } catch {
@@ -269,27 +446,31 @@ function FocusedInterview({
     }
   };
 
-  const submitQuestion = async () => {
-    const trimmed = question.trim();
+  const submitQuestion = async (overrideQuestion = '', options = {}) => {
+    const trimmed = String(overrideQuestion || question).trim();
     if (!trimmed) {
       setError('Enter a focused triage question.');
       return;
     }
 
     setLoading(true);
+    loadingRef.current = true;
     setLoadingMessage('Getting patient response.');
     setError('');
     setVoiceHelpUrl('');
-    if (patientVoiceEnabled) {
+    if (options.resumeConversation) setConversationStatus('Patient answering');
+    if (patientVoiceEnabledRef.current || options.awaitPatientVoice) {
       void preparePatientVoicePlayback().catch(() => {});
     }
 
     try {
       const data = await askPatientQuestion(sessionId, trimmed);
-      const nextLog = [...log, data.response];
+      const nextLog = [...logRef.current, data.response];
+      logRef.current = nextLog;
       setLog(nextLog);
       setInterviewProgress(normalizeProgress(data.interview_progress || interviewProgress));
       setQuestion('');
+      if (options.resumeConversation) setConversationStatus('Patient answering');
       if (onClock) onClock(data.clock);
       if (onCapture) {
         const chief = nextLog.find((item) => item.category === 'chief_concern');
@@ -306,14 +487,26 @@ function FocusedInterview({
           interviewSupports: supportUses
         });
       }
-      if (patientVoiceEnabled) {
-        void playPatientAnswer(data.response?.answer, nextLog.length - 1);
+      if (patientVoiceEnabledRef.current || options.awaitPatientVoice) {
+        const speech = playPatientAnswer(data.response?.answer, nextLog.length - 1);
+        if (options.awaitPatientVoice) await speech;
+        else void speech;
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Patient response could not be recorded.');
+      if (options.resumeConversation) {
+        setConversationActive(false);
+        conversationActiveRef.current = false;
+        setConversationStatus('');
+      }
     } finally {
       setLoading(false);
+      loadingRef.current = false;
       setLoadingMessage('');
+      if (options.resumeConversation) {
+        conversationWaitingRef.current = false;
+        scheduleConversationRestart('Ready');
+      }
     }
   };
 
@@ -329,7 +522,7 @@ function FocusedInterview({
 
       <div className="interview-brief">
         <p className="instruction">
-          Speak or type one question at a time. The patient answer appears in the transcript, and the report scores whether the interview covered the risk-changing history.
+          Ask aloud or type one focused question. The patient responds in the thread and can speak aloud.
         </p>
         <div className="question-progress-panel interview-progress-panel" aria-label="Interview coverage">
           <div>
@@ -426,11 +619,31 @@ function FocusedInterview({
         </div>
       )}
 
+      <div className={`voice-encounter-panel ${conversationActive ? 'active' : ''}`}>
+        <div>
+          <span className="eyebrow">Patient encounter</span>
+          <strong>{conversationActive ? 'Live conversation' : 'Voice conversation'}</strong>
+          <small>
+            {conversationActive
+              ? conversationStatus || voiceStatus || patientVoiceStatus || 'Listening'
+              : 'Speak the question, hear the patient answer, then continue.'}
+          </small>
+        </div>
+        <button
+          type="button"
+          className={conversationActive ? 'btn-secondary' : 'btn-primary'}
+          onClick={startConversation}
+        >
+          {conversationActive ? 'End conversation' : 'Start conversation'}
+        </button>
+      </div>
+
       <div className="patient-voice-control">
         <label>
           <input
             type="checkbox"
             checked={patientVoiceEnabled}
+            disabled={conversationActive}
             onChange={(event) => setPatientVoice(event.target.checked)}
           />
           <span>Patient voice</span>
@@ -453,14 +666,14 @@ function FocusedInterview({
             type="button"
             className={`voice-button ${voiceStatus ? 'active' : ''}`}
             onClick={startVoiceInput}
-            disabled={loading}
+            disabled={loading || conversationActive}
             aria-pressed={Boolean(voiceStatus)}
           >
-            {voiceStatus || 'Voice input'}
+            {voiceStatus || 'Dictate'}
           </button>
         </div>
         <small className="field-hint">
-          Keep each entry to one question so the debrief can score concept coverage accurately.
+          The encounter captures one clinical question at a time.
         </small>
       </div>
 
@@ -477,7 +690,7 @@ function FocusedInterview({
       {loadingMessage && <div className="loading compact-loading">{loadingMessage}</div>}
 
       <div className="button-group">
-        <button className="btn-primary" onClick={submitQuestion} disabled={loading}>
+        <button className="btn-primary" onClick={() => submitQuestion()} disabled={loading || conversationActive}>
           {loading ? 'Asking patient...' : 'Ask patient'}
         </button>
         <button className="btn-secondary" onClick={onNext} disabled={!canContinue || loading}>
@@ -489,21 +702,25 @@ function FocusedInterview({
         <div className="interview-thread">
           {log.map((item, index) => (
             <div className="interview-entry" key={`${item.category}-${index}`}>
-              <div>
-                <span>Question {index + 1}</span>
+              <div className="speaker-turn learner-turn">
+                <span>You</span>
                 <strong>{item.question}</strong>
               </div>
-              <div className="patient-answer-row">
-                <p>{item.answer}</p>
-                <button
-                  type="button"
-                  className={`listen-button ${speakingIndex === index ? 'active' : ''}`}
-                  onClick={() => playPatientAnswer(item.answer, index)}
-                  aria-label={`Replay patient answer ${index + 1}`}
-                >
-                  {speakingIndex === index ? 'Speaking' : 'Listen'}
-                </button>
+              <div className="speaker-turn patient-turn">
+                <span>Patient</span>
+                <div className="patient-answer-row">
+                  <p>{item.answer}</p>
+                  <button
+                    type="button"
+                    className={`listen-button ${speakingIndex === index ? 'active' : ''}`}
+                    onClick={() => playPatientAnswer(item.answer, index)}
+                    aria-label={`Replay patient answer ${index + 1}`}
+                  >
+                    {speakingIndex === index ? 'Speaking' : 'Listen'}
+                  </button>
+                </div>
               </div>
+              <span className="question-index">Question {index + 1}</span>
             </div>
           ))}
         </div>

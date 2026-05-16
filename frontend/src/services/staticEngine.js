@@ -5,11 +5,18 @@ const sessions = new Map();
 const completedSessions = new Map();
 
 export const DEFAULT_TUTOR_MODEL = 'openrouter/free';
+export const DEFAULT_PATIENT_DIALOGUE_MODEL = 'openrouter/auto';
 const TUTOR_SESSION_KEY = 'ed_triage_openrouter_key';
 const TUTOR_LOCAL_KEY = 'ed_triage_openrouter_key';
 const TUTOR_MODEL_KEY = 'ed_triage_openrouter_model';
+const PATIENT_DIALOGUE_MODEL_KEY = 'ed_triage_openrouter_patient_model';
 const TUTOR_STORAGE_KEY = 'ed_triage_openrouter_storage';
-const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v2';
+const PATIENT_RESPONSE_CACHE_VERSION = 'patient_response_v4';
+const PATIENT_PERSONA_VERSION = 'patient_persona_v3';
+const PATIENT_PROMPT_VERSION = 'patient_dialogue_prompt_v3';
+const PATIENT_AI_FAST_TIMEOUT_MS = 450;
+const PATIENT_AI_BACKGROUND_TIMEOUT_MS = 5000;
+const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v4';
 const PATIENT_RESPONSE_CACHE_LIMIT = 250;
 const REASONING_REVIEW_CACHE_KEY = 'ed_triage_reasoning_review_cache_v1';
 const REASONING_REVIEW_CACHE_LIMIT = 60;
@@ -466,6 +473,10 @@ function questionIntentKey(question, category, coveredCategories = []) {
   const q = String(question || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
   if (isAnswerKeyQuestion(q)) return 'answer_key';
   if (isGeneralStatusQuestion(q)) return 'general_status';
+  if (isMedicalTermClarification(q)) {
+    const term = q.match(/\b(sdh|diagnosis|condition|term)\b/)?.[1] || 'clinical_term';
+    return `term_clarification:${term}`;
+  }
 
   const domains = orderedQuestionDomains(coveredCategories.length ? coveredCategories : [category]);
   const backgroundDomains = domains.filter((domain) => BACKGROUND_DOMAINS.includes(domain));
@@ -474,6 +485,10 @@ function questionIntentKey(question, category, coveredCategories = []) {
   }
   if (isBroadBackgroundQuestion(q, domains)) {
     return `background:${domainSignature(backgroundDomains)}`;
+  }
+  const nonChiefDomains = orderedQuestionDomains(domains).filter((domain) => domain !== 'chief_concern');
+  if (nonChiefDomains.length > 1) {
+    return `compound:${nonChiefDomains.join('+')}`;
   }
   const symptoms = symptomIntentKeys(q);
   if (domains.includes('red_flags')) {
@@ -498,6 +513,7 @@ function questionIntentKey(question, category, coveredCategories = []) {
 
 function plainComplaint(complaint) {
   return String(complaint || 'this problem')
+    .replace(/\bsdh\b/gi, 'headache and falls')
     .replace(/\bs\/p\b/gi, 'after')
     .replace(/\bl\s+/gi, 'left ')
     .replace(/\br\s+/gi, 'right ')
@@ -581,9 +597,175 @@ function capitalizeSentence(text) {
   return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
+function hasSubduralChartLanguage(caseData) {
+  return /\b(sdh|subdural)\b/i.test(`${caseData?.complaint || ''} ${caseData?.history || ''}`);
+}
+
+function hasAlteredConsciousnessLanguage(caseData) {
+  return /\b(altered level of consciousness|altered mental status|ams|not oriented|bizarre conversation|encephalopathy)\b/i
+    .test(`${caseData?.complaint || ''} ${caseData?.history || ''}`);
+}
+
+function patientCollateralSource(caseData) {
+  const text = `${caseData?.history || ''} ${caseData?.outcome || ''}`.toLowerCase();
+  if (/\bwife\b/.test(text)) return 'wife';
+  if (/\bhusband\b/.test(text)) return 'husband';
+  if (/\bmother\b/.test(text)) return 'mother';
+  if (/\bfather\b/.test(text)) return 'father';
+  if (/\bfamily\b/.test(text)) return 'family';
+  if (/\bems\b|\bambulance\b/.test(text)) return 'EMS';
+  return '';
+}
+
+function patientForbiddenTerms(caseData) {
+  const terms = [
+    'altered level of consciousness',
+    'altered mental status',
+    'ams',
+    'mietic',
+    'dataset',
+    'recorded ed',
+    'esi',
+    'acuity',
+    'reference',
+    'disposition',
+    'resource use',
+    'resources',
+    'admitted',
+    'admission',
+    'icu',
+    'triage level',
+    'expert opinion',
+    'score',
+    'presents to the ed',
+    "patient's wife",
+    "patient's husband",
+    "i's",
+    "my's",
+    "he's wife",
+    "she's husband"
+  ];
+  if (hasSubduralChartLanguage(caseData)) {
+    terms.push('sdh', 'subdural', 'subdural hematoma', 'intracranial hemorrhage');
+  }
+  return terms;
+}
+
+function containsForbiddenPatientTerm(caseData, answer) {
+  const normalized = normalizedAnswerText(answer);
+  return patientForbiddenTerms(caseData).some((term) => {
+    const cleaned = normalizedAnswerText(term);
+    return cleaned && new RegExp(`\\b${cleaned.replace(/\s+/g, '\\s+')}\\b`, 'i').test(normalized);
+  });
+}
+
+function isMedicalTermClarification(question) {
+  const q = String(question || '').toLowerCase();
+  return /\b(what is|what does|what do you mean|what does that mean|is that|is this)\b/.test(q) &&
+    /\b(sdh|ams|diagnosis|condition|medical condition|term|mean)\b/.test(q);
+}
+
+function subduralPatientSymptom(caseData) {
+  const history = String(caseData?.history || '').toLowerCase();
+  if (/\bheadache\b/.test(history) && /\b(falls?|fell|falling|unsteady|unsteadiness|dizz\w*)\b/.test(history)) {
+    return 'I have a headache, and I have been unsteady and falling more';
+  }
+  if (/\bheadache\b/.test(history)) return 'I have a headache';
+  if (/\b(falls?|fell|falling|unsteady|unsteadiness|dizz\w*)\b/.test(history)) return 'I have been unsteady and falling more';
+  return 'I have a headache and feel unsteady';
+}
+
+function naturalConditionName(condition) {
+  return String(condition || '')
+    .replace(/\bstatus post[-\s]*esophagectomy\b/gi, '')
+    .replace(/\bright[-\s]*sided\s+CVA\b/gi, 'stroke')
+    .replace(/\bCVA\b/gi, 'stroke')
+    .replace(/\bTIAs?\b/gi, 'mini-strokes')
+    .replace(/\bHTN\b/gi, 'high blood pressure')
+    .replace(/\bHLD\b/gi, 'high cholesterol')
+    .replace(/\bGERD\b/gi, 'reflux')
+    .replace(/\bCOPD\b/g, 'COPD')
+    .replace(/\bG6PD deficiency\b/gi, 'G6PD deficiency')
+    .replace(/\bchronic pain syndrome on chronic opioids\b/gi, 'chronic pain')
+    .replace(/\bon chronic opioids\b/gi, '')
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function patientConditionList(caseData) {
+  const extracted = extractListAfter(caseData.history, [
+    /(?:history of|a history of)\s+([^.;]+)/i,
+    /past medical history includes\s+([^.;]+)/i,
+    /past medical history significant for\s+([^.;]+)/i
+  ]);
+  const rawList = compactList(extracted, 6);
+  return uniqueSentences(
+    rawList
+      .split(',')
+      .map(naturalConditionName)
+      .filter(Boolean)
+      .filter((item) => !/\b(altered|vital|chief complaint|arrived|presented|presents)\b/i.test(item))
+  );
+}
+
+function alteredConsciousnessPersona(caseData) {
+  const history = String(caseData?.history || '');
+  const lower = history.toLowerCase();
+  const source = patientCollateralSource(caseData);
+  const sourcePrefix = source && source !== 'EMS' ? `My ${source}` : source || 'They';
+  const concerns = [];
+  if (/\bbizarre conversation|not oriented|confus/.test(lower)) concerns.push('I was confused and not making sense');
+  if (/\bfall|fell|fallen/.test(lower)) concerns.push('I had fallen');
+  if (/\bslurred speech\b/.test(lower)) concerns.push('my speech was slurred');
+  if (/\bpinpoint pupils|pill bottle|extra dose|overdose|oxycontin|opioid|narcotic/.test(lower)) {
+    concerns.push('there was concern I may have taken too much pain medicine');
+  }
+  if (/\bthirst\b/.test(lower)) concerns.push('I feel very thirsty');
+
+  const collateralConcern = concerns.length
+    ? `${sourcePrefix} said ${concerns.slice(0, 3).join(', and ')}.`
+    : `${sourcePrefix} said I was not acting like myself.`;
+
+  return {
+    reliability: 'impaired',
+    collateral_source: source,
+    chief_concern: `I'm not really sure. ${collateralConcern}`,
+    symptom_summary: collateralConcern,
+    timeline: "I'm not sure exactly when it started.",
+    red_flags: collateralConcern,
+    severity: lower.includes('thirst') ? "I'm not having pain, but I feel very thirsty." : severityAnswer(caseData),
+    conditions: patientConditionList(caseData),
+    unknown_phrase: "I'm not really sure."
+  };
+}
+
+function buildPatientPersona(caseData) {
+  if (hasAlteredConsciousnessLanguage(caseData)) {
+    return alteredConsciousnessPersona(caseData);
+  }
+  return {
+    reliability: 'reliable',
+    collateral_source: patientCollateralSource(caseData),
+    chief_concern: chiefConcernAnswer(caseData),
+    symptom_summary: primarySymptom(caseData),
+    timeline: timelineAnswer(caseData),
+    red_flags: redFlagAnswer(caseData, ''),
+    severity: severityAnswer(caseData),
+    conditions: patientConditionList(caseData),
+    unknown_phrase: "I'm not sure."
+  };
+}
+
 function primarySymptom(caseData) {
   const complaint = plainComplaint(caseData.complaint).toLowerCase();
   const text = complaintText(caseData);
+  if (hasSubduralChartLanguage(caseData)) return subduralPatientSymptom(caseData);
+  if (hasAlteredConsciousnessLanguage(caseData)) {
+    const source = patientCollateralSource(caseData);
+    if (source && source !== 'EMS') return `my ${source} said I was confused and not making sense`;
+    return 'I was confused and not acting like myself';
+  }
   if (/fever/.test(complaint) && /pneumonia/.test(`${complaint} ${text}`)) {
     return 'I have a fever and they were worried about pneumonia';
   }
@@ -642,6 +824,9 @@ function compactList(text, maxItems = 4) {
 }
 
 function medicalHistoryAnswer(caseData) {
+  const conditions = patientConditionList(caseData);
+  if (conditions.length) return `I have ${conditions.slice(0, 5).join(', ')}.`;
+
   const extracted = extractListAfter(caseData.history, [
     /(?:history of|a history of)\s+([^.;]+)/i,
     /past medical history includes\s+([^.;]+)/i,
@@ -693,6 +878,16 @@ function allergyAnswer(caseData) {
 }
 
 function timelineAnswer(caseData) {
+  if (hasSubduralChartLanguage(caseData)) {
+    const history = String(caseData.history || '');
+    const timeMatch = history.match(/\b(\d+\s*(?:minutes?|mins?|hours?|hrs?|days?|weeks?|months?)\s*(?:ago|before|prior|earlier)?)\b/i);
+    if (timeMatch) return `It started about ${timeMatch[1].toLowerCase()}.`;
+    if (/\b(chronic|weeks?|months?|gradual|progressive|worsening)\b/i.test(history)) {
+      return "I'm not sure of the exact day, but the headache and unsteadiness have been getting worse over time.";
+    }
+    return "I'm not sure of the exact time, but the headache and unsteadiness were going on before I came in.";
+  }
+
   const history = String(caseData.history || '');
   const timeMatch = history.match(/\b(\d+\s*(?:minutes?|mins?|hours?|hrs?|days?|weeks?|months?)\s*(?:ago|before|prior|earlier)?)\b/i);
   if (timeMatch) return `It started about ${timeMatch[1].toLowerCase()}.`;
@@ -722,6 +917,9 @@ function generalStatusAnswer(caseData) {
   const pain = caseData.vitals?.pain;
   const normalizedSymptom = capitalizeSentence(symptom);
   const complaint = plainComplaint(caseData.complaint).toLowerCase();
+  if (hasSubduralChartLanguage(caseData)) {
+    return `I'm worried. ${normalizedSymptom}.`;
+  }
   if (/\b(fever|pneumonia|shortness of breath|dyspnea|weakness|confusion|chest pain)\b/.test(complaint)) {
     return `I'm not feeling well. ${normalizedSymptom}.`;
   }
@@ -864,17 +1062,25 @@ function isAnswerKeyQuestion(question) {
   return false;
 }
 
-function categoryResponse(caseData, category, question = '') {
-  if (isAnswerKeyQuestion(question)) {
-    return "I don't know that as the patient. I can tell you what I'm feeling, what happened, and what medical history I know.";
-  }
-
-  const domains = classifyQuestionDomains(question);
-  if (isSpecialRiskQuestion(question, domains)) {
-    return specialRiskAnswer(caseData, domains, question);
-  }
-  if (isBroadBackgroundQuestion(question, domains)) {
-    return broadBackgroundAnswer(caseData, domains);
+function domainPatientResponse(caseData, domain, question = '', persona = buildPatientPersona(caseData)) {
+  if (hasAlteredConsciousnessLanguage(caseData)) {
+    if (domain === 'chief_concern' || domain === 'general_status') return persona.chief_concern;
+    if (domain === 'timeline') {
+      const source = persona.collateral_source && persona.collateral_source !== 'EMS' ? `My ${persona.collateral_source}` : 'They';
+      return `${persona.timeline} ${source} found me confused today.`;
+    }
+    if (domain === 'medical_history') {
+      if (persona.conditions?.length) {
+        return `I have a history of ${persona.conditions.slice(0, 5).join(', ')}.`;
+      }
+      return "I have some medical problems, but I don't remember all of them clearly right now.";
+    }
+    if (domain === 'medications') return medicationAnswer(caseData);
+    if (domain === 'allergies') return allergyAnswer(caseData);
+    if (domain === 'severity') return persona.severity;
+    if (domain === 'red_flags') return persona.red_flags;
+    if (domain === 'prior_episode') return priorEpisodeAnswer(caseData);
+    if (domain === 'pregnancy') return pregnancyAnswer(caseData);
   }
 
   const responses = {
@@ -889,11 +1095,50 @@ function categoryResponse(caseData, category, question = '') {
     pregnancy: pregnancyAnswer(caseData),
     allergies: allergyAnswer(caseData)
   };
-  return responses[category] || responses.chief_concern;
+  return responses[domain] || responses.chief_concern;
+}
+
+function categoryResponse(caseData, category, question = '') {
+  if (isAnswerKeyQuestion(question)) {
+    return "I don't know that as the patient. I can tell you what I'm feeling, what happened, and what medical history I know.";
+  }
+
+  if (isMedicalTermClarification(question)) {
+    if (hasAlteredConsciousnessLanguage(caseData)) {
+      const persona = buildPatientPersona(caseData);
+      return `I'm not sure what that term means. ${persona.symptom_summary}`;
+    }
+    if (hasSubduralChartLanguage(caseData)) {
+      return "I'm not sure what that term means. I came in because of the headache and the falls.";
+    }
+    return "I'm not sure what that term means. I can tell you what I am feeling.";
+  }
+
+  const domains = classifyQuestionDomains(question);
+  if (isSpecialRiskQuestion(question, domains)) {
+    return specialRiskAnswer(caseData, domains, question);
+  }
+  if (isBroadBackgroundQuestion(question, domains)) {
+    return broadBackgroundAnswer(caseData, domains);
+  }
+
+  const persona = buildPatientPersona(caseData);
+  const responseDomains = domains.filter((domain) => domain !== 'chief_concern');
+  if (domains.includes('chief_concern') || !responseDomains.length) {
+    responseDomains.unshift('chief_concern');
+  }
+  const answers = uniqueSentences(
+    responseDomains
+      .slice(0, 3)
+      .map((domain) => domainPatientResponse(caseData, domain, question, persona))
+  );
+  return answers.join(' ') || domainPatientResponse(caseData, category, question, persona);
 }
 
 function patientNarrativeForModel(caseData) {
   const blocked = [
+    'sdh',
+    'subdural',
     'vital signs',
     'heart rate',
     'blood pressure',
@@ -920,17 +1165,24 @@ function patientNarrativeForModel(caseData) {
 }
 
 function patientFactsForModel(caseData) {
+  const persona = buildPatientPersona(caseData);
   return {
     age: Math.round(Number(caseData.demographics.age || 0)),
     sex: caseData.demographics.sex,
     arrival_transport: caseData.demographics.transport,
-    chief_complaint: plainComplaint(caseData.complaint),
+    chief_complaint: persona.chief_concern,
+    reliability: persona.reliability,
+    collateral_source: persona.collateral_source,
+    known_conditions: persona.conditions || [],
     patient_story: patientNarrativeForModel(caseData),
     pain_score_if_asked: caseData.vitals?.pain ?? null,
+    forbidden_terms: patientForbiddenTerms(caseData),
     likely_patient_phrasing: {
-      general_status: generalStatusAnswer(caseData),
-      chief_concern: chiefConcernAnswer(caseData),
-      medical_history: medicalHistoryAnswer(caseData),
+      general_status: domainPatientResponse(caseData, 'general_status', '', persona),
+      chief_concern: domainPatientResponse(caseData, 'chief_concern', '', persona),
+      timeline: domainPatientResponse(caseData, 'timeline', '', persona),
+      severity: domainPatientResponse(caseData, 'severity', '', persona),
+      medical_history: domainPatientResponse(caseData, 'medical_history', '', persona),
       medications: medicationAnswer(caseData),
       allergies: allergyAnswer(caseData)
     }
@@ -947,12 +1199,79 @@ function patientCacheStore() {
 }
 
 function patientCacheId(caseData, intentKey) {
-  return `${caseData.id || 'case'}::${intentKey}`;
+  return `${caseData.id || 'case'}::${PATIENT_RESPONSE_CACHE_VERSION}::${PATIENT_PERSONA_VERSION}::${PATIENT_PROMPT_VERSION}::${intentKey}`;
 }
 
-function readPersistentPatientCache(caseData, intentKey) {
+function patientCaseCachePrefix(caseData) {
+  return `${caseData.id || 'case'}::${PATIENT_RESPONSE_CACHE_VERSION}::${PATIENT_PERSONA_VERSION}::${PATIENT_PROMPT_VERSION}::`;
+}
+
+function patientCachePayloadIsCurrent(payload, intentKey) {
+  return Boolean(
+    payload?.answer &&
+    payload.intent_key === intentKey &&
+    payload.cache_version === PATIENT_RESPONSE_CACHE_VERSION &&
+    payload.persona_version === PATIENT_PERSONA_VERSION &&
+    payload.prompt_version === PATIENT_PROMPT_VERSION
+  );
+}
+
+function answerAddressesIntent(caseData, answer, intentKey, category, question = '') {
+  const normalized = normalizedAnswerText(answer);
+  if (!normalized) return false;
+  if (containsForbiddenPatientTerm(caseData, answer)) return false;
+  if (/\b(i s|my s|he s wife|she s husband|patient s wife|patient s husband|presents to the ed)\b/i.test(normalized)) return false;
+  if (/\b\d+\s+year\s+old\s+(white|black|asian|hispanic)?\s*(male|female|man|woman)\b/i.test(String(answer || ''))) return false;
+
+  if (String(intentKey || '').startsWith('compound:')) {
+    const requiredDomains = String(intentKey).replace(/^compound:/, '').split('+').filter(Boolean);
+    return requiredDomains.every((domain) => answerAddressesIntent(caseData, answer, domain, domain, question));
+  }
+
+  if (String(intentKey || '').startsWith('timeline')) {
+    if (/\b(start|started|began|begin|ago|after|before|since|when|time|day|days|week|weeks|month|months|worse|worsening|exact|ongoing)\b/.test(normalized)) {
+      return true;
+    }
+    if (/\bnot sure\b/.test(normalized) && /\b(headache|unsteady|falls?|dizz\w*)\b/.test(normalized)) return true;
+    return false;
+  }
+
+  if (String(intentKey || '').startsWith('severity')) {
+    return /\b(pain|hurt|sore|bad|severe|mild|distress|right now|comfortable|uncomfortable|well|okay)\b/.test(normalized);
+  }
+
+  if (String(intentKey || '').startsWith('term_clarification')) {
+    return /\b(not sure|do not know|don't know|means|term|came in|feeling)\b/.test(normalized);
+  }
+
+  if (category === 'red_flags' && /\b(chest|breath|faint|weak|numb|confus|vomit|bleed|fever)\b/i.test(question)) {
+    return /\b(yes|no|not|mainly|have|had|tell)\b/.test(normalized);
+  }
+
+  return true;
+}
+
+function validatePatientAnswer({ caseData, answer, intentKey, category, question, session }) {
+  const cleaned = cleanPatientResponse(answer);
+  if (!cleaned) return null;
+  if (!answerAddressesIntent(caseData, cleaned, intentKey, category, question)) return null;
+  if (session && repeatedAnswerFromDifferentIntent(session, cleaned, intentKey)) return null;
+  return cleaned;
+}
+
+function readPersistentPatientCache(caseData, intentKey, validationContext = {}) {
   const store = patientCacheStore();
-  return store[patientCacheId(caseData, intentKey)] || null;
+  const payload = store[patientCacheId(caseData, intentKey)] || null;
+  if (!patientCachePayloadIsCurrent(payload, intentKey)) return null;
+  const answer = validatePatientAnswer({
+    caseData,
+    answer: payload.answer,
+    intentKey,
+    category: validationContext.category || payload.category,
+    question: validationContext.question || payload.question,
+    session: validationContext.session
+  });
+  return answer ? { ...payload, answer } : null;
 }
 
 function writePersistentPatientCache(caseData, intentKey, payload) {
@@ -960,6 +1279,9 @@ function writePersistentPatientCache(caseData, intentKey, payload) {
     const store = patientCacheStore();
     const key = patientCacheId(caseData, intentKey);
     store[key] = {
+      cache_version: PATIENT_RESPONSE_CACHE_VERSION,
+      persona_version: PATIENT_PERSONA_VERSION,
+      prompt_version: PATIENT_PROMPT_VERSION,
       question: payload.question,
       answer: cleanPatientResponse(payload.answer),
       source: payload.source,
@@ -1037,11 +1359,11 @@ function clinicalSemanticSimilarity(left, right) {
 }
 
 function patientCacheIntentMatches(intentKey, payload) {
-  return Boolean(intentKey && payload?.intent_key === intentKey);
+  return Boolean(intentKey && patientCachePayloadIsCurrent(payload, intentKey));
 }
 
-function readClinicalSemanticPatientCache(caseData, question, intentKey) {
-  const casePrefix = `${caseData.id || 'case'}::`;
+function readClinicalSemanticPatientCache(caseData, question, intentKey, validationContext = {}) {
+  const casePrefix = patientCaseCachePrefix(caseData);
   const candidates = Object.entries(patientCacheStore())
     .filter(([key, payload]) =>
       key.startsWith(casePrefix) &&
@@ -1059,18 +1381,31 @@ function readClinicalSemanticPatientCache(caseData, question, intentKey) {
 
   const best = candidates[0];
   if (!best || best.score < 0.82) return null;
+  const answer = validatePatientAnswer({
+    caseData,
+    answer: best.payload.answer,
+    intentKey,
+    category: validationContext.category || best.payload.category,
+    question,
+    session: validationContext.session
+  });
+  if (!answer) return null;
   return {
     ...best.payload,
+    answer,
     semantic_score: Number(best.score.toFixed(3)),
     semantic_match_id: best.key
   };
 }
 
-async function readSemanticPatientCache(caseData, question, category, coveredCategories = [], intentKey = '') {
-  const clinicalMatch = readClinicalSemanticPatientCache(caseData, question, intentKey);
+async function readSemanticPatientCache(caseData, question, category, coveredCategories = [], intentKey = '', validationContext = {}) {
+  const clinicalMatch = readClinicalSemanticPatientCache(caseData, question, intentKey, {
+    ...validationContext,
+    category
+  });
   if (clinicalMatch) return clinicalMatch;
 
-  const casePrefix = `${caseData.id || 'case'}::`;
+  const casePrefix = patientCaseCachePrefix(caseData);
   const candidates = Object.entries(patientCacheStore())
     .filter(([key, payload]) => {
       if (!key.startsWith(casePrefix) || !payload?.question || !payload?.answer) return false;
@@ -1095,8 +1430,18 @@ async function readSemanticPatientCache(caseData, question, category, coveredCat
     });
 
     if (!match) return null;
+    const answer = validatePatientAnswer({
+      caseData,
+      answer: match.candidate.payload.answer,
+      intentKey,
+      category,
+      question,
+      session: validationContext.session
+    });
+    if (!answer) return null;
     return {
       ...match.candidate.payload,
+      answer,
       semantic_score: Number(match.score.toFixed(3)),
       semantic_match_id: match.candidate.id
     };
@@ -1313,23 +1658,62 @@ function repeatedAnswerFromDifferentIntent(session, answer, intentKey) {
   });
 }
 
-async function askOpenRouterPatient(session, question, category, intentKey) {
+function recentPatientTurns(session, limit = 3) {
+  return (session.interview_log || [])
+    .slice(-limit)
+    .map((item) => ({
+      learner: item.question,
+      patient: item.answer,
+      intent: item.intent_key || item.category
+    }));
+}
+
+function promiseWithTimeout(promise, timeoutMs) {
+  let timeoutId;
+  const timeout = new Promise((resolve) => {
+    timeoutId = setTimeout(() => resolve(null), timeoutMs);
+  });
+  return Promise.race([
+    promise.then((value) => {
+      clearTimeout(timeoutId);
+      return value;
+    }).catch(() => {
+      clearTimeout(timeoutId);
+      return null;
+    }),
+    timeout
+  ]);
+}
+
+function normalizePatientAiObject(content) {
+  const parsed = extractJsonObject(content);
+  if (parsed && typeof parsed === 'object') {
+    return {
+      answer: parsed.answer || parsed.patient_answer || parsed.response || '',
+      addressed_domains: parsed.addressed_domains || parsed.domains || [],
+      confidence: parsed.confidence || ''
+    };
+  }
+  return { answer: content };
+}
+
+async function askOpenRouterPatient(session, question, category, intentKey, localFallback, coveredCategories = []) {
   const settings = getTutorSettings();
   if (!settings.key) return null;
 
-  const localFallback = categoryResponse(session.case, category, question);
-  const answer = await callOpenRouter(
-    [
+  const messages = [
       {
         role: 'system',
         content: [
           'You are portraying a patient during emergency department triage.',
           'Answer in first person as the patient, using plain layperson language.',
           'Answer only the question asked in one or two short sentences.',
-          'Do not mention MIETIC, datasets, records, ESI, acuity, disposition, admission, ICU transfer, expert opinions, resource use, or ED interventions.',
+          'Do not mention raw chart abbreviations, MIETIC, datasets, records, ESI, acuity, disposition, admission, ICU transfer, expert opinions, resource use, or ED interventions.',
           'Do not reveal vital signs except the pain score if the learner asks about pain.',
           'If asked for diagnosis, triage level, admission status, treatments, test results, or what clinicians did, say you do not know that as the patient.',
-          'Stay consistent with the supplied patient facts. Do not invent unrelated symptoms.'
+          'Stay consistent with the supplied patient facts. Do not invent unrelated symptoms.',
+          'If the learner asks what a chart abbreviation means, do not define it. Say you are not sure and describe the symptoms that brought you in.',
+          'Return only JSON with this shape: {"answer":"short patient answer","addressed_domains":["domain"]}.'
         ].join(' ')
       },
       {
@@ -1337,20 +1721,92 @@ async function askOpenRouterPatient(session, question, category, intentKey) {
         content: JSON.stringify({
           learner_question: question,
           response_intent: intentKey,
+          requested_domains: coveredCategories.length ? coveredCategories : [category],
           local_safe_answer: localFallback,
-          patient_facts: patientFactsForModel(session.case)
+          recent_turns: recentPatientTurns(session),
+          patient_facts: patientFactsForModel(session.case),
+          forbidden_terms: patientForbiddenTerms(session.case)
         })
       }
-    ],
-    {
-      key: settings.key,
-      model: settings.model || DEFAULT_TUTOR_MODEL,
-      maxTokens: 320,
-      temperature: 0.35
-    }
-  );
+    ];
 
-  return cleanPatientResponse(answer, localFallback);
+  const requestOptions = {
+      key: settings.key,
+      model: settings.patientModel || DEFAULT_PATIENT_DIALOGUE_MODEL,
+      maxTokens: 180,
+      temperature: 0.2,
+      timeoutMs: PATIENT_AI_BACKGROUND_TIMEOUT_MS,
+      responseFormat: { type: 'json_object' }
+    };
+
+  let content;
+  try {
+    content = await callOpenRouter(messages, requestOptions);
+  } catch (error) {
+    if (!/response[_\s-]?format|json/i.test(error.message || '')) throw error;
+    content = await callOpenRouter(messages, { ...requestOptions, responseFormat: null });
+  }
+
+  const candidate = normalizePatientAiObject(content).answer;
+  return validatePatientAnswer({
+    caseData: session.case,
+    answer: candidate,
+    intentKey,
+    category,
+    question,
+    session
+  }) || validatePatientAnswer({
+    caseData: session.case,
+    answer: localFallback,
+    intentKey,
+    category,
+    question,
+    session: null
+  });
+}
+
+function answerUsedInSession(session, answer, intentKey = '') {
+  const normalized = normalizedAnswerText(answer);
+  if (!normalized) return false;
+  return (session.interview_log || []).some((item) => {
+    if (item.intent_key !== intentKey) return false;
+    return normalizedAnswerText(item.answer) === normalized;
+  });
+}
+
+function varyRepeatedPatientAnswer(session, answer, category, question, intentKey) {
+  if (!answerUsedInSession(session, answer, intentKey)) return answer;
+  if (String(intentKey || '').startsWith('timeline') || category === 'timeline') {
+    if (hasSubduralChartLanguage(session.case)) {
+      return "I do not know the exact day. The headache and unsteadiness had been getting worse before I came in.";
+    }
+    return "I do not know the exact time, but it was already going on before I came in.";
+  }
+  if (String(intentKey || '').startsWith('term_clarification')) {
+    return "I do not know what that term means. I can only tell you about the headache, dizziness, and falls.";
+  }
+  if (category === 'chief_concern') {
+    return `${chiefConcernAnswer(session.case)} That's the main reason I came in.`;
+  }
+  if (category === 'severity') {
+    return severityAnswer(session.case);
+  }
+  if (category === 'red_flags') {
+    return redFlagAnswer(session.case, question);
+  }
+  return answer;
+}
+
+function storePatientAnswer(session, cacheKey, payload) {
+  const stored = {
+    cache_version: PATIENT_RESPONSE_CACHE_VERSION,
+    persona_version: PATIENT_PERSONA_VERSION,
+    prompt_version: PATIENT_PROMPT_VERSION,
+    ...clone(payload)
+  };
+  session.response_cache[cacheKey] = clone(stored);
+  writePersistentPatientCache(session.case, payload.intent_key, stored);
+  return stored;
 }
 
 function interviewRequirements(caseData) {
@@ -3462,17 +3918,44 @@ export async function askStaticPatientQuestion(id, question) {
   const metadata = questionMetadata(category);
   const intentKey = questionIntentKey(text, category, coveredCategories);
   const cacheKey = intentKey;
+  const fallbackAnswer = validatePatientAnswer({
+    caseData: session.case,
+    answer: categoryResponse(session.case, category, text),
+    intentKey,
+    category,
+    question: text,
+    session: null
+  }) || "I'm not sure how to answer that, but I can tell you what I am feeling.";
+
   let answerPayload = session.response_cache[cacheKey];
 
   if (answerPayload) {
-    answerPayload = {
-      ...clone(answerPayload),
+    const cachedAnswer = validatePatientAnswer({
+      caseData: session.case,
+      answer: answerPayload.answer,
+      intentKey,
+      category,
       question: text,
-      source: 'Cached patient response',
-      cached: true
-    };
+      session
+    });
+    if (cachedAnswer) {
+      answerPayload = {
+        ...clone(answerPayload),
+        question: text,
+        answer: cachedAnswer,
+        source: 'Cached patient response',
+        cached: true
+      };
+    } else {
+      delete session.response_cache[cacheKey];
+      answerPayload = null;
+    }
   } else {
-    const persistentCached = readPersistentPatientCache(session.case, intentKey);
+    const persistentCached = readPersistentPatientCache(session.case, intentKey, {
+      category,
+      question: text,
+      session
+    });
     if (persistentCached) {
       answerPayload = {
         question: text,
@@ -3488,7 +3971,9 @@ export async function askStaticPatientQuestion(id, question) {
       };
       session.response_cache[cacheKey] = clone(answerPayload);
     } else if (getTutorSettings().hasKey) {
-      const semanticCached = await readSemanticPatientCache(session.case, text, category, coveredCategories, intentKey);
+      const semanticCached = await readSemanticPatientCache(session.case, text, category, coveredCategories, intentKey, {
+        session
+      });
       if (semanticCached) {
         answerPayload = {
           question: text,
@@ -3511,27 +3996,56 @@ export async function askStaticPatientQuestion(id, question) {
   }
 
   if (!answerPayload) {
-    const fallbackAnswer = cleanPatientResponse(categoryResponse(session.case, category, text));
     let answer = fallbackAnswer;
     let source = 'Local patient response';
     let usedAi = false;
     let aiError = '';
 
-    try {
-      const aiAnswer = await askOpenRouterPatient(session, text, category, intentKey);
-      if (aiAnswer) {
-        const cleanedAiAnswer = cleanPatientResponse(aiAnswer, fallbackAnswer);
-        if (repeatedAnswerFromDifferentIntent(session, cleanedAiAnswer, intentKey)) {
-          answer = fallbackAnswer;
-          aiError = 'OpenRouter repeated a prior answer for a different question; local patient response used.';
-        } else {
-          answer = cleanedAiAnswer;
-          source = 'OpenRouter patient response';
-          usedAi = true;
-        }
+    const settings = getTutorSettings();
+    if (settings.hasKey) {
+      const aiPromise = askOpenRouterPatient(session, text, category, intentKey, fallbackAnswer, coveredCategories)
+        .then((aiAnswer) => {
+          const cleanedAiAnswer = validatePatientAnswer({
+            caseData: session.case,
+            answer: aiAnswer,
+            intentKey,
+            category,
+            question: text,
+            session
+          });
+          if (!cleanedAiAnswer || normalizedAnswerText(cleanedAiAnswer) === normalizedAnswerText(fallbackAnswer)) {
+            return null;
+          }
+          return cleanedAiAnswer;
+        })
+        .catch((error) => {
+          aiError = error.message || 'OpenRouter patient response failed.';
+          return null;
+        });
+
+      const fastAiAnswer = await promiseWithTimeout(aiPromise, PATIENT_AI_FAST_TIMEOUT_MS);
+      if (fastAiAnswer) {
+        answer = fastAiAnswer;
+        source = 'OpenRouter patient response';
+        usedAi = true;
+      } else {
+        aiPromise.then((backgroundAnswer) => {
+          if (!backgroundAnswer) return;
+          storePatientAnswer(session, cacheKey, {
+            question: text,
+            category,
+            category_label: metadata.label,
+            covered_categories: coveredCategories,
+            answer: backgroundAnswer,
+            source: 'OpenRouter patient response',
+            used_ai: true,
+            cached: false,
+            intent_key: intentKey,
+            ai_error: '',
+            time_cost_seconds: metadata.cost_seconds
+          });
+        });
       }
-    } catch (error) {
-      aiError = error.message || 'OpenRouter patient response failed.';
     }
 
     answerPayload = {
@@ -3547,13 +4061,20 @@ export async function askStaticPatientQuestion(id, question) {
       ai_error: aiError,
       time_cost_seconds: metadata.cost_seconds
     };
-    session.response_cache[cacheKey] = clone(answerPayload);
-    writePersistentPatientCache(session.case, intentKey, answerPayload);
+    answerPayload = storePatientAnswer(session, cacheKey, answerPayload);
   }
+  const displayedAnswer = validatePatientAnswer({
+    caseData: session.case,
+    answer: varyRepeatedPatientAnswer(session, answerPayload.answer, category, text, intentKey),
+    intentKey,
+    category,
+    question: text,
+    session: null
+  }) || fallbackAnswer;
   const logItem = {
     ...clone(answerPayload),
     question: text,
-    answer: cleanPatientResponse(answerPayload.answer),
+    answer: displayedAnswer,
     elapsed_at_seconds: recordElapsed(session, `interview_question_${session.interview_log.length + 1}`)
   };
   session.interview_log.push(logItem);
@@ -3683,15 +4204,19 @@ export function getTutorSettings() {
   const sessionKey = sessionStorage.getItem(TUTOR_SESSION_KEY);
   const key = localKey || sessionKey || '';
   const storage = localKey ? 'local' : sessionKey ? 'session' : 'local';
+  const tutorModel = localStorage.getItem(TUTOR_MODEL_KEY) || DEFAULT_TUTOR_MODEL;
+  const patientModel = localStorage.getItem(PATIENT_DIALOGUE_MODEL_KEY) || DEFAULT_PATIENT_DIALOGUE_MODEL;
   return {
     hasKey: Boolean(key),
     key,
     storage,
-    model: localStorage.getItem(TUTOR_MODEL_KEY) || DEFAULT_TUTOR_MODEL
+    model: tutorModel,
+    tutorModel,
+    patientModel
   };
 }
 
-export function saveTutorSettings({ key, model = DEFAULT_TUTOR_MODEL }) {
+export function saveTutorSettings({ key, model = DEFAULT_TUTOR_MODEL, patientModel = DEFAULT_PATIENT_DIALOGUE_MODEL }) {
   const trimmedKey = String(key || '').trim();
   if (!trimmedKey) throw new Error('OpenRouter API key is required.');
   sessionStorage.removeItem(TUTOR_SESSION_KEY);
@@ -3699,6 +4224,7 @@ export function saveTutorSettings({ key, model = DEFAULT_TUTOR_MODEL }) {
   localStorage.setItem(TUTOR_LOCAL_KEY, trimmedKey);
   localStorage.setItem(TUTOR_STORAGE_KEY, 'local');
   localStorage.setItem(TUTOR_MODEL_KEY, String(model || DEFAULT_TUTOR_MODEL).trim() || DEFAULT_TUTOR_MODEL);
+  localStorage.setItem(PATIENT_DIALOGUE_MODEL_KEY, String(patientModel || DEFAULT_PATIENT_DIALOGUE_MODEL).trim() || DEFAULT_PATIENT_DIALOGUE_MODEL);
   return getTutorSettings();
 }
 

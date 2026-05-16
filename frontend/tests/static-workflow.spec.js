@@ -210,6 +210,179 @@ test('enables mocked patient voice playback controls without loading a model', a
   await expect(page.getByRole('button', { name: 'Replay patient answer 1' })).toContainText(/Speaking|Listen/);
 });
 
+test('supports a hands-free voice conversation loop', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__ED_TRIAGE_MOCK_PATIENT_VOICE__ = { delayMs: 20 };
+    window.__mockSpeechStarts = 0;
+    class MockSpeechRecognition {
+      constructor() {
+        this.lang = 'en-US';
+        this.continuous = false;
+        this.interimResults = false;
+        this.maxAlternatives = 1;
+      }
+
+      start() {
+        window.__mockSpeechStarts += 1;
+        setTimeout(() => {
+          this.onstart?.();
+          if (window.__mockSpeechStarts > 1) return;
+          setTimeout(() => {
+            const result = [{ transcript: 'What brought you to the emergency department today?' }];
+            result.isFinal = true;
+            this.onresult?.({ results: [result] });
+            setTimeout(() => this.onend?.(), 0);
+          }, 20);
+        }, 0);
+      }
+
+      stop() {
+        setTimeout(() => this.onend?.(), 0);
+      }
+
+      abort() {
+        setTimeout(() => this.onend?.(), 0);
+      }
+    }
+    window.SpeechRecognition = MockSpeechRecognition;
+    window.webkitSpeechRecognition = MockSpeechRecognition;
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await page.getByRole('button', { name: 'Start conversation' }).click();
+  await expect(page.getByRole('button', { name: 'End conversation' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ask patient' })).toBeDisabled();
+  await expect(page.getByText('Question 1')).toBeVisible();
+  await expect(page.locator('.learner-turn')).toContainText('What brought you to the emergency department today?');
+  await expect(page.locator('.patient-turn')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Replay patient answer 1' })).toBeVisible();
+  await page.getByRole('button', { name: 'End conversation' }).click();
+  await expect(page.getByRole('button', { name: 'Start conversation' })).toBeVisible();
+});
+
+test('keeps coded diagnoses out of patient speech and answers follow-ups by domain', async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 25.01 / 31;
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await expect(page.locator('body')).not.toContainText(/\bSDH\b/i);
+
+  async function ask(text, questionNumber) {
+    await page.getByLabel('Question to patient').fill(text);
+    await page.getByRole('button', { name: 'Ask patient' }).click();
+    await expect(page.getByText(`Question ${questionNumber}`)).toBeVisible();
+    return page.locator('.interview-entry').nth(questionNumber - 1).locator('.patient-turn p').innerText();
+  }
+
+  const chiefConcern = await ask('Hi, can you tell me why you came in today?', 1);
+  expect(chiefConcern).not.toMatch(/\bSDH\b|subdural/i);
+  expect(chiefConcern).toMatch(/headache|fall|unsteady|dizz/i);
+
+  const termClarification = await ask('What is SDH, is that a medical condition that you have?', 2);
+  expect(termClarification).not.toMatch(/\bSDH\b|subdural/i);
+  expect(termClarification).toMatch(/not sure|do not know|don't know/i);
+  expect(termClarification).toMatch(/headache|fall|unsteady|dizz/i);
+
+  const timeline = await ask('How long has your headache been going on for?', 3);
+  expect(timeline).not.toMatch(/\bSDH\b|subdural/i);
+  expect(timeline).not.toBe(chiefConcern);
+  expect(timeline).toMatch(/started|exact|before|worse|time|day|week|month/i);
+
+  const repeatedTimeline = await ask('How long has your headache been going on for?', 4);
+  expect(repeatedTimeline).not.toMatch(/\bSDH\b|subdural/i);
+  expect(repeatedTimeline).not.toBe(timeline);
+});
+
+test('uses natural collateral speech for altered-consciousness cases', async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 12.01 / 31;
+    const badCacheKey = 'case_013::patient_response_v4::patient_persona_v3::patient_dialogue_prompt_v3::chief_concern';
+    window.localStorage.setItem('ed_triage_patient_response_cache_v4', JSON.stringify({
+      [badCacheKey]: {
+        cache_version: 'patient_response_v4',
+        persona_version: 'patient_persona_v3',
+        prompt_version: 'patient_dialogue_prompt_v3',
+        question: 'Why did you come in?',
+        answer: "I'm here for altered level of consciousness.",
+        source: 'Cached patient response',
+        intent_key: 'chief_concern',
+        category: 'chief_concern',
+        covered_categories: ['chief_concern'],
+        updated_at: new Date().toISOString()
+      }
+    }));
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+
+  async function ask(text, questionNumber) {
+    await page.getByLabel('Question to patient').fill(text);
+    await page.getByRole('button', { name: 'Ask patient' }).click();
+    await expect(page.getByText(`Question ${questionNumber}`)).toBeVisible();
+    return page.locator('.interview-entry').nth(questionNumber - 1).locator('.patient-turn p').innerText();
+  }
+
+  const chiefConcern = await ask('Can you let me know why you came to the hospital today?', 1);
+  expect(chiefConcern).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b|ESI|admitted|resources/i);
+  expect(chiefConcern).not.toMatch(/I's|my's|patient's wife|patient's husband|presents to the ED|\d+\s*year[- ]old\s+white\s+male/i);
+  expect(chiefConcern).toMatch(/not really sure|wife|confused|not making sense|fallen|acting/i);
+
+  const compoundAnswer = await ask('When did this start and what medical conditions should I know about?', 2);
+  expect(compoundAnswer).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b|I's|my's|patient's wife|presents to the ED/i);
+  expect(compoundAnswer).toMatch(/not sure|started|today|found|wife/i);
+  expect(compoundAnswer).toMatch(/history|cancer|stroke|COPD|chronic pain|depression/i);
+
+  const clarification = await ask('What is AMS?', 3);
+  expect(clarification).not.toMatch(/altered level of consciousness|altered mental status|\bAMS\b|I's|patient's wife/i);
+  expect(clarification).toMatch(/not sure|do not know|don't know/i);
+  expect(clarification).toMatch(/wife|confused|not making sense/i);
+});
+
+test('uses local patient speech quickly when OpenRouter is slow or unsafe', async ({ page }) => {
+  await page.addInitScript(() => {
+    Math.random = () => 25.01 / 31;
+    window.localStorage.setItem('ed_triage_openrouter_key', 'test-key');
+    window.localStorage.setItem('ed_triage_openrouter_storage', 'local');
+    window.localStorage.setItem('ed_triage_openrouter_patient_model', 'openrouter/auto');
+  });
+
+  let openRouterCalls = 0;
+  await page.route('https://openrouter.ai/**', async (route) => {
+    openRouterCalls += 1;
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({ answer: "I'm here for SDH and ESI 2." })
+            }
+          }
+        ]
+      })
+    });
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+
+  const startedAt = Date.now();
+  await page.getByLabel('Question to patient').fill('Why did you come in today?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByText('Question 1')).toBeVisible();
+  expect(Date.now() - startedAt).toBeLessThan(1200);
+
+  const answer = await page.locator('.interview-entry').first().locator('.patient-turn p').innerText();
+  expect(answer).not.toMatch(/\bSDH\b|subdural|ESI/i);
+  expect(answer).toMatch(/headache|fall|unsteady|dizz/i);
+  expect(openRouterCalls).toBeGreaterThanOrEqual(1);
+});
+
 test('renders raw AI tutor markdown as structured guidance', async ({ page }) => {
   await page.route('https://openrouter.ai/**', (route) => {
     route.fulfill({
