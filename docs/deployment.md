@@ -5,6 +5,7 @@ ED Triage Trainer deploys as a static React/Vite application on GitHub Pages. Th
 ## Runtime Model
 
 - MIETIC validation cases are bundled as static JSON at `frontend/src/data/cases.json`.
+- Reviewed case augmentations are compiled into the static bundle before deployment; no augmentation model runs in the learner browser.
 - Case simulation, patient responses, ESI scoring, escalation scoring, SBAR scoring, and debrief generation run in the browser.
 - The default workflow makes no network request.
 - No OpenRouter key is required for the default workflow.

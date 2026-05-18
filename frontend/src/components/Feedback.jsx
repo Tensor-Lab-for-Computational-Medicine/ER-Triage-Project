@@ -234,6 +234,76 @@ function SoapNote({ note }) {
   );
 }
 
+function ReferenceEsiRationale({ explanation }) {
+  if (!explanation) return null;
+  const caseResources = explanation.resource_basis || explanation.case_resources || [];
+  const limitations = explanation.limitations || explanation.data_limitations || [];
+  const ruleLines = explanation.rule_lines || (explanation.resource_rule ? [explanation.resource_rule] : []);
+  const matched = explanation.mode === 'matched';
+
+  return (
+    <section className="reference-esi-rationale">
+      <div className="section-header compact">
+        <div>
+          <span className="eyebrow">Reference ESI rationale</span>
+          <h4>{explanation.title || (matched ? `Why ESI ${explanation.reference_esi} fits` : 'Why the acuity differs')}</h4>
+        </div>
+      </div>
+
+      {explanation.summary && <p className="esi-summary-text">{explanation.summary}</p>}
+
+      {matched ? (
+        <div className="esi-rationale-grid single">
+          <article>
+            <span>Matched acuity</span>
+            <strong>ESI {explanation.reference_esi}</strong>
+            <p>{explanation.why_learner_wrong || explanation.why_reference_right}</p>
+          </article>
+        </div>
+      ) : (
+        <div className="esi-rationale-grid">
+          <article>
+            <span>Learner ESI</span>
+            <strong>{explanation.learner_esi ? `ESI ${explanation.learner_esi}` : 'Not recorded'}</strong>
+            <p>{explanation.why_learner_wrong}</p>
+          </article>
+          <article>
+            <span>Reference ESI</span>
+            <strong>ESI {explanation.reference_esi}</strong>
+            <p>{explanation.why_reference_right}</p>
+          </article>
+        </div>
+      )}
+
+      {ruleLines.length > 0 && (
+        <div className="esi-rule-text">
+          {ruleLines.map((item) => <p key={item}>{item}</p>)}
+        </div>
+      )}
+
+      {caseResources.length > 0 && (
+        <div className="esi-resource-list">
+          <span>Case resource signals</span>
+          <ul>
+            {caseResources.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {limitations.length > 0 && (
+        <div className="esi-limitation-note">
+          <span>Source limitation</span>
+          {limitations.map((item) => (
+            <p key={item}>{item}</p>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function PhysicianCaseReview({ review, triageAnalysis }) {
   if (!review) return null;
 
@@ -266,6 +336,7 @@ function PhysicianCaseReview({ review, triageAnalysis }) {
         </dl>
       </div>
 
+      <ReferenceEsiRationale explanation={review.esi_explanation} />
       <SoapNote note={review.soap_note} />
     </section>
   );
@@ -339,6 +410,65 @@ function NextCaseChecklist({ items }) {
           <li key={item}>{item}</li>
         ))}
       </ol>
+    </section>
+  );
+}
+
+function EvidenceLanePanel({ lanes }) {
+  if (!lanes) return null;
+  const laneRows = [
+    ['Available at triage', lanes.available_at_triage || [], 'No triage-available evidence was labeled.'],
+    ['Expected resources', lanes.expected_resources || [], 'No expected resource evidence was labeled.'],
+    ['Retrospective outcomes', lanes.retrospective_outcomes || [], 'No retrospective outcome evidence was labeled.']
+  ];
+
+  return (
+    <section className="feedback-section full-width evidence-lane-panel">
+      <div className="section-header compact">
+        <div>
+          <span className="eyebrow">Evidence lanes</span>
+          <h4>What was knowable when</h4>
+        </div>
+      </div>
+      <div className="evidence-lane-grid">
+        {laneRows.map(([title, items, empty]) => (
+          <article key={title}>
+            <h5>{title}</h5>
+            <EvidenceList
+              items={items}
+              emptyText={empty}
+              renderItem={(item) => `${item.label}: ${item.value}`}
+            />
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LearnerProfilePanel({ delta, recommendation }) {
+  if (!delta && !recommendation) return null;
+  const changes = [
+    delta?.esi_error_direction && delta.esi_error_direction !== 'matched' ? `Acuity pattern: ${delta.esi_error_direction.replace('_', ' ')}` : '',
+    delta?.interview_gaps?.length ? `Interview gaps: ${delta.interview_gaps.join(', ')}` : '',
+    delta?.missed_escalation_categories?.length ? `Escalation gaps: ${delta.missed_escalation_categories.join(', ')}` : '',
+    delta?.weak_sbar_sections?.length ? `SBAR gaps: ${delta.weak_sbar_sections.join(', ')}` : ''
+  ].filter(Boolean);
+
+  return (
+    <section className="feedback-section full-width learner-profile-panel">
+      <div className="section-header compact">
+        <div>
+          <span className="eyebrow">Next case focus</span>
+          <h4>{recommendation?.focus || 'Balanced triage practice'}</h4>
+        </div>
+      </div>
+      <p>{recommendation?.rationale || 'Continue rotating through acuity, interview, escalation, and handoff skills.'}</p>
+      <EvidenceList
+        items={changes}
+        emptyText="No recurring learner gap was added from this case."
+        renderItem={(item) => item}
+      />
     </section>
   );
 }
@@ -529,8 +659,8 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
       <section className="feedback-section full-width reasoning-review-panel">
         <div className="section-header compact">
           <div>
-            <span className="eyebrow">Reasoning review</span>
-            <h4>Clinical critique</h4>
+            <span className="eyebrow">Written rationale review</span>
+            <h4>Written rationale critique</h4>
           </div>
         </div>
         <p className="instruction">
@@ -544,8 +674,8 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
     <section className="feedback-section full-width reasoning-review-panel">
       <div className="section-header compact">
         <div>
-          <span className="eyebrow">Reasoning review</span>
-          <h4>Clinical critique</h4>
+          <span className="eyebrow">Written rationale review</span>
+          <h4>Written rationale critique</h4>
         </div>
       </div>
 
@@ -570,7 +700,7 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
 
       {!settings?.hasKey && review?.source === 'Local rubric review' && (
         <p className="instruction">
-          Core rubric feedback is shown.
+          Written rationale feedback is shown.
         </p>
       )}
 
@@ -587,7 +717,7 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
         <>
           <div className={`reasoning-overall ${scoreClass(review.overall?.percentage)}`}>
             <div>
-              <span>Reasoning score</span>
+              <span>Written rationale score</span>
               <strong>{review.overall?.score ?? 0} / {review.overall?.possible ?? 0}</strong>
             </div>
             <p>{review.overall?.summary}</p>
@@ -773,7 +903,10 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
     clinical_decision_review,
     decision_deltas,
     next_case_checklist,
-    case_evidence
+    case_evidence,
+    evidence_lanes,
+    learner_profile_delta,
+    next_case_recommendation
   } = feedback;
   const comparisonClass = getComparisonClass(triage_analysis.comparison);
   const domains = scorecard?.domains || [];
@@ -811,6 +944,11 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
 
       <NextCaseChecklist items={next_case_checklist || physician_case_review?.next_case_checklist} />
 
+      <LearnerProfilePanel
+        delta={learner_profile_delta}
+        recommendation={next_case_recommendation}
+      />
+
       <div className="debrief-accordion-stack simplified">
         <DebriefAccordion title="Reference SBAR" badge={`ESI ${triage_analysis?.expert_level}`}>
           <ReferenceSbarPanel
@@ -819,7 +957,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
           />
         </DebriefAccordion>
 
-        <DebriefAccordion title="Reasoning review" badge={`${reasoningReview?.overall?.score ?? 0} / ${reasoningReview?.overall?.possible ?? 65}`}>
+        <DebriefAccordion title="Written rationale review" badge={`${reasoningReview?.overall?.score ?? 0} / ${reasoningReview?.overall?.possible ?? 65}`}>
           <ReasoningReviewPanel
             review={reasoningReview}
             loading={reviewLoading}
@@ -872,6 +1010,10 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
           </section>
         </DebriefAccordion>
 
+        <DebriefAccordion title="Evidence lanes" badge="Triage vs outcome">
+          <EvidenceLanePanel lanes={evidence_lanes} />
+        </DebriefAccordion>
+
         <DebriefAccordion title="Score audit" badge={`${scorecard?.total ?? 0} / ${scorecard?.possible ?? 100}`}>
           <section className="feedback-section full-width">
             <h4>Case score</h4>
@@ -906,7 +1048,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
               <div className="feedback-content">
                 <EvidenceList
                   items={case_evidence?.vital_flags}
-                  emptyText="No danger-zone vital signs were flagged by the app thresholds."
+                  emptyText="No danger-zone vital signs were documented."
                   renderItem={(item) => `${item.name}: ${item.value} (${item.reason})`}
                 />
                 <EvidenceList

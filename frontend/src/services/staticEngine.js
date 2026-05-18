@@ -10,6 +10,27 @@ import {
   renderPatientAnswer,
   validatePatientSpeech
 } from './patientDialogueEngine';
+import {
+  buildFeedbackEvidenceLanes,
+  buildLearnerProfileFeedback
+} from './debriefEngine';
+import {
+  BACKGROUND_DOMAINS,
+  CATEGORY_LABELS,
+  INTERVIEW_MODES,
+  INTERVIEW_SUPPORTS,
+  QUESTION_CATALOG,
+  QUESTION_DOMAIN_CHECKS,
+  QUESTION_DOMAIN_ORDER,
+  categoryLabels,
+  evaluateInterview,
+  interviewRequirements,
+  interviewTurnTeachingNote
+} from './interviewEngine';
+import {
+  learnerProfileFocus,
+  readLearnerProfile
+} from './learnerProfileService';
 
 const sessions = new Map();
 const completedSessions = new Map();
@@ -77,75 +98,6 @@ const REASONING_RUBRICS = [
       { label: 'Recommendation', points: 5, description: 'Gives a clear next step for placement, monitoring, clinician evaluation, or immediate action.' },
       { label: 'Concise handoff structure', points: 2, description: 'Uses a compact SBAR format without unnecessary narrative detail.' }
     ]
-  }
-];
-
-const QUESTION_CATALOG = [
-  { id: 'general_status', label: 'General status', cost_seconds: 15 },
-  { id: 'chief_concern', label: 'Chief concern', cost_seconds: 30 },
-  { id: 'timeline', label: 'Onset and timeline', cost_seconds: 35 },
-  { id: 'severity', label: 'Severity and current distress', cost_seconds: 30 },
-  { id: 'red_flags', label: 'Red flags', cost_seconds: 45 },
-  { id: 'medical_history', label: 'Medical history', cost_seconds: 35 },
-  { id: 'medications', label: 'Medications and blood thinners', cost_seconds: 35 },
-  { id: 'prior_episode', label: 'Prior episodes', cost_seconds: 35 },
-  { id: 'pregnancy', label: 'Pregnancy status', cost_seconds: 25 },
-  { id: 'allergies', label: 'Allergies', cost_seconds: 25 }
-];
-
-const CATEGORY_LABELS = Object.fromEntries(QUESTION_CATALOG.map((item) => [item.id, item.label]));
-
-const QUESTION_DOMAIN_CHECKS = [
-  ['timeline', ['when', 'start', 'began', 'long', 'sudden', 'gradual', 'changed', 'worse']],
-  ['red_flags', ['breath', 'chest pain', 'faint', 'passed out', 'weak', 'numb', 'bleed', 'vomit', 'fever', 'confus']],
-  ['severity', ['bad', 'severe', 'pain', 'scale', 'distress', 'right now']],
-  ['medical_history', ['medical', 'history', 'problems', 'conditions', 'disease', 'diabetes', 'heart']],
-  ['medications', ['med', 'medicine', 'blood thinner', 'anticoagul', 'daily', 'take']],
-  ['prior_episode', ['before', 'again', 'previous', 'prior', 'ever had', 'like this']],
-  ['pregnancy', ['pregnan', 'period', 'lmp']],
-  ['allergies', ['allerg']]
-];
-
-const QUESTION_DOMAIN_ORDER = QUESTION_CATALOG.map((item) => item.id);
-const BACKGROUND_DOMAINS = ['medical_history', 'medications', 'allergies', 'prior_episode', 'pregnancy'];
-
-const INTERVIEW_MODES = [
-  {
-    id: 'assessment',
-    label: 'Focused interview',
-    description: 'Ask free-text triage questions with optional editable prompts.',
-    supports_enabled: true
-  }
-];
-
-const INTERVIEW_SUPPORTS = [
-  {
-    id: 'symptom_course',
-    label: 'Clarify symptom course',
-    cue: 'Frame a question about onset, progression, duration, or what changed.',
-    intent: 'Establish whether the problem is new, worsening, sudden, or persistent.',
-    question_stem: 'When did this start, and has it been getting better, worse, or changing?'
-  },
-  {
-    id: 'immediate_risk',
-    label: 'Screen for immediate risk',
-    cue: 'Look for threats to breathing, circulation, neurologic safety, bleeding, or severe distress.',
-    intent: 'Find symptoms that would make routine waiting unsafe.',
-    question_stem: 'Are you having trouble breathing, chest pain, fainting, weakness, confusion, heavy bleeding, or severe distress right now?'
-  },
-  {
-    id: 'relevant_background',
-    label: 'Assess relevant background',
-    cue: 'Connect medical history, medications, allergies, or prior episodes to the current concern.',
-    intent: 'Identify history, medication, allergy, or prior-episode details that change triage risk.',
-    question_stem: 'What medical problems, medicines, allergies, or similar prior episodes should I know about?'
-  },
-  {
-    id: 'special_population',
-    label: 'Check special population risks',
-    cue: 'Consider age, pregnancy, anticoagulation, immunocompromise, or other context that changes risk.',
-    intent: 'Check context that can make a presentation higher risk even when the complaint sounds common.',
-    question_stem: 'Is there anything like pregnancy, blood thinners, immune problems, frailty, or another risk factor that could make this more serious?'
   }
 ];
 
@@ -325,6 +277,117 @@ function vitalFlags(caseData) {
     else if (vitals.pain >= 5) flags.push({ name: 'Pain Level', value: `${vitals.pain}/10`, severity: 'watch', reason: 'moderate pain' });
   }
   return flags;
+}
+
+function isNegatedClinicalPhrase(sentence, termPattern) {
+  const lower = String(sentence || '').toLowerCase();
+  const match = lower.match(termPattern);
+  if (!match || match.index === undefined) return false;
+  const windowText = lower.slice(Math.max(0, match.index - 34), match.index);
+  return /\b(no|not|denies|denied|without|negative for|free of)\b/.test(windowText);
+}
+
+function sentenceHasPositiveClinicalPhrase(text, positivePatterns = []) {
+  return sentenceSplit(text).some((sentence) =>
+    positivePatterns.some((pattern) => pattern.test(sentence) && !isNegatedClinicalPhrase(sentence, pattern))
+  );
+}
+
+function hasPositiveRespiratoryEvidence(caseData) {
+  const complaint = plainComplaint(caseData.complaint).toLowerCase();
+  const history = String(caseData.history || '');
+  const respiratoryPatterns = [
+    /\bshort(?:ness)? of breath\b/i,
+    /\btrouble breathing\b/i,
+    /\bdifficulty breathing\b/i,
+    /\bdyspnea\b/i,
+    /\bsob\b/i,
+    /\bwheez(?:e|ing)\b/i,
+    /\brespiratory distress\b/i,
+    /\bhypox(?:ia|emic|emia)\b/i,
+    /\bstridor\b/i
+  ];
+  const reviewedRespiratory = reviewedInferredFacts(caseData).some((fact) =>
+    /respiratory|dyspnea|shortness of breath|oxygen|wheeze|hypox/i.test(`${fact.domain || ''} ${fact.statement || ''}`)
+  );
+  return respiratoryPatterns.some((pattern) => pattern.test(complaint)) ||
+    sentenceHasPositiveClinicalPhrase(history, respiratoryPatterns) ||
+    reviewedRespiratory;
+}
+
+function hasObjectiveRespiratorySupport(caseData, flags = vitalFlags(caseData)) {
+  const interventions = caseData.interventions || {};
+  return flags.some((item) => ['Oxygen Saturation', 'Respiratory Rate'].includes(item.name)) ||
+    interventions.nebulized_medications ||
+    interventions.invasive_ventilation ||
+    caseData.non_invasive_ventilation;
+}
+
+function isLacerationCase(caseData) {
+  return /\b(laceration|cut|lac|wound|suture)\b/i.test(`${caseData.complaint || ''} ${caseData.history || ''}`);
+}
+
+function isMedicationRefillCase(caseData) {
+  return /\b(med refill|medication refill|refill)\b/i.test(`${caseData.complaint || ''} ${caseData.history || ''}`);
+}
+
+function lacerationDataLimitations(caseData) {
+  if (!isLacerationCase(caseData)) return [];
+  const missing = new Set((caseData.missing_evidence || []).map((item) => item.domain));
+  const sourceOnly = caseData?.augmentation?.review_status !== 'reviewed';
+  if (!sourceOnly && !missing.size) return [];
+  return [
+    'The source record does not specify wound depth, contamination, bleeding control, tendon function, sensation, capillary refill, range of motion, tetanus status, repair need, or imaging result.'
+  ];
+}
+
+function medicationRefillDataLimitations(caseData) {
+  if (!isMedicationRefillCase(caseData)) return [];
+  const sourceOnly = caseData?.augmentation?.review_status !== 'reviewed';
+  if (!sourceOnly && !(caseData.missing_evidence || []).length) return [];
+  return [
+    'The source record does not document medication name, dose, last dose, reason the refill is needed, missed doses, withdrawal or disease-risk symptoms, refill safety, or outpatient access plan.'
+  ];
+}
+
+function sourceDataLimitations(caseData) {
+  const limitations = [
+    ...lacerationDataLimitations(caseData),
+    ...medicationRefillDataLimitations(caseData)
+  ];
+  if (!limitations.length && caseData?.augmentation?.review_status !== 'reviewed' && (caseData.missing_evidence || []).length) {
+    limitations.push('The source record is missing reviewed focused exam details, so the debrief should treat exam-dependent conclusions as provisional.');
+  }
+  return limitations;
+}
+
+function lowAcuityTeachingProfile(caseData) {
+  if (isMedicationRefillCase(caseData)) {
+    return {
+      id: 'medication_refill',
+      problem: 'medication refill request',
+      routine_care_reason: 'Stable vital signs, no pain, no documented danger signal, and no counted ED resources support routine low-acuity care.',
+      verification_focus: 'Verify medication name, dose, last dose, refill reason, missed doses, symptoms from missed therapy, refill safety, and outpatient access.',
+      plan_items: [
+        'Verify the medication name, dose, last dose taken, and reason the refill is needed.',
+        'Screen for symptoms from missed therapy, withdrawal risk, disease worsening, pregnancy-related medication risk when relevant, and medication contraindications.',
+        'Confirm refill safety, provide a bridge refill only when clinically appropriate, and arrange primary care, pharmacy, or specialty follow-up access.',
+        'Give return precautions for new symptoms, worsening disease control, medication reaction, or inability to obtain essential medication.'
+      ],
+      ddx: [
+        { diagnosis: 'Medication access issue', rationale: 'Most consistent with a stable refill request when no acute symptoms, pain, unstable vital signs, or counted ED resources are documented.' },
+        { diagnosis: 'Disease control risk from missed medication', rationale: 'Consider when missed doses could worsen hypertension, diabetes, seizures, anticoagulation, psychiatric disease, withdrawal risk, or another chronic condition.' },
+        { diagnosis: 'Occult acute complaint', rationale: 'Screen for new symptoms or medication-related adverse effects before treating the visit as a simple refill.' }
+      ],
+      checklist: [
+        'Ask for the medication name, dose, last dose, refill reason, and missed doses.',
+        'Screen for withdrawal symptoms, disease worsening, contraindications, pregnancy-related medication risk when relevant, and adverse effects.',
+        'Document why ESI 5 fits: stable vitals, no danger signal, no pain or distress, and no counted ED resources expected.',
+        'Close the plan with refill safety, outpatient access, and return precautions.'
+      ]
+    };
+  }
+  return null;
 }
 
 function reviewedInferredFacts(caseData, useIn = '') {
@@ -1977,59 +2040,6 @@ function storePatientAnswer(session, cacheKey, payload) {
   return stored;
 }
 
-function interviewRequirements(caseData) {
-  const required = new Set(['chief_concern', 'timeline', 'severity']);
-  const text = complaintText(caseData);
-  if (caseData.acuity <= 2 || vitalFlags(caseData).length) required.add('red_flags');
-  if (caseData.history) required.add('medical_history');
-  if (hasAny(text, ['blood thinner', 'anticoagul', 'warfarin', 'xarelto', 'eliquis', 'plavix', 'aspirin'])) required.add('medications');
-  const age = Number(caseData.demographics.age || 0);
-  if (String(caseData.demographics.sex || '').toUpperCase().startsWith('F') && age >= 12 && age <= 55) required.add('pregnancy');
-  return required;
-}
-
-function evaluateInterview(caseData, interviewLog, supportUses = [], mode = 'assessment') {
-  const asked = [];
-  (interviewLog || []).forEach((item) => {
-    const concepts = item.covered_categories || [];
-    if (concepts.length) asked.push(...concepts);
-    else if (item.category) asked.push(item.category);
-  });
-  const askedSet = new Set(asked);
-  const required = interviewRequirements(caseData);
-  const covered = [...required].filter((item) => askedSet.has(item)).sort();
-  const missed = [...required].filter((item) => !askedSet.has(item)).sort();
-  const optional = QUESTION_DOMAIN_ORDER.filter((item) => !required.has(item));
-  const optionalCovered = optional.filter((item) => askedSet.has(item));
-  const optionalOpen = optional.filter((item) => !askedSet.has(item));
-  const duplicateCount = Math.max(0, asked.length - askedSet.size);
-  const lowYield = (interviewLog || []).filter((item) => {
-    const concepts = new Set(item.covered_categories || (item.category ? [item.category] : []));
-    return concepts.size && ![...concepts].some((concept) => required.has(concept)) && !concepts.has('chief_concern');
-  });
-  const modeMeta = INTERVIEW_MODES.find((item) => item.id === mode) || INTERVIEW_MODES[0];
-  return {
-    questions_used: interviewLog?.length || 0,
-    required_categories: [...required].sort(),
-    required_domains: [...required].sort().map((item) => CATEGORY_LABELS[item] || item),
-    covered_categories: covered,
-    covered_domains: covered.map((item) => CATEGORY_LABELS[item] || item),
-    missed_categories: missed,
-    missed_domains: missed.map((item) => CATEGORY_LABELS[item] || item),
-    optional_categories: optionalOpen,
-    optional_domains: optionalOpen.map((item) => CATEGORY_LABELS[item] || item),
-    optional_covered_categories: optionalCovered,
-    optional_covered_domains: optionalCovered.map((item) => CATEGORY_LABELS[item] || item),
-    duplicate_count: duplicateCount,
-    low_yield_count: lowYield.length,
-    support_count: supportUses.length,
-    supports_used: clone(supportUses),
-    mode,
-    mode_label: modeMeta.label,
-    message: missed.length ? 'Focused question set missed one or more triage domains.' : 'Focused question set covered the major triage domains.'
-  };
-}
-
 function expectedEscalationActions(caseData) {
   const expected = {};
   const add = (id, evidence) => {
@@ -2050,44 +2060,11 @@ function expectedEscalationActions(caseData) {
   if (caseData.acuity === 1 || resuscitationVitalFlags.some((item) => item.severity === 'critical') || interventions.invasive_ventilation || interventions.critical_procedure || caseData.expired_within_1h) {
     add('resuscitation_bay', caseData.acuity === 1 ? `reference ESI ${caseData.acuity}` : 'critical case signal');
   }
-  if (
-    hasAny(text, ['shortness', 'sob', 'dyspnea', 'breath', 'wheez']) ||
-    flags.some((item) => ['Oxygen Saturation', 'Respiratory Rate'].includes(item.name)) ||
-    interventions.nebulized_medications ||
-    interventions.invasive_ventilation ||
-    caseData.non_invasive_ventilation
-  ) {
+  if (hasPositiveRespiratoryEvidence(caseData) || hasObjectiveRespiratorySupport(caseData, flags)) {
     add('airway_oxygenation_support', 'respiratory complaint, vital sign, or treatment field');
-  }
-  if (
-    interventions.intravenous ||
-    interventions.intravenous_fluids ||
-    interventions.tier1_med_usage_1h ||
-    interventions.tier2_med_usage ||
-    caseData.tier1_med_usage_beyond_1h ||
-    caseData.transfusion_within_1h ||
-    caseData.transfusion_beyond_1h ||
-    caseData.red_cell_order_more_than_1 ||
-    caseData.lab_event_count > 0
-  ) {
-    add('vascular_access', 'recorded IV, lab, medication, or transfusion resource');
-  }
-  if (
-    interventions.intravenous_fluids ||
-    interventions.intramuscular ||
-    interventions.nebulized_medications ||
-    interventions.psychotropic_med_within_120min ||
-    interventions.tier1_med_usage_1h ||
-    interventions.tier2_med_usage ||
-    interventions.tier3_med_usage ||
-    interventions.tier4_med_usage ||
-    caseData.tier1_med_usage_beyond_1h
-  ) {
-    add('medication_route_priority', 'recorded medication route or medication-tier field');
   }
   if (caseData.red_cell_order_more_than_1 || caseData.transfusion_within_1h || caseData.transfusion_beyond_1h || hasAny(text, ['bleed', 'hematemesis', 'melena', 'rectal bleeding'])) {
     add('bleeding_transfusion_readiness', 'recorded transfusion signal or bleeding language');
-    add('vascular_access', 'recorded transfusion or bleeding signal');
   }
   if (interventions.critical_procedure || interventions.tier1_med_usage_1h) add('critical_procedure_team', 'recorded critical procedure or emergency medication field');
   if (interventions.psychotropic_med_within_120min || hasAny(text, ['suicid', 'agitat', 'psych', 'violent', 'hallucinat'])) add('behavioral_safety', 'psychotropic medication field or behavioral-health language');
@@ -2121,8 +2098,12 @@ function evaluateEscalation(caseData, selectedActionIds) {
     extra,
     score: matched.length,
     possible: expected.length,
-    message: missed.length ? 'One or more expected escalation actions were not selected.' : 'Escalation choices matched the main triage needs.',
-    grounding: 'Scored actions use MIETIC-recorded fields or ESI/vital-derived priorities. Protocol-specific actions without dataset support are excluded.'
+    message: missed.length
+      ? 'One or more immediate safety or placement priorities were not selected.'
+      : expected.length
+        ? 'Escalation choices matched the main safety priorities.'
+        : 'No immediate escalation priority was required by the available case fields.',
+    grounding: 'Scored escalation actions use ESI 1-2 risk, danger-zone vitals, critical outcomes, respiratory support, bleeding risk, behavioral safety, severe pain, or reviewed grading references. Routine resource signals are handled in the ESI rationale.'
   };
 }
 
@@ -2299,8 +2280,8 @@ function hasDemographicSignal(text, caseData) {
   const sex = String(caseData.demographics.sex || '').toLowerCase();
   const transport = String(caseData.demographics.transport || '').toLowerCase();
   return (age > 0 && lower.includes(String(age))) ||
-    (sex.startsWith('m') && textHasAnyToken(lower, ['male', 'man'])) ||
-    (sex.startsWith('f') && textHasAnyToken(lower, ['female', 'woman'])) ||
+    (sex.startsWith('m') && textHasAnyToken(lower, ['m', 'male', 'man'])) ||
+    (sex.startsWith('f') && textHasAnyToken(lower, ['f', 'female', 'woman'])) ||
     (transport && transport !== 'unknown' && lower.includes(transport));
 }
 
@@ -2313,9 +2294,26 @@ function hasVitalSignal(text, caseData) {
   return textHasAnyPhrase(lower, vitalTerms) || vitalValues.some((value) => value && lower.includes(value));
 }
 
+function caseCarePriorityTerms(caseData) {
+  const text = complaintText(caseData);
+  if (isLacerationCase(caseData)) {
+    return ['wound', 'laceration', 'cut', 'bleeding', 'hemostasis', 'irrigation', 'wash', 'repair', 'suture', 'tetanus', 'dressing', 'discharge', 'return', 'follow'];
+  }
+  if (isMedicationRefillCase(caseData)) {
+    return ['medication', 'medications', 'refill', 'dose', 'last dose', 'missed', 'bridge', 'pharmacy', 'primary care', 'follow', 'return', 'access'];
+  }
+  if (/\bfracture|injury|wrist|foot|leg|ankle|fall\b/.test(text)) {
+    return ['exam', 'neurovascular', 'splint', 'xray', 'radiograph', 'imaging', 'pain', 'reassess', 'orthopedic', 'follow'];
+  }
+  if (/\babdominal|abd pain|pelvic|vomiting|nausea|rectal abscess|perianal\b/.test(text)) {
+    return ['abdominal', 'pelvic', 'perianal', 'pain', 'fluids', 'labs', 'imaging', 'surgery', 'reassess'];
+  }
+  return ['evaluate', 'reassess', 'monitor'];
+}
+
 function expectedRecommendationTerms(caseData) {
   const expected = expectedEscalationActions(caseData).map((item) => item.id);
-  const terms = ['evaluate', 'reassess', 'monitor'];
+  const terms = ['evaluate', 'reassess', 'monitor', ...caseCarePriorityTerms(caseData)];
   if (expected.includes('immediate_bedside_evaluation')) terms.push('clinician', 'immediate', 'bedside', 'notify');
   if (expected.includes('resuscitation_bay')) terms.push('resuscitation', 'resus');
   if (expected.includes('monitored_bed')) terms.push('monitored', 'monitor');
@@ -2342,11 +2340,13 @@ function scoreSbarSituation(section, caseData, finalEsi) {
   const text = section.text;
   const result = { score: 0, possible: 5, met: [], gaps: [] };
   const meaningful = isClinicallyMeaningfulSbarText(text, caseData);
+  const lowAcuityFraming = Number(finalEsi) >= 4 && textHasAnyPhrase(text, ['stable', 'low acuity', 'minor', 'fast track', 'routine']);
+  const conciseLowAcuity = Number(finalEsi) >= 4 && meaningful && textHasCaseKeyword(text, caseData) && tokenizeForScoring(text).length >= 3;
   addSbarCriterion(result, section.labelled && meaningful, 1, 'Situation: use the S label with meaningful clinical content');
   addSbarCriterion(result, textHasCaseKeyword(text, caseData), 1, 'Situation: state the actual presenting problem');
   addSbarCriterion(result, hasDemographicSignal(text, caseData) || textHasAnyToken(text, ['patient', 'adult']), 1, 'Situation: identify the patient or arrival context');
-  addSbarCriterion(result, textHasAnyPhrase(text, [`esi ${finalEsi}`, 'acuity', 'emergent', 'urgent', 'immediate', 'high risk', 'severe']), 1, 'Situation: state acuity or immediate concern');
-  addSbarCriterion(result, meaningful && tokenizeForScoring(text).length >= 5, 1, 'Situation: provide a concise sentence, not filler');
+  addSbarCriterion(result, textHasAnyPhrase(text, [`esi ${finalEsi}`, 'acuity', 'emergent', 'urgent', 'immediate', 'high risk', 'severe']) || lowAcuityFraming, 1, 'Situation: state acuity, stability, or immediate concern');
+  addSbarCriterion(result, conciseLowAcuity || (meaningful && tokenizeForScoring(text).length >= 5), 1, 'Situation: provide a concise sentence, not filler');
   return result;
 }
 
@@ -2354,8 +2354,8 @@ function scoreSbarBackground(section, caseData) {
   const text = section.text;
   const result = { score: 0, possible: 5, met: [], gaps: [] };
   const meaningful = isClinicallyMeaningfulSbarText(text, caseData);
-  const backgroundTerms = ['history', 'medical', 'medication', 'medications', 'allergy', 'allergies', 'risk', 'anticoag', 'pregnant', 'prior'];
-  const contextTerms = ['started', 'onset', 'fall', 'trauma', 'transfer', 'ambulance', 'walk', 'worse', 'days', 'hours', 'pain', 'fever', 'vomiting'];
+  const backgroundTerms = ['history', 'hx', 'pmh', 'medical', 'medication', 'medications', 'meds', 'allergy', 'allergies', 'risk', 'anticoag', 'pregnant', 'prior'];
+  const contextTerms = ['started', 'onset', 'fall', 'trauma', 'transfer', 'ambulance', 'walk', 'worse', 'days', 'hours', 'pain', 'fever', 'vomiting', 'refill', 'dose', 'pharmacy'];
   addSbarCriterion(result, section.labelled && meaningful, 1, 'Background: use the B label with meaningful clinical content');
   addSbarCriterion(result, hasDemographicSignal(text, caseData), 1, 'Background: include age, sex, or arrival mode');
   addSbarCriterion(result, textHasAnyPhrase(text, backgroundTerms), 1, 'Background: include relevant history, medications, allergies, or risk context');
@@ -2380,12 +2380,14 @@ function scoreSbarRecommendation(section, caseData) {
   const text = section.text;
   const result = { score: 0, possible: 5, met: [], gaps: [] };
   const meaningful = isClinicallyMeaningfulSbarText(text, caseData);
-  const actionTerms = ['notify', 'evaluate', 'evaluation', 'place', 'move', 'continue', 'start', 'prepare', 'obtain', 'treat', 'consult'];
+  const actionTerms = ['notify', 'evaluate', 'evaluation', 'place', 'move', 'continue', 'start', 'prepare', 'obtain', 'treat', 'consult', 'address', 'clean', 'irrigate', 'repair', 'refill', 'bridge', 'follow'];
   const placementTerms = ['room', 'bed', 'monitor', 'monitored', 'resus', 'resuscitation', 'reassess', 'observation'];
   const dispositionTerms = ['admit', 'admission', 'discharge', 'transfer', 'follow', 'return', 'next', 'after ed'];
+  const expectedEscalation = expectedEscalationActions(caseData);
+  const lowAcuityCareTerms = Number(caseData.acuity) >= 4 && textHasAnyPhrase(text, caseCarePriorityTerms(caseData));
   addSbarCriterion(result, section.labelled && meaningful, 1, 'Recommendation: use the R label with meaningful clinical content');
   addSbarCriterion(result, textHasAnyPhrase(text, actionTerms), 1, 'Recommendation: include a clear next action');
-  addSbarCriterion(result, textHasAnyPhrase(text, placementTerms), 1, 'Recommendation: include placement, monitoring, or reassessment');
+  addSbarCriterion(result, textHasAnyPhrase(text, placementTerms) || (!expectedEscalation.length && lowAcuityCareTerms), 1, 'Recommendation: include placement, monitoring, reassessment, or care priority');
   addSbarCriterion(result, textHasAnyPhrase(text, expectedRecommendationTerms(caseData)), 1, 'Recommendation: match the plan to expected case needs');
   addSbarCriterion(result, textHasAnyPhrase(text, dispositionTerms) || tokenizeForScoring(text).length >= 8, 1, 'Recommendation: close the handoff with disposition or follow-through');
   return result;
@@ -2488,6 +2490,102 @@ function esiAccuracyScore(learnerLevel, referenceLevel, possible, label) {
   };
 }
 
+function esiResourceRule(referenceLevel) {
+  const level = Number(referenceLevel);
+  if (level === 1) return 'ESI 1 is reserved for patients needing immediate life-saving intervention.';
+  if (level === 2) return 'ESI 2 is driven by high-risk presentation, severe distress, abnormal mental status, or danger-zone physiology rather than resource counting.';
+  if (level === 3) return 'ESI 3 generally means two or more predicted ED resources when no ESI 1 or ESI 2 safety trigger is present.';
+  if (level === 4) return 'ESI 4 generally means one predicted ED resource beyond history, examination, and simple bedside care.';
+  if (level === 5) return 'ESI 5 generally means no predicted ED resources beyond history, examination, and simple bedside care.';
+  return 'ESI assignment should connect acuity risk, vital signs, and expected ED resources.';
+}
+
+function esiResourceEvidence(caseData) {
+  const signals = [];
+  if (caseData.resources_used) signals.push(`Recorded resource count: ${caseData.resources_used}`);
+  if (caseData.lab_event_count > 0) signals.push(`Laboratory events: ${caseData.lab_event_count}`);
+  if (caseData.microbio_event_count > 0) signals.push(`Microbiology events: ${caseData.microbio_event_count}`);
+  if (caseData.exam_count > 0) signals.push(`Imaging or examination signal: ${caseData.exam_count}`);
+  if (caseData.procedure_count > 0) signals.push(`Procedure signal: ${caseData.procedure_count}`);
+  if (caseData.consults_count > 0) signals.push(`Consult signal: ${caseData.consults_count}`);
+  if (caseData.interventions?.intramuscular) signals.push('IM medication recorded');
+  if (caseData.interventions?.intravenous) signals.push('IV access recorded');
+  if (caseData.interventions?.intravenous_fluids) signals.push('IV fluids recorded');
+  if (caseData.interventions?.oral_medications) signals.push('Medication administration recorded');
+  return signals.length ? uniqueSentences(signals) : ['No counted ED resource signal was recorded.'];
+}
+
+function stripTerminalPunctuation(text) {
+  return String(text || '').replace(/[.!?]+$/g, '').trim();
+}
+
+function likelyEsiFourResourceExamples(caseData) {
+  if (isLacerationCase(caseData)) return 'laceration repair, radiograph, tetanus update, or IM medication';
+  const text = complaintText(caseData);
+  if (/\b(wrist|foot|leg|ankle|fracture|injury|fall)\b/.test(text)) return 'radiograph, splinting, analgesia, or focused procedure support';
+  if (/\bmedication refill|med refill\b/.test(text)) return 'prescription review or medication administration if recorded';
+  return 'imaging, medication administration, procedure support, or other counted ED resource';
+}
+
+function buildEsiExplanation(session, caseData) {
+  const learnerEsi = session.triage_level || null;
+  const referenceEsi = caseData.acuity;
+  const diff = learnerEsi ? Number(learnerEsi) - Number(referenceEsi) : null;
+  const resources = esiResourceEvidence(caseData);
+  const limitations = sourceDataLimitations(caseData);
+  const examples = likelyEsiFourResourceExamples(caseData);
+  const referenceRule = esiResourceRule(referenceEsi);
+  const learnerRule = learnerEsi ? esiResourceRule(learnerEsi) : 'No learner ESI was recorded.';
+  const matched = diff === 0;
+  const ruleLines = matched || !learnerEsi || Number(learnerEsi) === Number(referenceEsi)
+    ? [referenceRule]
+    : uniqueSentences([learnerRule, referenceRule]);
+  const resourceBasis = resources.map(stripTerminalPunctuation);
+  const stableNoResource = Number(referenceEsi) === 5 && resourceBasis.some((item) => /no counted ed resource/i.test(item));
+
+  let whyLearnerWrong = learnerEsi
+    ? `ESI ${learnerEsi} was compared with reference ESI ${referenceEsi}.`
+    : 'No final ESI was recorded, so the acuity decision could not be compared with the reference.';
+  let whyReferenceRight = `Reference ESI ${referenceEsi} is supported by the source record when the ESI rule is applied to the documented risk and resource signals.`;
+  let summary = whyReferenceRight;
+
+  if (diff > 0 && Number(learnerEsi) === 5 && Number(referenceEsi) === 4) {
+    whyLearnerWrong = `ESI 5 is lower acuity than the reference because ESI 5 is for cases expected to need no counted ED resources beyond history, examination, and simple bedside care. This source records resource signals beyond a no-resource visit.`;
+    whyReferenceRight = `Reference ESI 4 is defensible if one ED resource is expected, such as ${examples}. The source records at least one resource signal, but it does not specify the exact wound intervention.`;
+    summary = whyReferenceRight;
+  } else if (diff > 0) {
+    whyLearnerWrong = `ESI ${learnerEsi} placed the patient below the reference acuity. Reconcile resource needs, abnormal objective findings, severe pain, high-risk symptoms, and reviewed grading references before lowering acuity.`;
+    whyReferenceRight = `${referenceRule} The source record includes: ${resourceBasis.slice(0, 3).join('; ')}.`;
+    summary = whyReferenceRight;
+  } else if (diff < 0) {
+    whyLearnerWrong = `ESI ${learnerEsi} placed the patient above the reference acuity. Identify which immediate danger signals, high-risk features, or resource needs are absent before assigning a higher-acuity level.`;
+    whyReferenceRight = `${referenceRule} The available source record supports this lower reference level without an ESI ${learnerEsi} trigger.`;
+    summary = whyReferenceRight;
+  } else if (diff === 0) {
+    whyLearnerWrong = `Learner ESI ${learnerEsi} matched the reference level.`;
+    whyReferenceRight = stableNoResource
+      ? `Reference ESI ${referenceEsi} fits because the record shows stable vital signs, no documented danger signal, and no counted ED resources.`
+      : `${referenceRule} The source record includes: ${resourceBasis.slice(0, 3).join('; ')}.`;
+    summary = whyReferenceRight;
+  }
+
+  return {
+    mode: matched ? 'matched' : learnerEsi ? 'mismatch' : 'not_recorded',
+    title: matched ? `Why ESI ${referenceEsi} fits` : 'Why the acuity differs',
+    summary,
+    rule_lines: ruleLines,
+    resource_basis: resourceBasis,
+    limitations,
+    learner_esi: learnerEsi,
+    reference_esi: referenceEsi,
+    resource_rule: ruleLines.join(' '),
+    case_resources: resourceBasis,
+    why_learner_wrong: whyLearnerWrong,
+    why_reference_right: whyReferenceRight,
+    data_limitations: limitations
+  };
+}
+
 function vitalRationaleScoreDetails(session, caseData, possible = 15) {
   const rationale = String(session.triage_rationale || '').toLowerCase();
   const abnormal = vitalFlags(caseData);
@@ -2495,7 +2593,7 @@ function vitalRationaleScoreDetails(session, caseData, possible = 15) {
   const score = !abnormal.length || namesVitals ? possible : 0;
   const evidence = abnormal.length
     ? abnormal.map((item) => `${item.name}: ${item.value} (${item.reason})`)
-    : ['No danger-zone vital signs were flagged by the app thresholds.'];
+    : ['No danger-zone vital signs were documented.'];
   return {
     score,
     possible,
@@ -2540,7 +2638,7 @@ function escalationScoreDetails(workflow, possible = 20) {
     extra_penalty: escalation.expected.length ? Math.min(extraCount * 2, 5) : extraCount ? 5 : 0,
     message: escalation.message,
     action: escalation.missed.length
-      ? 'Select escalation actions that match MIETIC-recorded interventions, ESI 1-2 risk, vital-sign danger, or outcome signals.'
+      ? 'Select escalation actions that match immediate safety, ESI 1-2 risk, danger-zone vitals, critical outcomes, bleeding, respiratory support, behavioral safety, or severe pain.'
       : escalation.extra.length
         ? 'Avoid extra escalation actions when no dataset, vital, or ESI signal supports them.'
         : 'Escalation choices matched the main data-grounded priorities.'
@@ -2923,17 +3021,22 @@ function localCriterionMatched(rubricId, criterionLabel, text, completed) {
   }
 
   if (rubricId === 'escalation_rationale') {
+    const noEscalationExpected = !(workflow.escalation?.expected || []).length;
+    const noEscalationLanguage = hasAny(lower, ['none needed', 'no escalation', 'no immediate', 'routine', 'stable', 'no action', 'not needed']);
     if (criterionLabel === 'Action-evidence match') {
+      if (noEscalationExpected && noEscalationLanguage) return true;
       return hasAny(lower, ['because', 'due to', 'vital', 'esi', 'risk', 'pain', 'resource', 'history', 'symptom']) ||
         workflow.escalation?.matched?.length > 0;
     }
     if (criterionLabel === 'Immediate safety needs') {
+      if (noEscalationExpected && noEscalationLanguage) return true;
       return hasAny(lower, ['room', 'bed', 'monitor', 'airway', 'oxygen', 'iv', 'clinician', 'evaluate', 'pain', 'safety', 'resus']);
     }
     if (criterionLabel === 'Avoids unsupported escalation') {
       return (workflow.escalation?.extra || []).length === 0;
     }
     if (criterionLabel === 'Operational clarity') {
+      if (noEscalationExpected && noEscalationLanguage) return true;
       return hasAny(lower, ['place', 'notify', 'monitor', 'start', 'prepare', 'request', 'evaluate', 'reassess', 'routine']);
     }
   }
@@ -2981,11 +3084,38 @@ function localReasoningEvidence(completed, rubricId) {
   return evidence.filter(Boolean).slice(0, 4);
 }
 
+function escapeRegExp(text) {
+  return String(text || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function rationaleContradictsComplaint(text, caseData) {
+  const lower = String(text || '').toLowerCase();
+  const complaint = plainComplaint(caseData?.complaint || '');
+  if (!complaint.trim()) return false;
+  const deniesComplaint = /\b(no|none|without)\s+(chief\s+)?(complaint|presenting\s+complaint|concern|symptom|symptoms)\b/.test(lower);
+  return deniesComplaint && !new RegExp(escapeRegExp(complaint.toLowerCase()), 'i').test(lower);
+}
+
 function localSectionFeedback(rubric, matched, unmatched, text) {
   if (!String(text || '').trim()) return `${rubric.label} was not submitted.`;
   if (!unmatched.length) return `${rubric.label} addressed the rubric elements with enough case-specific detail for deterministic credit.`;
   if (matched.length) return `${rubric.label} included ${matched.slice(0, 2).join(', ')}; add ${unmatched.slice(0, 2).join(', ')} for a stronger explanation.`;
   return `${rubric.label} needs more explicit case evidence and a clearer link to the triage decision.`;
+}
+
+function writtenRationaleFeedback(rubric, matched, unmatched, text, completed) {
+  const baseFeedback = localSectionFeedback(rubric, matched, unmatched, text);
+  if (rubric.id === 'provisional_esi_rationale' && !String(text || '').trim()) {
+    const selected = completed?.feedback?.session_summary?.provisional_triage_level ||
+      completed?.feedback?.workflow_analysis?.provisional_esi?.selected;
+    if (selected) {
+      return `Provisional ESI selection was recorded as ESI ${selected}; written provisional rationale was not submitted.`;
+    }
+  }
+  if (rubric.id === 'final_esi_rationale' && rationaleContradictsComplaint(text, completed?.case)) {
+    return `${baseFeedback} The rationale contradicts the documented complaint. State the actual complaint, objective stability, and expected resources.`;
+  }
+  return baseFeedback;
 }
 
 function buildLocalReasoningReview(completed) {
@@ -3013,7 +3143,7 @@ function buildLocalReasoningReview(completed) {
       possible: rubric.possible,
       percentage,
       level: percentage >= 85 ? 'strong' : percentage >= 65 ? 'developing' : 'needs review',
-      feedback: localSectionFeedback(rubric, matched, unmatched, text),
+      feedback: writtenRationaleFeedback(rubric, matched, unmatched, text, completed),
       strengths: matched.length ? matched.slice(0, 3).map((item) => `Addresses ${item.toLowerCase()}.`) : [],
       improvements: unmatched.length ? unmatched.slice(0, 3).map((item) => `Add ${item.toLowerCase()} with case-specific evidence.`) : [],
       evidence: localReasoningEvidence(completed, rubric.id)
@@ -3160,6 +3290,9 @@ async function localRubricConceptMatches(completed) {
 function rationaleFeedback(session, caseData) {
   const rationale = String(session.triage_rationale || '').trim();
   if (!rationale) return 'Document a one- to two-sentence ESI rationale so clinical reasoning can be evaluated.';
+  if (rationaleContradictsComplaint(rationale, caseData)) {
+    return `The rationale contradicts the documented complaint: ${presentingProblemText(caseData).toLowerCase()}. State the actual complaint, objective stability, and expected ED resources.`;
+  }
   const lower = rationale.toLowerCase();
   const signals = [];
   if (String(caseData.acuity).includes(lower) || lower.includes('esi')) signals.push('acuity level');
@@ -3195,7 +3328,7 @@ function priorityFeedback(session, caseData, workflow, scorecard) {
     items.push({
       title: 'Escalation priority gap',
       evidence: workflow.escalation.missed.slice(0, 2).map((item) => item.name).join(', '),
-      action: 'Match triage actions to MIETIC-recorded interventions and ESI/vital safety signals.'
+      action: 'Match escalation actions to immediate safety, placement, bleeding, respiratory, behavioral, or severe-pain signals.'
     });
   }
   if (workflow.interview.missed_domains.length) {
@@ -3255,6 +3388,8 @@ function referenceActionText(caseData, workflow) {
   if (actionNames.length) return `${joinClinicalList(actionNames)}.`;
   if (caseData.acuity <= 2) return 'Assign ESI 2 or higher acuity placement with immediate clinician evaluation.';
   if (caseData.acuity === 3) return 'Assign ESI 3 and anticipate multiple ED resources.';
+  if (caseData.acuity === 4) return 'Assign ESI 4 when one counted ED resource is expected beyond history, examination, and simple bedside care.';
+  if (caseData.acuity === 5) return 'Assign ESI 5 only when no counted ED resources are expected beyond history, examination, and simple bedside care.';
   return `Assign ESI ${caseData.acuity} with focused evaluation and reassessment if symptoms change.`;
 }
 
@@ -3339,16 +3474,16 @@ function mergeClinicalText(current, next) {
   return parts.join(' ');
 }
 
-function buildClinicalDecisionReview(session, caseData, workflow, soapNote) {
+function buildClinicalDecisionReview(session, caseData, workflow, soapNote, esiExplanation = null) {
   const entries = new Map();
   const problem = capitalizeSentence(presentingProblemText(caseData));
-  const diagnosis = soapNote?.assessment?.primary_diagnosis || soapPrimaryDiagnosis(caseData);
   const referenceAction = referenceActionText(caseData, workflow);
   const learnerAction = learnerAcuityAction(session, caseData);
   const selectedNames = selectedActionNames(session);
   const expectedNames = expectedActionNames(workflow);
   const vitalFlagsList = vitalFlags(caseData);
   const resourceText = resourceSummaryText(caseData);
+  const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
 
   const upsert = (item) => {
     const key = clinicalReviewKey(item);
@@ -3384,18 +3519,37 @@ function buildClinicalDecisionReview(session, caseData, workflow, soapNote) {
   upsert({
     key: 'esi_decision',
     finding_type: 'Acuity anchor',
-    finding: `${problem} with ${diagnosis.toLowerCase()}`,
+    finding: `${problem}: ESI ${session.triage_level || 'not recorded'} compared with Reference ESI ${caseData.acuity}`,
     why_it_matters: session.triage_level !== caseData.acuity
-      ? `Reference ESI ${caseData.acuity} reflects the documented complaint, ${vitalSummaryText(caseData).toLowerCase()}, and ${resourceText.toLowerCase()}.`
-      : `Reference ESI ${caseData.acuity} is supported by the complaint, vital signs, and expected ED resources.`,
-    learner_gap: learnerAction,
-    expected_action: referenceAction,
+      ? (esiExplanation?.why_reference_right || `Reference ESI ${caseData.acuity} reflects the documented complaint, ${vitalSummaryText(caseData).toLowerCase()}, and ${resourceText.toLowerCase()}.`)
+      : (esiExplanation?.summary || `Reference ESI ${caseData.acuity} is supported by the complaint, vital signs, and expected ED resources.`),
+    learner_gap: lowAcuityProfile && session.triage_level === caseData.acuity
+      ? 'Learner ESI matched the reference level; the written rationale should identify what makes routine care safe.'
+      : esiExplanation?.why_learner_wrong || learnerAction,
+    expected_action: lowAcuityProfile && session.triage_level === caseData.acuity
+      ? lowAcuityProfile.verification_focus
+      : esiExplanation?.rule_lines?.join(' ') || esiExplanation?.resource_rule || referenceAction,
     practice_rule: session.triage_level !== caseData.acuity
       ? (caseData.acuity <= 2
         ? `Escalate ESI ${caseData.acuity} presentations before final disposition decisions.`
-        : `Tie the ESI level to the complaint, vital signs, and expected ED resources.`)
-      : `State why ${problem.toLowerCase()} fits ESI ${caseData.acuity} using risk, vitals, and resources.`
+        : `Use expected ED resources to separate ESI 5 from ESI 4 and ESI 3.`)
+      : lowAcuityProfile
+        ? `Document why ESI ${caseData.acuity} fits: stable vitals, no danger signal, no pain or distress, and no counted ED resources expected.`
+        : `State why ${problem.toLowerCase()} fits ESI ${caseData.acuity} using risk, vitals, and resources.`
   });
+
+  if (lowAcuityProfile) {
+    upsert({
+      key: `${lowAcuityProfile.id}_verification`,
+      finding_type: 'Low-acuity verification',
+      finding: `Routine care is appropriate after ${lowAcuityProfile.problem} screening`,
+      why_it_matters: lowAcuityProfile.routine_care_reason,
+      learner_gap: 'Correct ESI selection still needs a short explanation of what was ruled out and what needs verification.',
+      expected_action: lowAcuityProfile.verification_focus,
+      practice_rule: lowAcuityProfile.checklist[0],
+      priority: 72
+    });
+  }
 
   for (const fact of reviewedInferredFacts(caseData, 'decision_review').slice(0, 4)) {
     upsert({
@@ -3465,7 +3619,9 @@ function buildClinicalDecisionReview(session, caseData, workflow, soapNote) {
   return {
     title: 'Clinical findings and actions',
     summary: findings.length
-      ? `For ${presentingProblemText(caseData)}, connect each finding to ESI, monitoring, escalation, or reassessment.`
+      ? (lowAcuityProfile
+        ? `For ${presentingProblemText(caseData)}, explain why routine care is safe and verify the refill details that could change risk.`
+        : `For ${presentingProblemText(caseData)}, connect each finding to ESI, monitoring, escalation, or reassessment.`)
       : 'No priority findings were generated for this case.',
     findings
   };
@@ -3484,6 +3640,11 @@ function legacyDecisionDeltas(clinicalDecisionReview) {
 }
 
 function buildNextCaseChecklist(findings, soapNote, workflow, caseData) {
+  const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
+  if (lowAcuityProfile) {
+    return uniqueSentences(lowAcuityProfile.checklist).slice(0, 5);
+  }
+
   const items = [];
   for (const finding of findings || []) {
     if (finding.practice_rule) items.push(finding.practice_rule);
@@ -3500,6 +3661,7 @@ function buildNextCaseChecklist(findings, soapNote, workflow, caseData) {
 
   return uniqueSentences(items)
     .map((item) => String(item).replace(/\s+/g, ' ').trim())
+    .filter((item) => !/^reference disposition\b/i.test(item))
     .filter(Boolean)
     .slice(0, 5);
 }
@@ -3520,7 +3682,7 @@ function readableDisposition(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function buildPhysicianCaseReview(session, caseData, physicianDebrief, clinicalDecisionReview, nextCaseChecklist) {
+function buildPhysicianCaseReview(session, caseData, physicianDebrief, clinicalDecisionReview, nextCaseChecklist, esiExplanation) {
   return {
     case_summary: physicianDebrief.case_summary,
     physician_read: physicianDebrief.physician_read,
@@ -3528,6 +3690,7 @@ function buildPhysicianCaseReview(session, caseData, physicianDebrief, clinicalD
     learner_esi: session.triage_level || null,
     disposition: readableDisposition(caseData.disposition),
     final_status: finalStatusText(session, caseData),
+    esi_explanation: esiExplanation,
     soap_note: physicianDebrief.soap_note,
     gold_standard_sbar: physicianDebrief.gold_standard_sbar,
     clinical_decision_review: clinicalDecisionReview,
@@ -3598,7 +3761,7 @@ function vitalSummaryText(caseData) {
   if (flags.length) {
     return flags.slice(0, 3).map((item) => `${item.name} ${item.value}`).join('; ');
   }
-  return 'No danger-zone vital signs were flagged by the app thresholds.';
+  return 'No danger-zone vital signs were documented.';
 }
 
 function resourceSummaryText(caseData) {
@@ -3728,11 +3891,14 @@ function recommendationReportText(caseData, workflow) {
     ? 'Move the patient to a resuscitation bay'
     : expectedIds.has('monitored_bed')
       ? 'Move the patient to a monitored ED treatment area'
-      : 'Place the patient in the appropriate ED care area';
+      : Number(caseData.acuity) >= 4
+        ? 'Use fast-track or minor-care workflow when available'
+        : 'Place the patient in the appropriate ED care area';
   const primaryActions = [placement];
   if (expectedIds.has('immediate_bedside_evaluation')) primaryActions.push('notify the clinician for immediate bedside evaluation');
 
   const nextActions = [];
+  if (isLacerationCase(caseData)) nextActions.push('perform wound exam, bleeding control, tetanus assessment, and repair or dressing decision');
   if (expectedIds.has('airway_oxygenation_support')) nextActions.push('escalate airway or oxygenation support');
   if (expectedIds.has('vascular_access')) nextActions.push('prioritize IV access and bloodwork');
   if (expectedIds.has('medication_route_priority')) nextActions.push('anticipate medication route needs');
@@ -3807,6 +3973,11 @@ function soapDifferential(caseData) {
   }
 
   const text = soapClinicalText(caseData);
+  const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
+
+  if (lowAcuityProfile?.ddx?.length) {
+    return lowAcuityProfile.ddx;
+  }
 
   if (/\bchest pain|chest pressure|dyspnea|shortness of breath\b/.test(text)) {
     return [
@@ -3840,7 +4011,16 @@ function soapDifferential(caseData) {
     ];
   }
 
-  if (/\b(finger laceration|suture removal|wrist|foot|leg|ankle|fracture|injury|fall|laceration)\b/.test(text)) {
+  if (/\bfinger laceration\b|\blaceration\b|\bcut\b|\bwound\b|\bsuture\b/.test(text)) {
+    return [
+      { diagnosis: 'Finger laceration requiring wound assessment', rationale: 'Most consistent with the documented chief concern; depth, contamination, bleeding control, and repair need are not specified in the source record.' },
+      { diagnosis: 'Tendon, nerve, or vascular injury', rationale: 'Must be screened with range of motion, strength, sensation, capillary refill, and bleeding assessment before discharge or repair.' },
+      { diagnosis: 'Retained foreign body or fracture', rationale: 'Consider when mechanism, wound depth, focal bony tenderness, foreign body sensation, or exam findings support imaging; this source does not document those discriminators.' },
+      { diagnosis: 'Early wound infection risk', rationale: 'Consider when wound age, contamination, immunocompromise, drainage, spreading erythema, fever, or delayed presentation is documented.' }
+    ];
+  }
+
+  if (/\b(wrist|foot|leg|ankle|fracture|injury|fall)\b/.test(text)) {
     return [
       { diagnosis: 'Fracture, dislocation, or soft tissue injury', rationale: 'Considered for extremity pain, swelling, fall, or transfer for known traumatic injury.' },
       { diagnosis: 'Laceration or wound complication', rationale: 'Supported when the chief concern involves a cut, sutures, drainage, or wound reassessment.' },
@@ -3877,6 +4057,20 @@ function soapJustification(caseData) {
     : 'Initial vital signs do not show danger-zone physiology.';
   const resourceSentence = resourceSignalText(caseData);
   const acuitySentence = `Reference acuity is ESI ${caseData.acuity}, supporting ${caseData.acuity <= 2 ? 'early clinician evaluation and close monitoring' : caseData.acuity === 3 ? 'ED evaluation with expected resource use' : 'focused evaluation with limited expected resources'}.`;
+  const limitations = sourceDataLimitations(caseData);
+  const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
+
+  if (lowAcuityProfile) {
+    return [
+      `The documented presentation is most consistent with ${primary.toLowerCase()}.`,
+      flagSentence,
+      `Pain is documented as ${formatVitalNumber(caseData.vitals?.pain ?? 0)}/10.`,
+      resourceSentence,
+      `Reference acuity is ESI ${caseData.acuity} because no high-risk signal or counted ED resource is documented.`,
+      lowAcuityProfile.verification_focus,
+      limitations.length ? limitations[0] : ''
+    ].filter(Boolean).join(' ');
+  }
 
   return [
     `The documented presentation of ${symptomText} is most consistent with ${primary.toLowerCase()}.`,
@@ -3884,7 +4078,8 @@ function soapJustification(caseData) {
     reviewedSummary,
     flagSentence,
     resourceSentence,
-    acuitySentence
+    acuitySentence,
+    limitations.length ? limitations[0] : ''
   ].filter(Boolean).join(' ');
 }
 
@@ -3892,6 +4087,11 @@ function soapPlan(caseData, workflow) {
   const expectedIds = new Set((workflow?.escalation?.expected || []).map((item) => item.id));
   const text = soapClinicalText(caseData);
   const plan = [];
+  const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
+
+  if (lowAcuityProfile) {
+    return uniqueSentences(lowAcuityProfile.plan_items).slice(0, 7);
+  }
 
   if (expectedIds.has('resuscitation_bay')) {
     plan.push('Move to a resuscitation bay and notify the clinician for immediate bedside evaluation.');
@@ -3913,7 +4113,12 @@ function soapPlan(caseData, workflow) {
     .slice(0, 2)
     .forEach((fact) => plan.push(fact.expected_action));
 
-  if (/\bchest pain|chest pressure|dyspnea|shortness of breath\b/.test(text)) {
+  if (isLacerationCase(caseData)) {
+    plan.push('Perform a focused wound exam: depth, contamination, active bleeding, foreign body risk, tendon function, sensation, capillary refill, and range of motion.');
+    plan.push('Control bleeding, irrigate the wound, provide local analgesia as needed, and decide whether closure, dressing, splinting, or imaging is indicated.');
+    plan.push('Assess tetanus status and provide prophylaxis when indicated.');
+    plan.push('Give discharge instructions for wound care, infection signs, neurovascular changes, and follow-up for suture removal or hand evaluation when needed.');
+  } else if (/\bchest pain|chest pressure|dyspnea|shortness of breath\b/.test(text)) {
     plan.push('Obtain cardiopulmonary evaluation such as ECG, cardiac markers, chest imaging, and respiratory treatment based on clinician assessment.');
   } else if (/\b(slurred speech|facial droop|left-sided weakness|flaccid|gaze deviation|stroke|cva|altered mental status|altered level of consciousness|subdural|sdh|seizure)\b/.test(text)) {
     plan.push('Begin neurologic evaluation, serial neuro checks, glucose or metabolic screening, and brain imaging or stroke pathway activation when indicated.');
@@ -3921,22 +4126,25 @@ function soapPlan(caseData, workflow) {
     plan.push('Perform abdominal, pelvic, or perianal assessment with labs, imaging, antiemetic therapy, fluids, analgesia, and surgical or GI consultation as indicated.');
   } else if (/\bfever|pneumonia|sepsis|gangrene|osteomyelitis\b/.test(text)) {
     plan.push('Evaluate for infection source, obtain cultures or lactate when indicated, and start antibiotics or sepsis resuscitation per ED protocol.');
-  } else if (/\b(finger laceration|suture removal|wrist|foot|leg|ankle|fracture|injury|fall|laceration)\b/.test(text)) {
+  } else if (/\b(wrist|foot|leg|ankle|fracture|injury|fall)\b/.test(text)) {
     plan.push('Assess wound or extremity status, neurovascular function, tetanus needs, imaging need, and repair or orthopedic follow-up.');
   } else if (/\bmed refill|medication refill\b/.test(text)) {
     plan.push('Confirm medication name, dose, adherence barriers, contraindications, and outpatient follow-up needs.');
   }
 
-  plan.push(dispositionSentence(caseData));
   return uniqueSentences(plan).slice(0, 7);
 }
 
 function buildSoapNote(caseData, workflow) {
   const physicalExamFacts = reviewedPhysicalExamFacts(caseData);
+  const limitations = sourceDataLimitations(caseData);
+  const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
   return {
     subjective: {
       chief_concern: capitalizeSentence(presentingProblemText(caseData)),
-      history: clinicalHistoryDetails(caseData) || documentedMedicalHistoryText(caseData)
+      history: lowAcuityProfile
+        ? `${capitalizeSentence(lowAcuityProfile.problem)} with stable triage vitals; medication details and access context require verification.`
+        : clinicalHistoryDetails(caseData) || documentedMedicalHistoryText(caseData)
     },
     objective: [
       `Triage vital signs: ${formattedVitalSigns(caseData)}.`,
@@ -3944,6 +4152,7 @@ function buildSoapNote(caseData, workflow) {
         ? `Notable vital-sign findings: ${joinClinicalList(vitalFlags(caseData).map((item) => `${item.name} ${item.value} (${item.reason})`))}.`
         : 'No danger-zone vital signs were documented.',
       ...physicalExamFacts.map((fact) => `Reviewed inferred physical exam: ${fact.statement}`),
+      ...limitations.map((item) => `Source limitation: ${item}`),
       resourceSignalText(caseData),
       `Reference acuity: ESI ${caseData.acuity}.`
     ],
@@ -3991,16 +4200,17 @@ function generateFeedback(session) {
       events: clone(session.timing_events),
       message: 'Case clock records real elapsed time during the active case. Scoring is based on case evidence and clinical reasoning.'
     },
-    interview: evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode),
+    interview: evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode, session.interview_gaps_acknowledged),
     escalation: evaluateEscalation(caseData, selectedActionIds),
     sbar: scoreSbar(session.sbar_handoff, caseData, session.triage_level)
   };
   const comparison = session.triage_level < caseData.acuity ? 'Over-triaged' : session.triage_level > caseData.acuity ? 'Under-triaged' : 'Correct triage';
   const recordedActions = clinicalFeedback(caseData);
   const scorecard = generateScorecard(session, caseData, workflow);
+  const esiExplanation = buildEsiExplanation(session, caseData);
   const priorityItems = priorityFeedback(session, caseData, workflow, scorecard);
   const physicianDebrief = buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityItems);
-  const clinicalDecisionReview = buildClinicalDecisionReview(session, caseData, workflow, physicianDebrief.soap_note);
+  const clinicalDecisionReview = buildClinicalDecisionReview(session, caseData, workflow, physicianDebrief.soap_note, esiExplanation);
   const decisionDeltas = legacyDecisionDeltas(clinicalDecisionReview);
   const nextCaseChecklist = buildNextCaseChecklist(clinicalDecisionReview.findings, physicianDebrief.soap_note, workflow, caseData);
   const physicianCaseReview = buildPhysicianCaseReview(
@@ -4008,8 +4218,11 @@ function generateFeedback(session) {
     caseData,
     physicianDebrief,
     clinicalDecisionReview,
-    nextCaseChecklist
+    nextCaseChecklist,
+    esiExplanation
   );
+  const evidence = caseEvidence(caseData, recordedActions);
+  const evidenceLanes = buildFeedbackEvidenceLanes({ caseData, workflow, caseEvidence: evidence });
   const feedback = {
     session_summary: {
       arrival_method: caseData.demographics.transport,
@@ -4044,6 +4257,7 @@ function generateFeedback(session) {
     clinical_feedback: recordedActions,
     workflow_analysis: workflow,
     scorecard,
+    esi_explanation: esiExplanation,
     action_feedback: generateActionFeedback(session, caseData, workflow, scorecard.details),
     priority_feedback: priorityItems,
     physician_debrief: {
@@ -4054,9 +4268,11 @@ function generateFeedback(session) {
     clinical_decision_review: clinicalDecisionReview,
     decision_deltas: decisionDeltas,
     next_case_checklist: nextCaseChecklist,
-    case_evidence: caseEvidence(caseData, recordedActions),
+    case_evidence: evidence,
+    evidence_lanes: evidenceLanes,
     reasoning_rubrics: reasoningRubrics()
   };
+  Object.assign(feedback, buildLearnerProfileFeedback(feedback));
   feedback.local_reasoning_review = buildLocalReasoningReview({ case: caseData, feedback });
   return feedback;
 }
@@ -4067,13 +4283,157 @@ function getSession(id) {
   return session;
 }
 
+function adaptiveCasePool(playableCases) {
+  const profile = readLearnerProfile();
+  if (!profile.cases_completed) return playableCases;
+  const focus = learnerProfileFocus(profile);
+  const selected = playableCases.filter((caseData) => {
+    if (focus.id === 'under_triage') return caseData.acuity <= 2 || vitalFlags(caseData).length > 0 || expectedEscalationActions(caseData).length > 0;
+    if (focus.id === 'over_triage') return caseData.acuity >= 4;
+    if (focus.id === 'escalation_gap') return expectedEscalationActions(caseData).some((action) => action.category === focus.label);
+    if (focus.id === 'interview_gap') {
+      const required = interviewRequirements(caseData);
+      const category = Object.entries(CATEGORY_LABELS).find(([, label]) => label === focus.label)?.[0];
+      return category ? required.has(category) : true;
+    }
+    return true;
+  });
+  return selected.length ? selected : playableCases;
+}
+
+function visibleDecisionEvidence(session, stage = '') {
+  const caseData = session.case;
+  const progress = evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode, session.interview_gaps_acknowledged);
+  const gathered = [
+    `Presenting concern: ${capitalizeSentence(presentingProblemText(caseData))}`,
+    progress.covered_domains.length ? `Interview domains covered: ${progress.covered_domains.join(', ')}` : '',
+    session.provisional_triage_level ? `Working acuity: ESI ${session.provisional_triage_level}` : '',
+    session.checked_vitals.length ? `Reviewed vitals: ${formattedVitalSigns(caseData)}` : '',
+    session.triage_level ? `Final acuity selected: ESI ${session.triage_level}` : '',
+    session.escalation_actions.length ? `Care priorities selected: ${session.escalation_actions.map((item) => item.name).join(', ')}` : ''
+  ].filter(Boolean);
+  const missing = [
+    ...progress.missed_domains.map((domain) => `Interview: ${domain}`),
+    !session.checked_vitals.length && ['final', 'escalation', 'sbar'].includes(stage) ? 'Objective vitals review' : '',
+    !session.triage_rationale && ['final', 'escalation', 'sbar'].includes(stage) ? 'Final ESI rationale' : '',
+    !session.escalation_rationale && ['sbar'].includes(stage) ? 'Escalation rationale' : ''
+  ].filter(Boolean);
+  return { gathered, missing, progress };
+}
+
+function buildDecisionCoach(session, stage = 'interview') {
+  const caseData = session.case;
+  const { gathered, missing, progress } = visibleDecisionEvidence(session, stage);
+  const flags = session.checked_vitals.length ? vitalFlags(caseData) : [];
+  const expectedActions = expectedEscalationActions(caseData);
+  const nextQuestion = progress.next_best_questions?.[0]?.question;
+  const stageCopy = {
+    interview: {
+      title: 'Interview coach',
+      esi_implication: progress.complete
+        ? 'The focused interview has enough domain coverage to support an early acuity estimate.'
+        : 'Missing interview domains can change risk, expected resources, and the first ESI estimate.',
+      next_best_action: nextQuestion || 'Ask the next question that changes acuity, risk, or immediate action.',
+      reasoning_frame: 'Use patient language to establish concern, time course, severity, red flags, and risk-changing background.'
+    },
+    provisional: {
+      title: 'Initial ESI coach',
+      esi_implication: 'Treat this as a working acuity call from the conversation. Vitals can still move the final decision.',
+      next_best_action: missing.length ? `Reconcile ${missing.slice(0, 2).join(' and ')} before relying on the first ESI.` : 'State the strongest risk signal and what objective data could change the decision.',
+      reasoning_frame: 'Name stability, high-risk features, and expected resources without overusing hindsight.'
+    },
+    final: {
+      title: 'Final ESI coach',
+      esi_implication: flags.length
+        ? `Abnormal objective signals require reassessment: ${flags.slice(0, 2).map((item) => `${item.name} ${item.value}`).join('; ')}.`
+        : 'When danger-zone vitals are absent, expected resources and risk features usually drive the ESI distinction.',
+      next_best_action: 'Connect the selected ESI to stability, risk, vitals, and resource expectation in one concise rationale.',
+      reasoning_frame: 'Separate immediate danger from resource prediction before choosing ESI 3, 4, or 5.'
+    },
+    escalation: {
+      title: 'Care priority coach',
+      esi_implication: expectedActions.length
+        ? 'Escalation choices should match immediate safety, placement, monitoring, bleeding, respiratory, behavioral, or pain signals.'
+        : 'No immediate escalation signal is obvious from the structured triage evidence.',
+      next_best_action: expectedActions.length
+        ? `Consider whether ${expectedActions.slice(0, 2).map((item) => item.name).join(' and ')} is supported by the case evidence.`
+        : 'Document why routine waiting with reassessment is appropriate.',
+      reasoning_frame: 'Choose actions that a triage nurse can initiate or escalate before routine queue placement.'
+    },
+    sbar: {
+      title: 'SBAR coach',
+      esi_implication: 'The handoff should make the acuity and next action clear enough for the receiving team to act.',
+      next_best_action: 'Use one concise sentence each for situation, background, assessment, and recommendation.',
+      reasoning_frame: 'SBAR should carry the case signal, not repeat every detail.'
+    }
+  };
+  const copy = stageCopy[stage] || stageCopy.interview;
+  return {
+    stage,
+    source: 'Local decision coach',
+    title: copy.title,
+    gathered_evidence: gathered.slice(0, 5),
+    still_missing: missing.slice(0, 5),
+    esi_implication: copy.esi_implication,
+    next_best_action: copy.next_best_action,
+    reasoning_frame: copy.reasoning_frame,
+    next_best_questions: progress.next_best_questions || []
+  };
+}
+
+export function getStaticDecisionCoach(id, stage = 'interview') {
+  const session = getSession(id);
+  return buildDecisionCoach(session, stage);
+}
+
+export async function askStaticInCaseCoach(id, stage = 'interview', learnerContext = '') {
+  const session = getSession(id);
+  const settings = getTutorSettings();
+  if (!settings.key) throw new Error('Use AI settings in the header to enable the clinical coach.');
+  const localCoach = buildDecisionCoach(session, stage);
+  const content = await callOpenRouter([
+    {
+      role: 'system',
+      content: [
+        'You are an emergency physician coaching a triage learner during a simulation.',
+        'Use only the supplied in-case coaching context.',
+        'Do not reveal the reference ESI, disposition, outcome, or hidden scoring answer.',
+        'Return strict JSON with summary, teaching_point, and next_best_action.'
+      ].join(' ')
+    },
+    {
+      role: 'user',
+      content: JSON.stringify({
+        stage,
+        learner_context: learnerContext,
+        local_coach: localCoach
+      })
+    }
+  ], {
+    key: settings.key,
+    model: settings.model || DEFAULT_TUTOR_MODEL,
+    maxTokens: 260,
+    temperature: 0.15,
+    responseFormat: { type: 'json_object' },
+    timeoutMs: 12000
+  });
+  const parsed = extractJsonObject(content);
+  return {
+    source: 'OpenRouter',
+    model: settings.model || DEFAULT_TUTOR_MODEL,
+    summary: cleanText(stripMarkdown(parsed.summary), localCoach.esi_implication),
+    teaching_point: cleanText(stripMarkdown(parsed.teaching_point), localCoach.reasoning_frame),
+    next_best_action: cleanText(stripMarkdown(parsed.next_best_action), localCoach.next_best_action)
+  };
+}
+
 export function startStaticSimulation() {
   if (!cases.length) throw new Error('No cases available.');
   const playableCases = cases.filter((item) => {
     const complaint = String(item.complaint || '').trim();
     return complaint && !complaint.includes('#NAME?');
   });
-  const casePool = playableCases.length ? playableCases : cases;
+  const casePool = playableCases.length ? adaptiveCasePool(playableCases) : cases;
   const caseData = clone(casePool[Math.floor(Math.random() * casePool.length)]);
   const patientView = buildPatientView(caseData);
   const id = sessionId();
@@ -4100,12 +4460,13 @@ export function startStaticSimulation() {
     timing_events: {},
     interview_log: [],
     interview_mode: 'assessment',
+    interview_gaps_acknowledged: false,
     support_uses: [],
     response_cache: {}
   };
   sessions.set(id, session);
   const intake = buildIntakeReport(caseData);
-  const interviewProgress = evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode);
+  const interviewProgress = evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode, session.interview_gaps_acknowledged);
   return {
     session_id: id,
     age: Math.round(caseData.demographics.age),
@@ -4133,6 +4494,22 @@ export function recordStaticInterviewSupport(id, supportId) {
     session.support_uses.push(record);
   }
   return { support: clone(record), support_uses: clone(session.support_uses), clock: clock(session) };
+}
+
+export function acknowledgeStaticInterviewGaps(id) {
+  const session = getSession(id);
+  const progress = evaluateInterview(session.case, session.interview_log, session.support_uses, session.interview_mode, false);
+  if (!progress.minimum_met) throw new Error('Ask at least two focused questions before continuing with gaps.');
+  if (progress.complete) {
+    session.interview_gaps_acknowledged = false;
+  } else {
+    session.interview_gaps_acknowledged = true;
+    recordElapsed(session, 'interview_gaps_acknowledged');
+  }
+  return {
+    interview_progress: evaluateInterview(session.case, session.interview_log, session.support_uses, session.interview_mode, session.interview_gaps_acknowledged),
+    clock: clock(session)
+  };
 }
 
 export async function askStaticPatientQuestion(id, question) {
@@ -4312,10 +4689,30 @@ export async function askStaticPatientQuestion(id, question) {
     answerPlan,
     patientView
   }) || fallbackAnswer;
+  const progressAfterTurn = evaluateInterview(
+    session.case,
+    [
+      ...session.interview_log,
+      {
+        category,
+        covered_categories: coveredCategories
+      }
+    ],
+    session.support_uses,
+    session.interview_mode,
+    session.interview_gaps_acknowledged
+  );
+  const coverageConfidence = answerPlan.covered_categories?.length ? 'high' : 'estimated';
   const logItem = {
     ...clone(answerPayload),
     question: text,
     answer: displayedAnswer,
+    category,
+    category_label: metadata.label,
+    covered_categories: coveredCategories,
+    covered_domains: categoryLabels(coveredCategories),
+    coverage_confidence: coverageConfidence,
+    teaching_note: interviewTurnTeachingNote(coveredCategories, progressAfterTurn.missed_categories),
     elapsed_at_seconds: recordElapsed(session, `interview_question_${session.interview_log.length + 1}`)
   };
   session.interview_log.push(logItem);
@@ -4332,7 +4729,7 @@ export async function askStaticPatientQuestion(id, question) {
   return {
     response: logItem,
     questions_used: session.interview_log.length,
-    interview_progress: evaluateInterview(session.case, session.interview_log, session.support_uses, session.interview_mode),
+    interview_progress: evaluateInterview(session.case, session.interview_log, session.support_uses, session.interview_mode, session.interview_gaps_acknowledged),
     clock: clock(session)
   };
 }

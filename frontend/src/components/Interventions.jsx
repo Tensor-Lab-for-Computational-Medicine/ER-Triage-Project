@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getEscalationActions, selectEscalationActions } from '../services/api';
+import DecisionHint from './DecisionHint';
 
 const GROUP_ORDER = [
   'Escalation',
@@ -26,7 +27,7 @@ function groupActions(actions) {
   }));
 }
 
-function Interventions({ sessionId, onNext, onCapture, onClock }) {
+function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onClock }) {
   const [availableActions, setAvailableActions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [rationale, setRationale] = useState('');
@@ -118,12 +119,13 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
 
       {!results ? (
         <>
-          <div className="evidence-legend">
-            <span>Reference signals</span>
-            <strong>ESI/vitals</strong>
-            <strong>MIETIC record</strong>
-            <strong>case text</strong>
-          </div>
+          {coachEnabled && (
+            <DecisionHint
+              sessionId={sessionId}
+              stage="escalation"
+              learnerContext={rationale}
+            />
+          )}
 
           {selectedIds.length > 0 && (
             <div className="action-selection-summary" aria-live="polite">
@@ -163,7 +165,6 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
                     <span>
                       <strong>{action.name}</strong>
                       <small>{action.description}</small>
-                      {action.evidence_type && <small>Evidence basis: {action.evidence_type}</small>}
                     </span>
                   </label>
                 ))}
@@ -209,7 +210,6 @@ function Interventions({ sessionId, onNext, onCapture, onClock }) {
                     <span>Triage action</span>
                     <strong>{action.name}</strong>
                     <small>{action.description}</small>
-                    {action.evidence_type && <small>Evidence basis: {action.evidence_type}</small>}
                   </div>
                 ))}
               </div>

@@ -6,16 +6,15 @@ ED Triage Trainer is a static emergency department triage training application b
 
 Learners work through an ED triage case using MIETIC-derived validation cases:
 
-1. First-look safety assessment
-2. Focused patient interview
-3. Provisional ESI assignment
-4. Baseline vital-sign review
-5. Final ESI assignment with rationale
-6. Triage escalation priorities
-7. SBAR handoff
-8. Compact data-grounded debrief
+1. Focused patient interview
+2. Provisional ESI assignment
+3. Baseline vital-sign review
+4. Final ESI assignment with rationale
+5. Triage escalation priorities
+6. SBAR handoff
+7. Physician case review and debrief
 
-Scoring is deterministic and runs in the browser. The debrief compares learner decisions with case-grounded ESI, vital-sign, resource, outcome, and intervention signals. Free-text reasoning receives local rubric feedback by default, with optional OpenRouter critique when a learner saves a browser-local key.
+Scoring is deterministic and runs in the browser. The debrief compares learner decisions with case-grounded ESI, vital-sign, resource, outcome, intervention, and reviewed clinical-evidence signals. Free-text reasoning receives local rubric feedback by default, with optional OpenRouter critique when a learner saves a browser-local key.
 
 ## Public Runtime
 
@@ -37,6 +36,7 @@ The OpenRouter tutor is disabled until a learner enters a key. The key is stored
 |   |-- code/                   # Reproducible scoring audit
 |   `-- data/                   # Scoring audit output
 |-- data/raw/                   # Raw MIETIC validation CSV used to build the static bundle
+|-- data/processed/             # Reviewed case-augmentation artifacts
 |-- docs/                       # Deployment and reproducibility notes
 |-- frontend/                   # Static React/Vite app
 `-- scripts/                    # Data-bundle generation and validation scripts
@@ -89,7 +89,16 @@ python scripts/generate_static_cases.py
 python scripts/validate_static_bundle.py
 ```
 
-The generator reads `data/raw/mietic_validate_samples.csv` and writes `frontend/src/data/cases.json`.
+The generator reads `data/raw/mietic_validate_samples.csv`, keeps retained validation cases, applies reviewed augmentation facts from `data/processed/case_augmentations.review.json`, and writes `frontend/src/data/cases.json`.
+
+Draft AI augmentations are generated offline and reviewed before they become playable:
+
+```powershell
+$env:OPENROUTER_API_KEY = "<your key>"
+python scripts/augment_static_cases.py --case-id case_021
+```
+
+The draft output is written to `data/processed/case_augmentations.draft.json`. Reviewed facts are promoted into `data/processed/case_augmentations.review.json`; draft and rejected augmentations do not ship in the learner bundle.
 
 ## Documentation
 

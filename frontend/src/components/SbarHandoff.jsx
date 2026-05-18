@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { submitSbar } from '../services/api';
+import DecisionHint from './DecisionHint';
 
-function SbarHandoff({ sessionId, onNext, onCapture, onClock }) {
+function SbarHandoff({ sessionId, coachEnabled = false, onNext, onCapture, onClock }) {
   const [handoff, setHandoff] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,20 +57,17 @@ function SbarHandoff({ sessionId, onNext, onCapture, onClock }) {
         Call report to the receiving team with the current situation, relevant background, clinical assessment, and recommended next action.
       </p>
 
-      <div className="sbar-framework" aria-label="SBAR structure">
-        {[
-          ['S', 'Situation', 'Current problem and immediate concern.'],
-          ['B', 'Background', 'Age, arrival context, history, medications, or risks.'],
-          ['A', 'Assessment', 'Acuity, vital-sign interpretation, and resource needs.'],
-          ['R', 'Recommendation', 'Placement, monitoring, clinician evaluation, or action.']
-        ].map(([letter, label, text]) => (
-          <div className="sbar-guide-card" key={letter}>
-            <span>{letter}</span>
-            <strong>{label}</strong>
-            <small>{text}</small>
-          </div>
-        ))}
-      </div>
+      {coachEnabled && (
+        <DecisionHint
+          sessionId={sessionId}
+          stage="sbar"
+          learnerContext={handoff}
+        />
+      )}
+
+      <p className="sbar-inline-guide">
+        S: current problem. B: relevant history. A: acuity and risk. R: placement, monitoring, or clinician action.
+      </p>
 
       <div className="question-input">
         <label htmlFor="sbar-handoff">Handoff</label>

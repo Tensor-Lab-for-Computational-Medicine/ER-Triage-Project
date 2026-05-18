@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './styles/App.css';
 import {
   clearTutorSettings,
+  getCoachPreference,
   getTutorSettings,
   prewarmSemanticCache,
+  saveCoachPreference,
   saveTutorSettings,
   startSimulation
 } from './services/api';
@@ -13,6 +15,7 @@ import TriageAssignment from './components/TriageAssignment';
 import Interventions from './components/Interventions';
 import SbarHandoff from './components/SbarHandoff';
 import Feedback from './components/Feedback';
+import CaseSummaryBanner from './components/CaseSummaryBanner';
 
 const WORKFLOW_STEPS = [
   {
@@ -78,12 +81,6 @@ const INITIAL_CASE_RECORD = {
   sbarHandoff: ''
 };
 
-function formatClock(seconds = 0) {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-}
-
 function realElapsedSeconds(clock = {}, _tick = 0) {
   if (clock.started_at_ms && !clock.completed_at_ms) {
     return Math.max(clock.elapsed_seconds || 0, Math.floor((Date.now() - clock.started_at_ms) / 1000));
@@ -99,7 +96,6 @@ function WorkflowStrip({ currentStep }) {
       <div className="workflow-current">
         <span className="workflow-strip-status">Step {currentStep + 1} of {WORKFLOW_STEPS.length}</span>
         <strong>{active.title}</strong>
-        <span>{active.detail}</span>
       </div>
       <ol className="workflow-list">
         {WORKFLOW_STEPS.map((item, index) => {
@@ -119,90 +115,6 @@ function WorkflowStrip({ currentStep }) {
         })}
       </ol>
     </nav>
-  );
-}
-
-function CaseChart({ patientData, caseRecord, activeStep }) {
-  const intake = patientData?.intake || {};
-  const triageLabel = caseRecord.triageLevel
-    ? `ESI ${caseRecord.triageLevel}`
-    : 'Pending';
-  const modeLabels = {
-    assessment: 'Focused interview'
-  };
-  const activeMode = modeLabels[caseRecord.interviewMode] || 'Focused interview';
-  const latestAnswer = caseRecord.interviewLog.length
-    ? caseRecord.interviewLog[caseRecord.interviewLog.length - 1].answer
-    : '';
-
-  return (
-    <aside className="case-chart" aria-label="Current case chart">
-      <div className="chart-card patient-identity">
-        <span className="eyebrow">Intake report</span>
-        <h2>{patientData ? `${patientData.age} year old ${patientData.sex}` : 'Loading case'}</h2>
-        <p className="chart-note">Reported: {intake.reported_concern || patientData?.complaint || 'Concern pending'}</p>
-        <div className="chart-pill-row">
-          <span>{patientData?.transport || 'Transport pending'}</span>
-          {intake.source && <span>{intake.source}</span>}
-          <span>{triageLabel}</span>
-        </div>
-      </div>
-
-      <details className="chart-card chart-details">
-        <summary>Case details</summary>
-        <div className="chart-row">
-          <span>Current stage</span>
-          <strong>{activeStep?.label || 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Questions used</span>
-          <strong>{caseRecord.interviewLog.length || 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Acuity level</span>
-          <strong>{triageLabel}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Interview</span>
-          <strong>{activeMode}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Chief concern</span>
-          <strong>{caseRecord.chiefResponse ? 'Captured' : 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Vitals measured</span>
-          <strong>{caseRecord.vitals.length ? caseRecord.vitals.length : 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Latest answer</span>
-          <strong>{latestAnswer || 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Provisional ESI</span>
-          <strong>{caseRecord.provisionalTriageLevel ? `ESI ${caseRecord.provisionalTriageLevel}` : 'Pending'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>Actions</span>
-          <strong>{caseRecord.interventions.length || 'None yet'}</strong>
-        </div>
-        <div className="chart-row">
-          <span>SBAR</span>
-          <strong>{caseRecord.sbarHandoff ? 'Recorded' : 'Pending'}</strong>
-        </div>
-      </details>
-
-      <details className="chart-card chart-details reference-card">
-        <summary>ESI anchors</summary>
-        <ul>
-          <li>ESI 1: life-saving intervention</li>
-          <li>ESI 2: high risk or severe distress</li>
-          <li>ESI 3: stable, multiple resources</li>
-          <li>ESI 4: one resource</li>
-          <li>ESI 5: no resources</li>
-        </ul>
-      </details>
-    </aside>
   );
 }
 
@@ -335,6 +247,22 @@ function AiSettingsMenu({ settings, onSettingsChange }) {
   );
 }
 
+function CoachToggle({ enabled, onChange }) {
+  return (
+    <label className="coach-toggle">
+      <input
+        type="checkbox"
+        role="switch"
+        checked={enabled}
+        onChange={(event) => onChange(event.target.checked)}
+        aria-label="Coach"
+      />
+      <span>Coach</span>
+      <strong>{enabled ? 'On' : 'Off'}</strong>
+    </label>
+  );
+}
+
 function App() {
   const [step, setStep] = useState(-1);
   const [sessionId, setSessionId] = useState(null);
@@ -345,8 +273,10 @@ function App() {
   const [timerTick, setTimerTick] = useState(0);
   const [caseRecord, setCaseRecord] = useState(INITIAL_CASE_RECORD);
   const [aiSettings, setAiSettings] = useState(() => getTutorSettings());
+  const [coachPreference, setCoachPreference] = useState(() => getCoachPreference());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const coachEnabled = Boolean(coachPreference.enabled);
 
   const handleStart = async () => {
     setLoading(true);
@@ -381,6 +311,10 @@ function App() {
 
   const handleCapture = (patch) => {
     setCaseRecord((prev) => ({ ...prev, ...patch }));
+  };
+
+  const handleCoachPreferenceChange = (enabled) => {
+    setCoachPreference(saveCoachPreference({ enabled }));
   };
 
   const handleRestart = async () => {
@@ -445,7 +379,6 @@ function App() {
   }
 
   const activeStep = WORKFLOW_STEPS[step];
-  const progressPercent = Math.round(((step + 1) / WORKFLOW_STEPS.length) * 100);
   const displayElapsed = realElapsedSeconds(clock, timerTick);
 
   return (
@@ -455,20 +388,24 @@ function App() {
           <span className="eyebrow">Emergency medicine education</span>
           <h1>ED Triage Trainer</h1>
         </div>
-        <div className="case-meta">
-          <span>Case clock</span>
-          <strong>{formatClock(displayElapsed)}</strong>
+        <div className="topbar-actions">
+          <CoachToggle
+            enabled={coachEnabled}
+            onChange={handleCoachPreferenceChange}
+          />
+          <AiSettingsMenu
+            settings={aiSettings}
+            onSettingsChange={setAiSettings}
+          />
         </div>
-        <AiSettingsMenu
-          settings={aiSettings}
-          onSettingsChange={setAiSettings}
-        />
       </header>
 
-      <div className="progress-track" aria-label="Workflow progress">
-        <span style={{ width: `${progressPercent}%` }} />
-      </div>
-
+      <CaseSummaryBanner
+        patientData={patientData}
+        caseRecord={caseRecord}
+        activeStep={activeStep}
+        elapsedSeconds={displayElapsed}
+      />
       <WorkflowStrip currentStep={step} />
 
       <div className="app-layout">
@@ -489,6 +426,7 @@ function App() {
             <TriageAssignment
               sessionId={sessionId}
               variant="provisional"
+              coachEnabled={coachEnabled}
               onNext={handleNext}
               onCapture={handleCapture}
               onClock={setClock}
@@ -507,6 +445,7 @@ function App() {
           {step === 3 && (
             <TriageAssignment
               sessionId={sessionId}
+              coachEnabled={coachEnabled}
               onNext={handleNext}
               onCapture={handleCapture}
               onClock={setClock}
@@ -516,6 +455,7 @@ function App() {
           {step === 4 && (
             <Interventions
               sessionId={sessionId}
+              coachEnabled={coachEnabled}
               onNext={handleNext}
               onCapture={handleCapture}
               onClock={setClock}
@@ -525,6 +465,7 @@ function App() {
           {step === 5 && (
             <SbarHandoff
               sessionId={sessionId}
+              coachEnabled={coachEnabled}
               onNext={handleNext}
               onCapture={handleCapture}
               onClock={setClock}
@@ -541,8 +482,6 @@ function App() {
             />
           )}
         </main>
-
-        <CaseChart patientData={patientData} caseRecord={caseRecord} activeStep={activeStep} />
       </div>
     </div>
   );

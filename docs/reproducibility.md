@@ -16,6 +16,12 @@ The public app reads the generated bundle:
 frontend/src/data/cases.json
 ```
 
+Reviewed inferred teaching details are stored separately from the raw source:
+
+```text
+data/processed/case_augmentations.review.json
+```
+
 ## Regenerate The Static Case Bundle
 
 ```powershell
@@ -24,7 +30,22 @@ python scripts/generate_static_cases.py
 python scripts/validate_static_bundle.py
 ```
 
-The generator removes expert adjudication fields from the browser bundle and assigns stable public case IDs such as `case_001`.
+The generator keeps only retained MIETIC validation rows, emits `clinical_case_v1` records, preserves source provenance under `source`, attaches documented and missing evidence lists, and includes reviewed inferred facts when available. Draft and rejected augmentations are excluded from the browser bundle.
+
+## Generate Draft Case Augmentations
+
+```powershell
+$env:OPENROUTER_API_KEY = "<your key>"
+python scripts/augment_static_cases.py --case-id case_021
+```
+
+The augmentation command writes draft JSON to:
+
+```text
+data/processed/case_augmentations.draft.json
+```
+
+Drafts must be reviewed before use. Reviewed facts live in `data/processed/case_augmentations.review.json` with explicit `review_status`, `source_anchors`, `confidence`, and `use_in` fields. A reviewed fact can affect grading only when `use_in` includes `grading_reference`.
 
 ## Recreate The Scoring Audit
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { assignProvisionalTriage, assignTriage } from '../services/api';
+import DecisionHint from './DecisionHint';
 
 const TRIAGE_LEVELS = [
   {
@@ -34,7 +35,7 @@ const TRIAGE_LEVELS = [
   }
 ];
 
-function TriageAssignment({ sessionId, variant = 'final', onNext, onCapture, onClock }) {
+function TriageAssignment({ sessionId, variant = 'final', coachEnabled = false, onNext, onCapture, onClock }) {
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [rationale, setRationale] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -93,81 +94,62 @@ function TriageAssignment({ sessionId, variant = 'final', onNext, onCapture, onC
           <span className="eyebrow">Acuity decision</span>
           <h3>{isProvisional ? 'Initial ESI decision' : 'Final ESI decision'}</h3>
         </div>
-        <span className="clinical-badge">{submitted ? 'Locked' : isProvisional ? 'Working level' : 'Final level'}</span>
       </div>
 
-      <div className="decision-layout">
-        <div>
-          <p className="instruction">
-            {isProvisional
-              ? 'Make the first acuity call from the intake context and patient conversation.'
-              : 'Lock the ESI level after objective review and document the clinical basis.'}
-          </p>
+      <p className="instruction">
+        {isProvisional
+          ? 'Make the first acuity call from the intake context and patient conversation.'
+          : 'Lock the ESI level after objective review and document the clinical basis.'}
+      </p>
 
-          <div className="triage-levels">
-            {TRIAGE_LEVELS.map((level) => (
-              <button
-                key={level.level}
-                className={`triage-button ${
-                  selectedLevel === level.level ? 'selected' : ''
-                } level-${level.level}`}
-                onClick={() => setSelectedLevel(level.level)}
-                disabled={loading || submitted}
-                aria-pressed={selectedLevel === level.level}
-              >
-                <span>{level.label}</span>
-                <strong>{level.name}</strong>
-                <small>{level.description}</small>
-              </button>
-            ))}
-          </div>
+      {coachEnabled && (
+        <DecisionHint
+          sessionId={sessionId}
+          stage={isProvisional ? 'provisional' : 'final'}
+          learnerContext={rationale}
+        />
+      )}
 
-          <div className="question-input rationale-input">
-            <label htmlFor="esi-rationale">{isProvisional ? 'Provisional rationale' : 'Final ESI rationale'}</label>
-            <textarea
-              id="esi-rationale"
-              value={rationale}
-              onChange={(event) => setRationale(event.target.value)}
-              placeholder={isProvisional
-                ? 'Write the evidence available so far.'
-                : 'Write one or two sentences connecting the evidence to acuity.'}
-              rows="4"
-              disabled={submitted}
-            />
-            <small className={`field-hint ${rationaleReady ? 'ready' : ''}`}>
-              {isProvisional
-                ? `${rationaleLength} characters recorded`
-                : `${rationaleLength} / 20 minimum characters`}
-            </small>
-          </div>
-        </div>
+      <div className="triage-levels compact">
+        {TRIAGE_LEVELS.map((level) => (
+          <button
+            key={level.level}
+            className={`triage-button ${
+              selectedLevel === level.level ? 'selected' : ''
+            } level-${level.level}`}
+            onClick={() => setSelectedLevel(level.level)}
+            disabled={loading || submitted}
+            aria-pressed={selectedLevel === level.level}
+          >
+            <span>{level.label}</span>
+            <strong>{level.name}</strong>
+          </button>
+        ))}
+      </div>
 
-        <aside className="decision-aid">
-          <span className="eyebrow">Decision check</span>
-          <h4>Use the ESI frame</h4>
-          <div className="decision-frame-grid">
-            <div>
-              <span>1</span>
-              <strong>Stability</strong>
-              <small>Immediate life-saving intervention or danger-zone physiology.</small>
-            </div>
-            <div>
-              <span>2</span>
-              <strong>Risk</strong>
-              <small>High-risk complaint, severe distress, mental status, or vulnerable context.</small>
-            </div>
-            <div>
-              <span>3</span>
-              <strong>Resources</strong>
-              <small>Labs, imaging, IV therapy, procedures, monitoring, or consultation.</small>
-            </div>
-          </div>
-          <div className="selected-decision">
-            <span>Selected level</span>
-            <strong>{selectedMeta ? selectedMeta.label : 'None selected'}</strong>
-            <small>{selectedMeta ? selectedMeta.description : 'Choose the acuity level that best matches the evidence.'}</small>
-          </div>
-        </aside>
+      <p className="selected-esi-note">
+        {selectedMeta
+          ? `${selectedMeta.label}: ${selectedMeta.description}`
+          : 'Choose the level that matches stability, high-risk features, and expected ED resources.'}
+      </p>
+
+      <div className="question-input rationale-input">
+        <label htmlFor="esi-rationale">{isProvisional ? 'Provisional rationale' : 'Final ESI rationale'}</label>
+        <textarea
+          id="esi-rationale"
+          value={rationale}
+          onChange={(event) => setRationale(event.target.value)}
+          placeholder={isProvisional
+            ? 'Write the evidence available so far.'
+            : 'Write one or two sentences connecting the evidence to acuity.'}
+          rows="4"
+          disabled={submitted}
+        />
+        <small className={`field-hint ${rationaleReady ? 'ready' : ''}`}>
+          {isProvisional
+            ? `${rationaleLength} characters recorded`
+            : `${rationaleLength} / 20 minimum characters`}
+        </small>
       </div>
 
       {error && <div className="error-message">{error}</div>}

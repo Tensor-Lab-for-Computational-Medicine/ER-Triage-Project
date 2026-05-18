@@ -8,6 +8,12 @@ import {
   renderPatientAnswer,
   validatePatientSpeech
 } from '../src/services/patientDialogueEngine.js';
+import { buildEvidenceLanes } from '../src/services/evidenceLaneService.js';
+import {
+  buildNextCaseRecommendation,
+  updateLearnerProfileFromFeedback
+} from '../src/services/learnerProfileService.js';
+import { evaluateInterview } from '../src/services/interviewEngine.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticCases = JSON.parse(readFileSync(resolve(__dirname, '../src/data/cases.json'), 'utf8'))
@@ -36,6 +42,124 @@ test.beforeEach(async ({ page }) => {
     window.localStorage.clear();
     window.sessionStorage.clear();
   });
+});
+
+test('evidence lane builder separates triage facts, resource expectations, and outcomes', () => {
+  const lanes = buildEvidenceLanes({
+    caseData: {
+      complaint: 'Chest pain',
+      history: 'Sharp chest pain with cough and dyspnea.',
+      demographics: { transport: 'Walk-in' },
+      source: { disposition: 'Admitted to cardiology' },
+      documented_evidence: [
+        { domain: 'vitals', statement: 'BP 119/71, P 91, RR 22, SpO2 97%.' }
+      ]
+    },
+    workflow: {
+      escalation: {
+        expected: [
+          { name: 'Monitored bed', evidence: ['reference ESI 2'] }
+        ]
+      }
+    },
+    caseEvidence: {
+      vital_flags: [
+        { name: 'Pain Level', value: '8', reason: 'severe pain' }
+      ],
+      resources: [
+        { label: 'Imaging or diagnostic testing', value: 'ECG and serial troponins' }
+      ],
+      outcomes: [
+        { label: 'Clinical outcome', value: 'Observed after initial ED workup' }
+      ],
+      recorded_actions: [
+        { name: 'Troponin', description: 'Drawn after physician evaluation' }
+      ]
+    }
+  });
+
+  const triageText = lanes.available_at_triage.map((item) => item.value).join(' ');
+  const resourceText = lanes.expected_resources.map((item) => item.value).join(' ');
+  const outcomeText = lanes.retrospective_outcomes.map((item) => item.value).join(' ');
+
+  expect(triageText).toContain('Chest pain');
+  expect(triageText).not.toContain('Admitted to cardiology');
+  expect(resourceText).toContain('ECG and serial troponins');
+  expect(outcomeText).toContain('Admitted to cardiology');
+  expect(outcomeText).toContain('Drawn after physician evaluation');
+});
+
+test('learner profile update records recurring gaps and recommends the next case focus', () => {
+  const { profile, delta } = updateLearnerProfileFromFeedback({
+    workflow_analysis: {
+      interview: { missed_domains: ['Red flags', 'Medications'] },
+      escalation: { missed: [{ category: 'Monitored bed' }] },
+      sbar: { missing: ['Assessment'] }
+    },
+    session_summary: { triage_level_assigned: 5 },
+    triage_analysis: { comparison: 'Under-triaged' }
+  });
+
+  expect(profile.cases_completed).toBe(1);
+  expect(profile.interview_gaps['Red flags']).toBe(1);
+  expect(profile.esi_error_direction.under_triage).toBe(1);
+  expect(profile.missed_escalation_categories['Monitored bed']).toBe(1);
+  expect(profile.weak_sbar_sections.Assessment).toBe(1);
+  expect(delta.interview_gaps).toEqual(['Red flags', 'Medications']);
+  expect(buildNextCaseRecommendation(profile)).toMatchObject({
+    selector: 'under_triage',
+    focus: 'Under-triage prevention'
+  });
+});
+
+test('interview engine requires domain coverage before normal continuation', () => {
+  const caseData = {
+    acuity: 2,
+    complaint: 'Chest pain',
+    history: 'Chest pain with shortness of breath and daily aspirin use.',
+    demographics: { age: 48, sex: 'M' },
+    vitals: { hr: 118, sbp: 132, dbp: 78, rr: 24, o2: 95, temp: 98.6, pain: 8 }
+  };
+
+  const partialLog = [
+    { covered_categories: ['chief_concern'] },
+    { covered_categories: ['timeline'] }
+  ];
+  const incomplete = evaluateInterview(caseData, partialLog);
+  expect(incomplete.complete).toBe(false);
+  expect(incomplete.can_continue).toBe(false);
+  expect(incomplete.continue_requires_acknowledgement).toBe(true);
+  expect(incomplete.missed_categories).toEqual(expect.arrayContaining(['medical_history', 'medications', 'red_flags', 'severity']));
+
+  const acknowledged = evaluateInterview(caseData, partialLog, [], 'assessment', true);
+  expect(acknowledged.can_continue).toBe(true);
+  expect(acknowledged.gaps_acknowledged).toBe(true);
+
+  const complete = evaluateInterview(caseData, [
+    { covered_categories: ['chief_concern'] },
+    { covered_categories: ['timeline', 'red_flags'] },
+    { covered_categories: ['medical_history', 'medications'] },
+    { covered_categories: ['severity'] }
+  ]);
+  expect(complete.complete).toBe(true);
+  expect(complete.can_continue).toBe(true);
+  expect(complete.next_best_questions).toEqual([]);
+});
+
+test('does not load voice or embedding bundles before optional feature paths are enabled', async ({ page }) => {
+  const optionalRequests = [];
+  page.on('request', (request) => {
+    const url = request.url();
+    if (/kokoro|transformers\.web|ort-wasm/i.test(url)) optionalRequests.push(url);
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByText('Question 1')).toBeVisible();
+
+  expect(optionalRequests).toEqual([]);
 });
 
 test('patient dialogue engine keeps every static case in patient language', () => {
@@ -124,6 +248,15 @@ test('reviewed augmentation facts are explicit and cannot silently become gradin
   }
 });
 
+async function expectDecisionHintState(page, enabled) {
+  if (enabled) {
+    await expect(page.getByLabel('Decision hint')).toBeVisible();
+  } else {
+    await expect(page.getByLabel('Decision hint')).toHaveCount(0);
+  }
+  await expect(page.locator('.decision-coach')).toHaveCount(0);
+}
+
 async function completeStaticWorkflow(page, options = {}) {
   if (options.randomValue !== undefined) {
     await page.addInitScript((value) => {
@@ -135,15 +268,28 @@ async function completeStaticWorkflow(page, options = {}) {
     'S: ED triage patient with current complaint. B: Adult patient arriving for evaluation. A: ESI 3 with stable appearance and resource needs. R: Continue ED evaluation and monitor for changes.';
   const provisionalEsi = options.provisionalEsi || 3;
   const finalEsi = options.finalEsi || 3;
+  const provisionalRationale = options.provisionalRationale ?? `Initial ESI ${provisionalEsi} based on the available triage interview and expected ED resources.`;
+  const finalRationale = options.finalRationale ?? `Final ESI ${finalEsi} based on vital signs, complaint risk, and expected ED resources.`;
+  const escalationRationale = options.escalationRationale ?? 'Routine waiting is acceptable while monitoring for worsening symptoms because no immediate instability is apparent.';
 
   await page.goto('/');
-  const initialClock = await page.locator('.case-meta strong').innerText();
+  const initialClock = await page.locator('.case-summary-clock').innerText();
   await expect
-    .poll(async () => page.locator('.case-meta strong').innerText(), { timeout: 2500 })
+    .poll(async () => page.locator('.case-summary-clock').innerText(), { timeout: 2500 })
     .not.toBe(initialClock);
 
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
   await expect(page.getByText('Step 1 of 7')).toBeVisible();
+  await expect(page.getByLabel('Case summary')).toBeVisible();
+  const coachSwitch = page.getByRole('switch', { name: 'Coach' });
+  await expect(coachSwitch).toBeVisible();
+  if (options.enableCoach) {
+    await coachSwitch.check();
+    await expect(coachSwitch).toBeChecked();
+  } else {
+    await expect(coachSwitch).not.toBeChecked();
+  }
+  await expect(page.locator('.case-chart')).toHaveCount(0);
   await expect(page.getByText('First look', { exact: true })).toHaveCount(0);
   await expect(page.getByText('First placement', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Stable to interview')).toHaveCount(0);
@@ -154,7 +300,7 @@ async function completeStaticWorkflow(page, options = {}) {
   await expect(page.getByText('Perfusion, bleeding, or hemodynamic signal documented.')).toHaveCount(0);
   await expect(page.getByText('No circulation warning signal documented.')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Use prompts' })).toBeVisible();
-  await expect(page.getByText('Interview coverage')).toBeVisible();
+  await expect(page.getByText('Required domains:')).toBeVisible();
   await expect(page.getByText('Question budget')).toHaveCount(0);
   await expect(page.getByText('questions left')).toHaveCount(0);
   await expect(page.getByText('Practice')).toHaveCount(0);
@@ -165,7 +311,8 @@ async function completeStaticWorkflow(page, options = {}) {
     'What brought you to the emergency department today?',
     'When did this start and has it been getting worse?',
     'Are you having trouble breathing, chest pain, fainting, weakness, confusion, bleeding, or severe distress right now?',
-    'What medical problems, medicines, allergies, or similar prior episodes should I know about?',
+    'What medical problems, medicines, allergies, pregnancy status, or similar prior episodes should I know about?',
+    'What medicines or blood thinners do you take every day?',
     'How bad is your pain or discomfort right now?'
   ];
   for (const [index, text] of interviewQuestions.entries()) {
@@ -174,12 +321,13 @@ async function completeStaticWorkflow(page, options = {}) {
     await expect(page.getByText(`Question ${index + 1}`)).toBeVisible();
   }
   await expect(page.getByText('Question budget used')).toHaveCount(0);
-  await expect(page.getByText('Still needed')).toBeVisible();
+  await expect(page.getByText('Required domains:')).toBeVisible();
   await page.getByRole('button', { name: 'Continue to provisional ESI' }).click();
 
   await expect(page.getByRole('heading', { name: 'Initial ESI decision' })).toBeVisible();
+  await expectDecisionHintState(page, Boolean(options.enableCoach));
   await page.getByRole('button', { name: new RegExp(`ESI ${provisionalEsi}`) }).click();
-  await page.getByLabel('Provisional rationale').fill(`Initial ESI ${provisionalEsi} based on the available triage interview and expected ED resources.`);
+  await page.getByLabel('Provisional rationale').fill(provisionalRationale);
   await page.getByRole('button', { name: 'Record provisional ESI' }).click();
   await page.getByRole('button', { name: 'Continue to vital review' }).click();
 
@@ -187,23 +335,111 @@ async function completeStaticWorkflow(page, options = {}) {
   await page.getByRole('button', { name: 'Continue to final ESI' }).click();
 
   await expect(page.getByRole('heading', { name: 'Final ESI decision' })).toBeVisible();
+  await expectDecisionHintState(page, Boolean(options.enableCoach));
   await page.getByRole('button', { name: new RegExp(`ESI ${finalEsi}`) }).click();
-  await page.getByLabel('Final ESI rationale').fill(`Final ESI ${finalEsi} based on vital signs, complaint risk, and expected ED resources.`);
+  await page.getByLabel('Final ESI rationale').fill(finalRationale);
   await page.getByRole('button', { name: 'Lock final ESI' }).click();
   await page.getByRole('button', { name: 'Continue to escalation' }).click();
 
   await expect(page.getByRole('heading', { name: 'Care priorities', level: 3 })).toBeVisible();
-  await page.getByLabel('Escalation rationale').fill('Routine waiting is acceptable while monitoring for worsening symptoms because no immediate instability is apparent.');
+  await expectDecisionHintState(page, Boolean(options.enableCoach));
+  await page.getByLabel('Escalation rationale').fill(escalationRationale);
   await page.getByRole('button', { name: 'Routine waiting with reassessment' }).click();
   await page.getByRole('button', { name: 'Continue to SBAR handoff' }).click();
 
   await expect(page.getByRole('heading', { name: 'SBAR handoff' })).toBeVisible();
+  await expectDecisionHintState(page, Boolean(options.enableCoach));
   await page.getByRole('button', { name: 'Insert SBAR labels' }).click();
   await page.getByLabel('Handoff').fill(sbarHandoff);
   await page.getByRole('button', { name: 'Record SBAR' }).click();
   await page.getByRole('button', { name: 'Continue to debrief' }).click();
   await expect(page.getByText('Step 7 of 7')).toBeVisible();
 }
+
+test('requires interview coverage before normal progression and supports acknowledged gaps', async ({ page }) => {
+  let openRouterCalls = 0;
+  await page.route('https://openrouter.ai/**', (route) => {
+    openRouterCalls += 1;
+    route.abort();
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+
+  await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByText('Question 1')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue to provisional ESI' })).toBeDisabled();
+
+  await page.getByLabel('Question to patient').fill('How bad is your pain or distress right now?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByText('Question 2')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue to provisional ESI' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Continue with gaps' })).toBeVisible();
+  await expect(page.getByText('Required domains remain open')).toBeVisible();
+  await page.getByRole('button', { name: 'Continue with gaps' }).click();
+  await expect(page.getByRole('heading', { name: 'Initial ESI decision' })).toBeVisible();
+  await expectDecisionHintState(page, false);
+  expect(openRouterCalls).toBe(0);
+});
+
+test('coach toggle is off by default, shows local hints when enabled, and persists', async ({ page, context }) => {
+  let openRouterCalls = 0;
+  await context.route('https://openrouter.ai/**', (route) => {
+    openRouterCalls += 1;
+    route.abort();
+  });
+
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  const coachSwitch = page.getByRole('switch', { name: 'Coach' });
+  await expect(coachSwitch).toBeVisible();
+  await expect(coachSwitch).not.toBeChecked();
+
+  await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByText('Question 1')).toBeVisible();
+  await page.getByLabel('Question to patient').fill('How bad is your pain or distress right now?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByText('Question 2')).toBeVisible();
+  await page.getByRole('button', { name: 'Continue with gaps' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Initial ESI decision' })).toBeVisible();
+  await expectDecisionHintState(page, false);
+
+  await coachSwitch.check();
+  await expect(coachSwitch).toBeChecked();
+  await expect(page.getByLabel('Decision hint')).toContainText('Missing');
+  await expect(page.locator('.decision-coach')).toHaveCount(0);
+
+  await coachSwitch.uncheck();
+  await expect(coachSwitch).not.toBeChecked();
+  await expectDecisionHintState(page, false);
+
+  await coachSwitch.check();
+  await expect(coachSwitch).toBeChecked();
+  await expect
+    .poll(() => page.evaluate(() => window.localStorage.getItem('ed_triage_coach_enabled')))
+    .toBe('true');
+
+  const persistedPage = await context.newPage();
+  await persistedPage.goto('/');
+  await expect(persistedPage.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await expect(persistedPage.getByRole('switch', { name: 'Coach' })).toBeChecked();
+  await persistedPage.close();
+  expect(openRouterCalls).toBe(0);
+});
+
+test('credits multi-intent interview questions and renders turn-level coaching', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+
+  await page.getByLabel('Question to patient').fill('When did this start, how bad is it, and are you having chest pain, trouble breathing, weakness, confusion, bleeding, fever, or vomiting?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByText('Question 1')).toBeVisible();
+  await expect(page.locator('.turn-coaching')).toBeVisible();
+  await expect(page.locator('.turn-coaching').first()).toContainText(/Onset and timeline|Severity and current distress|Red flags/);
+});
 
 test('completes the static triage workflow and shows local reasoning feedback', async ({ page }) => {
   let openRouterCalls = 0;
@@ -241,6 +477,16 @@ test('completes the static triage workflow and shows local reasoning feedback', 
   await expect(page.getByText('Final ESI accuracy 0 / 30')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Clinical findings and actions' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Next case checklist' })).toBeVisible();
+  const evidenceLaneSummary = page.locator('summary').filter({ hasText: 'Evidence lanes' });
+  await expect(evidenceLaneSummary).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'What was knowable when' })).toBeHidden();
+  await evidenceLaneSummary.click();
+  await expect(page.getByRole('heading', { name: 'What was knowable when' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Available at triage' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Expected resources' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Retrospective outcomes' })).toBeVisible();
+  await expect(page.locator('.learner-profile-panel')).toBeVisible();
+  await expect(page.getByText('Next case focus', { exact: true })).toBeVisible();
   await scoreAuditSummary.click();
   await expect(page.getByRole('heading', { name: 'Score domains' })).toBeVisible();
   await expect(page.getByText('Objective safety reasoning')).toBeVisible();
@@ -256,10 +502,10 @@ test('completes the static triage workflow and shows local reasoning feedback', 
   await expect(referenceSbar).toContainText('Recorded triage vital signs');
   await expect(referenceSbar).not.toContainText("I don't");
   await expect(referenceSbar).not.toContainText('lab events');
-  const reasoningSummary = page.locator('summary').filter({ hasText: 'Reasoning review' });
+  const reasoningSummary = page.locator('summary').filter({ hasText: 'Written rationale review' });
   await expect(reasoningSummary).toHaveCount(1);
   await reasoningSummary.click();
-  await expect(page.getByText('Clinical critique')).toBeVisible();
+  await expect(page.getByText('Written rationale critique')).toBeVisible();
   expect(openRouterCalls).toBe(0);
 });
 
@@ -269,7 +515,7 @@ test('penalizes meaningless SBAR labels instead of awarding full credit', async 
   });
 
   await expect(page.getByRole('heading', { name: 'Physician case review' })).toBeVisible();
-  const reasoningSummary = page.locator('summary').filter({ hasText: 'Reasoning review' });
+  const reasoningSummary = page.locator('summary').filter({ hasText: 'Written rationale review' });
   await reasoningSummary.click();
   const sbarReview = page.locator('.feedback-section').filter({ hasText: 'Your SBAR handoff' });
   await expect(sbarReview).toContainText('0 / 20');
@@ -294,6 +540,138 @@ test('shows case-specific decision deltas for under-triage', async ({ page }) =>
   await expect(firstDelta).toContainText('Learner gap');
   await expect(firstDelta).toContainText('Expected action');
   await expect(firstDelta).toContainText('Practice rule');
+});
+
+test('explains ESI 4 versus ESI 5 for a source-limited finger laceration without false escalation', async ({ page }) => {
+  const lacerationCase = caseBy((item) => item.id === 'case_018', 'source-limited finger laceration');
+
+  await completeStaticWorkflow(page, {
+    randomValue: randomValueForCase(lacerationCase),
+    provisionalEsi: 4,
+    finalEsi: 5,
+    sbarHandoff: 'S: Stable 26-year-old male with a finger laceration. B: Walk-in patient with pain 3 out of 10 and no major history documented. A: Low acuity ESI 5 with stable vitals. R: Address bleeding and discharge.'
+  });
+
+  await expect(page.getByText('Reference ESI rationale')).toBeVisible();
+  const feedback = page.locator('.feedback-card');
+  await expect(feedback).toContainText('ESI 5 is lower acuity');
+  await expect(feedback).toContainText('ESI 5 is for cases expected to need no counted ED resources');
+  await expect(feedback).toContainText('Reference ESI 4 is defensible');
+  await expect(feedback).toContainText('IM medication recorded');
+  await expect(feedback).toContainText('Source limitation');
+  await expect(feedback).toContainText('wound depth');
+  await expect(feedback).not.toContainText('Escalate airway or oxygenation support');
+  await expect(feedback).not.toContainText('Anticipate medication route needs');
+
+  const soapNote = page.locator('.soap-note-panel');
+  await expect(soapNote).toContainText('Finger laceration requiring wound assessment');
+  await expect(soapNote).toContainText('tendon function, sensation, capillary refill');
+  await expect(soapNote).toContainText('tetanus status');
+  await expect(soapNote).not.toContainText('Assess airway, breathing, oxygenation');
+
+  const scoreAuditSummary = page.locator('summary').filter({ hasText: 'Score audit' });
+  await scoreAuditSummary.click();
+  const escalationLedger = page.locator('.action-ledger-item').filter({ hasText: 'Escalation and placement' });
+  await expect(escalationLedger).toContainText('No required escalation action from available fields');
+  await expect(escalationLedger).toContainText('20 / 20');
+});
+
+test('does not turn normal or negated breathing text into airway escalation', async ({ page }) => {
+  const lacerationCase = caseBy((item) => item.id === 'case_018', 'finger laceration with normal breaths per minute text');
+  await completeStaticWorkflow(page, {
+    randomValue: randomValueForCase(lacerationCase),
+    provisionalEsi: 4,
+    finalEsi: 4,
+    sbarHandoff: 'S: Stable 26-year-old male with a finger laceration. B: Walk-in patient with pain 3 out of 10. A: ESI 4 with stable vital signs and one wound-care resource expected. R: Complete wound exam, bleeding control, tetanus check, repair or dressing, and discharge precautions.'
+  });
+  await expect(page.locator('.feedback-card')).not.toContainText('Escalate airway or oxygenation support');
+
+  const swallowingCase = caseBy(
+    (item) => item.id === 'case_004' && /no stridor or breathing difficulties/i.test(item.history),
+    'negated breathing symptoms'
+  );
+  await page.reload();
+  await completeStaticWorkflow(page, {
+    randomValue: randomValueForCase(swallowingCase),
+    provisionalEsi: 2,
+    finalEsi: 2,
+    sbarHandoff: 'S: ESI 2 patient with postoperative neck swelling and difficulty swallowing. B: Arrived by ambulance after recent neck surgery and cannot swallow liquids. A: High-risk airway-adjacent complaint with severe blood pressure elevation but no breathing difficulty reported. R: Prompt clinician evaluation and monitored treatment area.'
+  });
+  await expect(page.locator('.feedback-card')).not.toContainText('Escalate airway or oxygenation support');
+});
+
+test('credits a concise low-acuity laceration SBAR against wound-care expectations', async ({ page }) => {
+  const lacerationCase = caseBy((item) => item.id === 'case_018', 'source-limited finger laceration');
+  await completeStaticWorkflow(page, {
+    randomValue: randomValueForCase(lacerationCase),
+    provisionalEsi: 4,
+    finalEsi: 4,
+    sbarHandoff: 'S: Stable 26-year-old male with a finger laceration. B: Walk-in patient with pain 3 out of 10 and no major history documented. A: Low acuity ESI 4 with stable vitals and a likely wound-care resource. R: Address bleeding, complete wound exam, check tetanus, repair or dress the wound, and discharge with return precautions.'
+  });
+
+  const scoreAuditSummary = page.locator('summary').filter({ hasText: 'Score audit' });
+  await scoreAuditSummary.click();
+  const sbarLedger = page.locator('.action-ledger-item').filter({ hasText: 'SBAR handoff' });
+  await expect(sbarLedger).toContainText(/8 \/ 10|9 \/ 10|10 \/ 10/);
+
+  const referenceSbarSummary = page.locator('summary').filter({ hasText: 'Reference SBAR' });
+  await referenceSbarSummary.click();
+  const referenceSbar = page.locator('.gold-standard-panel');
+  await expect(referenceSbar).toContainText('fast-track or minor-care workflow');
+  await expect(referenceSbar).toContainText('wound exam, bleeding control, tetanus assessment');
+  await expect(referenceSbar).not.toContainText('airway or oxygenation');
+});
+
+test('teaches matched ESI 5 medication-refill cases without failure-style feedback', async ({ page }) => {
+  const medRefillCase = caseBy((item) => item.id === 'case_027', 'matched medication refill ESI 5');
+  await completeStaticWorkflow(page, {
+    randomValue: randomValueForCase(medRefillCase),
+    provisionalEsi: 5,
+    finalEsi: 5,
+    finalRationale: 'No chief complaint and vitals stable',
+    escalationRationale: 'None needed. Patient totally stable.',
+    sbarHandoff: 'S: Patient needs medication refill. B: 41 YO F with PMH not documented and medication details not documented. A: Stable ESI 5 with normal vitals and no pain. R: Refill or bridge medication if safe and arrange pharmacy or primary care follow-up.'
+  });
+
+  await expect(page.getByRole('heading', { name: 'Physician case review' })).toBeVisible();
+  const feedback = page.locator('.feedback-card');
+  await expect(feedback).toContainText('Why ESI 5 fits');
+  await expect(feedback).not.toContainText('Why the acuity differs');
+
+  const referenceRationale = page.locator('.reference-esi-rationale');
+  await expect(referenceRationale).toContainText('stable vital signs, no documented danger signal, and no counted ED resources');
+  await expect(referenceRationale.getByText('ESI 5 generally means no predicted ED resources beyond history, examination, and simple bedside care.')).toHaveCount(1);
+  const referenceText = await referenceRationale.textContent();
+  expect(referenceText).not.toContain('..');
+  await expect(referenceRationale).not.toContainText('missing reviewed focused exam details');
+  await expect(referenceRationale).toContainText('medication name, dose, last dose');
+
+  const soapNote = page.locator('.soap-note-panel');
+  await expect(soapNote).toContainText('Medication access issue');
+  await expect(soapNote).toContainText('Verify the medication name, dose, last dose taken');
+  await expect(soapNote).toContainText('Screen for symptoms from missed therapy');
+  await expect(soapNote).not.toContainText('Reference disposition is home');
+
+  const decisionReview = page.locator('.decision-deltas-panel');
+  await expect(decisionReview).toContainText('Routine care is appropriate after medication refill request screening');
+  await expect(decisionReview).toContainText('Verify medication name, dose, last dose');
+
+  const checklist = page.locator('.next-case-checklist');
+  await expect(checklist).toContainText('Ask for the medication name, dose, last dose');
+  await expect(checklist).toContainText('Close the plan with refill safety, outpatient access, and return precautions');
+  await expect(checklist).not.toContainText('Reference disposition is home');
+
+  const writtenReviewSummary = page.locator('summary').filter({ hasText: 'Written rationale review' });
+  await writtenReviewSummary.click();
+  await expect(page.locator('.feedback-section').filter({ hasText: 'Your ESI rationale' })).toContainText('The rationale contradicts the documented complaint');
+  const escalationReview = page.locator('.reasoning-section').filter({ hasText: 'Escalation rationale' });
+  await expect(escalationReview).toContainText('Addresses action-evidence match');
+  await expect(escalationReview).toContainText('Addresses immediate safety needs');
+
+  const scoreAuditSummary = page.locator('summary').filter({ hasText: 'Score audit' });
+  await scoreAuditSummary.click();
+  const sbarLedger = page.locator('.action-ledger-item').filter({ hasText: 'SBAR handoff' });
+  await expect(sbarLedger).toContainText(/8 \/ 10|9 \/ 10|10 \/ 10/);
 });
 
 test('deduplicates severe pain in the clinical decision review', async ({ page }) => {
@@ -336,6 +714,7 @@ test('enables mocked patient voice playback controls without loading a model', a
 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await page.locator('summary').filter({ hasText: 'Voice options' }).click();
   await page.getByLabel('Patient voice').check();
   await expect(page.getByText('Patient voice ready')).toBeVisible();
 
@@ -387,6 +766,7 @@ test('supports a hands-free voice conversation loop', async ({ page }) => {
 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await page.locator('summary').filter({ hasText: 'Voice options' }).click();
   await page.getByRole('button', { name: 'Start conversation' }).click();
   await expect(page.getByRole('button', { name: 'End conversation' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Ask patient' })).toBeDisabled();
@@ -616,8 +996,8 @@ test('does not reuse a special-risk answer for a broad background question', asy
 
   const entries = page.locator('.interview-entry');
   await expect(entries).toHaveCount(2);
-  const firstAnswer = await entries.nth(0).locator('p').innerText();
-  const secondAnswer = await entries.nth(1).locator('p').innerText();
+  const firstAnswer = await entries.nth(0).locator('.patient-answer-row p').innerText();
+  const secondAnswer = await entries.nth(1).locator('.patient-answer-row p').innerText();
 
   expect(secondAnswer).not.toBe(firstAnswer);
   await expect(entries.nth(1)).not.toContainText('Cached response');

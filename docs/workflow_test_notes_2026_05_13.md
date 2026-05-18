@@ -9,7 +9,7 @@ Build target: static React/Vite application
 | Area | Result | Notes |
 |---|---:|---|
 | Production build | Pass | `npm run build` completed successfully. Vite emitted a large chunk warning from optional browser embedding support. |
-| Static bundle validation | Pass | `python scripts\validate_static_bundle.py` validated 31 static cases. |
+| Static bundle validation | Pass | `python scripts\validate_static_bundle.py` validates retained `clinical_case_v1` records with reviewed augmentation provenance. |
 | Production dependency audit | Pass | `npm audit --omit=dev --json` reported 0 vulnerabilities. |
 | Secret scan | Pass | No OpenRouter or OpenAI keys were found outside ignored local environment files. The only matches were detector patterns inside the pre-commit hook. |
 | Whitespace check | Pass | `git diff --check` found no whitespace errors in the checked frontend and hook files. |

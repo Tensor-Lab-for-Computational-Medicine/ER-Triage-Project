@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  acknowledgeInterviewGaps,
   askPatientQuestion,
   recordInterviewSupport
 } from '../services/api';
@@ -50,11 +51,18 @@ function voiceInputErrorMessage(errorCode = '') {
 
 function normalizeProgress(progress) {
   return {
+    questions_used: progress?.questions_used || 0,
+    minimum_questions: progress?.minimum_questions || MINIMUM_QUESTIONS,
     required_domains: progress?.required_domains || [],
     covered_domains: progress?.covered_domains || [],
     missed_domains: progress?.missed_domains || progress?.required_domains || [],
     optional_domains: progress?.optional_domains || [],
-    optional_covered_domains: progress?.optional_covered_domains || []
+    optional_covered_domains: progress?.optional_covered_domains || [],
+    complete: Boolean(progress?.complete),
+    can_continue: Boolean(progress?.can_continue),
+    continue_requires_acknowledgement: Boolean(progress?.continue_requires_acknowledgement),
+    next_best_questions: progress?.next_best_questions || [],
+    last_turn_feedback: progress?.last_turn_feedback || null
   };
 }
 
@@ -157,7 +165,9 @@ function FocusedInterview({
   }, [patientVoiceEnabled]);
 
   const supportsEnabled = interviewSupports.length > 0;
-  const canContinue = log.length >= MINIMUM_QUESTIONS;
+  const canContinue = Boolean(interviewProgress.can_continue);
+  const canContinueWithGaps = Boolean(interviewProgress.continue_requires_acknowledgement);
+  const progressComplete = Boolean(interviewProgress.complete);
   const coveredDomains = interviewProgress.covered_domains || [];
   const stillNeededDomains = interviewProgress.missed_domains || [];
   const optionalDomains = interviewProgress.optional_domains || [];
@@ -513,6 +523,29 @@ function FocusedInterview({
     }
   };
 
+  const continueWithGaps = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await acknowledgeInterviewGaps(sessionId);
+      setInterviewProgress(normalizeProgress(data.interview_progress || interviewProgress));
+      if (onClock) onClock(data.clock);
+      if (onCapture) {
+        onCapture({
+          interviewLog: logRef.current,
+          interviewMode: 'assessment',
+          interviewSupports: supportUses,
+          interviewGapsAcknowledged: true
+        });
+      }
+      onNext();
+    } catch (err) {
+      setError(err.message || 'Interview gaps could not be acknowledged.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="step-card">
       <div className="section-header">
@@ -527,44 +560,19 @@ function FocusedInterview({
         <p className="instruction">
           Ask aloud or type one focused question. The patient responds in the thread and can speak aloud.
         </p>
-        <div className="question-progress-panel interview-progress-panel" aria-label="Interview coverage">
-          <div>
-            <span>Interview coverage</span>
-            <strong>{coveredDomains.length} / {Math.max((coveredDomains.length + stillNeededDomains.length), 1)} required</strong>
-          </div>
-          <div className="coverage-block">
-            <span>Covered</span>
-            <div className="coverage-chip-row">
-              {coveredDomains.length
-                ? coveredDomains.map((domain) => <em className="coverage-chip covered" key={domain}>{domain}</em>)
-                : <em className="coverage-chip muted">None yet</em>}
-            </div>
-          </div>
-          <div className="coverage-block">
-            <span>Still needed</span>
-            <div className="coverage-chip-row">
-              {stillNeededDomains.length
-                ? stillNeededDomains.map((domain) => <em className="coverage-chip needed" key={domain}>{domain}</em>)
-                : <em className="coverage-chip covered">Core domains covered</em>}
-            </div>
-          </div>
-          <div className="coverage-block optional">
-            <span>Optional</span>
-            <div className="coverage-chip-row">
-              {[...optionalCoveredDomains, ...optionalDomains].slice(0, 4).map((domain) => (
-                <em
-                  className={`coverage-chip ${optionalCoveredDomains.includes(domain) ? 'covered' : 'optional'}`}
-                  key={domain}
-                >
-                  {domain}
-                </em>
-              ))}
-            </div>
+        <div className="interview-progress-compact" aria-label="Required interview domains">
+          <strong>Required domains: {coveredDomains.length}/{Math.max((coveredDomains.length + stillNeededDomains.length), 1)}</strong>
+          <div className="coverage-chip-row">
+            {stillNeededDomains.length
+              ? stillNeededDomains.map((domain) => <em className="coverage-chip needed" key={domain}>{domain}</em>)
+              : <em className="coverage-chip covered">Complete</em>}
           </div>
           <small>
-            {canContinue
-              ? 'Minimum interview complete'
-              : `${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} needed to continue`}
+            {progressComplete
+              ? 'Required interview domains complete'
+              : canContinueWithGaps
+                ? 'Required domains remain open; continuation requires acknowledgement'
+                : `${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} before gap acknowledgement is available`}
           </small>
         </div>
       </div>
@@ -622,37 +630,39 @@ function FocusedInterview({
         </div>
       )}
 
-      <div className={`voice-encounter-panel ${conversationActive ? 'active' : ''}`}>
-        <div>
-          <span className="eyebrow">Patient encounter</span>
-          <strong>{conversationActive ? 'Live conversation' : 'Voice conversation'}</strong>
-          <small>
-            {conversationActive
-              ? conversationStatus || voiceStatus || patientVoiceStatus || 'Listening'
-              : 'Speak the question, hear the patient answer, then continue.'}
-          </small>
+      <details className="voice-options">
+        <summary>Voice options</summary>
+        <div className={`voice-encounter-panel ${conversationActive ? 'active' : ''}`}>
+          <div>
+            <strong>{conversationActive ? 'Live conversation' : 'Voice conversation'}</strong>
+            <small>
+              {conversationActive
+                ? conversationStatus || voiceStatus || patientVoiceStatus || 'Listening'
+                : 'Speak the question, hear the patient answer, then continue.'}
+            </small>
+          </div>
+          <button
+            type="button"
+            className={conversationActive ? 'btn-secondary' : 'btn-primary'}
+            onClick={startConversation}
+          >
+            {conversationActive ? 'End conversation' : 'Start conversation'}
+          </button>
         </div>
-        <button
-          type="button"
-          className={conversationActive ? 'btn-secondary' : 'btn-primary'}
-          onClick={startConversation}
-        >
-          {conversationActive ? 'End conversation' : 'Start conversation'}
-        </button>
-      </div>
 
-      <div className="patient-voice-control">
-        <label>
-          <input
-            type="checkbox"
-            checked={patientVoiceEnabled}
-            disabled={conversationActive}
-            onChange={(event) => setPatientVoice(event.target.checked)}
-          />
-          <span>Patient voice</span>
-        </label>
-        <small>{patientVoiceStatus || 'Reads patient answers aloud when enabled.'}</small>
-      </div>
+        <div className="patient-voice-control">
+          <label>
+            <input
+              type="checkbox"
+              checked={patientVoiceEnabled}
+              disabled={conversationActive}
+              onChange={(event) => setPatientVoice(event.target.checked)}
+            />
+            <span>Patient voice</span>
+          </label>
+          <small>{patientVoiceStatus || 'Reads patient answers aloud when enabled.'}</small>
+        </div>
+      </details>
 
       <div className="question-input">
         <label htmlFor="focused-question">Question to patient</label>
@@ -699,6 +709,11 @@ function FocusedInterview({
         <button className="btn-secondary" onClick={onNext} disabled={!canContinue || loading}>
           Continue to provisional ESI
         </button>
+        {canContinueWithGaps && (
+          <button className="btn-secondary" onClick={continueWithGaps} disabled={loading}>
+            Continue with gaps
+          </button>
+        )}
       </div>
 
       {log.length > 0 && (
@@ -723,6 +738,11 @@ function FocusedInterview({
                   </button>
                 </div>
               </div>
+              {(item.teaching_note || item.covered_domains?.length > 0) && (
+                <div className="turn-coaching">
+                  <p>{item.teaching_note || `Covered ${item.covered_domains.join(', ')}.`}</p>
+                </div>
+              )}
               <span className="question-index">Question {index + 1}</span>
             </div>
           ))}
