@@ -26,7 +26,7 @@ function DecisionHint({ sessionId, stage, learnerContext = '' }) {
     };
   }, [sessionId, stage]);
 
-  if (!hint && !error) return null;
+  if (!hint) return null;
 
   return (
     <aside className="decision-hint" aria-label="Decision hint">

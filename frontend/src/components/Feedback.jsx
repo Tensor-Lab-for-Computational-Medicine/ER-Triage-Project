@@ -563,10 +563,19 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
             <div className="soap-column subjective-objective">
               <div className="soap-box">
                 <h4>Subjective & Objective Baseline</h4>
-                <p><strong>Chief Concern:</strong> {soapNote.subjective?.chief_concern}</p>
-                <p><strong>History & Context:</strong> {soapNote.subjective?.history}</p>
-                <div className="objective-list">
-                  <strong>Objective Vitals & Findings:</strong>
+                <p style={{ marginBottom: '8px' }}><strong>Chief Concern:</strong> {soapNote.subjective?.chief_concern}</p>
+                {soapNote.subjective?.hpi ? (
+                  <>
+                    <p style={{ marginBottom: '8px' }}><strong>History of Present Illness:</strong> {soapNote.subjective.hpi}</p>
+                    <p style={{ marginBottom: '8px' }}><strong>Past Medical History:</strong> {soapNote.subjective.pmh || 'None documented'}</p>
+                    <p style={{ marginBottom: '8px' }}><strong>Home Medications:</strong> {soapNote.subjective.meds || 'None documented'}</p>
+                    <p style={{ marginBottom: '8px' }}><strong>Allergies:</strong> {soapNote.subjective.allergies || 'None documented'}</p>
+                  </>
+                ) : (
+                  <p style={{ marginBottom: '8px' }}><strong>History & Context:</strong> {soapNote.subjective?.history}</p>
+                )}
+                <div className="objective-list" style={{ marginTop: '16px' }}>
+                  <strong>Objective Vitals & Physical Exam:</strong>
                   <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
                     {(soapNote.objective || []).map((obj, i) => (
                       <li key={i} style={{ marginBottom: '4px', fontSize: '0.95rem' }}>{obj}</li>
@@ -654,13 +663,6 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
         )}
       </div>
 
-      {/* Section 4: Next Case Focus & Action Items */}
-      <div className="next-case-focus-section" style={{ marginBottom: '32px' }}>
-        <h3>Action Checklist for Practice</h3>
-        <p className="instruction">Grounded clinical rules and focus areas for subsequent emergency triage encounters:</p>
-        <NextCaseChecklist items={next_case_checklist || physician_case_review?.next_case_checklist} />
-        <LearnerProfilePanel delta={learner_profile_delta} recommendation={next_case_recommendation} />
-      </div>
 
       {/* Section 5: Expandable Domain Ledger & AI Clinical Tutor */}
       <div className="debrief-accordion-stack simplified">
