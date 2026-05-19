@@ -4033,94 +4033,185 @@ function soapDifferential(caseData) {
 
 function soapJustification(caseData) {
   const primary = soapPrimaryDiagnosis(caseData);
+  const text = soapClinicalText(caseData);
   const flags = vitalFlags(caseData);
-  const historyDetail = clinicalHistoryDetails(caseData);
-  const symptomText = presentingProblemText(caseData);
-  const physicalExamFacts = reviewedPhysicalExamFacts(caseData);
-  const reviewedSummary = physicalExamFacts.length
-    ? `Reviewed inferred exam focus: ${joinClinicalList(physicalExamFacts.slice(0, 2).map((fact) => fact.statement))}.`
-    : augmentationSourceSummary(caseData);
-  const flagSentence = flags.length
-    ? `Abnormal triage signals include ${joinClinicalList(flags.slice(0, 3).map((item) => `${item.name.toLowerCase()} ${item.value}`))}.`
-    : 'Initial vital signs do not show danger-zone physiology.';
-  const resourceSentence = resourceSignalText(caseData);
-  const acuitySentence = `Reference acuity is ESI ${caseData.acuity}, supporting ${caseData.acuity <= 2 ? 'early clinician evaluation and close monitoring' : caseData.acuity === 3 ? 'ED evaluation with expected resource use' : 'focused evaluation with limited expected resources'}.`;
-  const limitations = sourceDataLimitations(caseData);
+  const age = Math.round(Number(caseData.demographics?.age || 0));
+  const sex = sexLabel(caseData.demographics?.sex);
+  const pain = Number(caseData.vitals?.pain ?? 0);
+  const hr = Number(caseData.vitals?.hr ?? 0);
+  const sbp = Number(caseData.vitals?.sbp ?? 0);
+  const temp = Number(caseData.vitals?.temp ?? 0);
+  const acuity = caseData.acuity;
   const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
+  const patientView = buildPatientView(caseData) || {};
 
   if (lowAcuityProfile) {
     return [
-      `The documented presentation is most consistent with ${primary.toLowerCase()}.`,
-      flagSentence,
-      `Pain is documented as ${formatVitalNumber(caseData.vitals?.pain ?? 0)}/10.`,
-      resourceSentence,
-      `Reference acuity is ESI ${caseData.acuity} because no high-risk signal or counted ED resource is documented.`,
-      lowAcuityProfile.verification_focus,
-      limitations.length ? limitations[0] : ''
+      `This ${age}-year-old ${sex} presents without danger-zone vital signs, consistent with ${primary.toLowerCase()}.`,
+      pain > 0 ? `Pain is rated ${pain}/10.` : 'No pain is documented.',
+      `ESI ${acuity} reflects no anticipated ED resources for this visit.`,
+      lowAcuityProfile.verification_focus
     ].filter(Boolean).join(' ');
   }
 
-  return [
-    `The documented presentation of ${symptomText} is most consistent with ${primary.toLowerCase()}.`,
-    historyDetail,
-    reviewedSummary,
-    flagSentence,
-    resourceSentence,
-    acuitySentence,
-    limitations.length ? limitations[0] : ''
-  ].filter(Boolean).join(' ');
+  // Build evidence sentences specific to the case
+  const evidence = [];
+
+  // Demographics and presentation
+  evidence.push(`This is a ${age}-year-old ${sex} presenting with ${presentingProblemText(caseData)}.`);
+
+  // PMH as risk modifier
+  const pmh = [...(patientView.medical_history || []), ...(patientView.cardiac_history || [])];
+  if (pmh.length) {
+    evidence.push(`Relevant past medical history includes ${joinClinicalList(pmh.slice(0, 3))}, which modifies risk and diagnostic probability.`);
+  }
+
+  // Key positive symptoms supporting the primary dx
+  const positives = (patientView.present_symptoms || []).slice(0, 4);
+  if (positives.length) {
+    evidence.push(`Supporting the working diagnosis, the patient reports ${joinClinicalList(positives)}.`);
+  }
+
+  // Key negatives that help narrow the differential
+  const negatives = (patientView.relevant_negatives || []).slice(0, 3);
+  if (negatives.length) {
+    evidence.push(`Against competing diagnoses, the patient denies ${joinClinicalList(negatives)}.`);
+  }
+
+  // Vital sign interpretation
+  if (flags.length) {
+    const flagDescriptions = flags.slice(0, 3).map((f) => `${f.name.toLowerCase()} of ${f.value} (${f.reason})`);
+    evidence.push(`Triage vital signs reveal ${joinClinicalList(flagDescriptions)}, indicating physiologic instability that elevates concern.`);
+  } else if (temp >= 100.4) {
+    evidence.push(`Fever of ${temp}°F at triage raises concern for an infectious or inflammatory process.`);
+  } else if (hr >= 100) {
+    evidence.push(`Tachycardia (HR ${hr}) at triage may reflect pain, volume depletion, or systemic response.`);
+  } else {
+    evidence.push(`Vital signs at triage are within acceptable limits, though they do not exclude serious pathology.`);
+  }
+
+  // Pain context
+  if (pain >= 7) {
+    evidence.push(`Severe pain rated ${pain}/10 is consistent with the acuity of this presentation and warrants urgent assessment and analgesia.`);
+  } else if (pain >= 4) {
+    evidence.push(`Moderate pain rated ${pain}/10 supports the need for evaluation and symptom management.`);
+  }
+
+  // Acuity conclusion
+  const acuityRationale = acuity <= 2
+    ? `ESI ${acuity} reflects a high-risk presentation requiring immediate clinician evaluation and close monitoring.`
+    : acuity === 3
+    ? `ESI ${acuity} reflects a presentation that will require multiple ED resources and prompt evaluation.`
+    : `ESI ${acuity} reflects a lower-acuity presentation expected to require limited resources.`;
+  evidence.push(acuityRationale);
+
+  return evidence.filter(Boolean).join(' ');
 }
 
 function soapPlan(caseData, workflow) {
   const expectedIds = new Set((workflow?.escalation?.expected || []).map((item) => item.id));
   const text = soapClinicalText(caseData);
-  const plan = [];
+  const acuity = caseData.acuity;
+  const pain = Number(caseData.vitals?.pain ?? 0);
+  const hr = Number(caseData.vitals?.hr ?? 0);
+  const sbp = Number(caseData.vitals?.sbp ?? 0);
+  const temp = Number(caseData.vitals?.temp ?? 0);
+  const spO2 = Number(caseData.vitals?.o2 ?? 100);
+  const rr = Number(caseData.vitals?.rr ?? 16);
   const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
+  const patientView = buildPatientView(caseData) || {};
 
+  // Low-acuity cases get a simple flat list
   if (lowAcuityProfile) {
-    return uniqueSentences(lowAcuityProfile.plan_items).slice(0, 7);
+    return uniqueSentences(lowAcuityProfile.plan_items).slice(0, 6).map((item) => ({
+      problem: 'Primary visit concern',
+      plan: item
+    }));
   }
 
+  const problems = [];
+
+  // Problem 1: Primary presenting problem
+  let primaryPlan = 'Continue focused ED evaluation with reassessment for worsening symptoms or vital-sign change.';
   if (expectedIds.has('resuscitation_bay')) {
-    plan.push('Move to a resuscitation bay and notify the clinician for immediate bedside evaluation.');
-  } else if (expectedIds.has('monitored_bed') || caseData.acuity <= 2) {
-    plan.push('Place in a monitored ED treatment area with prompt clinician evaluation.');
+    primaryPlan = 'Activate resuscitation bay; notify attending for immediate bedside evaluation. Initiate ACLS monitoring and prepare for emergent intervention.';
+  } else if (expectedIds.has('monitored_bed') || acuity <= 2) {
+    primaryPlan = 'Place in a monitored ED treatment area. Assign prompt clinician evaluation and initiate continuous cardiac and pulse oximetry monitoring.';
+  }
+
+  if (/\b(chest pain|chest pressure|dyspnea|shortness of breath)\b/.test(text)) {
+    problems.push({ problem: 'Undifferentiated chest pain / dyspnea', plan: `${primaryPlan} Obtain 12-lead ECG within 10 minutes of arrival, serial troponins, CXR, and BNP. Rule out ACS, PE, and decompensated heart failure before disposition.` });
+  } else if (/\b(slurred speech|facial droop|left-sided weakness|right-sided weakness|stroke|cva|gaze deviation|flaccid)\b/.test(text)) {
+    problems.push({ problem: 'Acute focal neurologic deficit — stroke/TIA until proven otherwise', plan: `${primaryPlan} Activate stroke protocol. Obtain non-contrast CT head immediately. Document NIHSS. Neurology consult. Assess for tPA eligibility if within window.` });
+  } else if (/\b(seizure|post-ictal|altered mental status|altered level of consciousness|encephalopathy)\b/.test(text)) {
+    problems.push({ problem: 'Altered mental status / seizure', plan: `${primaryPlan} Immediate point-of-care glucose. Obtain full metabolic panel, ammonia, blood cultures, and brain imaging. Serial neurologic checks. Protect airway.` });
+  } else if (/\b(rectal abscess|perianal abscess|anal pain|crohn|fistulizing|perianal)\b/.test(text)) {
+    problems.push({ problem: 'Perianal or anorectal pain — abscess vs. fistula', plan: `${primaryPlan} Focused perianal and digital rectal exam under adequate analgesia. Order pelvic CT or MRI perianal protocol. Surgical or colorectal surgery consult for drainage decision.` });
+  } else if (/\b(abdominal|pelvic pain|nausea|vomiting|abd pain|stomach)\b/.test(text)) {
+    problems.push({ problem: 'Acute abdominal or pelvic pain', plan: `${primaryPlan} Serial abdominal exams. Obtain CBC, CMP, lipase, urinalysis, and urine HCG (if applicable). Pelvic ultrasound or CT abdomen/pelvis based on clinical suspicion. NPO pending surgical evaluation.` });
+  } else if (/\b(sepsis|gangrene|osteomyelitis|hypotension and tachycardia)\b/.test(text)) {
+    problems.push({ problem: 'Sepsis / systemic infection', plan: `${primaryPlan} Initiate sepsis bundle: blood cultures × 2, serum lactate, broad-spectrum antibiotics within 1 hour, and 30 mL/kg IV crystalloid bolus for hypotension or lactate ≥4 mmol/L.` });
+  } else if (isLacerationCase(caseData)) {
+    problems.push({ problem: 'Soft tissue wound', plan: 'Focused wound exam: depth, contamination, active bleeding, tendon and neurovascular function. Irrigate, debride, and repair per wound type. Assess tetanus immunization status.' });
+  } else if (/\b(wrist|foot|ankle|leg|fracture|fall|injury)\b/.test(text)) {
+    problems.push({ problem: 'Extremity injury', plan: 'Focused musculoskeletal exam with neurovascular assessment distally. Obtain plain radiographs. Immobilize, apply splint if indicated. Orthopedic consult for displaced or open fractures.' });
   } else {
-    plan.push('Continue focused ED evaluation with reassessment for worsening symptoms or vital-sign change.');
+    problems.push({ problem: 'Primary presenting complaint', plan: primaryPlan });
   }
 
-  if (expectedIds.has('airway_oxygenation_support')) plan.push('Assess airway, breathing, oxygenation, and need for respiratory support.');
-  if (expectedIds.has('vascular_access')) plan.push('Prioritize IV access, bloodwork, and fluid or medication access as clinically indicated.');
-  if (expectedIds.has('medication_route_priority')) plan.push('Anticipate medication needs and choose a route appropriate to acuity, nausea, pain, or respiratory symptoms.');
-  if (expectedIds.has('bleeding_transfusion_readiness')) plan.push('Evaluate for bleeding or shock and prepare transfusion support if clinically indicated.');
-  if (expectedIds.has('critical_procedure_team')) plan.push('Prepare the procedural or specialty team needed for immediate stabilization.');
-  if (expectedIds.has('behavioral_safety')) plan.push('Use behavioral safety precautions and reassess mental status and self-harm or agitation risk.');
-  if (expectedIds.has('pain_reassessment') || Number(caseData.vitals?.pain) >= 7) plan.push('Treat pain using ED protocol and reassess response after intervention.');
-  reviewedInferredFacts(caseData, 'soap')
-    .filter((fact) => fact.expected_action)
-    .slice(0, 2)
-    .forEach((fact) => plan.push(fact.expected_action));
-
-  if (isLacerationCase(caseData)) {
-    plan.push('Perform a focused wound exam: depth, contamination, active bleeding, foreign body risk, tendon function, sensation, capillary refill, and range of motion.');
-    plan.push('Control bleeding, irrigate the wound, provide local analgesia as needed, and decide whether closure, dressing, splinting, or imaging is indicated.');
-    plan.push('Assess tetanus status and provide prophylaxis when indicated.');
-    plan.push('Give discharge instructions for wound care, infection signs, neurovascular changes, and follow-up for suture removal or hand evaluation when needed.');
-  } else if (/\bchest pain|chest pressure|dyspnea|shortness of breath\b/.test(text)) {
-    plan.push('Obtain cardiopulmonary evaluation such as ECG, cardiac markers, chest imaging, and respiratory treatment based on clinician assessment.');
-  } else if (/\b(slurred speech|facial droop|left-sided weakness|flaccid|gaze deviation|stroke|cva|altered mental status|altered level of consciousness|subdural|sdh|seizure)\b/.test(text)) {
-    plan.push('Begin neurologic evaluation, serial neuro checks, glucose or metabolic screening, and brain imaging or stroke pathway activation when indicated.');
-  } else if (/\b(abdominal|abd pain|stomach|pelvic|vomiting|nausea|rectal abscess|perianal abscess|anal pain|crohn|fistulizing)\b/.test(text)) {
-    plan.push('Perform abdominal, pelvic, or perianal assessment with labs, imaging, antiemetic therapy, fluids, analgesia, and surgical or GI consultation as indicated.');
-  } else if (/\bfever|pneumonia|sepsis|gangrene|osteomyelitis\b/.test(text)) {
-    plan.push('Evaluate for infection source, obtain cultures or lactate when indicated, and start antibiotics or sepsis resuscitation per ED protocol.');
-  } else if (/\b(wrist|foot|leg|ankle|fracture|injury|fall)\b/.test(text)) {
-    plan.push('Assess wound or extremity status, neurovascular function, tetanus needs, imaging need, and repair or orthopedic follow-up.');
-  } else if (/\bmed refill|medication refill\b/.test(text)) {
-    plan.push('Confirm medication name, dose, adherence barriers, contraindications, and outpatient follow-up needs.');
+  // Problem 2: Pain management
+  if (pain >= 6) {
+    problems.push({
+      problem: `Pain management (${pain}/10)`,
+      plan: pain >= 8
+        ? 'Initiate multimodal analgesia: IV opioid or IV ketorolac titrated to effect, plus non-pharmacologic measures. Reassess pain score at 30 minutes and after each intervention. Document response.'
+        : 'Initiate analgesia per ED protocol (PO/IV NSAIDs, acetaminophen, or opioid based on severity and contraindications). Reassess pain within 60 minutes.'
+    });
   }
 
-  return uniqueSentences(plan).slice(0, 7);
+  // Problem 3: Hemodynamic / respiratory instability
+  if (sbp < 90 || hr >= 120 || spO2 < 94 || rr >= 24) {
+    const hemoParts = [];
+    if (sbp < 90) hemoParts.push(`hypotension (SBP ${sbp} mmHg) — initiate IV fluid resuscitation and reassess for vasopressor need`);
+    if (hr >= 120) hemoParts.push(`tachycardia (HR ${hr}) — identify and treat underlying cause (pain, volume, infection, arrhythmia)`);
+    if (spO2 < 94) hemoParts.push(`hypoxemia (SpO₂ ${spO2}%) — apply supplemental oxygen, escalate to CPAP/BiPAP or intubation if not responsive`);
+    if (rr >= 24) hemoParts.push(`tachypnea (RR ${rr}) — assess work of breathing and oxygenation`);
+    problems.push({ problem: 'Hemodynamic or respiratory instability', plan: `Address: ${joinClinicalList(hemoParts)}. Continuous monitoring with reassessment every 15 minutes.` });
+  }
+
+  // Problem 4: Infection / fever risk
+  if (temp >= 100.4 || /\b(fever|chills|rigors|sepsis|infection|abscess|cellulitis|pneumonia)\b/.test(text)) {
+    const onAbx = (patientView.medications || []).some((m) => /antibiotic|cipro|amoxicillin|ceftriaxone|vancomycin|metronidazole|bactrim/i.test(m));
+    problems.push({
+      problem: `Fever / infectious process${temp >= 100.4 ? ` (T ${temp}°F)` : ''}`,
+      plan: onAbx
+        ? 'Patient reports current antibiotic use — assess compliance and adequacy of coverage. Obtain cultures before dose change. Evaluate for treatment failure or resistant organism.'
+        : 'Obtain blood cultures and relevant source-directed cultures before initiating antibiotics. Select empiric antibiotic coverage based on presumed source, severity, and immunocompromise status.'
+    });
+  }
+
+  // Problem 5: Immunocompromise modifier
+  if (/\b(hiv|immunocompromised|transplant|on steroids|on chemotherapy|neutropenic|aids)\b/.test(text)) {
+    problems.push({
+      problem: 'Immunocompromise — elevated infectious risk',
+      plan: 'Lower threshold for cultures, imaging, and empiric antimicrobials. Atypical organisms are more likely. Infectious disease consult if fever source is unclear or patient is critically ill.'
+    });
+  }
+
+  // Problem 6: Airway
+  if (expectedIds.has('airway_oxygenation_support') || spO2 < 94 || rr >= 24) {
+    const already = problems.some((p) => /respiratory|airway/i.test(p.problem));
+    if (!already) {
+      problems.push({ problem: 'Airway and oxygenation', plan: 'Assess airway patency, work of breathing, and oxygenation. Apply supplemental oxygen. Prepare for escalation to non-invasive or invasive ventilation if saturations do not improve.' });
+    }
+  }
+
+  // Problem 7: Vascular access / labs
+  if (expectedIds.has('vascular_access') || acuity <= 3) {
+    problems.push({ problem: 'Vascular access and diagnostic workup', plan: 'Establish IV or IO access. Draw appropriate labs based on presentation. Order imaging per clinical decision-making. Volume resuscitate as indicated.' });
+  }
+
+  return problems.slice(0, 6);
 }
 
 function generateObjectiveExam(caseData) {
@@ -5023,6 +5114,7 @@ function conciseTutorContext(completed) {
   const summary = feedback.session_summary || {};
   const triage = feedback.triage_analysis || {};
   const workflow = feedback.workflow_analysis || {};
+  const debrief = feedback.physician_debrief || {};
   return {
     patient: {
       age: Math.round(Number(completed.case?.demographics?.age || 0)),
@@ -5033,15 +5125,23 @@ function conciseTutorContext(completed) {
       learner_esi: triage.user_level,
       comparison: triage.comparison
     },
-    physician_debrief: feedback.physician_debrief,
+    physician_debrief: {
+      case_summary: debrief.case_summary,
+      physician_read: debrief.physician_read,
+      gold_standard_sbar: debrief.gold_standard_sbar,
+      soap_assessment: debrief.soap_note?.assessment || null,
+      soap_plan_summary: (debrief.soap_note?.plan || []).slice(0, 3).map((p) =>
+        typeof p === 'string' ? p : `${p.problem}: ${p.plan}`
+      ),
+      next_steps: (debrief.next_steps || []).slice(0, 3)
+    },
     learner_decisions: {
-      provisional_esi: summary.provisional_triage_level,
       final_esi: summary.triage_level_assigned,
       escalation_actions: (summary.escalation_actions || []).map((item) => item.name),
       sbar_handoff: summary.sbar_handoff
     },
     interview: {
-      questions: (summary.interview_log || []).map((item) => ({
+      questions: (summary.interview_log || []).slice(0, 8).map((item) => ({
         question: item.question,
         category: item.category_label || item.category
       })),

@@ -608,11 +608,25 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
               </div>
 
               <div className="soap-box plan-box" style={{ background: '#f8fafc' }}>
-                <h4>Initial ED Care Plan</h4>
-                <ol className="plan-list" style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
-                  {(soapNote.plan || []).map((pItem, i) => (
-                    <li key={i} style={{ marginBottom: '4px', fontSize: '0.95rem' }}>{pItem}</li>
-                  ))}
+                <h4>Initial ED Care Plan — Problem List</h4>
+                <ol className="plan-list" style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
+                  {(soapNote.plan || []).map((pItem, i) => {
+                    const isObj = pItem && typeof pItem === 'object';
+                    return (
+                      <li key={i} style={{ marginBottom: '12px', padding: '10px 12px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                        {isObj ? (
+                          <>
+                            <strong style={{ display: 'block', fontSize: '0.88rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#0f172a', marginBottom: '4px' }}>
+                              {i + 1}. {pItem.problem}
+                            </strong>
+                            <span style={{ fontSize: '0.93rem', color: '#334155' }}>{pItem.plan}</span>
+                          </>
+                        ) : (
+                          <span style={{ fontSize: '0.93rem', color: '#334155' }}>{i + 1}. {pItem}</span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ol>
               </div>
             </div>
