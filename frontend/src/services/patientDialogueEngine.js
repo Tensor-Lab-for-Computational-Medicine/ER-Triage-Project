@@ -620,6 +620,7 @@ function buildPatientViewInternal(caseData) {
     case_id: caseData?.id || '',
     reliability,
     collateral_source: source,
+    _raw_text: sourceText(caseData),
     presenting_concern: presenting,
     symptom_summary: presenting,
     timeline,
@@ -924,7 +925,16 @@ function renderIntent(intent, plan, view) {
     case 'timeline':
       return view.timeline;
     case 'progression':
-      return view.progression;
+      if (view.progression) return view.progression;
+      const rawText = view._raw_text || '';
+      const rawLower = rawText.toLowerCase();
+      if (/\b(worsening|getting worse|progressive|progressively|worsened)\b/i.test(rawLower)) {
+        return "It has been getting worse.";
+      }
+      if (/\b(intermittent|comes and goes|coming and going)\b/i.test(rawLower)) {
+        return "It has been coming and going.";
+      }
+      return "It has been staying about the same.";
     case 'severity':
       return view.severity;
     case 'associated_symptoms':
