@@ -740,11 +740,6 @@ function FocusedInterview({
                   </button>
                 </div>
               </div>
-              {(item.teaching_note || item.covered_domains?.length > 0) && (
-                <div className="turn-coaching">
-                  <p>{item.teaching_note || `Covered ${item.covered_domains.join(', ')}.`}</p>
-                </div>
-              )}
               <span className="question-index">Question {index + 1}</span>
             </div>
           ))}
