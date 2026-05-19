@@ -550,8 +550,10 @@ function FocusedInterview({
     <section className="step-card">
       <div className="section-header">
         <div>
-          <span className="eyebrow">Focused assessment</span>
-          <h3>Focused triage interview</h3>
+          <span className="eyebrow">
+            Step 1 of 6 <span className="provenance-tag student-tag">Student Interaction</span>
+          </span>
+          <h2>Focused Triage Interview</h2>
         </div>
         <span className="clinical-badge">{log.length} questions asked</span>
       </div>

@@ -47,8 +47,10 @@ function SbarHandoff({ sessionId, coachEnabled = false, onNext, onCapture, onClo
     <section className="step-card">
       <div className="section-header">
         <div>
-          <span className="eyebrow">Communication</span>
-          <h3>SBAR handoff</h3>
+          <span className="eyebrow">
+            Step 5 of 6 <span className="provenance-tag student-tag">Student Decision</span>
+          </span>
+          <h2 id="sbar-heading">SBAR Handoff</h2>
         </div>
         <span className="clinical-badge">{submitted ? 'Recorded' : 'Required'}</span>
       </div>
@@ -65,23 +67,26 @@ function SbarHandoff({ sessionId, coachEnabled = false, onNext, onCapture, onClo
         />
       )}
 
-      <p className="sbar-inline-guide">
-        S: current problem. B: relevant history. A: acuity and risk. R: placement, monitoring, or clinician action.
-      </p>
-
-      <div className="question-input">
-        <label htmlFor="sbar-handoff">Handoff</label>
+      <div className="premium-textarea-container">
+        <label htmlFor="sbar-handoff" className="premium-textarea-label">
+          <span>Handoff Summary (SBAR Format)</span>
+          <span className="input-badge">Required</span>
+        </label>
+        <p className="premium-textarea-hint">
+          S: Current problem. B: Relevant history. A: Acuity/risk. R: Placement, monitoring, or next clinician action.
+        </p>
         <textarea
           id="sbar-handoff"
+          className="premium-textarea"
           value={handoff}
           onChange={(event) => setHandoff(event.target.value)}
           placeholder="S: ...&#10;B: ...&#10;A: ...&#10;R: ..."
           rows="7"
           disabled={submitted || loading}
         />
-        <small className={`field-hint ${handoffReady ? 'ready' : ''}`}>
-          {handoffLength} / 20 minimum characters
-        </small>
+        <div className="char-count" style={{ marginTop: '8px', textAlign: 'right', fontSize: '0.85rem', color: handoffReady ? '#16a34a' : '#ef4444' }}>
+          {handoffLength} / 20 minimum characters required
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}

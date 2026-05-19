@@ -640,7 +640,7 @@ test('teaches matched ESI 5 medication-refill cases without failure-style feedba
 
   const referenceRationale = page.locator('.reference-esi-rationale');
   await expect(referenceRationale).toContainText('stable vital signs, no documented danger signal, and no counted ED resources');
-  await expect(referenceRationale.getByText('ESI 5 generally means no predicted ED resources beyond history, examination, and simple bedside care.')).toHaveCount(1);
+  await expect(referenceRationale.getByText('ESI 5 is appropriate for stable routine presentations requiring zero counted ED resource categories (e.g., verbal prescription refill or wound check) beyond history and physical examination.')).toHaveCount(1);
   const referenceText = await referenceRationale.textContent();
   expect(referenceText).not.toContain('..');
   await expect(referenceRationale).not.toContainText('missing reviewed focused exam details');

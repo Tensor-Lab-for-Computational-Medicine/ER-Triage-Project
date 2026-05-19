@@ -17,6 +17,7 @@ import {
   saveTutorSettings,
   selectStaticEscalationActions,
   startStaticSimulation,
+  submitStaticReassessment,
   submitStaticSbar
 } from './staticEngine';
 import { getCoachPreference, saveCoachPreference } from './uiPreferenceService';
@@ -61,6 +62,9 @@ export const askInCaseCoach = async (sessionId, stage, learnerContext = '') =>
 
 export const selectEscalationActions = async (sessionId, actionIds, rationale = '') =>
   asyncReturn(() => selectStaticEscalationActions(sessionId, actionIds, rationale));
+
+export const submitReassessment = async (sessionId, selectedRisks, rationale = '') =>
+  asyncReturn(() => submitStaticReassessment(sessionId, selectedRisks, rationale));
 
 export const submitSbar = async (sessionId, handoff) =>
   asyncReturn(() => submitStaticSbar(sessionId, handoff));

@@ -2,63 +2,75 @@ import React, { useState, useEffect } from 'react';
 import { getEscalationActions, selectEscalationActions } from '../services/api';
 import DecisionHint from './DecisionHint';
 
-const GROUP_ORDER = [
-  'Escalation',
-  'Placement',
-  'Airway and breathing',
-  'Access and circulation',
-  'Medications',
-  'Critical procedures',
-  'Safety',
-  'Other actions'
+const CLUSTERS = [
+  { id: 'Stabilize', title: 'Stabilize', subtitle: 'Immediate life threats, airway, breathing, circulation, and safety protocols' },
+  { id: 'Assess', title: 'Assess', subtitle: 'Diagnostic workup, cardiac monitoring, and clinical placement' },
+  { id: 'Treat', title: 'Treat', subtitle: 'Protocol-driven medications, analgesia, and symptom relief' },
+  { id: 'Escalate', title: 'Escalate', subtitle: 'Direct clinician notification, specialized teams, and urgent escalation' },
+  { id: 'Prepare disposition', title: 'Prepare disposition', subtitle: 'Routine rooming, isolation protocols, and queue management' }
 ];
 
-function groupActions(actions) {
+function mapActionToCluster(action) {
+  const cat = action.category || '';
+  const name = String(action.name).toLowerCase();
+  if (cat === 'Airway and breathing' || cat === 'Access and circulation' || cat === 'Critical procedures' || cat === 'Safety') {
+    return 'Stabilize';
+  }
+  if (cat === 'Medications' || name.includes('analgesia') || name.includes('medication')) {
+    return 'Treat';
+  }
+  if (cat === 'Escalation' || name.includes('notify') || name.includes('team') || name.includes('consult')) {
+    return 'Escalate';
+  }
+  if (cat === 'Placement' || name.includes('monitoring') || name.includes('draw') || name.includes('test') || name.includes('ecg')) {
+    return 'Assess';
+  }
+  return 'Prepare disposition';
+}
+
+function groupActionsByIntent(actions) {
   const grouped = actions.reduce((acc, action) => {
-    const key = action.category || 'Other actions';
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(action);
+    const clusterId = mapActionToCluster(action);
+    if (!acc[clusterId]) acc[clusterId] = [];
+    acc[clusterId].push(action);
     return acc;
   }, {});
 
-  return GROUP_ORDER.filter((group) => grouped[group]?.length).map((group) => ({
-    title: group,
-    items: grouped[group]
-  }));
+  return CLUSTERS.map((cluster) => ({
+    ...cluster,
+    items: grouped[cluster.id] || []
+  })).filter((cluster) => cluster.items.length > 0);
 }
 
 function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onClock }) {
   const [availableActions, setAvailableActions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [rationale, setRationale] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     const fetchActions = async () => {
       try {
         const actions = await getEscalationActions(sessionId);
-        setAvailableActions(actions);
+        if (isMounted) setAvailableActions(actions);
       } catch (err) {
-        setError('Failed to load escalation options.');
+        if (isMounted) setError('Failed to load care priority options.');
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
-
     fetchActions();
+    return () => { isMounted = false; };
   }, [sessionId]);
 
   const handleToggle = (id) => {
     if (results) return;
-
-    setSelectedIds((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((item) => item !== id);
-      }
-      return [...prev, id];
-    });
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
 
   const clearSelection = () => {
@@ -66,165 +78,153 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
   };
 
   const submitActions = async (ids) => {
-    const trimmedRationale = rationale.trim();
-    if (trimmedRationale.length < 20) {
-      setError('Write a brief escalation rationale before recording the plan.');
-      return;
-    }
-
     try {
       setError('');
-      setLoading(true);
-      const data = await selectEscalationActions(sessionId, ids, trimmedRationale);
+      setSubmitting(true);
+      const defaultRationale = 'Selected standard clinical interventions based on presentation.';
+      const data = await selectEscalationActions(sessionId, ids, defaultRationale);
       const performedActions = data.actions_performed;
       setResults(performedActions);
-      if (onClock) onClock(data.clock);
+      if (onClock && data.clock) onClock(data.clock);
       if (onCapture) {
         onCapture({
           interventions: performedActions,
           escalationActions: performedActions,
-          escalationRationale: trimmedRationale
+          escalationRationale: defaultRationale
         });
       }
     } catch (err) {
-      setError('Failed to record escalation choices.');
-    } finally {
-      setLoading(false);
+      setError('Failed to record care priorities.');
+      setSubmitting(false);
     }
   };
 
   if (loading && !results) {
     return (
       <section className="step-card">
-        <div className="loading">Loading escalation actions...</div>
+        <div className="loading">Retrieving care priority options...</div>
       </section>
     );
   }
 
+  if (error && !availableActions.length) {
+    return (
+      <section className="step-card">
+        <div className="error-message">{error}</div>
+      </section>
+    );
+  }
+
+  const groupedAvailable = groupActionsByIntent(availableActions);
+
   return (
-    <section className="step-card">
+    <section className="step-card interventions-card" aria-labelledby="interventions-heading">
       <div className="section-header">
         <div>
-          <span className="eyebrow">Placement and escalation</span>
-          <h3>Care priorities</h3>
+          <span className="eyebrow">
+            Step 4 of 6 <span className="provenance-tag student-tag">Student Decision</span>
+          </span>
+          <h2 id="interventions-heading">Care Priorities & Orders</h2>
+          <p className="subtitle">
+            Initiate immediate life-stabilizing interventions, order diagnostics, or place the patient in monitored care.
+          </p>
         </div>
-        <span className="clinical-badge">{selectedIds.length} actions</span>
       </div>
 
-      {!results && (
-        <p className="instruction">
-          Choose the placement, monitoring, and care actions needed before the patient enters the routine queue.
-        </p>
-      )}
+      <DecisionHint stage="escalation" active={coachEnabled} />
 
       {!results ? (
         <>
-          {coachEnabled && (
-            <DecisionHint
-              sessionId={sessionId}
-              stage="escalation"
-              learnerContext={rationale}
-            />
-          )}
+          <div className="interventions-selection-header">
+            <h3>Available Triage Actions</h3>
+            <button
+              type="button"
+              className="btn-link"
+              onClick={clearSelection}
+              disabled={selectedIds.length === 0}
+            >
+              Clear Selection
+            </button>
+          </div>
 
-          {selectedIds.length > 0 && (
-            <div className="action-selection-summary" aria-live="polite">
-              <div>
-                <span>Selected actions</span>
-                <strong>{selectedIds.length}</strong>
-              </div>
-              <div className="selected-action-list">
-                {availableActions
-                  .filter((action) => selectedIds.includes(action.id))
-                  .map((action) => (
-                    <span className="selected-action-chip" key={action.id}>{action.name}</span>
-                  ))}
-              </div>
-              <button type="button" className="btn-secondary clear-selection" onClick={clearSelection}>
-                Clear selection
-              </button>
-            </div>
-          )}
-
-          <div className="order-groups">
-            {groupActions(availableActions).map((group) => (
-              <fieldset className="order-group" key={group.title}>
-                <legend>{group.title}</legend>
-                {group.items.map((action) => (
-                  <label
-                    key={action.id}
-                    className={`order-row action-row ${
-                      selectedIds.includes(action.id) ? 'selected' : ''
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(action.id)}
-                      onChange={() => handleToggle(action.id)}
-                    />
-                    <span>
-                      <strong>{action.name}</strong>
-                      <small>{action.description}</small>
-                    </span>
-                  </label>
-                ))}
+          <div className="interventions-categories-stack">
+            {groupedAvailable.map((cluster) => (
+              <fieldset key={cluster.id} className={`intervention-cluster-fieldset cluster-${cluster.id.toLowerCase().replace(' ', '-')}`}>
+                <legend className="cluster-legend">
+                  <strong>{cluster.title}</strong>
+                  <span>{cluster.subtitle}</span>
+                </legend>
+                <div className="intervention-checkbox-grid">
+                  {cluster.items.map((action) => {
+                    const isSelected = selectedIds.includes(action.id);
+                    return (
+                      <label
+                        key={action.id}
+                        className={`action-checkbox-card ${isSelected ? 'selected' : ''}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggle(action.id)}
+                          disabled={submitting}
+                        />
+                        <div className="action-info">
+                          <strong>{action.name}</strong>
+                          <small>{action.description}</small>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
               </fieldset>
             ))}
           </div>
 
-          <div className="question-input rationale-input">
-            <label htmlFor="escalation-rationale">Escalation rationale</label>
-            <textarea
-              id="escalation-rationale"
-              value={rationale}
-              onChange={(event) => setRationale(event.target.value)}
-              placeholder="State why these actions are needed, or why routine waiting is appropriate."
-              rows="4"
-              disabled={loading}
-            />
-          </div>
+          {error && <div className="error-message" role="alert">{error}</div>}
 
-          {error && <div className="error-message">{error}</div>}
-
-          <div className="button-group">
-            <button className="btn-secondary" onClick={() => submitActions([])} disabled={loading || selectedIds.length > 0}>
-              Routine waiting with reassessment
+          <div className="step-actions">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => submitActions([])}
+              disabled={submitting || selectedIds.length > 0}
+            >
+              Routine Waiting (Zero Immediate Actions)
             </button>
             <button
+              type="button"
               className="btn-primary"
               onClick={() => submitActions(selectedIds)}
-              disabled={selectedIds.length === 0 || loading}
+              disabled={submitting || selectedIds.length === 0}
             >
-              Record care priorities
+              {submitting ? 'Locking Care Priorities...' : 'Lock Care Priorities & Proceed to SBAR Handoff'}
             </button>
           </div>
         </>
       ) : (
         <>
           <div className="results-section">
-            <span className="eyebrow">Care priorities recorded</span>
+            <span className="eyebrow">Care Priorities Locked</span>
             {results.length > 0 ? (
-              <div className="interventions-results">
+              <div className="interventions-results-grid">
                 {results.map((action) => (
-                  <div key={action.id} className="intervention-result">
-                    <span>Triage action</span>
+                  <div key={action.id} className="locked-action-card">
+                    <span className="cluster-tag">{mapActionToCluster(action)}</span>
                     <strong>{action.name}</strong>
                     <small>{action.description}</small>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="no-interventions">No immediate escalation recorded.</p>
+              <p className="no-interventions">Routine waiting with zero immediate interventions recorded.</p>
             )}
-            <div className="question-item">
-              <span>Rationale</span>
-              <strong>{rationale}</strong>
-            </div>
           </div>
 
-          <button className="btn-primary" onClick={onNext}>
-            Continue to SBAR handoff
-          </button>
+          <div className="step-actions">
+            <button type="button" className="btn-primary" onClick={onNext}>
+              Proceed to SBAR Handoff
+            </button>
+          </div>
         </>
       )}
     </section>

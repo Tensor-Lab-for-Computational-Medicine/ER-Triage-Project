@@ -19,46 +19,40 @@ import CaseSummaryBanner from './components/CaseSummaryBanner';
 
 const WORKFLOW_STEPS = [
   {
-    id: 'interview',
-    label: 'Conversation',
+    id: 'gather',
+    label: 'Gather',
     title: 'Patient conversation',
     detail: 'Gather the history that changes risk, acuity, or next actions.'
   },
   {
-    id: 'provisional',
-    label: 'First ESI',
-    title: 'Initial acuity call',
-    detail: 'State the working ESI level before the complete objective review.'
+    id: 'examine',
+    label: 'Examine',
+    title: 'Examine & vitals review',
+    detail: 'Interpret objective vitals and focused physical exam findings.'
   },
   {
-    id: 'vitals',
-    label: 'Vitals',
-    title: 'Baseline vitals',
-    detail: 'Interpret objective triage signals and reassess urgency.'
+    id: 'decide',
+    label: 'Decide',
+    title: 'Definitive ESI assignment',
+    detail: 'Lock the Emergency Severity Index level with required clinical rationale.'
   },
   {
-    id: 'esi',
-    label: 'Final ESI',
-    title: 'Final acuity decision',
-    detail: 'Lock the Emergency Severity Index level with rationale.'
-  },
-  {
-    id: 'orders',
-    label: 'Priorities',
-    title: 'Care priorities',
-    detail: 'Choose placement, monitoring, and escalation actions.'
+    id: 'act',
+    label: 'Act',
+    title: 'Care priorities & orders',
+    detail: 'Group placement, monitoring, and treatment actions by clinical intent.'
   },
   {
     id: 'handoff',
-    label: 'SBAR',
-    title: 'Handoff',
-    detail: 'Communicate the case in a concise ED handoff.'
+    label: 'Handoff',
+    title: 'SBAR handoff',
+    detail: 'Communicate the case in a concise, structured ED handoff.'
   },
   {
-    id: 'debrief',
-    label: 'Report',
-    title: 'Performance report',
-    detail: 'Review clinical judgment, safety decisions, and next practice steps.'
+    id: 'learn',
+    label: 'Learn',
+    title: 'Expert debrief & report',
+    detail: 'Review clinical judgment, decision drivers, and next practice steps.'
   }
 ];
 
@@ -71,8 +65,6 @@ const INITIAL_CASE_RECORD = {
   vitals: [],
   historyQuestion: '',
   historyResponse: '',
-  provisionalTriageLevel: null,
-  provisionalTriageRationale: '',
   triageLevel: null,
   triageRationale: '',
   interventions: [],
@@ -88,32 +80,23 @@ function realElapsedSeconds(clock = {}, _tick = 0) {
   return clock.elapsed_seconds || 0;
 }
 
-function WorkflowStrip({ currentStep }) {
-  const active = WORKFLOW_STEPS[currentStep] || WORKFLOW_STEPS[0];
-
+function ReasoningSpine({ currentStep }) {
   return (
-    <nav className="workflow-strip" aria-label="Case workflow">
-      <div className="workflow-current">
-        <span className="workflow-strip-status">Step {currentStep + 1} of {WORKFLOW_STEPS.length}</span>
-        <strong>{active.title}</strong>
-      </div>
-      <ol className="workflow-list">
+    <nav className="reasoning-spine" aria-label="Clinical reasoning spine">
+      <div className="spine-container">
         {WORKFLOW_STEPS.map((item, index) => {
-          const status =
-            index < currentStep ? 'complete' : index === currentStep ? 'active' : 'pending';
-
+          const isComplete = index < currentStep;
+          const isActive = index === currentStep;
+          const icon = isComplete ? '✓' : isActive ? '●' : '○';
           return (
-            <li
-              key={item.id}
-              className={`workflow-item ${status}`}
-              aria-label={`${item.label}: ${status}`}
-            >
-              <span className="workflow-index" aria-hidden="true">{index + 1}</span>
-              <span className="workflow-label">{item.label}</span>
-            </li>
+            <div key={item.id} className={`spine-item ${isComplete ? 'complete' : ''} ${isActive ? 'active' : ''}`}>
+              <span className="spine-icon" aria-hidden="true">{icon}</span>
+              <span className="spine-label">{item.label}</span>
+              {index < WORKFLOW_STEPS.length - 1 && <span className="spine-connector" />}
+            </div>
           );
         })}
-      </ol>
+      </div>
     </nav>
   );
 }
@@ -406,7 +389,7 @@ function App() {
         activeStep={activeStep}
         elapsedSeconds={displayElapsed}
       />
-      <WorkflowStrip currentStep={step} />
+      <ReasoningSpine currentStep={step} />
 
       <div className="app-layout">
         <main className="case-stage">
@@ -423,10 +406,9 @@ function App() {
           )}
 
           {step === 1 && (
-            <TriageAssignment
+            <VitalSigns
               sessionId={sessionId}
-              variant="provisional"
-              coachEnabled={coachEnabled}
+              patientData={patientData}
               onNext={handleNext}
               onCapture={handleCapture}
               onClock={setClock}
@@ -434,15 +416,6 @@ function App() {
           )}
 
           {step === 2 && (
-            <VitalSigns
-              sessionId={sessionId}
-              onNext={handleNext}
-              onCapture={handleCapture}
-              onClock={setClock}
-            />
-          )}
-
-          {step === 3 && (
             <TriageAssignment
               sessionId={sessionId}
               coachEnabled={coachEnabled}
@@ -452,7 +425,7 @@ function App() {
             />
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <Interventions
               sessionId={sessionId}
               coachEnabled={coachEnabled}
@@ -462,7 +435,7 @@ function App() {
             />
           )}
 
-          {step === 5 && (
+          {step === 4 && (
             <SbarHandoff
               sessionId={sessionId}
               coachEnabled={coachEnabled}
@@ -472,7 +445,7 @@ function App() {
             />
           )}
 
-          {step === 6 && (
+          {step === 5 && (
             <Feedback
               sessionId={sessionId}
               caseRecord={caseRecord}

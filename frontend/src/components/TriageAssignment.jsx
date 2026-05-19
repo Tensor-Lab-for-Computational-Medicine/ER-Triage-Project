@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { assignProvisionalTriage, assignTriage } from '../services/api';
+import { assignTriage } from '../services/api';
 import DecisionHint from './DecisionHint';
 
 const TRIAGE_LEVELS = [
@@ -7,53 +7,53 @@ const TRIAGE_LEVELS = [
     level: 1,
     label: 'ESI 1',
     name: 'Resuscitation',
-    description: 'Immediate life-saving intervention is required.'
+    description: 'Immediate life-saving intervention required. Airway, breathing, or hemodynamic instability.'
   },
   {
     level: 2,
     label: 'ESI 2',
     name: 'Emergent',
-    description: 'High-risk situation, severe pain or distress, or concerning mental status.'
+    description: 'High-risk situation, new severe pain or distress (7+/10), lethargy, or danger-zone vitals.'
   },
   {
     level: 3,
     label: 'ESI 3',
     name: 'Urgent',
-    description: 'Stable enough to wait, but likely needs multiple ED resources.'
+    description: 'Hemodynamically stable but requires multiple ED resource categories (labs, imaging, IV meds, consults).'
   },
   {
     level: 4,
     label: 'ESI 4',
-    name: 'Less urgent',
-    description: 'Stable presentation likely needing one ED resource.'
+    name: 'Less Urgent',
+    description: 'Stable physical presentation expected to require exactly one ED resource category (e.g. simple x-ray).'
   },
   {
     level: 5,
     label: 'ESI 5',
-    name: 'Non-urgent',
-    description: 'Stable presentation expected to need no ED resources.'
+    name: 'Non-Urgent',
+    description: 'Stable routine presentation expected to require zero counted ED resources (e.g. verbal prescription refill).'
   }
 ];
 
-function TriageAssignment({ sessionId, variant = 'final', coachEnabled = false, onNext, onCapture, onClock }) {
+function TriageAssignment({ sessionId, coachEnabled = false, onNext, onCapture, onClock }) {
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [rationale, setRationale] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const isProvisional = variant === 'provisional';
+
   const selectedMeta = TRIAGE_LEVELS.find((level) => level.level === selectedLevel);
   const rationaleLength = rationale.trim().length;
-  const rationaleReady = isProvisional || rationaleLength >= 20;
+  const rationaleReady = rationaleLength >= 20;
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!selectedLevel) {
-      setError('Select an ESI level before locking the decision.');
+      setError('Select a definitive ESI acuity level before locking.');
       return;
     }
-
-    if (!isProvisional && rationale.trim().length < 20) {
-      setError('Write a brief rationale that connects risk, vitals, and expected resources.');
+    if (!rationaleReady) {
+      setError('Provide a mandatory clinical rationale (at least 20 characters) explaining the resource or risk basis.');
       return;
     }
 
@@ -61,116 +61,112 @@ function TriageAssignment({ sessionId, variant = 'final', coachEnabled = false, 
     setError('');
 
     try {
-      const data = isProvisional
-        ? await assignProvisionalTriage(sessionId, selectedLevel, rationale.trim())
-        : await assignTriage(sessionId, selectedLevel, rationale.trim());
+      const data = await assignTriage(sessionId, selectedLevel, rationale.trim());
       setSubmitted(true);
-      if (onClock) onClock(data.clock);
+      if (onClock && data.clock) onClock(data.clock);
       if (onCapture) {
-        onCapture(
-          isProvisional
-            ? {
-                provisionalTriageLevel: selectedLevel,
-                provisionalTriageRationale: rationale.trim()
-              }
-            : {
-                triageLevel: selectedLevel,
-                triageRationale: rationale.trim()
-              }
-        );
+        onCapture({
+          triageLevel: selectedLevel,
+          triageRationale: rationale.trim()
+        });
       }
+      onNext();
     } catch (err) {
-      setError('Failed to record ESI level.');
+      setError('Failed to record definitive ESI level.');
       setSelectedLevel(null);
-    } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <section className="step-card">
+    <section className="step-card esi-assignment-card" aria-labelledby="esi-heading">
       <div className="section-header">
         <div>
-          <span className="eyebrow">Acuity decision</span>
-          <h3>{isProvisional ? 'Initial ESI decision' : 'Final ESI decision'}</h3>
+          <span className="eyebrow">
+            Step 3 of 6 <span className="provenance-tag student-tag">Student Decision</span>
+          </span>
+          <h2 id="esi-heading">Definitive ESI Acuity Assignment</h2>
+          <p className="subtitle">
+            Assign the Emergency Severity Index level based on gathered history, vitals, and physical exam targets.
+          </p>
         </div>
       </div>
-
-      <p className="instruction">
-        {isProvisional
-          ? 'Make the first acuity call from the intake context and patient conversation.'
-          : 'Lock the ESI level after objective review and document the clinical basis.'}
-      </p>
 
       {coachEnabled && (
         <DecisionHint
           sessionId={sessionId}
-          stage={isProvisional ? 'provisional' : 'final'}
+          stage="final"
           learnerContext={rationale}
         />
       )}
 
-      <div className="triage-levels compact">
-        {TRIAGE_LEVELS.map((level) => (
-          <button
-            key={level.level}
-            className={`triage-button ${
-              selectedLevel === level.level ? 'selected' : ''
-            } level-${level.level}`}
-            onClick={() => setSelectedLevel(level.level)}
-            disabled={loading || submitted}
-            aria-pressed={selectedLevel === level.level}
-          >
-            <span>{level.label}</span>
-            <strong>{level.name}</strong>
-          </button>
-        ))}
-      </div>
-
-      <p className="selected-esi-note">
-        {selectedMeta
-          ? `${selectedMeta.label}: ${selectedMeta.description}`
-          : 'Choose the level that matches stability, high-risk features, and expected ED resources.'}
-      </p>
-
-      <div className="question-input rationale-input">
-        <label htmlFor="esi-rationale">{isProvisional ? 'Provisional rationale' : 'Final ESI rationale'}</label>
-        <textarea
-          id="esi-rationale"
-          value={rationale}
-          onChange={(event) => setRationale(event.target.value)}
-          placeholder={isProvisional
-            ? 'Write the evidence available so far.'
-            : 'Write one or two sentences connecting the evidence to acuity.'}
-          rows="4"
-          disabled={submitted}
-        />
-        <small className={`field-hint ${rationaleReady ? 'ready' : ''}`}>
-          {isProvisional
-            ? `${rationaleLength} characters recorded`
-            : `${rationaleLength} / 20 minimum characters`}
-        </small>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-      {loading && <div className="loading">Recording ESI decision...</div>}
-      {submitted && (
-        <div className="success-message">
-          ESI Level {selectedLevel} recorded.
+      <form onSubmit={handleSubmit} className="esi-form">
+        <div className="triage-levels-grid">
+          {TRIAGE_LEVELS.map((level) => {
+            const isSelected = selectedLevel === level.level;
+            return (
+              <button
+                type="button"
+                key={level.level}
+                className={`triage-button-card level-${level.level} ${isSelected ? 'selected' : ''}`}
+                onClick={() => setSelectedLevel(level.level)}
+                disabled={loading || submitted}
+                aria-pressed={isSelected}
+              >
+                <div className="triage-level-badge">{level.label}</div>
+                <strong className="triage-level-name">{level.name}</strong>
+                <p className="triage-level-desc">{level.description}</p>
+              </button>
+            );
+          })}
         </div>
-      )}
 
-      <div className="button-group">
-        {!submitted ? (
-          <button className="btn-primary" onClick={handleSubmit} disabled={loading || !selectedLevel || !rationaleReady}>
-            {isProvisional ? 'Record provisional ESI' : 'Lock final ESI'}
+        <div className="selected-level-banner">
+          {selectedMeta ? (
+            <p className="selected-text">
+              Selected <strong>{selectedMeta.label} ({selectedMeta.name})</strong>: {selectedMeta.description}
+            </p>
+          ) : (
+            <p className="prompt-text">
+              Select an acuity level above to reveal detailed criteria.
+            </p>
+          )}
+        </div>
+
+        <div className="premium-textarea-container">
+          <label htmlFor="esi-rationale" className="premium-textarea-label">
+            <span>Clinical Rationale for ESI Selection</span>
+            <span className="input-badge">Required</span>
+          </label>
+          <p className="premium-textarea-hint">
+            Connect the patient's specific risk factors, vital signs, or resource predictions to your chosen ESI level.
+          </p>
+          <textarea
+            id="esi-rationale"
+            className="premium-textarea"
+            value={rationale}
+            onChange={(event) => setRationale(event.target.value)}
+            placeholder="Example: ESI 3 is appropriate due to stable vital signs but requiring multiple resource categories (IV analgesia, plain radiographs, and orthopedic consult)..."
+            rows="4"
+            disabled={submitted || loading}
+          />
+          <div className="char-count" style={{ marginTop: '8px', textAlign: 'right', fontSize: '0.85rem', color: rationaleReady ? '#16a34a' : '#ef4444' }}>
+            {rationaleLength} / 20 minimum characters required
+          </div>
+        </div>
+
+        {error && <div className="error-message" role="alert">{error}</div>}
+
+        <div className="step-actions">
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading || submitted || !selectedLevel || !rationaleReady}
+          >
+            {loading ? 'Locking Definitive Acuity...' : 'Lock Definitive ESI & Proceed to Care Priorities'}
           </button>
-        ) : (
-          <button className="btn-primary" onClick={onNext}>
-            {isProvisional ? 'Continue to vital review' : 'Continue to escalation'}
-          </button>
-        )}
-      </div>
+        </div>
+      </form>
     </section>
   );
 }

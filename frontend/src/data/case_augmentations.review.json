@@ -1,0 +1,177 @@
+{
+  "schema_version": "case_augmentation_review_v1",
+  "description": "Reviewed inferred teaching details for MIETIC-derived triage cases. These fields enrich simulation realism and case review without overwriting source vitals, ESI, disposition, resource counts, intervention flags, demographics, or triage narrative.",
+  "cases": {
+    "case_020": {
+      "review_status": "reviewed",
+      "generated_by": "seeded_clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-15",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-15",
+      "likely_working_diagnosis": "Right wrist pain, likely sprain or contusion pending radiograph",
+      "ddx": [
+        {
+          "diagnosis": "Wrist sprain or contusion",
+          "support": "Walk-in presentation, stable vital signs, isolated wrist pain, and home disposition support a lower-acuity musculoskeletal injury.",
+          "against_or_missing": "The source does not document mechanism, swelling, deformity, or range of motion.",
+          "next_discriminator": "Focused wrist exam and plain radiographs if point tenderness or functional limitation is present.",
+          "acuity_implication": "ESI 4 is consistent with one expected resource when no neurovascular compromise is present."
+        },
+        {
+          "diagnosis": "Distal radius, scaphoid, or carpal fracture",
+          "support": "Pain 8/10 and recorded exam or imaging resource make fracture a necessary consideration.",
+          "against_or_missing": "No documented deformity, open wound, or neurovascular deficit in the source bundle.",
+          "next_discriminator": "Point tenderness, snuffbox tenderness, swelling, grip strength, and x-ray result.",
+          "acuity_implication": "Escalates if deformity, open injury, or neurovascular compromise is found."
+        }
+      ],
+      "teaching_points": [
+        "For isolated extremity pain, document deformity, swelling, range of motion, distal pulse, sensation, motor function, and weight-bearing or functional status.",
+        "Severe pain changes reassessment needs even when ESI remains low acuity."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_020_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess right wrist swelling, deformity, focal bony tenderness, range of motion, grip strength, radial pulse, capillary refill, and sensation.",
+          "rationale": "The source documents isolated right wrist pain with pain 8/10 and one exam or imaging resource, but no structured extremity exam findings.",
+          "source_anchors": ["R Wrist pain", "pain 8 out of 10", "exam_count: 1", "disposition: HOME", "reference ESI 4"],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": ["physical_exam", "soap", "decision_review", "dialogue"],
+          "expected_action": "Perform and document focused wrist exam before deciding whether imaging, splinting, analgesia, or outpatient follow-up is sufficient.",
+          "practice_rule": "For wrist pain, connect pain severity and exam findings to imaging need, immobilization, and reassessment."
+        }
+      ]
+    },
+    "case_021": {
+      "review_status": "reviewed",
+      "generated_by": "seeded_clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-15",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-15",
+      "likely_working_diagnosis": "Right foot swelling and pain requiring evaluation for injury, infection, crystal arthritis, or vascular cause",
+      "ddx": [
+        {
+          "diagnosis": "Soft tissue injury, occult fracture, or inflammatory arthritis",
+          "support": "Right foot swelling, pain 7/10, exam or imaging resource, and home disposition fit a stable but resource-requiring extremity presentation.",
+          "against_or_missing": "The source does not document trauma, focal tenderness, erythema, warmth, wound, or ability to bear weight.",
+          "next_discriminator": "Focused foot exam, weight-bearing status, skin findings, and radiograph if trauma or focal bony tenderness is present.",
+          "acuity_implication": "ESI 3 is supported by multiple resources and pain requiring treatment and reassessment."
+        },
+        {
+          "diagnosis": "Cellulitis, abscess, gout, or septic arthritis",
+          "support": "Swelling with pain can reflect infection or crystal arthritis, especially when laboratory testing is recorded.",
+          "against_or_missing": "No fever, wound, erythema, warmth, immunosuppression, or joint range limitation is documented in the source bundle.",
+          "next_discriminator": "Inspect skin, assess joint range of motion, check fever/systemic symptoms, and use labs or imaging if infection is plausible.",
+          "acuity_implication": "Escalates if systemic illness, rapidly spreading erythema, severe joint pain with limited range of motion, or vascular compromise is found."
+        }
+      ],
+      "teaching_points": [
+        "Foot swelling is not a diagnosis. The learner should separate trauma, infection, inflammatory arthritis, and vascular causes with focused exam questions.",
+        "Multiple recorded resources make ESI 3 more plausible than a one-resource extremity complaint."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_021_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should document right foot location of swelling, erythema or warmth, wounds, focal bony tenderness, range of motion, weight-bearing ability, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
+          "rationale": "The source documents right foot swelling, pain 7/10, hypertension, laboratory testing, and one exam or imaging resource, but no physical exam details.",
+          "source_anchors": ["R Foot swelling", "pain level of 7", "lab_event_count: 36", "exam_count: 1", "reference ESI 3"],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": ["physical_exam", "soap", "decision_review", "dialogue", "grading_reference"],
+          "action_id": "pain_reassessment",
+          "expected_action": "Treat pain, perform focused foot and neurovascular exam, and use labs or imaging to distinguish injury, infection, crystal arthritis, or vascular compromise.",
+          "practice_rule": "For foot swelling, name the exam finding that separates injury, infection, inflammatory arthritis, and vascular risk."
+        }
+      ]
+    },
+    "case_029": {
+      "review_status": "reviewed",
+      "generated_by": "seeded_clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-15",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-15",
+      "likely_working_diagnosis": "Open left tibia/fibula fracture with associated ankle and foot fractures after fall",
+      "ddx": [
+        {
+          "diagnosis": "Open tibia/fibula fracture with associated fractures",
+          "support": "Transfer note documents open tibia/fibula fracture, medial malleolar fracture, metatarsal fracture, fall mechanism, admission, and high resource use.",
+          "against_or_missing": "The current source bundle does not provide distal neurovascular exam or compartment findings.",
+          "next_discriminator": "Distal pulses, sensation, motor function, compartment exam, wound contamination, antibiotic timing, and orthopedic plan.",
+          "acuity_implication": "Reference ESI 2 is supported by open fracture, transfer, admission, and multiple expected resources."
+        },
+        {
+          "diagnosis": "Neurovascular compromise or evolving compartment syndrome",
+          "support": "Open long-bone fracture requires serial neurovascular and compartment assessment even when pain score is low after transfer treatment.",
+          "against_or_missing": "No pulse deficit, sensory deficit, motor deficit, or tense compartments are documented in the source bundle.",
+          "next_discriminator": "Serial pain, passive stretch pain, compartments, pulses, capillary refill, sensation, and motor function.",
+          "acuity_implication": "Any deficit requires immediate clinician notification and monitored placement."
+        }
+      ],
+      "teaching_points": [
+        "A low pain score does not make an open fracture low acuity after analgesia or transfer treatment.",
+        "Open fractures require antibiotics, tetanus assessment, wound protection, neurovascular checks, and orthopedic involvement."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_029_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should document open wound status, deformity, bleeding, contamination, compartment firmness, pain with passive stretch, distal pulses, capillary refill, motor function, and sensation.",
+          "rationale": "The source documents transfer for open tibia/fibula fracture with associated ankle and metatarsal fractures, but it does not provide the structured neurovascular exam.",
+          "source_anchors": ["L Leg injury, Transfer", "open left tibia/fibula fracture", "nondisplaced left medial malleolar fracture", "fracture of the base of the left metatarsal", "reference ESI 2"],
+          "confidence": "high",
+          "review_status": "reviewed",
+          "use_in": ["physical_exam", "soap", "decision_review", "dialogue", "grading_reference"],
+          "action_id": "critical_procedure_team",
+          "expected_action": "Place in monitored care, notify clinician and orthopedics, protect the wound, assess tetanus and antibiotics, and repeat neurovascular checks.",
+          "practice_rule": "For open long-bone fracture, treat the open fracture and neurovascular exam as the acuity anchor, not the current pain score alone."
+        }
+      ]
+    },
+    "case_030": {
+      "review_status": "reviewed",
+      "generated_by": "seeded_clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-15",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-15",
+      "likely_working_diagnosis": "Right foot pain, likely minor musculoskeletal injury pending focused exam",
+      "ddx": [
+        {
+          "diagnosis": "Foot sprain, contusion, or occult fracture",
+          "support": "Walk-in presentation, isolated right foot pain, pain 6/10, one exam or imaging resource, and home disposition support a stable musculoskeletal complaint.",
+          "against_or_missing": "No mechanism, swelling, deformity, focal tenderness, or weight-bearing status is documented.",
+          "next_discriminator": "Ottawa foot criteria, focal bony tenderness, swelling, weight-bearing ability, and radiograph if indicated.",
+          "acuity_implication": "ESI 4 is consistent with one expected resource when neurovascular status is intact."
+        }
+      ],
+      "teaching_points": [
+        "A benign-appearing foot complaint still needs a focused exam before deciding it is minor.",
+        "The source supports low acuity only if the exam does not show deformity, open wound, neurovascular deficit, or inability to bear weight."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_030_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should document swelling, bruising, deformity, focal bony tenderness at the midfoot or fifth metatarsal, ability to bear weight, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
+          "rationale": "The source documents isolated right foot pain, pain 6/10, one exam or imaging resource, stable vital signs, and home disposition, but no structured foot exam.",
+          "source_anchors": ["R Foot pain", "pain 6 out of 10", "exam_count: 1", "disposition: HOME", "reference ESI 4"],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": ["physical_exam", "soap", "decision_review", "dialogue"],
+          "expected_action": "Use focused foot exam and imaging criteria to decide whether x-ray, analgesia, splinting, or outpatient follow-up is appropriate.",
+          "practice_rule": "For isolated foot pain, document weight-bearing status, focal bony tenderness, and distal neurovascular status before assigning low acuity."
+        }
+      ]
+    }
+  }
+}

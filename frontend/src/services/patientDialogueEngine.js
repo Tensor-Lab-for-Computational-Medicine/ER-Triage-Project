@@ -30,6 +30,7 @@ const INTENT_ORDER = [
   'allergies',
   'prior_episode',
   'pregnancy',
+  'irrelevant',
   'unknown'
 ];
 
@@ -741,7 +742,14 @@ function detectIntents(question) {
   if (/\b(before|again|previous|prior|ever had|like this|happen often|happened before)\b/.test(q)) intents.push('prior_episode');
   if (/\b(pregnant|pregnancy|period|lmp)\b/.test(q)) intents.push('pregnancy');
 
-  if (!intents.length) intents.push('chief_concern');
+  if (!intents.length) {
+    // If it has NO overlap with common medical triage topics, label it as irrelevant!
+    const isMedicalQuery = /\b(feel|feeling|sick|hurt|hurts|ache|pain|breath|cough|fever|vomit|nausea|weak|dizzy|bleed|blood|suture|wound|laceration|cut|refill|prescrip|pill|dose|med|history|stroke|seizure|fall|confusion|swallow|rectal|anal|crohn|pressure|tightness|sprain|fracture|swelling|allerg|pregnan|period|lmp|ill|onset|bad|scale|worse|worsening|happen|hospital|accident|injury|swelled)\b/i.test(q);
+    if (!isMedicalQuery) {
+      return ['irrelevant'];
+    }
+    intents.push('chief_concern');
+  }
   if (intents.includes('cardiac_history') && intents.includes('medical_history') && !/\b(medical problems|medical history|other conditions|other medical|diabetes|cancer|stroke|copd|kidney|liver)\b/.test(q)) {
     return intents.filter((intent) => intent !== 'medical_history');
   }
@@ -754,7 +762,7 @@ function detectIntents(question) {
 function intentToCategory(intent) {
   if (intent === 'cardiac_history') return 'medical_history';
   if (intent === 'associated_symptoms') return 'red_flags';
-  if (intent === 'diagnosis_clarification' || intent === 'answer_key' || intent === 'unknown') return 'chief_concern';
+  if (intent === 'diagnosis_clarification' || intent === 'answer_key' || intent === 'irrelevant' || intent === 'unknown') return 'chief_concern';
   return CATEGORY_ORDER.includes(intent) ? intent : 'chief_concern';
 }
 
@@ -903,6 +911,18 @@ function renderIntent(intent, plan, view) {
       return view.prior_episodes || 'No, this does not happen to me regularly.';
     case 'pregnancy':
       return view.pregnancy_status;
+    case 'irrelevant':
+      if (view.reliability === 'impaired') {
+        return "I'm sorry, my head feels really cloudy right now and I can't think about that. I just feel sick.";
+      }
+      if (view.severity && /severe|hard to breathe/i.test(view.severity)) {
+        return "I'm sorry, I'm in too much pain and distress to focus on that right now.";
+      }
+      return `I'm not sure how that relates to why I came in. I'm here because: ${view.presenting_concern
+        .replace(/\.$/, '')
+        .replace(/^I'm worried\.\s*/i, '')
+        .replace(/^I'm not really sure\.\s*/i, '')
+        .replace(/^I'm not sure\.\s*/i, '')}.`;
     default:
       return view.unknown_phrase;
   }
@@ -952,6 +972,7 @@ function coversIntent(answer, plan, view) {
   if (plan.intents.includes('medications')) return /\b(take|taking|medicine|medicines|pills|blood thinner|don t remember)\b/.test(normalized);
   if (plan.intents.includes('allergies')) return /\b(allergic|allergies|known medication allergies|don t know)\b/.test(normalized);
   if (plan.intents.includes('red_flags') && plan.asked_symptoms?.length) return /\b(yes|no|have|had|don t have|not that)\b/.test(normalized);
+  if (plan.intents.includes('irrelevant')) return true;
   if (plan.intents.includes('chief_concern')) return normalizedText(view.presenting_concern).split(' ').some((word) => word.length > 4 && normalized.includes(word));
   return true;
 }

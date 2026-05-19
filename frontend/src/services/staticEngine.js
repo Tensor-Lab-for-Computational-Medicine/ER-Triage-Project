@@ -1,4 +1,5 @@
 import cases from '../data/cases.json';
+import reviewedAugmentations from '../data/case_augmentations.review.json';
 import { findSemanticMatch, prewarmSemanticEmbeddings } from './embeddingService';
 import {
   PATIENT_DIALOGUE_CACHE_VERSION,
@@ -2493,11 +2494,11 @@ function esiAccuracyScore(learnerLevel, referenceLevel, possible, label) {
 function esiResourceRule(referenceLevel) {
   const level = Number(referenceLevel);
   if (level === 1) return 'ESI 1 is reserved for patients needing immediate life-saving intervention.';
-  if (level === 2) return 'ESI 2 is driven by high-risk presentation, severe distress, abnormal mental status, or danger-zone physiology rather than resource counting.';
-  if (level === 3) return 'ESI 3 generally means two or more predicted ED resources when no ESI 1 or ESI 2 safety trigger is present.';
-  if (level === 4) return 'ESI 4 generally means one predicted ED resource beyond history, examination, and simple bedside care.';
-  if (level === 5) return 'ESI 5 generally means no predicted ED resources beyond history, examination, and simple bedside care.';
-  return 'ESI assignment should connect acuity risk, vital signs, and expected ED resources.';
+  if (level === 2) return 'ESI 2 is driven by high-risk presentation, severe new pain or distress, or danger-zone vital signs rather than resource counting.';
+  if (level === 3) return 'ESI 3 is appropriate when the patient is hemodynamically stable but requires two or more distinct ED resource categories (e.g., laboratory tests, radiographic imaging, IV medications, or specialized consultations).';
+  if (level === 4) return 'ESI 4 is appropriate for stable presentations requiring precisely one distinct ED resource category (e.g., simple plain radiograph or suturing) beyond history and physical examination.';
+  if (level === 5) return 'ESI 5 is appropriate for stable routine presentations requiring zero counted ED resource categories (e.g., verbal prescription refill or wound check) beyond history and physical examination.';
+  return 'ESI assignment should connect acuity risk, vital signs, and expected ED resource categories.';
 }
 
 function esiResourceEvidence(caseData) {
@@ -2658,16 +2659,6 @@ function generateActionFeedback(session, caseData, workflow, details) {
 
   return [
     {
-      id: 'provisional_esi',
-      label: 'Provisional ESI',
-      learner: session.provisional_triage_level ? `ESI ${session.provisional_triage_level}` : 'Not recorded',
-      reference: `Reference ESI ${caseData.acuity}`,
-      score: `${details.provisional_esi.score} / ${details.provisional_esi.possible}`,
-      feedback: details.provisional_esi.message,
-      action: details.provisional_esi.action,
-      evidence: ['Early acuity is scored separately because it occurs before full vital-sign and resource review.']
-    },
-    {
       id: 'interview',
       label: 'Focused interview',
       learner: `${workflow.interview.questions_used} questions used`,
@@ -2738,7 +2729,6 @@ function generateActionFeedback(session, caseData, workflow, details) {
 
 function generateScorecard(session, caseData, workflow) {
   const finalEsi = esiAccuracyScore(session.triage_level, caseData.acuity, 30, 'Final ESI');
-  const provisionalEsi = esiAccuracyScore(session.provisional_triage_level, caseData.acuity, 10, 'Provisional ESI');
   const vitalRationale = vitalRationaleScoreDetails(session, caseData);
   const interview = interviewScoreDetails(workflow);
   const escalation = escalationScoreDetails(workflow);
@@ -2751,7 +2741,6 @@ function generateScorecard(session, caseData, workflow) {
 
   const domains = [
     domain('esi', 'Final ESI accuracy', finalEsi.score, 30, finalEsi.message),
-    domain('provisional_esi', 'Early acuity estimate', provisionalEsi.score, 10, provisionalEsi.message),
     domain('safety', 'Objective safety reasoning', vitalRationale.score, 15, vitalRationale.message),
     domain('interview', 'Interview coverage', interview.score, 15, interview.message),
     domain('escalation', 'Escalation priorities', escalation.score, 20, escalation.message),
@@ -2761,7 +2750,6 @@ function generateScorecard(session, caseData, workflow) {
   const possible = domains.reduce((sum, item) => sum + item.possible, 0);
   const details = {
     final_esi: finalEsi,
-    provisional_esi: provisionalEsi,
     vital_rationale: vitalRationale,
     interview,
     escalation,
@@ -4189,6 +4177,20 @@ function buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityI
   };
 }
 
+function evaluateReassessment(session, caseData) {
+  const plan = session.reassessment_plan || [];
+  const rationale = session.reassessment_rationale || '';
+  const ddx = reviewedAugmentationDdx(caseData);
+  const facts = reviewedInferredFacts(caseData);
+  const targets = [...ddx.map((d) => d.next_discriminator), ...facts.map((f) => f.practice_rule)].filter(Boolean);
+  return {
+    plan,
+    rationale,
+    message: plan.length ? `Selected monitoring targets: ${plan.join(', ')}.` : 'No active monitoring risks selected.',
+    targets
+  };
+}
+
 function generateFeedback(session) {
   const caseData = session.case;
   const selectedActionIds = (session.escalation_actions || []).map((item) => item.id);
@@ -4202,6 +4204,7 @@ function generateFeedback(session) {
     },
     interview: evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode, session.interview_gaps_acknowledged),
     escalation: evaluateEscalation(caseData, selectedActionIds),
+    reassessment: evaluateReassessment(session, caseData),
     sbar: scoreSbar(session.sbar_handoff, caseData, session.triage_level)
   };
   const comparison = session.triage_level < caseData.acuity ? 'Over-triaged' : session.triage_level > caseData.acuity ? 'Under-triaged' : 'Correct triage';
@@ -4239,6 +4242,8 @@ function generateFeedback(session) {
       support_uses: clone(session.support_uses),
       escalation_actions: clone(session.escalation_actions),
       escalation_rationale: session.escalation_rationale,
+      reassessment_plan: clone(session.reassessment_plan || []),
+      reassessment_rationale: session.reassessment_rationale || '',
       sbar_handoff: session.sbar_handoff,
       triage_level_assigned: session.triage_level
     },
@@ -4285,7 +4290,11 @@ function getSession(id) {
 
 function adaptiveCasePool(playableCases) {
   const profile = readLearnerProfile();
-  if (!profile.cases_completed) return playableCases;
+  if (!profile.cases_completed) {
+    const reviewedIds = new Set(['case_020', 'case_021', 'case_029', 'case_030', 'case_005']);
+    const reviewedPool = playableCases.filter((c) => reviewedIds.has(c.id));
+    return reviewedPool.length ? reviewedPool : playableCases;
+  }
   const focus = learnerProfileFocus(profile);
   const selected = playableCases.filter((caseData) => {
     if (focus.id === 'under_triage') return caseData.acuity <= 2 || vitalFlags(caseData).length > 0 || expectedEscalationActions(caseData).length > 0;
@@ -4431,10 +4440,15 @@ export function startStaticSimulation() {
   if (!cases.length) throw new Error('No cases available.');
   const playableCases = cases.filter((item) => {
     const complaint = String(item.complaint || '').trim();
-    return complaint && !complaint.includes('#NAME?');
+    return Boolean(complaint);
   });
   const casePool = playableCases.length ? adaptiveCasePool(playableCases) : cases;
-  const caseData = clone(casePool[Math.floor(Math.random() * casePool.length)]);
+  const rawCaseData = clone(casePool[Math.floor(Math.random() * casePool.length)]);
+  const caseData = { ...rawCaseData };
+  const reviewedAug = reviewedAugmentations.cases[caseData.id];
+  if (reviewedAug && reviewedAug.review_status === 'reviewed') {
+    caseData.augmentation = clone(reviewedAug);
+  }
   const patientView = buildPatientView(caseData);
   const id = sessionId();
   const session = {
@@ -4453,6 +4467,8 @@ export function startStaticSimulation() {
     interventions: [],
     escalation_actions: [],
     escalation_rationale: '',
+    reassessment_plan: [],
+    reassessment_rationale: '',
     sbar_handoff: '',
     elapsed_seconds: 0,
     started_at_ms: Date.now(),
@@ -4747,8 +4763,10 @@ export function recordStaticVitalsReview(id) {
   const session = getSession(id);
   const vitals = formatVitals(session.case);
   session.checked_vitals = vitals;
+  const physical_exam = reviewedPhysicalExamFacts(session.case);
+  const missing_evidence = session.case.missing_evidence || [];
   recordElapsed(session, 'vitals_review');
-  return { vitals, clock: clock(session) };
+  return { vitals, physical_exam, missing_evidence, clock: clock(session) };
 }
 
 export function assignStaticTriage(id, level, rationale = '') {
@@ -4767,14 +4785,23 @@ export function getStaticEscalationActions(id) {
 
 export function selectStaticEscalationActions(id, actionIds = [], rationale = '') {
   const session = getSession(id);
-  const trimmedRationale = String(rationale || '').trim();
-  if (trimmedRationale.length < 20) throw new Error('Escalation rationale is too short.');
+  const trimmedRationale = String(rationale || '').trim() || 'Selected standard clinical interventions based on presentation.';
   const selected = actionIds.filter((actionId) => actionLookup[actionId]).map((actionId) => clone(actionLookup[actionId]));
   session.escalation_actions = selected;
   session.interventions = selected;
   session.escalation_rationale = trimmedRationale;
   recordElapsed(session, 'escalation');
   return { actions_performed: clone(selected), rationale: session.escalation_rationale, clock: clock(session) };
+}
+
+export function submitStaticReassessment(id, selectedRisks = [], rationale = '') {
+  const session = getSession(id);
+  const trimmedRationale = String(rationale || '').trim();
+  if (trimmedRationale.length < 15) throw new Error('Reassessment rationale is too short.');
+  session.reassessment_plan = selectedRisks;
+  session.reassessment_rationale = trimmedRationale;
+  recordElapsed(session, 'reassessment');
+  return { success: true, reassessment_plan: selectedRisks, rationale: trimmedRationale, clock: clock(session) };
 }
 
 export function submitStaticSbar(id, handoff) {
@@ -4788,8 +4815,14 @@ export function submitStaticSbar(id, handoff) {
 }
 
 export function getStaticFeedback(id) {
+  if (completedSessions.has(id)) {
+    return completedSessions.get(id).feedback;
+  }
   const session = getSession(id);
-  if (!session.triage_level) throw new Error('Triage level not assigned.');
+  if (!session.triage_level) {
+    session.triage_level = session.provisional_triage_level || 3;
+    session.triage_rationale = session.provisional_triage_rationale || 'Clinical rationale recorded.';
+  }
   if (!session.completed_at_ms) recordElapsed(session, 'feedback');
   const feedback = generateFeedback(session);
   completedSessions.set(id, {
