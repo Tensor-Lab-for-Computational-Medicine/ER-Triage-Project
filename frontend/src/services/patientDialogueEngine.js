@@ -21,6 +21,7 @@ const INTENT_ORDER = [
   'general_status',
   'chief_concern',
   'timeline',
+  'progression',
   'severity',
   'associated_symptoms',
   'red_flags',
