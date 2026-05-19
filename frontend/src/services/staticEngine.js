@@ -4226,82 +4226,57 @@ function generateObjectiveExam(caseData) {
   const spO2 = caseData.vitals?.o2 || 100;
   const pain = caseData.vitals?.pain || 0;
 
-  const exams = [];
+  const findings = [];
 
-  // Constitutional/General
-  let general = "Well-developed, well-nourished, in no acute distress. Awake, alert, and cooperative.";
   if (fullText.includes('unresponsive') || fullText.includes('cardiac arrest') || fullText.includes('cpr')) {
-    general = "Unresponsive. Apneic. No palpable central pulses.";
+    findings.push("Unresponsive. Apneic. No palpable central pulses.");
   } else if (fullText.includes('altered') || fullText.includes('lethargic') || fullText.includes('somnolent') || fullText.includes('confused') || fullText.includes('overdose') || fullText.includes('intoxicat') || fullText.includes('seizure')) {
-    general = "Somnolent, lethargic, disoriented. Cooperates minimally with tactile stimulation.";
+    findings.push("Somnolent/lethargic; cooperates minimally.");
   } else if (fullText.includes('anaphylaxis') || fullText.includes('allergic') || fullText.includes('stridor') || fullText.includes('choking') || fullText.includes('throat closing')) {
-    general = "Appears in severe respiratory distress, anxious, stridorous, with facial/lip swelling.";
+    findings.push("Severe respiratory distress; anxious, stridorous.");
   } else if (fullText.includes('shortness of breath') || fullText.includes('dyspnea') || fullText.includes('breath') || fullText.includes('copd') || fullText.includes('asthma') || fullText.includes('chf') || fullText.includes('pneumonia') || rr >= 26 || spO2 <= 91) {
-    general = "Appears in severe respiratory distress, speaking in short words/phrases, using accessory muscles.";
+    findings.push("Respiratory distress with increased effort/accessory muscle use.");
   } else if (rr >= 22 || spO2 < 95) {
-    general = "Appears in moderate respiratory distress, tachypneic, speaking in partial sentences.";
+    findings.push("Tachypneic; moderate respiratory distress.");
   } else if (pain >= 8 || sbp >= 180 || hr >= 120 || sbp < 90) {
-    general = "Appears in moderate to severe distress secondary to pain/presenting complaint.";
+    findings.push("Appears in moderate to severe distress.");
   } else if (pain >= 5 || temp >= 101) {
-    general = "Appears mildly ill and uncomfortable, but alert and cooperative.";
+    findings.push("Appears mildly ill and uncomfortable.");
   }
-  exams.push(`Constitutional: ${general}`);
 
-  // Respiratory
-  let resp = "Clear to auscultation bilaterally. Normal respiratory effort, no wheezing, rhonchi, or rales.";
-  if (fullText.includes('stridor') || fullText.includes('anaphylaxis') || fullText.includes('angioedema')) {
-    resp = "Inspiratory stridor audible; decreased air entry bilaterally.";
-  } else if (fullText.includes('wheez') || fullText.includes('asthma') || fullText.includes('copd') || fullText.includes('allergic')) {
-    resp = "Diffuse expiratory wheezing bilaterally, prolonged expiratory phase. Suprasternal retractions present.";
+  if (fullText.includes('wheez') || fullText.includes('asthma') || fullText.includes('copd') || fullText.includes('allergic')) {
+    findings.push("Expiratory wheezing present.");
   } else if (fullText.includes('cough') || fullText.includes('sputum') || fullText.includes('pneumonia') || fullText.includes('fever') || temp >= 100.4) {
-    resp = "Coarse rhonchi and focal crackles (rales) localized to the affected lung fields.";
+    findings.push("Coarse rhonchi/crackles noted.");
   } else if (fullText.includes('chf') || fullText.includes('edema') || fullText.includes('orthopnea')) {
-    resp = "Bibasilar crackles (rales) extending halfway up both posterior lung fields.";
-  } else if (fullText.includes('shortness of breath') || fullText.includes('dyspnea') || rr >= 22 || spO2 < 95) {
-    resp = "Tachypnea present with shallow breathing and increased respiratory effort; no wheezes or crackles.";
+    findings.push("Bibasilar crackles present.");
   }
-  exams.push(`Respiratory: ${resp}`);
 
-  // Cardiovascular
-  let cardio = "Regular rate and rhythm. Normal S1, S2. No murmurs, rubs, or gallops. Peripheral pulses 2+ and symmetric.";
-  if (hr >= 100) {
-    cardio = `Tachycardia (HR ${hr}) with regular rhythm. No murmurs, rubs, or gallops. Peripheral pulses intact.`;
-  } else if (hr < 60) {
-    cardio = `Bradycardia (HR ${hr}) with regular rhythm. Pulses intact, cap refill normal.`;
-  } else if (fullText.includes('afib') || fullText.includes('arrhythmia') || fullText.includes('irregular')) {
-    cardio = "Irregularly irregular rhythm. Normal S1, S2, no murmurs.";
+  if (fullText.includes('afib') || fullText.includes('arrhythmia') || fullText.includes('irregular')) {
+    findings.push("Irregularly irregular heart rhythm.");
   }
-  exams.push(`Cardiovascular: ${cardio}`);
 
-  // Abdomen
-  let abd = "Soft, non-tender, non-distended. Normal active bowel sounds. No guarding or rebound.";
   if (fullText.includes('abdominal pain') || fullText.includes('stomach pain') || fullText.includes('nausea') || fullText.includes('vomiting') || fullText.includes('pelvic pain') || fullText.includes('crohn') || fullText.includes('abscess')) {
     if (pain >= 7) {
-      abd = "Moderately distended, severe tenderness to palpation in the affected quadrants. Guarding present without rebound.";
+      findings.push("Abdomen moderately distended; severe tenderness with guarding.");
     } else {
-      abd = "Soft, mild to moderate tenderness to palpation in the affected quadrants. No guarding or rebound.";
+      findings.push("Abdomen soft with mild to moderate tenderness; no rebound.");
     }
   }
-  exams.push(`Gastrointestinal: ${abd}`);
 
-  // Neurological
-  let neuro = "Alert and oriented x4. Cranial nerves II-XII intact. Normal motor and sensory function. No focal deficits.";
   if (fullText.includes('slurred') || fullText.includes('droop') || fullText.includes('weakness') || fullText.includes('numbness') || fullText.includes('stroke') || fullText.includes('ams')) {
-    let weaknessDetail = "";
-    if (fullText.includes('left-sided weakness') || fullText.includes('left sided weakness')) {
-      weaknessDetail = "Left-sided hemiparesis (motor strength 3/5 in upper and lower extremities). Left-sided facial droop present. ";
-    } else if (fullText.includes('right-sided weakness') || fullText.includes('right sided weakness')) {
-      weaknessDetail = "Right-sided hemiparesis (motor strength 3/5 in upper and lower extremities). Right-sided facial droop present. ";
-    } else {
-      weaknessDetail = "Mild motor or sensory asymmetry noted. ";
-    }
-    neuro = `Awake but disoriented or slurred speech. ${weaknessDetail}Cranial nerves asymmetric. Right/left deficits present.`;
+    if (fullText.includes('left-sided weakness') || fullText.includes('left sided weakness')) findings.push("Left-sided hemiparesis and facial droop.");
+    else if (fullText.includes('right-sided weakness') || fullText.includes('right sided weakness')) findings.push("Right-sided hemiparesis and facial droop.");
+    else findings.push("Focal neurologic asymmetry noted.");
   } else if (fullText.includes('dizzy') || fullText.includes('unsteady') || fullText.includes('gait') || fullText.includes('fall')) {
-    neuro = "Alert and oriented. Sensation intact. Spontaneous horizontal nystagmus or subjective dizziness on head turn; unsteady gait.";
+    findings.push("Unsteady gait; subjective dizziness.");
   }
-  exams.push(`Neurological: ${neuro}`);
 
-  return exams;
+  if (findings.length === 0) {
+    return ["General exam unremarkable; awake, alert, in no acute distress."];
+  }
+
+  return [`Focused exam findings: ${findings.join(' ')}`];
 }
 
 function buildSoapNote(caseData, workflow) {
@@ -4315,21 +4290,15 @@ function buildSoapNote(caseData, workflow) {
   const meds = (patientView.medications || []).length ? joinClinicalList(patientView.medications) : 'None documented';
   const allergies = patientView.no_known_allergies ? 'No known drug allergies' : (patientView.allergies || []).length ? joinClinicalList(patientView.allergies) : 'None documented';
 
-  const hpiParts = [
-    patientView.presenting_concern,
-    patientView.timeline,
-    patientView.progression,
-    patientView.severity ? `Severity rated as ${patientView.severity}.` : ''
-  ].filter(Boolean);
-  const hpi = hpiParts.join(' ');
+  const historyText = lowAcuityProfile
+    ? `${capitalizeSentence(lowAcuityProfile.problem)} with stable triage vitals; medication details and access context require verification.`
+    : clinicalHistoryDetails(caseData) || documentedMedicalHistoryText(caseData) || capitalizeSentence(patientView.presenting_concern || '');
 
   return {
     subjective: {
       chief_concern: capitalizeSentence(presentingProblemText(caseData)),
-      history: lowAcuityProfile
-        ? `${capitalizeSentence(lowAcuityProfile.problem)} with stable triage vitals; medication details and access context require verification.`
-        : clinicalHistoryDetails(caseData) || documentedMedicalHistoryText(caseData),
-      hpi: capitalizeSentence(hpi),
+      history: '', // History is now rendered via HPI field
+      hpi: capitalizeSentence(historyText),
       pmh: capitalizeSentence(pmh),
       meds: capitalizeSentence(meds),
       allergies: capitalizeSentence(allergies)
