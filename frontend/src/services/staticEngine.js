@@ -4304,16 +4304,9 @@ function buildSoapNote(caseData, workflow) {
       allergies: capitalizeSentence(allergies)
     },
     objective: [
-      `Triage vital signs: ${formattedVitalSigns(caseData)}.`,
-      vitalFlags(caseData).length
-        ? `Notable vital-sign findings: ${joinClinicalList(vitalFlags(caseData).map((item) => `${item.name} ${item.value} (${item.reason})`))}.`
-        : 'No danger-zone vital signs were documented.',
-      ...generateObjectiveExam(caseData),
-      ...physicalExamFacts.map((fact) => `Additional exam finding: ${fact.statement}`),
-      ...limitations.map((item) => `Source limitation: ${item}`),
-      resourceSignalText(caseData),
-      `Reference acuity: ESI ${caseData.acuity}.`
-    ],
+      `Vitals: ${formattedVitalSigns(caseData)}.`,
+      ...generateObjectiveExam(caseData)
+    ].filter(Boolean),
     assessment: {
       primary_diagnosis: soapPrimaryDiagnosis(caseData),
       ddx: soapDifferential(caseData),
