@@ -18,7 +18,7 @@ export const CATEGORY_LABELS = Object.fromEntries(QUESTION_CATALOG.map((item) =>
 export const QUESTION_DOMAIN_CHECKS = [
   ['timeline', ['when', 'start', 'began', 'long', 'sudden', 'gradual', 'changed', 'worse']],
   ['red_flags', ['breath', 'chest pain', 'faint', 'passed out', 'weak', 'numb', 'bleed', 'vomit', 'fever', 'confus']],
-  ['severity', ['bad', 'severe', 'pain', 'scale', 'distress', 'right now']],
+  ['severity', ['bad', 'severe', 'pain', 'scale', 'distress', 'right now', 'how is it', 'how are you', 'how is the', 'feeling now', 'feel now', 'better or worse', 'worse or better', 'level', 'rate']],
   ['medical_history', ['medical', 'history', 'problems', 'conditions', 'disease', 'diabetes', 'heart']],
   ['medications', ['med', 'medicine', 'blood thinner', 'anticoagul', 'daily', 'take']],
   ['prior_episode', ['before', 'again', 'previous', 'prior', 'ever had', 'like this']],
@@ -39,6 +39,13 @@ export const INTERVIEW_MODES = [
 ];
 
 export const INTERVIEW_SUPPORTS = [
+  {
+    id: 'chief_concern',
+    label: 'Explore chief concern',
+    cue: "Ask what brought the patient in today, using the patient's words.",
+    intent: 'Establish the primary reason for the emergency department visit.',
+    question_stem: 'What is the main reason you came to the emergency department today?'
+  },
   {
     id: 'symptom_course',
     label: 'Clarify symptom course',

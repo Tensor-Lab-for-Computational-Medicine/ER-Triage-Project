@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   askTutorQuestion,
   getFeedback,
+  getAiDebrief,
   getTutorSettings,
   gradeReasoningReview
 } from '../services/api';
@@ -437,12 +438,15 @@ function DebriefAccordion({ title, badge, children, defaultOpen = false }) {
 }
 
 function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRestart }) {
+  const [activeTab, setActiveTab] = useState('performance');
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [reasoningReview, setReasoningReview] = useState(null);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState('');
+
+  const [aiDebriefLoading, setAiDebriefLoading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -452,6 +456,49 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
         if (isMounted) {
           setFeedback(data);
           setReasoningReview(data.local_reasoning_review || null);
+          
+          const settings = aiSettings || getTutorSettings();
+          if (settings?.hasKey) {
+            setAiDebriefLoading(true);
+            getAiDebrief(sessionId).then(aiData => {
+              if (isMounted && aiData) {
+                setFeedback(prev => {
+                  if (!prev) return prev;
+                  const updated = { ...prev };
+                  
+                  if (aiData.expert_soap_note) {
+                    updated.physician_debrief = {
+                      ...updated.physician_debrief,
+                      soap_note: aiData.expert_soap_note
+                    };
+                  }
+                  
+                  if (aiData.clinical_tips) {
+                    updated.next_case_checklist = [
+                      {
+                        title: 'Red Flags',
+                        items: aiData.clinical_tips.red_flags || []
+                      },
+                      {
+                        title: 'Interview Quality',
+                        items: aiData.clinical_tips.interview_quality || []
+                      },
+                      {
+                        title: 'Actionable Advice',
+                        items: aiData.clinical_tips.what_to_do_differently || []
+                      }
+                    ];
+                  }
+                  
+                  return updated;
+                });
+              }
+            }).catch(e => {
+              console.error('AI Debrief failed:', e);
+            }).finally(() => {
+              if (isMounted) setAiDebriefLoading(false);
+            });
+          }
         }
       } catch (err) {
         if (isMounted) setError(`Failed to load feedback: ${err.message || err.toString()}`);
@@ -550,9 +597,24 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
         </div>
         <span className={`result-badge ${comparisonClass}`}>{triage_analysis?.comparison}</span>
       </div>
+      <div className="feedback-tabs-nav" style={{ display: 'flex', gap: '16px', borderBottom: '2px solid var(--line)', marginBottom: '24px', marginTop: '12px' }}>
+        <button type="button" className={`feedback-tab-btn ${activeTab === 'performance' ? 'active' : ''}`} onClick={() => setActiveTab('performance')} style={{ background: 'none', border: 'none', borderBottom: activeTab === 'performance' ? '2px solid var(--teal)' : '2px solid transparent', padding: '8px 12px', fontSize: '0.95rem', fontWeight: '750', color: activeTab === 'performance' ? 'var(--teal)' : 'var(--muted)', cursor: 'pointer', marginBottom: '-2px', transition: 'all 0.2s' }}>Clinical Performance</button>
+        <button type="button" className={`feedback-tab-btn ${activeTab === 'rationale' ? 'active' : ''}`} onClick={() => setActiveTab('rationale')} style={{ background: 'none', border: 'none', borderBottom: activeTab === 'rationale' ? '2px solid var(--teal)' : '2px solid transparent', padding: '8px 12px', fontSize: '0.95rem', fontWeight: '750', color: activeTab === 'rationale' ? 'var(--teal)' : 'var(--muted)', cursor: 'pointer', marginBottom: '-2px', transition: 'all 0.2s' }}>Triage Rationale</button>
+        <button type="button" className={`feedback-tab-btn ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')} style={{ background: 'none', border: 'none', borderBottom: activeTab === 'tips' ? '2px solid var(--teal)' : '2px solid transparent', padding: '8px 12px', fontSize: '0.95rem', fontWeight: '750', color: activeTab === 'tips' ? 'var(--teal)' : 'var(--muted)', cursor: 'pointer', marginBottom: '-2px', transition: 'all 0.2s' }}>Clinical Tips & Tutor</button>
+      </div>
 
-      {/* Section 1: Expert Clinical SOAP Note & Case Breakdown */}
-      {soapNote && (
+      <div className="feedback-tab-content">
+        {activeTab === 'performance' && (
+          <div className="tab-pane fade-in">
+            {/* Section 1: Expert Clinical SOAP Note & Case Breakdown */}
+      {aiDebriefLoading ? (
+        <div className="expert-soap-breakdown loading-state" style={{ textAlign: 'center', padding: '40px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '32px' }}>
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+          <div className="spinner" style={{ margin: '0 auto 16px', width: '40px', height: '40px', border: '4px solid #cbd5e1', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <h4 style={{ color: '#0f172a', margin: '0 0 8px' }}>AI Attending Physician is reviewing your case...</h4>
+          <p style={{ color: '#475569', margin: 0, fontSize: '0.95rem' }}>Synthesizing clinical assessment and personalized tips based on your triage performance.</p>
+        </div>
+      ) : soapNote && (
         <div className="expert-soap-breakdown">
           <div className="soap-header">
             <span className="provenance-tag reference-tag">Expert Clinical Synthesis</span>
@@ -593,9 +655,14 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                   <strong>Differential Diagnosis Considerations:</strong>
                   <ul className="ddx-list" style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
                     {(soapNote.assessment?.ddx || []).map((ddx, i) => (
-                      <li key={i} className="ddx-item" style={{ marginBottom: '8px', padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #dcfce7' }}>
-                        <strong style={{ color: '#166534', fontSize: '0.95rem' }}>{ddx.diagnosis}</strong>
-                        <p style={{ margin: '4px 0 0', fontSize: '0.9rem', color: '#475569' }}>{ddx.rationale}</p>
+                      <li key={i} className="ddx-item" style={{ marginBottom: '8px', background: '#fff', borderRadius: '6px', border: '1px solid #dcfce7', overflow: 'hidden' }}>
+                        <details style={{ padding: '0' }}>
+                          <summary style={{ padding: '10px', color: '#166534', fontSize: '0.95rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {ddx.diagnosis}
+                            <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>▼</span>
+                          </summary>
+                          <p style={{ margin: '0', padding: '0 10px 10px', fontSize: '0.9rem', color: '#475569', borderTop: '1px solid #f0fdf4', paddingTop: '8px' }}>{ddx.rationale}</p>
+                        </details>
                       </li>
                     ))}
                   </ul>
@@ -607,27 +674,25 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                 )}
               </div>
 
-              <div className="soap-box plan-box" style={{ background: '#f8fafc' }}>
-                <h4>Initial ED Care Plan — Problem List</h4>
-                <ol className="plan-list" style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
+              <div className="soap-box plan-box" style={{ background: '#f8fafc', padding: '16px' }}>
+                <h4 style={{ marginBottom: '8px' }}>Initial ED Care Plan — Problem List</h4>
+                <ul className="plan-list" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                   {(soapNote.plan || []).map((pItem, i) => {
                     const isObj = pItem && typeof pItem === 'object';
                     return (
-                      <li key={i} style={{ marginBottom: '12px', padding: '10px 12px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                      <li key={i} style={{ padding: '6px 0', borderBottom: i < soapNote.plan.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
                         {isObj ? (
-                          <>
-                            <strong style={{ display: 'block', fontSize: '0.88rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#0f172a', marginBottom: '4px' }}>
-                              {i + 1}. {pItem.problem}
-                            </strong>
-                            <span style={{ fontSize: '0.93rem', color: '#334155' }}>{pItem.plan}</span>
-                          </>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{i + 1}. {pItem.problem}</strong>
+                            <span style={{ fontSize: '0.9rem', color: '#475569', paddingLeft: '16px' }}>{pItem.plan}</span>
+                          </div>
                         ) : (
-                          <span style={{ fontSize: '0.93rem', color: '#334155' }}>{i + 1}. {pItem}</span>
+                          <span style={{ fontSize: '0.9rem', color: '#0f172a' }}>{i + 1}. {pItem}</span>
                         )}
                       </li>
                     );
                   })}
-                </ol>
+                </ul>
               </div>
             </div>
           </div>
@@ -652,8 +717,12 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
           </div>
         </div>
       </div>
+          </div>
+        )}
 
-      {/* Section 3: SBAR Handoff Critique */}
+        {activeTab === 'rationale' && (
+          <div className="tab-pane fade-in">
+            {/* Section 3: SBAR Handoff Critique */}
       <div className="sbar-critique-section" style={{ marginBottom: '32px' }}>
         <h3>Communication & SBAR Handoff</h3>
         <div className="sbar-comparison-grid">
@@ -716,10 +785,17 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
             />
           </div>
         </DebriefAccordion>
+        </div>
+      </div>
+      )}
 
-        <DebriefAccordion title="Accordion: AI Clinical Tutor Follow-up QA" badge={(aiSettings || getTutorSettings()).hasKey ? 'Active' : 'Optional'}>
+      {activeTab === 'tips' && (
+        <div className="tab-pane fade-in" style={{ marginTop: '24px' }}>
+          <LearnerProfilePanel delta={learner_profile_delta} recommendation={next_case_recommendation} />
+          <NextCaseChecklist items={next_case_checklist} />
           <TutorPanel sessionId={sessionId} aiSettings={aiSettings} />
-        </DebriefAccordion>
+        </div>
+      )}
       </div>
 
       <div className="step-actions">

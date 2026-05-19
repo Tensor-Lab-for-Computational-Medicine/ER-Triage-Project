@@ -6,11 +6,16 @@ function compactList(items = [], empty = 'No required gap is open.') {
   return items.slice(0, 3).join('; ');
 }
 
-function DecisionHint({ sessionId, stage, learnerContext = '' }) {
+function DecisionHint({ sessionId, stage, learnerContext = '', active = true }) {
   const [hint, setHint] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!active) {
+      setHint(null);
+      setError('');
+      return undefined;
+    }
     let cancelled = false;
     setHint(null);
     setError('');
@@ -24,9 +29,9 @@ function DecisionHint({ sessionId, stage, learnerContext = '' }) {
     return () => {
       cancelled = true;
     };
-  }, [sessionId, stage]);
+  }, [sessionId, stage, active]);
 
-  if (!hint) return null;
+  if (!active || !hint) return null;
 
   return (
     <aside className="decision-hint" aria-label="Decision hint">

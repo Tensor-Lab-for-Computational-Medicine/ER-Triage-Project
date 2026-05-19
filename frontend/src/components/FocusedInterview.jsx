@@ -71,6 +71,7 @@ function FocusedInterview({
   interviewSupports = [],
   initialProgress = null,
   patientSex = '',
+  coachEnabled = false,
   onNext,
   onCapture,
   onClock
@@ -550,174 +551,39 @@ function FocusedInterview({
     <section className="step-card">
       <div className="section-header">
         <div>
-          <span className="eyebrow">
-            Step 1 of 6 <span className="provenance-tag student-tag">Student Interaction</span>
-          </span>
           <h2>Focused Triage Interview</h2>
+          <p className="subtitle">Gather case history. Engage in a natural dialogue or use prompts below.</p>
         </div>
         <span className="clinical-badge">{log.length} questions asked</span>
       </div>
 
-      <div className="interview-brief">
-        <p className="instruction">
-          Ask aloud or type one focused question. The patient responds in the thread and can speak aloud.
-        </p>
-        <div className="interview-progress-compact" aria-label="Required interview domains">
-          <strong>Required domains: {coveredDomains.length}/{Math.max((coveredDomains.length + stillNeededDomains.length), 1)}</strong>
-          <div className="coverage-chip-row">
-            {stillNeededDomains.length
-              ? stillNeededDomains.map((domain) => <em className="coverage-chip needed" key={domain}>{domain}</em>)
-              : <em className="coverage-chip covered">Complete</em>}
-          </div>
-          <small>
-            {progressComplete
-              ? 'Required interview domains complete'
-              : canContinueWithGaps
-                ? 'Required domains remain open; continuation requires acknowledgement'
-                : `${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} before gap acknowledgement is available`}
-          </small>
+      {/* Modern, Compact Progress Bar */}
+      <div className="interview-progress-bar-container" style={{ margin: '0 0 20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', color: 'var(--muted)', marginBottom: '6px' }}>
+          <span>INTERVIEW GOALS</span>
+          <span>{coveredDomains.length} / {coveredDomains.length + stillNeededDomains.length} COVERED</span>
         </div>
-      </div>
-
-      {supportsEnabled ? (
-        <details className="support-workspace">
-          <summary>
-            <div>
-              <span className="eyebrow">Question prompts</span>
-              <h4>Use prompts</h4>
-            </div>
-            <strong>{supportUses.length} used</strong>
-          </summary>
-
-          <p className="support-note">
-            Use a prompt when you need a question frame.
-          </p>
-
-          <div className="prompt-support-grid" aria-label="Interview supports">
-            {interviewSupports.map((item, index) => {
-              const used = supportUses.some((support) => support.id === item.id);
-              const queued = queuedSupportId === item.id;
-              const nextPrompt = !used && supportUses.length === index;
-              return (
-                <button
-                  type="button"
-                  className={`support-card ${used ? 'used' : ''} ${queued ? 'active' : ''} ${nextPrompt ? 'next' : ''}`}
-                  key={item.id}
-                  onClick={() => openSupport(item)}
-                  disabled={loading}
-                  aria-pressed={queued}
-                >
-                  <strong>{item.label}</strong>
-                  <span>{item.cue}</span>
-                  <em>{used ? 'Used' : queued ? 'Queued' : supportCostLabel(item)}</em>
-                </button>
-              );
-            })}
-          </div>
-        </details>
-      ) : (
-        <div className="mode-note mode-note-panel">
-          <strong>Focused interview</strong>
-          <span>Use free-text questions. The debrief scores concept coverage after the case.</span>
-        </div>
-      )}
-
-      {supportUses.length > 0 && (
-        <div className="support-summary">
-          {supportUses.map((support) => (
-            <span key={support.id}>
-              {support.label}
-            </span>
-          ))}
-        </div>
-      )}
-
-      <details className="voice-options">
-        <summary>Voice options</summary>
-        <div className={`voice-encounter-panel ${conversationActive ? 'active' : ''}`}>
-          <div>
-            <strong>{conversationActive ? 'Live conversation' : 'Voice conversation'}</strong>
-            <small>
-              {conversationActive
-                ? conversationStatus || voiceStatus || patientVoiceStatus || 'Listening'
-                : 'Speak the question, hear the patient answer, then continue.'}
-            </small>
-          </div>
-          <button
-            type="button"
-            className={conversationActive ? 'btn-secondary' : 'btn-primary'}
-            onClick={startConversation}
-          >
-            {conversationActive ? 'End conversation' : 'Start conversation'}
-          </button>
-        </div>
-
-        <div className="patient-voice-control">
-          <label>
-            <input
-              type="checkbox"
-              checked={patientVoiceEnabled}
-              disabled={conversationActive}
-              onChange={(event) => setPatientVoice(event.target.checked)}
-            />
-            <span>Patient voice</span>
-          </label>
-          <small>{patientVoiceStatus || 'Reads patient answers aloud when enabled.'}</small>
-        </div>
-      </details>
-
-      <div className="question-input">
-        <label htmlFor="focused-question">Question to patient</label>
-        <div className="conversation-composer">
-          <textarea
-            id="focused-question"
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Ask one focused question."
-            rows="3"
-            disabled={loading}
+        <div className="progress-track" style={{ height: '6px', background: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
+          <div
+            className="progress-fill"
+            style={{
+              height: '100%',
+              background: 'var(--teal)',
+              width: `${((coveredDomains.length) / Math.max(coveredDomains.length + stillNeededDomains.length, 1)) * 100}%`,
+              transition: 'width 0.4s ease'
+            }}
           />
-          <button
-            type="button"
-            className={`voice-button ${voiceStatus ? 'active' : ''}`}
-            onClick={startVoiceInput}
-            disabled={loading || conversationActive}
-            aria-pressed={Boolean(voiceStatus)}
-          >
-            {voiceStatus || 'Dictate'}
-          </button>
         </div>
-        <small className="field-hint">
-          The encounter captures one clinical question at a time.
-        </small>
-      </div>
-
-      {error && (
-        <div className="error-message">
-          {error}
-          {voiceHelpUrl && (
-            <a className="voice-help-link" href={voiceHelpUrl}>
-              Open local voice URL
-            </a>
-          )}
-        </div>
-      )}
-      {loadingMessage && <div className="loading compact-loading">{loadingMessage}</div>}
-
-      <div className="button-group">
-        <button className="btn-primary" onClick={() => submitQuestion()} disabled={loading || conversationActive}>
-          {loading ? 'Asking patient...' : 'Ask patient'}
-        </button>
-        <button className="btn-secondary" onClick={onNext} disabled={!canContinue || loading}>
-          Continue to provisional ESI
-        </button>
-        {canContinueWithGaps && (
-          <button className="btn-secondary" onClick={continueWithGaps} disabled={loading}>
-            Continue with gaps
-          </button>
+        {!progressComplete && (
+          <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: 'var(--muted)' }}>
+            {canContinueWithGaps
+              ? 'Required domains remain open; you may proceed by acknowledging gaps.'
+              : `Ask at least ${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} to enable gap progression.`}
+          </p>
         )}
       </div>
 
+      {/* Chat Thread Rendered Above the Composer */}
       {log.length > 0 && (
         <div className="interview-thread">
           {log.map((item, index) => (
@@ -736,7 +602,11 @@ function FocusedInterview({
                     onClick={() => playPatientAnswer(item.answer, index)}
                     aria-label={`Replay patient answer ${index + 1}`}
                   >
-                    {speakingIndex === index ? 'Speaking' : 'Listen'}
+                    {speakingIndex === index ? (
+                      <span aria-hidden="true" title="Speaking">🔊</span>
+                    ) : (
+                      <span aria-hidden="true" title="Listen">▶</span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -745,6 +615,119 @@ function FocusedInterview({
           ))}
         </div>
       )}
+
+      {/* Suggestion Pills Right Above the Input Composer */}
+      {supportsEnabled && interviewSupports.length > 0 && (
+        <div className="prompt-suggestions-row" style={{ marginBottom: '12px' }}>
+          <span className="suggestions-label" style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--muted)' }}>Suggested Topics:</span>
+          <div className="suggestions-pills" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+            {interviewSupports.map((item, index) => {
+              const used = supportUses.some((support) => support.id === item.id);
+              const queued = queuedSupportId === item.id;
+              return (
+                <button
+                  type="button"
+                  className={`suggestion-pill ${used ? 'used' : ''} ${queued ? 'active' : ''}`}
+                  key={item.id}
+                  onClick={() => openSupport(item)}
+                  disabled={loading}
+                  title={item.cue}
+                >
+                  {item.label} {used && '✓'}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Composer Input Area */}
+      <div className="question-input" style={{ marginBottom: '16px' }}>
+        <label htmlFor="focused-question" style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--muted)' }}>Question to patient</label>
+        <div className="conversation-composer" style={{ marginTop: '6px' }}>
+          <textarea
+            id="focused-question"
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
+            placeholder="Type your question or click a suggestion above..."
+            rows="3"
+            disabled={loading}
+          />
+          <button
+            type="button"
+            className={`voice-button ${voiceStatus ? 'active' : ''}`}
+            onClick={startVoiceInput}
+            disabled={loading || conversationActive}
+            aria-pressed={Boolean(voiceStatus)}
+            title={voiceStatus || 'Dictate'}
+          >
+            <span aria-hidden="true">🎤</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Continuous Voice Loop & TTS Options */}
+      <div className="composer-options-row" style={{ display: 'flex', gap: '20px', margin: '8px 0 24px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--muted)', fontWeight: '600' }}>
+          <input
+            type="checkbox"
+            checked={patientVoiceEnabled}
+            disabled={conversationActive}
+            onChange={(event) => setPatientVoice(event.target.checked)}
+            style={{ width: '14px', height: '14px', margin: 0 }}
+          />
+          <span>Enable patient voice audio (TTS)</span>
+        </label>
+        <span style={{ color: 'var(--line)' }}>|</span>
+        <button
+          type="button"
+          className={`continuous-voice-btn ${conversationActive ? 'active' : ''}`}
+          onClick={startConversation}
+          disabled={loading}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: conversationActive ? 'var(--teal)' : 'var(--muted)',
+            fontWeight: '700',
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: conversationActive ? 'var(--teal)' : '#cbd5e1', display: 'inline-block' }} />
+          {conversationActive ? 'Continuous Voice Active' : 'Start Continuous Voice Mode'}
+        </button>
+      </div>
+
+      {error && (
+        <div className="error-message" style={{ marginBottom: '16px' }}>
+          {error}
+          {voiceHelpUrl && (
+            <a className="voice-help-link" href={voiceHelpUrl}>
+              Open local voice URL
+            </a>
+          )}
+        </div>
+      )}
+      {loadingMessage && <div className="loading compact-loading" style={{ marginBottom: '16px' }}>{loadingMessage}</div>}
+
+      {/* Navigation / Action Buttons */}
+      <div className="button-group" style={{ borderTop: '1px solid var(--line)', paddingTop: '20px', marginTop: '12px' }}>
+        <button className="btn-primary" onClick={() => submitQuestion()} disabled={loading || conversationActive}>
+          {loading ? 'Asking patient...' : 'Ask patient'}
+        </button>
+        <button className="btn-secondary" onClick={onNext} disabled={!canContinue || loading}>
+          Continue to provisional ESI
+        </button>
+        {canContinueWithGaps && (
+          <button className="btn-secondary" onClick={continueWithGaps} disabled={loading}>
+            Continue with gaps
+          </button>
+        )}
+      </div>
     </section>
   );
 }

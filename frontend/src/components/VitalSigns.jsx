@@ -376,7 +376,7 @@ function getSystemFinding(system, matchingFacts, patientData = {}, vitals = []) 
   return system.normal;
 }
 
-function VitalSigns({ sessionId, patientData, onNext, onCapture, onClock }) {
+function VitalSigns({ sessionId, patientData, coachEnabled = false, onNext, onCapture, onClock }) {
   const [vitals, setVitals] = useState([]);
   const [physicalExamFacts, setPhysicalExamFacts] = useState([]);
   const [conductedExams, setConductedExams] = useState([]);

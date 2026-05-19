@@ -465,13 +465,15 @@ function buildTimeline(caseData, symptoms) {
   }
 
   if (symptoms.present_ids.includes('chest_pain') && /\b(rest|radiat|diaphoresis|palpitations|orthopnea)\b/i.test(text)) {
-    const parts = ['The chest pain is happening at rest'];
+    const parts = [];
     if (/\bover the past two months\b/i.test(text)) {
       parts.push('my breathing when I lie flat has been worse over the past two months');
     } else if (duration) {
       parts.push(`it has been going on ${duration}`);
     }
-    return `${capitalizeSentence(joinItems(parts))}.`;
+    if (parts.length > 0) {
+      return `${capitalizeSentence(joinItems(parts))}.`;
+    }
   }
 
   if (/\bsudden[- ]onset\b/i.test(text)) return 'It came on suddenly.';
@@ -762,19 +764,19 @@ function detectIntents(question) {
   if (/\b(why|what)\b.*\b(came|come|brought|going on|wrong|happened|hospital|today)\b/.test(q) || /\btell me what'?s going on\b/.test(q)) intents.push('chief_concern');
   if (/\b(when|start|started|began|begin|long|duration|course|how long)\b/.test(q)) intents.push('timeline');
   if (/\b(better|worse|worsening|change|changed|changing|improving|progression|progressed|getting worse|getting better|constant|same|stable|coming and going)\b/.test(q)) intents.push('progression');
-  if (/\b(how bad|pain|scale|severity|severe|distress|right now|rate)\b/.test(q)) intents.push('severity');
+  if (/\b(how bad|pain|scale|severity|severe|distress|right now|rate|how is it|how are you|how is the|feeling now|feel now|better or worse|worse or better)\b/.test(q)) intents.push('severity');
   if (/\b(other symptoms|associated|also|anything else|red flags|scary symptoms)\b/.test(q)) intents.push('associated_symptoms');
   if (/\b(breath|breathing|breathe|cough|chest\s*pains?|faint|fainted|fainting|passed out|passing out|weak|weakness|numb|numbness|bleed|bleeding|blood|vomit|vomiting|fever|confus|headache|dizzy|slurred|face|droop)\b/.test(q)) intents.push('red_flags');
-  if (/\b(heart attack|cardiovascular|cardiac|heart condition|heart conditions|heart disease|afib|atrial fibrillation)\b/.test(q)) intents.push('cardiac_history');
-  if (/\b(medical|history|problems|conditions|disease|diabetes|cancer|stroke|copd|kidney|liver)\b/.test(q)) intents.push('medical_history');
+  if (/\b(heart attack|cardiovascular|cardiac|heart condition|heart conditions|heart disease|heart failure|chf|aortic stenosis|valve|afib|atrial fibrillation)\b/.test(q)) intents.push('cardiac_history');
+  if (/\b(medical|history|problems|conditions|disease|diabetes|cancer|stroke|copd|kidney|liver|asthma|cholesterol|hypertension)\b/.test(q)) intents.push('medical_history');
   if (/\b(meds?|medicines?|medications?|pills?|blood thinners?|anticoagulants?|daily|take|taking)\b/.test(q)) intents.push('medications');
   if (/\b(allerg(y|ies|ic))\b/.test(q)) intents.push('allergies');
   if (/\b(before|again|previous|prior|ever had|like this|happen often|happened before)\b/.test(q)) intents.push('prior_episode');
   if (/\b(pregnant|pregnancy|pregnancies|period|lmp)\b/.test(q)) intents.push('pregnancy');
-
+ 
   if (!intents.length) {
     // If it has NO overlap with common medical triage topics, label it as irrelevant!
-    const isMedicalQuery = /\b(feel|feeling|sick|hurt|hurts|ache|pain|breath|cough|fever|vomit|nausea|weak|dizzy|bleed|blood|suture|wound|laceration|cut|refill|prescrip|pill|dose|med|history|stroke|seizure|fall|confusion|swallow|rectal|anal|crohn|pressure|tightness|sprain|fracture|swelling|allerg|pregnan|period|lmp|ill|onset|bad|scale|worse|worsening|happen|hospital|accident|injury|swelled)\b/i.test(q);
+    const isMedicalQuery = /\b(feel|feeling|sick|hurt|hurts|ache|pain|breath|cough|fever|vomit|nausea|weak|dizzy|bleed|blood|suture|wound|laceration|cut|refill|prescrip|pill|dose|med|history|stroke|seizure|fall|confusion|swallow|rectal|anal|crohn|pressure|tightness|sprain|fracture|swelling|allerg|pregnan|period|lmp|ill|onset|bad|scale|worse|worsening|happen|hospital|accident|injury|swelled|heart|failure|stenosis|copd|diabetes|cancer|kidney|liver|lung|asthma|cholesterol|hypertension)\b/i.test(q);
     if (!isMedicalQuery) {
       return ['irrelevant'];
     }
@@ -868,7 +870,190 @@ function responseForSpecificSymptoms(view, ids = []) {
   return parts.join(' ') || "No, not that I can tell.";
 }
 
+function checkSpecificCondition(q, view) {
+  const lowerQ = String(q || '').toLowerCase();
+  
+  const conditionSpecs = [
+    {
+      name: 'COPD',
+      patterns: [/\bcopd\b/, /\bbronchitis\b/, /\bemphysema\b/, /\bpulmonary disease\b/, /\bchronic obstructive\b/],
+      matchHistory: (item) => /copd|bronchitis|emphysema|pulmonary|obstructive/i.test(item),
+      yesAnswer: "Yes, I have COPD.",
+      noAnswer: "No, I don't have COPD or any chronic lung conditions."
+    },
+    {
+      name: 'diabetes',
+      patterns: [/\bdiabet\w*/, /\bsugar\b/],
+      matchHistory: (item) => /diabet|sugar/i.test(item),
+      yesAnswer: "Yes, I have diabetes.",
+      noAnswer: "No, I don't have diabetes."
+    },
+    {
+      name: 'stroke',
+      patterns: [/\bstroke\b/, /\bcva\b/, /\btia\b/],
+      matchHistory: (item) => /stroke|cva|tia/i.test(item),
+      yesAnswer: "Yes, I've had a stroke in the past.",
+      noAnswer: "No, I've never had a stroke or TIA."
+    },
+    {
+      name: 'cancer',
+      patterns: [/\bcancer\b/, /\btumor\b/, /\bmalignan\w*/],
+      matchHistory: (item) => /cancer|tumor|malignan/i.test(item),
+      yesAnswer: "Yes, I have a history of cancer.",
+      noAnswer: "No, I don't have a history of cancer."
+    },
+    {
+      name: 'kidney disease',
+      patterns: [/\bkidney\b/, /\brenal\b/, /\bdialysis\b/],
+      matchHistory: (item) => /kidney|renal|dialysis/i.test(item),
+      yesAnswer: "Yes, I have kidney problems.",
+      noAnswer: "No, I don't have any kidney disease."
+    },
+    {
+      name: 'liver disease',
+      patterns: [/\bliver\b/, /\bhepat\w*/, /\bcirrhosis\b/],
+      matchHistory: (item) => /liver|hepat|cirrhosis/i.test(item),
+      yesAnswer: "Yes, I have liver problems.",
+      noAnswer: "No, I don't have any history of liver disease."
+    },
+    {
+      name: 'asthma',
+      patterns: [/\basthma\b/],
+      matchHistory: (item) => /asthma/i.test(item),
+      yesAnswer: "Yes, I have asthma.",
+      noAnswer: "No, I don't have asthma."
+    },
+    {
+      name: 'high blood pressure',
+      patterns: [/\bhypertension\b/, /\bhigh blood pressure\b/],
+      matchHistory: (item) => /hypertens|blood pressure/i.test(item),
+      yesAnswer: "Yes, I have high blood pressure.",
+      noAnswer: "No, my blood pressure is usually fine."
+    },
+    {
+      name: 'high cholesterol',
+      patterns: [/\bcholesterol\b/, /\bhyperlipid\w*/],
+      matchHistory: (item) => /cholesterol|hyperlipid/i.test(item),
+      yesAnswer: "Yes, I have high cholesterol.",
+      noAnswer: "No, I don't have high cholesterol."
+    },
+    {
+      name: 'heart failure',
+      patterns: [/\bheart failure\b/, /\bchf\b/],
+      matchHistory: (item) => /heart failure|chf/i.test(item),
+      yesAnswer: "Yes, I have heart failure.",
+      noAnswer: "No, I don't have heart failure."
+    },
+    {
+      name: 'aortic stenosis',
+      patterns: [/\baortic stenosis\b/, /\baortic valve\b/],
+      matchHistory: (item) => /aortic stenosis|aortic valve/i.test(item),
+      yesAnswer: "Yes, I have aortic stenosis.",
+      noAnswer: "No, I don't have aortic stenosis."
+    }
+  ];
+
+  for (const spec of conditionSpecs) {
+    if (spec.patterns.some(pattern => pattern.test(lowerQ))) {
+      const hasCondition = [
+        ...(view.medical_history || []),
+        ...(view.cardiac_history || [])
+      ].some(item => spec.matchHistory(item));
+      if (hasCondition) {
+        return spec.yesAnswer;
+      } else {
+        return spec.noAnswer;
+      }
+    }
+  }
+  return null;
+}
+
+function checkSpecificMedication(q, view) {
+  const lowerQ = String(q || '').toLowerCase();
+  
+  const medSpecs = [
+    {
+      name: 'blood thinners',
+      patterns: [/\bblood thinners?\b/, /\banticoag/],
+      matchMed: (item) => /thinner|anticoag|warfarin|coumadin|eliquis|apixaban|xarelto|rivaroxaban|pradaxa|plavix|clopidogrel|aspirin/i.test(item),
+      yesAnswer: "Yes, I take a blood thinner.",
+      noAnswer: "No, I am not taking any blood thinners."
+    },
+    {
+      name: 'aspirin',
+      patterns: [/\baspirin\b/],
+      matchMed: (item) => /aspirin/i.test(item),
+      yesAnswer: "Yes, I take aspirin.",
+      noAnswer: "No, I don't take aspirin."
+    },
+    {
+      name: 'insulin',
+      patterns: [/\binsulin\b/],
+      matchMed: (item) => /insulin/i.test(item),
+      yesAnswer: "Yes, I take insulin.",
+      noAnswer: "No, I am not on insulin."
+    },
+    {
+      name: 'metformin',
+      patterns: [/\bmetformin\b/, /\bglucophage\b/],
+      matchMed: (item) => /metformin|glucophage/i.test(item),
+      yesAnswer: "Yes, I take metformin.",
+      noAnswer: "No, I don't take metformin."
+    }
+  ];
+
+  for (const spec of medSpecs) {
+    if (spec.patterns.some(pattern => pattern.test(lowerQ))) {
+      const hasMed = (view.medications || []).some(item => spec.matchMed(item));
+      if (hasMed) return spec.yesAnswer;
+      return spec.noAnswer;
+    }
+  }
+  return null;
+}
+
+function checkSpecificAllergy(q, view) {
+  const lowerQ = String(q || '').toLowerCase();
+  
+  const allergySpecs = [
+    {
+      name: 'penicillin',
+      patterns: [/\bpenicillin\b/, /\bpenicillins\b/],
+      matchAllergy: (item) => /penicillin/i.test(item),
+      yesAnswer: "Yes, I am allergic to penicillin.",
+      noAnswer: "No, I don't have a penicillin allergy."
+    },
+    {
+      name: 'latex',
+      patterns: [/\blatex\b/],
+      matchAllergy: (item) => /latex/i.test(item),
+      yesAnswer: "Yes, I am allergic to latex.",
+      noAnswer: "No, I don't have a latex allergy."
+    },
+    {
+      name: 'sulfa',
+      patterns: [/\bsulfa\b/],
+      matchAllergy: (item) => /sulfa/i.test(item),
+      yesAnswer: "Yes, I am allergic to sulfa drugs.",
+      noAnswer: "No, I don't have a sulfa allergy."
+    }
+  ];
+
+  for (const spec of allergySpecs) {
+    if (spec.patterns.some(pattern => pattern.test(lowerQ))) {
+      const hasAllergy = (view.allergies || []).some(item => spec.matchAllergy(item));
+      if (hasAllergy) return spec.yesAnswer;
+      return spec.noAnswer;
+    }
+  }
+  return null;
+}
+
 function medicalHistoryResponse(view, intent, plan = {}) {
+  const specific = checkSpecificCondition(plan.question || '', view);
+  if (specific) return specific;
+
   if (intent === 'cardiac_history') {
     if (view.cardiac_history.length) {
       const prefix = `I have ${joinItems(view.cardiac_history.slice(0, 4))}.`;
@@ -885,14 +1070,20 @@ function medicalHistoryResponse(view, intent, plan = {}) {
   return parts.join(' ') || "I don't think I have major medical problems that I know of.";
 }
 
-function medicationResponse(view) {
+function medicationResponse(view, plan = {}) {
+  const specific = checkSpecificMedication(plan.question || '', view);
+  if (specific) return specific;
+
   const parts = [];
   if (view.medications.length) parts.push(`I take ${joinItems(view.medications.slice(0, 4))}.`);
   if (view.negative_medications.length) parts.push(view.negative_medications.slice(0, 2).join('. ') + '.');
   return parts.join(' ') || "I don't remember my regular medicines right now.";
 }
 
-function allergiesResponse(view) {
+function allergiesResponse(view, plan = {}) {
+  const specific = checkSpecificAllergy(plan.question || '', view);
+  if (specific) return specific;
+
   if (view.no_known_allergies) return "I don't have any known medication allergies.";
   if (view.allergies.length) return `I'm allergic to ${joinItems(view.allergies.slice(0, 5))}.`;
   return "I don't know of any medication allergies.";
@@ -946,9 +1137,9 @@ function renderIntent(intent, plan, view) {
     case 'medical_history':
       return medicalHistoryResponse(view, intent, plan);
     case 'medications':
-      return medicationResponse(view);
+      return medicationResponse(view, plan);
     case 'allergies':
-      return allergiesResponse(view);
+      return allergiesResponse(view, plan);
     case 'prior_episode':
       return view.prior_episodes || 'No, this does not happen to me regularly.';
     case 'pregnancy':
@@ -1008,12 +1199,12 @@ function coversIntent(answer, plan, view) {
   if (!normalized) return false;
   if (plan.intents.includes('answer_key')) return /\b(don t know|history|feel|feeling)\b/.test(normalized);
   if (plan.intents.includes('diagnosis_clarification')) return /\b(not sure|don t know|brought|came|feel|feeling)\b/.test(normalized);
-  if (plan.intents.includes('timeline')) return /\b(start|started|going on|ago|before|since|today|yesterday|week|month|sudden|gradual|exact time|more exact|came on|happened|course|how long)\b/.test(normalized);
-  if (plan.intents.includes('progression')) return /\b(better|worse|worsening|same|getting|change|changing|constant|stable|coming|going|gradually|improving|progression|progressed)\b/.test(normalized);
+  if (plan.intents.includes('timeline')) return /\b(start|started|going on|ago|before|since|today|yesterday|week|weeks|month|months|year|years|sudden|gradual|exact time|more exact|came on|happened|course|how long|hour|hours|minute|minutes|day|days|time|date|onset|duration|when|past|last|few|couple|intermittent|comes|goes|coming|going)\b/.test(normalized);
+  if (plan.intents.includes('progression')) return /\b(better|worse|worsening|worsened|improved|improving|same|getting|change|changing|constant|stable|coming|going|gradually|progression|progressed)\b/.test(normalized);
   if (plan.intents.includes('severity')) return /\b(pain|bad|severe|mild|uncomfortable|weak|breathe|serious)\b/.test(normalized);
-  if (plan.intents.includes('medical_history') || plan.intents.includes('cardiac_history')) return /\b(have|history|don t know|heart|blood pressure|diabetes|cancer|stroke|copd|kidney|condition)\b/.test(normalized);
-  if (plan.intents.includes('medications')) return /\b(take|taking|medicine|medicines|pills|blood thinner|don t remember)\b/.test(normalized);
-  if (plan.intents.includes('allergies')) return /\b(allergic|allergies|known medication allergies|don t know)\b/.test(normalized);
+  if (plan.intents.includes('medical_history') || plan.intents.includes('cardiac_history')) return /\b(have|history|don t know|don t|do not|no|never|none|heart|blood pressure|diabetes|cancer|stroke|copd|kidney|condition)\b/.test(normalized);
+  if (plan.intents.includes('medications')) return /\b(take|taking|medicine|medicines|pills|blood thinner|don t remember|no|not|don t|never|none)\b/.test(normalized);
+  if (plan.intents.includes('allergies')) return /\b(allergic|allergies|known medication allergies|don t know|no|not|don t|never|none)\b/.test(normalized);
   if (plan.intents.includes('red_flags') && plan.asked_symptoms?.length) return /\b(yes|no|have|had|don t have|not that)\b/.test(normalized);
   if (plan.intents.includes('irrelevant')) return true;
   if (plan.intents.includes('chief_concern')) return normalizedText(view.presenting_concern).split(' ').some((word) => word.length > 4 && normalized.includes(word));

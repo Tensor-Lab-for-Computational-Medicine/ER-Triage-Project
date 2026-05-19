@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { submitSbar } from '../services/api';
-import DecisionHint from './DecisionHint';
 
 function SbarHandoff({ sessionId, coachEnabled = false, onNext, onCapture, onClock }) {
   const [handoff, setHandoff] = useState('');
@@ -59,13 +58,7 @@ function SbarHandoff({ sessionId, coachEnabled = false, onNext, onCapture, onClo
         Call report to the receiving team with the current situation, relevant background, clinical assessment, and recommended next action.
       </p>
 
-      {coachEnabled && (
-        <DecisionHint
-          sessionId={sessionId}
-          stage="sbar"
-          learnerContext={handoff}
-        />
-      )}
+
 
       <div className="premium-textarea-container">
         <label htmlFor="sbar-handoff" className="premium-textarea-label">

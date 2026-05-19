@@ -46,8 +46,8 @@ const TUTOR_STORAGE_KEY = 'ed_triage_openrouter_storage';
 const PATIENT_RESPONSE_CACHE_VERSION = PATIENT_DIALOGUE_CACHE_VERSION;
 const PATIENT_PERSONA_VERSION = PATIENT_DIALOGUE_ENGINE_VERSION;
 const PATIENT_PROMPT_VERSION = PATIENT_DIALOGUE_PROMPT_VERSION;
-const PATIENT_AI_FAST_TIMEOUT_MS = 450;
-const PATIENT_AI_BACKGROUND_TIMEOUT_MS = 5000;
+const PATIENT_AI_FAST_TIMEOUT_MS = 6000;
+const PATIENT_AI_BACKGROUND_TIMEOUT_MS = 8000;
 const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v5';
 const PATIENT_RESPONSE_CACHE_LIMIT = 250;
 const REASONING_REVIEW_CACHE_KEY = 'ed_triage_reasoning_review_cache_v1';
@@ -253,16 +253,16 @@ function vitalFlags(caseData) {
   const { vitals } = caseData;
   const flags = [];
   if (vitals.hr !== null && vitals.hr !== undefined) {
-    if (vitals.hr >= 130 || vitals.hr < 50) flags.push({ name: 'Heart Rate', value: `${vitals.hr} bpm`, severity: 'critical', reason: 'danger-zone heart rate' });
+    if (vitals.hr >= 130 || vitals.hr < 50) flags.push({ name: 'Heart Rate', value: `${vitals.hr} bpm`, severity: 'critical', reason: vitals.hr >= 130 ? 'critical tachycardia' : 'critical bradycardia' });
     else if (vitals.hr >= 110 || vitals.hr < 60) flags.push({ name: 'Heart Rate', value: `${vitals.hr} bpm`, severity: 'watch', reason: 'abnormal heart rate' });
   }
   if (vitals.sbp !== null && vitals.sbp !== undefined) {
     const bp = `${Math.round(vitals.sbp)}/${Math.round(vitals.dbp)} mmHg`;
-    if (vitals.sbp < 90 || vitals.sbp >= 180) flags.push({ name: 'Blood Pressure', value: bp, severity: 'critical', reason: 'danger-zone blood pressure' });
+    if (vitals.sbp < 90 || vitals.sbp >= 180) flags.push({ name: 'Blood Pressure', value: bp, severity: 'critical', reason: vitals.sbp >= 180 ? 'critical hypertension' : 'critical hypotension' });
     else if (vitals.sbp < 100 || vitals.sbp >= 160) flags.push({ name: 'Blood Pressure', value: bp, severity: 'watch', reason: 'abnormal blood pressure' });
   }
   if (vitals.rr !== null && vitals.rr !== undefined) {
-    if (vitals.rr >= 30 || vitals.rr < 8) flags.push({ name: 'Respiratory Rate', value: `${vitals.rr} breaths/min`, severity: 'critical', reason: 'danger-zone respiratory rate' });
+    if (vitals.rr >= 30 || vitals.rr < 8) flags.push({ name: 'Respiratory Rate', value: `${vitals.rr} breaths/min`, severity: 'critical', reason: vitals.rr >= 30 ? 'critical tachypnea' : 'critical bradypnea' });
     else if (vitals.rr >= 22 || vitals.rr < 12) flags.push({ name: 'Respiratory Rate', value: `${vitals.rr} breaths/min`, severity: 'watch', reason: 'abnormal respiratory rate' });
   }
   if (vitals.o2 !== null && vitals.o2 !== undefined) {
@@ -270,7 +270,7 @@ function vitalFlags(caseData) {
     else if (vitals.o2 < 94) flags.push({ name: 'Oxygen Saturation', value: `${vitals.o2}%`, severity: 'watch', reason: 'borderline oxygenation' });
   }
   if (vitals.temp !== null && vitals.temp !== undefined) {
-    if (vitals.temp >= 103 || vitals.temp < 95) flags.push({ name: 'Temperature', value: `${vitals.temp} F`, severity: 'critical', reason: 'danger-zone temperature' });
+    if (vitals.temp >= 103 || vitals.temp < 95) flags.push({ name: 'Temperature', value: `${vitals.temp} F`, severity: 'critical', reason: vitals.temp >= 103 ? 'critical hyperthermia' : 'critical hypothermia' });
     else if (vitals.temp >= 100.4 || vitals.temp < 96.8) flags.push({ name: 'Temperature', value: `${vitals.temp} F`, severity: 'watch', reason: 'abnormal temperature' });
   }
   if (vitals.pain !== null && vitals.pain !== undefined) {
@@ -1468,13 +1468,13 @@ function answerAddressesIntent(caseData, answer, intentKey, category, question =
   return true;
 }
 
-function validatePatientAnswer({ caseData, answer, intentKey, category, question, session, answerPlan = null, patientView = null }) {
-  if (answerPlan && patientView) {
+function validatePatientAnswer({ caseData, answer, intentKey, category, question, session, answerPlan = null, patientView = null, usedAi = false }) {
+  if (answerPlan && patientView && !usedAi) {
     return validatePatientSpeech(answer, answerPlan, patientView, session ? recentPatientTurns(session, 6) : []);
   }
   const cleaned = cleanPatientResponse(answer);
   if (!cleaned) return null;
-  if (!answerAddressesIntent(caseData, cleaned, intentKey, category, question)) return null;
+  if (!usedAi && !answerAddressesIntent(caseData, cleaned, intentKey, category, question)) return null;
   if (session && repeatedAnswerFromDifferentIntent(session, cleaned, intentKey)) return null;
   return cleaned;
 }
@@ -1780,32 +1780,80 @@ function writeReasoningReviewCache(completed, model, review) {
   }
 }
 
+export function detectProvider(key = '') {
+  if (key.startsWith('sk-ant-')) return 'anthropic';
+  if (key.startsWith('sk-') && !key.startsWith('sk-or-') && !key.startsWith('sk-ant-')) return 'openai';
+  return 'openrouter'; // sk-or-... or anything else
+}
+
+function getProviderEndpoint(provider) {
+  switch (provider) {
+    case 'anthropic': return 'https://api.anthropic.com/v1/messages';
+    case 'openai': return 'https://api.openai.com/v1/chat/completions';
+    default: return 'https://openrouter.ai/api/v1/chat/completions';
+  }
+}
+
+function getDefaultModelForProvider(provider) {
+  switch (provider) {
+    case 'anthropic': return 'claude-3-haiku-20240307';
+    case 'openai': return 'gpt-4o-mini';
+    default: return DEFAULT_TUTOR_MODEL;
+  }
+}
+
 async function callOpenRouter(messages, { model, key, maxTokens = 220, temperature = 0.25, responseFormat = null, timeoutMs = 30000 }) {
+  const provider = detectProvider(key);
+  const endpoint = getProviderEndpoint(provider);
+  const resolvedModel = model || getDefaultModelForProvider(provider);
+
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
   let response;
 
   try {
-    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${key}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'ED Triage Trainer'
-      },
-      body: JSON.stringify({
-        model: model || DEFAULT_TUTOR_MODEL,
+    let body;
+    let headers = { 'Content-Type': 'application/json' };
+
+    if (provider === 'anthropic') {
+      // Anthropic uses a different API shape
+      headers['x-api-key'] = key;
+      headers['anthropic-version'] = '2023-06-01';
+      // Extract system from messages
+      const systemMsg = messages.find(m => m.role === 'system');
+      const userMsgs = messages.filter(m => m.role !== 'system');
+      body = JSON.stringify({
+        model: resolvedModel,
+        max_tokens: maxTokens,
+        temperature,
+        ...(systemMsg ? { system: systemMsg.content } : {}),
+        messages: userMsgs
+      });
+    } else {
+      // OpenAI-compatible (OpenAI and OpenRouter both use this shape)
+      headers['Authorization'] = `Bearer ${key}`;
+      if (provider === 'openrouter') {
+        headers['HTTP-Referer'] = window.location.origin;
+        headers['X-Title'] = 'ED Triage Trainer';
+      }
+      body = JSON.stringify({
+        model: resolvedModel,
         messages,
         temperature,
         max_tokens: maxTokens,
         ...(responseFormat ? { response_format: responseFormat } : {})
-      })
+      });
+    }
+
+    response = await fetch(endpoint, {
+      method: 'POST',
+      signal: controller.signal,
+      headers,
+      body
     });
   } catch (error) {
     if (error.name === 'AbortError') {
-      throw new Error('OpenRouter request timed out. Try a shorter question or a faster model.');
+      throw new Error('AI request timed out. Try a shorter question or a faster model.');
     }
     throw error;
   } finally {
@@ -1814,13 +1862,21 @@ async function callOpenRouter(messages, { model, key, maxTokens = 220, temperatu
 
   if (!response.ok) {
     const message = await response.text();
-    throw new Error(message || `OpenRouter request failed with status ${response.status}`);
+    throw new Error(message || `AI request failed with status ${response.status}`);
   }
 
   const json = await response.json();
+
+  // Anthropic returns content differently
+  if (provider === 'anthropic') {
+    const content = json?.content?.[0]?.text;
+    if (!content) throw new Error('Anthropic returned no response content.');
+    return content.trim();
+  }
+
   const message = json?.choices?.[0]?.message || {};
   const content = extractOpenRouterMessageContent(message);
-  if (!content) throw new Error('OpenRouter returned no response content.');
+  if (!content) throw new Error('AI returned no response content.');
   return content.trim();
 }
 
@@ -1932,13 +1988,15 @@ async function askOpenRouterPatient(session, question, answerPlan, patientView, 
         role: 'system',
         content: [
           'You are portraying a patient during emergency department triage.',
-          'Rewrite the supplied local answer in first person using plain, natural patient language.',
-          'Keep the same facts. Do not add symptoms, diagnoses, history, medications, test results, or vital signs.',
+          'Answer the learner\'s question in the first person using plain, natural patient language, using the supplied patient view and the local safe answer as your source of truth.',
+          'If the learner\'s question is a specific inquiry about a condition, medication, allergy, or symptom (whether you have it or not), focus your answer only on the item asked. Do not list other unrelated conditions, symptoms, or medications from your history even if they are present in your patient view or local safe answer. If you do not have it, reply naturally in the negative.',
+          'Keep your response strictly focused on the requested topic. Do not include details about other symptoms, triggers, conditions, or timeline information if they are not explicitly asked by the learner.',
+          'NEVER volunteer your quantitative pain score (e.g., 8 out of 10) or severity unless the learner explicitly asks you to rate your pain or asks "how bad is the pain". If they just ask if you have pain, say yes or no without the score.',
+          'Do not invent or add new positive symptoms, diagnoses, history, medications, test results, or vital signs that are not in the patient view.',
           'Answer only the question asked in one or two short sentences.',
           'Do not mention raw chart abbreviations, MIETIC, datasets, records, ESI, acuity, disposition, admission, ICU transfer, expert opinions, resource use, or ED interventions.',
-          'Do not reveal vital signs except the pain score already present in the local answer.',
           'If asked for diagnosis, triage level, admission status, treatments, test results, or what clinicians did, say you do not know that as the patient.',
-          'Stay consistent with the supplied patient view. Do not invent unrelated symptoms.',
+          'Stay consistent with the supplied patient view. Do not invent unrelated positive symptoms.',
           'If the learner asks what a chart abbreviation means, do not define it. Say you are not sure and describe the symptoms that brought you in.',
           'Return only JSON with this shape: {"answer":"short patient answer","addressed_domains":["domain"]}.'
         ].join(' ')
@@ -4063,7 +4121,7 @@ function soapJustification(caseData) {
   // PMH as risk modifier
   const pmh = [...(patientView.medical_history || []), ...(patientView.cardiac_history || [])];
   if (pmh.length) {
-    evidence.push(`Relevant past medical history includes ${joinClinicalList(pmh.slice(0, 3))}, which modifies risk and diagnostic probability.`);
+    evidence.push(`Past medical history is notable for ${joinClinicalList(pmh.slice(0, 3))}.`);
   }
 
   // Key positive symptoms supporting the primary dx
@@ -4080,14 +4138,14 @@ function soapJustification(caseData) {
 
   // Vital sign interpretation
   if (flags.length) {
-    const flagDescriptions = flags.slice(0, 3).map((f) => `${f.name.toLowerCase()} of ${f.value} (${f.reason})`);
-    evidence.push(`Triage vital signs reveal ${joinClinicalList(flagDescriptions)}, indicating physiologic instability that elevates concern.`);
+    const flagDescriptions = flags.slice(0, 3).map((f) => `${f.name.toLowerCase()} of ${f.value}`);
+    evidence.push(`Triage vital signs are significant for ${joinClinicalList(flagDescriptions)}.`);
   } else if (temp >= 100.4) {
     evidence.push(`Fever of ${temp}°F at triage raises concern for an infectious or inflammatory process.`);
   } else if (hr >= 100) {
     evidence.push(`Tachycardia (HR ${hr}) at triage may reflect pain, volume depletion, or systemic response.`);
   } else {
-    evidence.push(`Vital signs at triage are within acceptable limits, though they do not exclude serious pathology.`);
+    evidence.push(`Vital signs at triage are within acceptable limits.`);
   }
 
   // Pain context
@@ -4806,7 +4864,8 @@ export async function askStaticPatientQuestion(id, question) {
             question: text,
             session,
             answerPlan,
-            patientView
+            patientView,
+            usedAi: true
           });
           if (!cleanedAiAnswer || normalizedAnswerText(cleanedAiAnswer) === normalizedAnswerText(fallbackAnswer)) {
             return null;
@@ -5235,5 +5294,91 @@ export async function askOpenRouterTutor(sessionIdValue, question) {
       gold_standard_sbar: context?.physician_debrief?.gold_standard_sbar,
       next_steps: (context?.priority_feedback || []).slice(0, 3)
     }, settings.model || DEFAULT_TUTOR_MODEL, context);
+  }
+}
+
+function debriefContext(completed) {
+  const context = conciseTutorContext(completed);
+  // Override with full interview log for deep debrief analysis
+  if (completed.feedback?.session_summary?.interview_log) {
+    context.interview.questions = completed.feedback.session_summary.interview_log.map(item => ({
+      question: item.question,
+      category: item.category_label || item.category,
+      answer: item.answer
+    }));
+  }
+  return context;
+}
+
+export async function askOpenRouterDebrief(sessionIdValue) {
+  const completed = getCompletedSession(sessionIdValue);
+  if (!completed) throw new Error('Complete the case before asking the AI for debrief.');
+  const settings = getTutorSettings();
+  if (!settings.key) throw new Error('Use AI settings in the header to enable the AI debrief.');
+
+  const context = debriefContext(completed);
+  const messages = [
+    {
+      role: 'system',
+      content: [
+        'You are an experienced, board-certified emergency room physician.',
+        'Your task is to generate a realistic, highly clinical Expert SOAP Note and personalized clinical tips for the triage learner based on their performance.',
+        'The SOAP note must demonstrate clinical reasoning and thought, explicitly tailored to the acute diagnosis of the patient. Keep the subjective and objective sections extremely concise, focusing heavily on a comprehensive Assessment and Plan.',
+        'The clinical tips MUST follow this strict structure: "Key red flags you caught / missed", "Interview quality", "What to do differently next time". Provide concrete, specific feedback based on the exact case data and learner log.',
+        'Return strict JSON only. No Markdown outside the JSON.'
+      ].join(' ')
+    },
+    {
+      role: 'user',
+      content: JSON.stringify({
+        expected_json_schema: {
+          expert_soap_note: {
+            subjective: { chief_concern: 'string', hpi: 'string', pmh: 'string', meds: 'string', allergies: 'string' },
+            objective: ['string array of findings'],
+            assessment: {
+              primary_diagnosis: 'string',
+              justification: 'detailed clinical rationale paragraph',
+              ddx: [
+                { diagnosis: 'string', rationale: 'string' }
+              ]
+            },
+            plan: [
+              { problem: 'string', plan: 'string' }
+            ]
+          },
+          clinical_tips: {
+            red_flags: ['bullet list of red flags caught or missed'],
+            interview_quality: ['bullet list highlighting important questions asked or omitted'],
+            what_to_do_differently: ['one or two concrete behavior changes']
+          }
+        },
+        case_context: context
+      })
+    }
+  ];
+
+  let content;
+  const requestOptions = {
+    key: settings.key,
+    model: settings.model || DEFAULT_TUTOR_MODEL,
+    maxTokens: 1000,
+    temperature: 0.2,
+    timeoutMs: 25000
+  };
+
+  try {
+    content = await callOpenRouter(messages, {
+      ...requestOptions,
+      responseFormat: { type: 'json_object' }
+    });
+  } catch (err) {
+    if (!/response[_\s-]?format|json_object/i.test(err.message || '')) throw err;
+    content = await callOpenRouter(messages, requestOptions);
+  }
+
+  try {
+    return extractJsonObject(content);
+  } catch {
+    return null; // Fallback if parse fails
   }
 }

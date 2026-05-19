@@ -1,4 +1,5 @@
 import {
+  askOpenRouterDebrief,
   askOpenRouterTutor,
   acknowledgeStaticInterviewGaps,
   askStaticInCaseCoach,
@@ -6,6 +7,7 @@ import {
   assignStaticProvisionalTriage,
   assignStaticTriage,
   clearTutorSettings,
+  detectProvider,
   getStaticEscalationActions,
   getStaticFeedback,
   getStaticDecisionCoach,
@@ -72,6 +74,9 @@ export const submitSbar = async (sessionId, handoff) =>
 export const getFeedback = async (sessionId) =>
   asyncReturn(() => getStaticFeedback(sessionId));
 
+export const getAiDebrief = async (sessionId) =>
+  askOpenRouterDebrief(sessionId);
+
 export const askTutorQuestion = async (sessionId, question) =>
   askOpenRouterTutor(sessionId, question);
 
@@ -81,7 +86,7 @@ export const gradeReasoningReview = async (sessionId) =>
 export const prewarmSemanticCache = async () =>
   prewarmStaticSemanticCache();
 
-export { clearTutorSettings, getTutorSettings, saveTutorSettings };
+export { clearTutorSettings, detectProvider, getTutorSettings, saveTutorSettings };
 export { getCoachPreference, saveCoachPreference };
 
 export const healthCheck = async () => ({

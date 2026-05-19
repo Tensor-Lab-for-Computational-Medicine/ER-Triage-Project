@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { assignTriage } from '../services/api';
-import DecisionHint from './DecisionHint';
 
 const TRIAGE_LEVELS = [
   {
@@ -92,13 +91,7 @@ function TriageAssignment({ sessionId, coachEnabled = false, onNext, onCapture, 
         </div>
       </div>
 
-      {coachEnabled && (
-        <DecisionHint
-          sessionId={sessionId}
-          stage="final"
-          learnerContext={rationale}
-        />
-      )}
+
 
       <form onSubmit={handleSubmit} className="esi-form">
         <div className="triage-levels-grid">

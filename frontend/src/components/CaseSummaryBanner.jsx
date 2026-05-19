@@ -18,22 +18,28 @@ function CaseSummaryBanner({ patientData, caseRecord, activeStep, elapsedSeconds
 
   return (
     <section className="case-summary-banner" aria-label="Case summary">
-      <div className="case-summary-primary">
-        <span className="eyebrow">
-          Intake report <span className="provenance-tag source-tag">Source: MIETIC Record</span>
+      <div className="case-summary-primary" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <strong style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--ink)' }}>
+          {patientData ? `${patientData.age}yo ${patientData.sex}` : 'Loading case'}
+        </strong>
+        <span style={{ color: 'var(--muted)' }}>•</span>
+        <span style={{ color: 'var(--muted)', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          {patientData?.transport || 'Arrival pending'}
         </span>
-        <strong>{patientData ? `${patientData.age}yo ${patientData.sex}` : 'Loading case'}</strong>
-        <p className={isDirtyData ? 'corrupted-data-text' : ''}>
+        <span style={{ color: 'var(--muted)' }}>•</span>
+        <span style={{ fontSize: '0.95rem', color: 'var(--ink)', fontWeight: '500' }} className={isDirtyData ? 'corrupted-data-text' : ''}>
           {concernDisplay}
-          {isDirtyData && <span className="provenance-tag warning-tag" style={{ marginLeft: '8px' }}>Dirty data: Use interview to clarify</span>}
-        </p>
+        </span>
+        {isDirtyData && (
+          <span className="provenance-tag warning-tag" style={{ fontSize: '0.75rem', padding: '2px 6px' }}>
+            Verify during interview
+          </span>
+        )}
       </div>
-      <div className="case-summary-meta" aria-label="Case status">
-        <span>Arrival: {patientData?.transport || 'Pending'}</span>
-        {intake.source && <span>{intake.source}</span>}
-        <span className="step-badge">{activeStep?.label || 'Pending'}</span>
-        <span className="triage-badge">{triageStatus}</span>
-        <span className="case-summary-clock">{formatClock(elapsedSeconds)}</span>
+      <div className="case-summary-meta" aria-label="Case status" style={{ display: 'flex', alignItems: 'center' }}>
+        <span className="case-summary-clock" style={{ fontSize: '1.05rem', fontFamily: 'monospace', fontWeight: '700', padding: '4px 8px', background: '#f1f5f9', borderRadius: '6px' }}>
+          {formatClock(elapsedSeconds)}
+        </span>
       </div>
     </section>
   );

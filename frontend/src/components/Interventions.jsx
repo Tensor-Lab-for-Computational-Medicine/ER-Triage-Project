@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { getEscalationActions, selectEscalationActions } from '../services/api';
-import DecisionHint from './DecisionHint';
 
 const CLUSTERS = [
   { id: 'Stabilize', title: 'Stabilize', subtitle: 'Immediate life threats, airway, breathing, circulation, and safety protocols' },
@@ -131,7 +130,7 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
         </div>
       </div>
 
-      <DecisionHint stage="escalation" active={coachEnabled} />
+
 
       {!results ? (
         <>
@@ -147,36 +146,35 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
             </button>
           </div>
 
-          <div className="interventions-categories-stack">
+          <div className="interventions-categories-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', margin: '16px 0' }}>
             {groupedAvailable.map((cluster) => (
-              <fieldset key={cluster.id} className={`intervention-cluster-fieldset cluster-${cluster.id.toLowerCase().replace(' ', '-')}`}>
-                <legend className="cluster-legend">
-                  <strong>{cluster.title}</strong>
-                  <span>{cluster.subtitle}</span>
-                </legend>
-                <div className="intervention-checkbox-grid">
+              <div key={cluster.id} className="intervention-compact-cluster" style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <strong style={{ display: 'block', marginBottom: '4px', color: '#0f172a', fontSize: '0.95rem' }}>{cluster.title}</strong>
+                <span style={{ display: 'block', marginBottom: '12px', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.2 }}>{cluster.subtitle}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {cluster.items.map((action) => {
                     const isSelected = selectedIds.includes(action.id);
                     return (
                       <label
                         key={action.id}
-                        className={`action-checkbox-card ${isSelected ? 'selected' : ''}`}
+                        title={action.description}
+                        style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', padding: '6px', background: isSelected ? '#e0f2fe' : '#fff', borderRadius: '4px', border: isSelected ? '1px solid #bae6fd' : '1px solid #e2e8f0', transition: 'all 0.1s' }}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggle(action.id)}
                           disabled={submitting}
+                          style={{ marginTop: '2px', cursor: 'pointer' }}
                         />
-                        <div className="action-info">
-                          <strong>{action.name}</strong>
-                          <small>{action.description}</small>
-                        </div>
+                        <span style={{ fontSize: '0.88rem', color: isSelected ? '#0369a1' : '#334155', fontWeight: isSelected ? '600' : '400', lineHeight: 1.3 }}>
+                          {action.name}
+                        </span>
                       </label>
                     );
                   })}
                 </div>
-              </fieldset>
+              </div>
             ))}
           </div>
 
