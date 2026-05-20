@@ -427,6 +427,9 @@ const ABNORMAL_FINDING_PATTERNS = [
   /\berythema\b/i,
   /\bwarmth\b/i,
   /\bguarding\b/i,
+  /\bvoluntary guarding\b/i,
+  /\b(?:mildly|moderately|severely)\s+tender(?:\s+to palpation)?\b/i,
+  /\b(?:mild|moderate|severe)\s+tenderness\b/i,
   /\brebound tenderness\b/i,
   /\bunable to bear weight\b/i,
   /\bpainful limitation\b/i,
@@ -466,6 +469,11 @@ const NORMAL_FINDING_PATTERNS = [
   /\bskin is warm and dry\b/i,
   /\bno open wounds, lacerations, or active bleeding\b/i,
   /\bno fluctuance, purulent discharge, or open wounds\b/i,
+  /\babdomen is soft\b/i,
+  /\bactive bowel sounds(?: in all quadrants)?\b/i,
+  /\bno guarding, rigidity, rebound tenderness, or organomegaly\b/i,
+  /\bno board-like rigidity or severe rebound tenderness\b/i,
+  /\bno (?:mild |moderate |severe )?rebound tenderness\b/i,
   /\bno rebound\b/i,
   /\bno board-like rigidity\b/i
 ];
@@ -489,12 +497,19 @@ function collectFindingSpans(text, patterns, type) {
   return spans;
 }
 
+function spansOverlap(first, second) {
+  return first.start < second.end && second.start < first.end;
+}
+
 function findingFragments(text) {
   const value = String(text || '');
+  const normalSpans = collectFindingSpans(value, NORMAL_FINDING_PATTERNS, 'normal');
+  const abnormalSpans = collectFindingSpans(value, ABNORMAL_FINDING_PATTERNS, 'abnormal')
+    .filter((span) => !normalSpans.some((normalSpan) => spansOverlap(span, normalSpan)));
   const spans = [
-    ...collectFindingSpans(value, NORMAL_FINDING_PATTERNS, 'normal'),
-    ...collectFindingSpans(value, ABNORMAL_FINDING_PATTERNS, 'abnormal')
-  ].sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start) || (a.type === 'abnormal' ? -1 : 1));
+    ...normalSpans,
+    ...abnormalSpans
+  ].sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start) || (a.type === 'normal' ? -1 : 1));
 
   const accepted = [];
   let occupiedEnd = -1;

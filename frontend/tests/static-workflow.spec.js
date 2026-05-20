@@ -601,6 +601,35 @@ test('does not turn normal or negated breathing text into airway escalation', as
   await expect(page.locator('.debrief-card')).not.toContainText('Escalate airway or oxygenation support');
 });
 
+test('marks negated abdominal exam findings as reassuring text', async ({ page }) => {
+  const abdominalPainCase = caseBy((item) => item.id === 'case_022', 'severe abdominal pain with distention');
+
+  await pinStaticCase(page, abdominalPainCase);
+  await page.goto('/');
+  await expect(page.getByLabel('Case summary')).toContainText(/Abd pain|Abdominal/i);
+
+  await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await page.getByLabel('Question to patient').fill('How bad is your pain or distress right now?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await page.getByRole('button', { name: 'Continue with gaps' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Examine & Vitals Review' })).toBeVisible();
+  await page.getByRole('button', { name: 'Conduct Complete Exam' }).click();
+
+  const abdominalCard = page.locator('.conducted-system-card').filter({ hasText: 'Abdominal & Gastrointestinal' });
+  await expect(abdominalCard).toBeVisible();
+
+  const abnormalText = (await abdominalCard.locator('.finding-highlight.abnormal').allTextContents()).join(' ');
+  const reassuringText = (await abdominalCard.locator('.finding-highlight.normal').allTextContents()).join(' ');
+
+  expect(abnormalText).toMatch(/moderately tender|Voluntary guarding/i);
+  expect(abnormalText).not.toMatch(/board-like rigidity|rebound tenderness|Active bowel sounds|Abdomen is soft/i);
+  expect(reassuringText).toMatch(/Abdomen is soft/i);
+  expect(reassuringText).toMatch(/no board-like rigidity or severe rebound tenderness/i);
+  expect(reassuringText).toMatch(/Active bowel sounds/i);
+});
+
 test('credits a concise low-acuity laceration SBAR against wound-care expectations', async ({ page }) => {
   const lacerationCase = caseBy((item) => item.id === 'case_018', 'source-limited finger laceration');
   await completeStaticWorkflow(page, {
