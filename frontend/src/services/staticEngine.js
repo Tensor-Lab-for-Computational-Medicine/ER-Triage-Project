@@ -48,7 +48,7 @@ const PATIENT_PERSONA_VERSION = PATIENT_DIALOGUE_ENGINE_VERSION;
 const PATIENT_PROMPT_VERSION = PATIENT_DIALOGUE_PROMPT_VERSION;
 const PATIENT_AI_FAST_TIMEOUT_MS = 6000;
 const PATIENT_AI_BACKGROUND_TIMEOUT_MS = 8000;
-const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v5';
+const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v6';
 const PATIENT_RESPONSE_CACHE_LIMIT = 250;
 const REASONING_REVIEW_CACHE_KEY = 'ed_triage_reasoning_review_cache_v1';
 const REASONING_REVIEW_CACHE_LIMIT = 60;
@@ -1215,7 +1215,8 @@ function pregnancyAnswer(caseData) {
 
 function uniqueSentences(items = []) {
   const seen = new Set();
-  return items
+  const values = Array.isArray(items) ? items : [items];
+  return values
     .map((item) => String(item || '').trim())
     .filter(Boolean)
     .filter((item) => {
@@ -1805,7 +1806,10 @@ function getDefaultModelForProvider(provider) {
 async function callOpenRouter(messages, { model, key, maxTokens = 220, temperature = 0.25, responseFormat = null, timeoutMs = 30000 }) {
   const provider = detectProvider(key);
   const endpoint = getProviderEndpoint(provider);
-  const resolvedModel = model || getDefaultModelForProvider(provider);
+  let resolvedModel = model || getDefaultModelForProvider(provider);
+  if (provider !== 'openrouter' && /^openrouter\//i.test(resolvedModel)) {
+    resolvedModel = getDefaultModelForProvider(provider);
+  }
 
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -3702,7 +3706,11 @@ function buildNextCaseChecklist(findings, soapNote, workflow, caseData) {
   }
 
   for (const planItem of (soapNote?.plan || []).slice(0, 4)) {
-    items.push(planItem);
+    if (planItem && typeof planItem === 'object') {
+      items.push(planItem.plan || planItem.problem || '');
+    } else {
+      items.push(planItem);
+    }
   }
 
   return uniqueSentences(items)
@@ -3776,7 +3784,7 @@ function lowerClinicalText(text) {
 
 function arrivalModeText(value) {
   const transport = String(value || '').trim();
-  if (!transport || transport.toUpperCase() === 'UNKNOWN') return 'by an unspecified arrival mode';
+  if (!transport || transport.toUpperCase() === 'UNKNOWN') return 'to the ED';
   if (/walk\s*in/i.test(transport)) return 'as a walk-in';
   if (/ambulance|ems|als|bls/i.test(transport)) return 'by ambulance';
   return `by ${transport.toLowerCase()}`;
@@ -3807,7 +3815,7 @@ function vitalSummaryText(caseData) {
   if (flags.length) {
     return flags.slice(0, 3).map((item) => `${item.name} ${item.value}`).join('; ');
   }
-  return 'No danger-zone vital signs were documented.';
+  return 'No danger-zone vital signs were present at triage.';
 }
 
 function resourceSummaryText(caseData) {
@@ -3826,7 +3834,7 @@ function documentedMedicalHistoryText(caseData) {
     /past medical history significant for\s+([^.;]+)/i
   ]);
   const list = compactList(extracted, 5);
-  return list ? `History includes ${list}.` : 'No major past medical history is documented.';
+  return list ? `History includes ${list}.` : '';
 }
 
 function documentedMedicationText(caseData) {
@@ -3853,22 +3861,22 @@ function documentedMedicationText(caseData) {
   ];
   const mentioned = medicationTerms.filter((term) => text.includes(term));
   if (mentioned.length) {
-    return `Documented medication context includes ${joinClinicalList(mentioned.slice(0, 4))}.`;
+    return `Medication context includes ${joinClinicalList(mentioned.slice(0, 4))}.`;
   }
-  return 'Home medications were not documented.';
+  return '';
 }
 
 function documentedAllergyText(caseData) {
   const text = complaintText(caseData);
   if (hasAny(text, ['no known allergies', 'no known drug allergies', 'nkda'])) {
-    return 'No known drug allergies were documented.';
+    return 'No known drug allergies.';
   }
   const allergy = extractListAfter(caseData.history, [
     /allergic\s+to\s+([^.;]+)/i,
     /allerg(?:y|ies)\s*(?:to|include|includes)?\s+([^.;]+)/i
   ]);
   const list = compactList(allergy, 4);
-  return list ? `Allergies include ${list}.` : 'Medication allergies were not documented.';
+  return list ? `Allergies include ${list}.` : '';
 }
 
 function cleanClinicalHistorySentence(sentence) {
@@ -3917,7 +3925,7 @@ function assessmentReportText(caseData) {
   const flags = vitalFlags(caseData);
   const flagText = flags.length
     ? `Key triage concerns include ${joinClinicalList(flags.slice(0, 4).map((item) => `${item.name.toLowerCase()} ${item.value}`))}.`
-    : 'No danger-zone vital signs were documented.';
+    : 'No danger-zone vital signs were present at triage.';
   return `Recorded triage vital signs were ${formattedVitalSigns(caseData)}. ${flagText} ${resourceSignalText(caseData)}`;
 }
 
@@ -3981,40 +3989,179 @@ function soapClinicalText(caseData) {
   return `${plainComplaint(caseData.complaint)} ${caseData.history || ''} ${clinicalEvidenceText(caseData, 'soap')}`.toLowerCase();
 }
 
+function firstDiagnosisClause(value = '') {
+  return String(value || '')
+    .split(/\s+vs\.?\s+|\s+versus\s+|,\s*or\s+|\s+or\s+/i)[0]
+    .replace(/\s*,\s*$/, '')
+    .trim();
+}
+
+function singleWorkingDiagnosis(value, caseData) {
+  const diagnosis = String(value || '').trim();
+  const text = `${diagnosis} ${soapClinicalText(caseData)}`.toLowerCase();
+
+  if (/\bstroke|tia|intracranial hemorrhage|hemorrhagic stroke|ischemic stroke|gaze deviation|left-sided weakness|facial droop|flaccid\b/i.test(text)) {
+    return 'Acute focal neurologic deficit concerning for stroke';
+  }
+  if (/\bpost-surgical neck|neck hematoma|neck swelling|difficulty swallowing|dysphagia\b/i.test(text)) {
+    return 'Postoperative dysphagia with neck swelling';
+  }
+  if (/\bpneumonia\b/i.test(text) && /\bcopd\b/i.test(text)) {
+    return 'Pneumonia with COPD exacerbation';
+  }
+  if (/\bacute coronary syndrome|chest pain|chest pressure\b/i.test(text)) {
+    return 'Acute chest pain concerning for acute coronary syndrome';
+  }
+  if (/\bheart failure|aortic stenosis|pedal edema|orthopnea\b/i.test(text)) {
+    return 'Dyspnea with cardiopulmonary risk factors';
+  }
+  if (/\bseptic shock|sepsis\b/i.test(text)) {
+    return 'Sepsis in a medically complex patient';
+  }
+  if (/\bpelvic inflammatory disease|tubo-ovarian|ovarian torsion|appendicitis|acute pelvic pain\b/i.test(text)) {
+    return 'Acute pelvic pain requiring ED evaluation';
+  }
+  if (/\bmesenteric ischemia\b/i.test(text)) {
+    return 'Acute abdominal pain concerning for mesenteric ischemia';
+  }
+  if (/\bpulmonary embolism|hypoxia|dyspnea\b/i.test(text) && /\bcancer|metastatic|pe\b/i.test(text)) {
+    return 'Dyspnea and chest pain with thromboembolic risk';
+  }
+
+  const firstClause = firstDiagnosisClause(diagnosis);
+  return firstClause || diagnosis;
+}
+
 function soapPrimaryDiagnosis(caseData) {
   const reviewedDiagnosis = reviewedAugmentationDiagnosis(caseData);
-  if (reviewedDiagnosis) return reviewedDiagnosis;
+  if (reviewedDiagnosis) return singleWorkingDiagnosis(reviewedDiagnosis, caseData);
   const text = soapClinicalText(caseData);
   if (/\b(sdh|subdural)\b/.test(text)) return 'Subdural hematoma with headache and falls';
   if (/\b(open left tibia|tibia\/fibula|fibula fracture|malleolar fracture)\b/.test(text)) return 'Open left lower-extremity fracture after fall';
   if (/\bsepsis|hypotension and tachycardia|wet gangrene|osteomyelitis\b/.test(text)) return 'Sepsis in a medically complex patient';
   if (/\bseizure\b/.test(text) && /\b(fall|laceration|head lac|forehead)\b/.test(text)) return 'Breakthrough seizure with fall and forehead laceration';
-  if (/\b(slurred speech|facial droop|left-sided weakness|flaccid|gaze deviation|stroke|cva|sensory changes)\b/.test(text)) return 'Acute focal neurologic deficit concerning for stroke or TIA';
+  if (/\b(slurred speech|facial droop|left-sided weakness|flaccid|gaze deviation|stroke|cva|sensory changes)\b/.test(text)) return 'Acute focal neurologic deficit concerning for stroke';
   if (/\baltered mental status|altered level of consciousness|not oriented|bizarre conversation|encephalopathy\b/.test(text)) return 'Acute altered mental status';
   if (/\b(post-esophagectomy|c5 corpectomy|acdf|difficulty swallowing|unable to swallow|hoarseness|neck swelling)\b/.test(text)) return 'Postoperative dysphagia with neck swelling';
   if (/\bpneumonia\b/.test(text) && /\bfever\b/.test(text)) return 'Pneumonia with fever';
   if (/\bdyspnea|shortness of breath\b/.test(text) && /\b(edema|heart failure|aortic stenosis|pleural|pleurx)\b/.test(text)) return 'Dyspnea with cardiopulmonary risk factors';
   if (/\bchest pain|chest pressure\b/.test(text)) return 'Acute chest pain requiring ED evaluation';
-  if (/\brectal abscess|perianal abscess|anal pain|crohn|fistulizing\b/.test(text)) return 'Perianal pain or abscess in high-risk gastrointestinal disease';
-  if (/\babdominal|abd pain|stomach|pelvic pain|vomiting|nausea\b/.test(text)) return 'Acute abdominal or pelvic pain';
+  if (/\brectal abscess|perianal abscess|anal pain|crohn|fistulizing\b/.test(text)) return 'Perianal pain concerning for anorectal abscess';
+  if (/\bpelvic pain\b/.test(text)) return 'Acute pelvic pain requiring ED evaluation';
+  if (/\babdominal|abd pain|stomach|vomiting|nausea\b/.test(text)) return 'Acute abdominal pain requiring ED evaluation';
   if (/\bfinger laceration\b/.test(text)) return 'Finger laceration';
   if (/\bsuture removal\b/.test(text)) return 'Suture removal encounter';
   if (/\bmed refill|medication refill\b/.test(text)) return 'Medication refill request without acute instability';
-  if (/\b(wrist|foot|leg|ankle)\b/.test(text) && /\b(pain|swelling|injury)\b/.test(text)) return 'Extremity pain or injury';
-  if (/\bneck pain|headache|head pain\b/.test(text)) return 'Headache or neck pain without documented danger-zone vitals';
+  if (/\b(wrist|foot|leg|ankle)\b/.test(text) && /\b(pain|swelling|injury)\b/.test(text)) return 'Acute extremity injury';
+  if (/\bheadache|head pain\b/.test(text)) return 'Acute headache without danger-zone vital signs';
+  if (/\bneck pain\b/.test(text)) return 'Acute neck pain without danger-zone vital signs';
   return `${capitalizeSentence(presentingProblemText(caseData))}, undifferentiated ED presentation`;
+}
+
+function isOpenLowerExtremityFractureCase(caseData) {
+  return /\b(open left tibia|open tibia|tibia\/fibula|fibula fracture|open fracture|malleolar fracture|metatarsal fracture)\b/
+    .test(soapClinicalText(caseData));
+}
+
+function hasMissingEvidenceLanguage(value = '') {
+  return /\b(source bundle|source record|current source|does not provide|does not document|not documented|none documented|missing|unavailable|undocumented)\b/i
+    .test(String(value || ''));
+}
+
+function lowerFirst(value = '') {
+  const text = String(value || '').trim();
+  if (!text) return text;
+  return `${text.charAt(0).toLowerCase()}${text.slice(1)}`;
+}
+
+function cleanDifferentialClinicalText(value = '') {
+  return String(value || '')
+    .replace(/\bagainst_or_missing\b/gi, '')
+    .replace(/\bWalk-in presentation,\s*/gi, '')
+    .replace(/\bTransfer note documents\s+/gi, '')
+    .replace(/\bthe source records?\s+/gi, '')
+    .replace(/\bsource bundle\b/gi, 'record')
+    .replace(/\bsource record\b/gi, 'record')
+    .replace(/,\s*and home disposition\b/gi, '')
+    .replace(/\bhome disposition\b/gi, '')
+    .replace(/\badmission\b/gi, 'need for inpatient care')
+    .replace(/\bhigh resource use\b/gi, 'urgent orthopedic care needs')
+    .replace(/\blower-acuity musculoskeletal injury\b/gi, 'stable musculoskeletal injury')
+    .replace(/\bstable but resource-requiring extremity presentation\b/gi, 'stable extremity presentation requiring focused evaluation')
+    .replace(/\brecorded exam or imaging resource\b/gi, 'need for focused exam or imaging')
+    .replace(/\bexam or imaging resource\b/gi, 'need for focused exam or imaging')
+    .replace(/\blaboratory testing is recorded\b/gi, 'laboratory testing may be needed')
+    .replace(/\bmultiple resources\b/gi, 'diagnostic evaluation, treatment, and reassessment')
+    .replace(/\bReference ESI\s*\d+\s+is\s+(?:supported by|consistent with)\s*/gi, '')
+    .replace(/\bESI\s*\d+\s+is\s+(?:supported by|consistent with)\s*/gi, '')
+    .replace(/\bwhen no neurovascular compromise is present\b/gi, 'when neurovascular status remains intact')
+    .replace(/\s+,/g, ',')
+    .replace(/,\s*,/g, ',')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+\./g, '.')
+    .trim();
+}
+
+function cleanDifferentialCounterpoint(value = '') {
+  if (hasMissingEvidenceLanguage(value)) return '';
+  return cleanDifferentialClinicalText(value)
+    .replace(/^No documented\b/gi, 'No')
+    .replace(/\bnot present in the triage history\b/gi, 'absent')
+    .trim();
+}
+
+function cleanDifferentialAcuity(value = '') {
+  const text = String(value || '').trim();
+  if (!text || /\bESI\b|\breference\b|\bresource\b|\bdisposition\b/i.test(text)) return '';
+  const cleaned = cleanDifferentialClinicalText(text);
+  if (!cleaned) return '';
+  if (/^Escalates if\b/i.test(cleaned)) {
+    return cleaned.replace(/^Escalates if\b/i, 'Escalate urgently if');
+  }
+  return cleaned;
+}
+
+function differentialRationale({ support = '', against = '', discriminator = '', acuity = '' }) {
+  const parts = [];
+  const supportText = cleanDifferentialClinicalText(support);
+  if (supportText) parts.push(`${supportText.replace(/\.$/, '')}.`);
+  const counter = cleanDifferentialCounterpoint(against);
+  if (counter) parts.push(`${capitalizeSentence(counter).replace(/\.$/, '')}.`);
+  const discriminatorText = cleanDifferentialClinicalText(discriminator);
+  if (discriminatorText) parts.push(`Clarify with ${lowerFirst(discriminatorText).replace(/\.$/, '')}.`);
+  const acuityText = cleanDifferentialAcuity(acuity);
+  if (acuityText) parts.push(`${capitalizeSentence(acuityText).replace(/\.$/, '')}.`);
+  return parts.join(' ');
+}
+
+function openFractureDifferential() {
+  return [
+    {
+      diagnosis: 'Open tibia/fibula fracture with associated ankle and foot fractures',
+      rationale: 'The presentation is defined by a fall with an open left tibia/fibula fracture and associated medial malleolar and metatarsal fractures. A low pain score after transfer treatment does not lower concern because open long-bone fractures require urgent wound protection, antibiotics, tetanus assessment, immobilization, serial neurovascular and compartment exams, and orthopedic management.'
+    },
+    {
+      diagnosis: 'Neurovascular compromise or evolving compartment syndrome',
+      rationale: 'This remains the critical complication to monitor because vascular injury or compartment syndrome can evolve after an open long-bone fracture. Palpable distal pulses, preserved toe movement and sensation, compressible compartments, and no pain out of proportion make established neurovascular compromise less likely at the time of exam; any change requires immediate clinician notification.'
+    }
+  ];
 }
 
 function soapDifferential(caseData) {
   const reviewedDdx = reviewedAugmentationDdx(caseData);
+  if (reviewedDdx.length && isOpenLowerExtremityFractureCase(caseData)) {
+    return openFractureDifferential();
+  }
+
   if (reviewedDdx.length) {
     return reviewedDdx.slice(0, 4).map((item) => ({
       diagnosis: item.diagnosis,
-      rationale: [
-        item.support,
-        item.against_or_missing ? `Missing or limiting evidence: ${item.against_or_missing}` : '',
-        item.next_discriminator ? `Next discriminator: ${item.next_discriminator}` : ''
-      ].filter(Boolean).join(' ')
+      rationale: differentialRationale({
+        support: item.support,
+        against: item.against_or_missing,
+        discriminator: item.next_discriminator,
+        acuity: item.acuity_implication
+      })
     }));
   }
 
@@ -4022,71 +4169,109 @@ function soapDifferential(caseData) {
   const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
 
   if (lowAcuityProfile?.ddx?.length) {
-    return lowAcuityProfile.ddx;
+    return lowAcuityProfile.ddx.map((item) => ({
+      ...item,
+      rationale: differentialRationale({ support: item.rationale })
+    }));
   }
 
   if (/\bchest pain|chest pressure|dyspnea|shortness of breath\b/.test(text)) {
     return [
-      { diagnosis: 'Acute coronary syndrome', rationale: 'Must be considered for chest pain or dyspnea, especially in older patients or patients with cardiac risk factors.' },
-      { diagnosis: 'Pulmonary embolism', rationale: 'Possible when dyspnea, pleuritic pain, thrombosis history, malignancy, calf pain, or anticoagulation context is present.' },
-      { diagnosis: 'Pneumonia, COPD exacerbation, or heart failure', rationale: 'Supported when cough, wheeze, edema, fever, COPD, pleural disease, or heart failure history appears in the case.' }
+      { diagnosis: 'Acute coronary syndrome', rationale: differentialRationale({ support: 'Chest pain or dyspnea can represent myocardial ischemia, especially in older patients or patients with cardiac risk factors', against: 'Respiratory or infectious symptoms may point away from a primary coronary process when they dominate the presentation', discriminator: 'ECG, serial troponins, pain character, and response to therapy' }) },
+      { diagnosis: 'Pulmonary embolism', rationale: differentialRationale({ support: 'Dyspnea, pleuritic pain, malignancy, thrombosis history, calf symptoms, hypoxemia, or anticoagulation context would support PE', against: 'Normal oxygenation and absence of pleuritic pain or unilateral leg symptoms lower the probability', discriminator: 'Risk stratification, D-dimer when appropriate, and CT pulmonary angiography when indicated' }) },
+      { diagnosis: 'Pneumonia, COPD exacerbation, or heart failure', rationale: differentialRationale({ support: 'Cough, wheeze, edema, fever, COPD, pleural disease, or heart failure history would support a pulmonary or volume-overload cause', against: 'A purely exertional pressure-like chest pain pattern would make this less likely', discriminator: 'Chest radiograph, lung exam, BNP, viral testing, and response to bronchodilator or diuresis' }) }
     ];
   }
 
   if (/\b(slurred speech|facial droop|left-sided weakness|flaccid|gaze deviation|stroke|cva|sensory changes|altered mental status|altered level of consciousness|seizure|subdural|sdh)\b/.test(text)) {
     return [
-      { diagnosis: 'Ischemic stroke or TIA', rationale: 'Considered for focal weakness, speech change, facial droop, sensory change, or gaze deviation.' },
-      { diagnosis: 'Intracranial hemorrhage or subdural hematoma', rationale: 'Considered when headache, falls, anticoagulation, trauma, or known subdural hemorrhage is documented.' },
-      { diagnosis: 'Seizure, toxic-metabolic encephalopathy, or infection', rationale: 'Possible when altered mental status, seizure activity, medication exposure, fever, or systemic illness is present.' }
+      { diagnosis: 'Ischemic stroke or TIA', rationale: differentialRationale({ support: 'Focal weakness, speech change, facial droop, sensory change, or gaze deviation are stroke-pattern findings', against: 'A fully resolved deficit with normal exam would fit TIA more than completed stroke', discriminator: 'Last-known-well time, NIHSS, non-contrast head CT, CTA, and glucose' }) },
+      { diagnosis: 'Intracranial hemorrhage or subdural hematoma', rationale: differentialRationale({ support: 'Headache, falls, anticoagulation, trauma, severe hypertension, or known subdural hemorrhage increases concern for bleeding', against: 'Absence of trauma or headache lowers but does not eliminate concern when focal deficits are present', discriminator: 'Non-contrast head CT' }) },
+      { diagnosis: 'Seizure, toxic-metabolic encephalopathy, or infection', rationale: differentialRationale({ support: 'Altered mental status, seizure activity, medication exposure, fever, renal disease, or systemic illness can mimic stroke', against: 'Clear unilateral focal deficits and gaze deviation favor stroke until proven otherwise', discriminator: 'Glucose, metabolic panel, medication/toxin history, temperature, infectious evaluation, and neurologic imaging' }) }
     ];
   }
 
   if (/\b(abdominal|abd pain|stomach|pelvic|vomiting|nausea|rectal abscess|perianal abscess|anal pain|crohn|fistulizing)\b/.test(text)) {
     return [
-      { diagnosis: 'Intra-abdominal inflammatory or infectious process', rationale: 'Considered for abdominal pain, distention, vomiting, fever, or systemic symptoms.' },
-      { diagnosis: 'Obstruction, perforation, abscess, or Crohn disease complication', rationale: 'Higher concern when distention, severe pain, weight loss, fistulizing disease, purulent drainage, or prior surgery is documented.' },
-      { diagnosis: 'Genitourinary or gynecologic source', rationale: 'Considered for lower abdominal or pelvic pain when the source is not fully localized at triage.' }
+      { diagnosis: 'Intra-abdominal inflammatory or infectious process', rationale: differentialRationale({ support: 'Abdominal pain, distention, vomiting, fever, or systemic symptoms fit an inflammatory or infectious process', against: 'Stable vital signs and mild pain lower immediate shock risk but do not exclude surgical disease', discriminator: 'Serial abdominal exam, CBC, CMP, lipase, lactate, urinalysis, and CT or ultrasound based on location' }) },
+      { diagnosis: 'Obstruction, perforation, abscess, or Crohn disease complication', rationale: differentialRationale({ support: 'Distention, severe pain, weight loss, fistulizing disease, purulent drainage, or prior surgery increases concern for mechanical or abscess complication', against: 'Soft abdomen and absence of peritoneal signs would make perforation less likely', discriminator: 'CT abdomen/pelvis and surgical consultation when peritonitis or obstruction is suspected' }) },
+      { diagnosis: 'Genitourinary or gynecologic source', rationale: differentialRationale({ support: 'Lower abdominal or pelvic pain, urinary symptoms, pregnancy possibility, or pelvic symptoms can indicate a GU or gynecologic source', against: 'Older age or upper abdominal localization may make gynecologic disease less likely', discriminator: 'Urinalysis, pregnancy testing when applicable, pelvic exam, and pelvic ultrasound' }) }
     ];
   }
 
   if (/\bfever|pneumonia|sepsis|gangrene|osteomyelitis\b/.test(text)) {
     return [
-      { diagnosis: 'Sepsis or systemic infection', rationale: 'Considered when fever, hypotension, tachycardia, gangrene, osteomyelitis, or other systemic illness appears in the history.' },
-      { diagnosis: 'Pneumonia or respiratory infection', rationale: 'Supported by fever, productive cough, dyspnea, wheezing, or documented pneumonia concern.' },
-      { diagnosis: 'Soft tissue, urinary, line-related, or abdominal infection', rationale: 'Considered in medically complex patients when the infection source is not fully established at triage.' }
+      { diagnosis: 'Sepsis or systemic infection', rationale: differentialRationale({ support: 'Fever, hypothermia, hypotension, tachycardia, gangrene, osteomyelitis, or systemic illness supports sepsis risk', against: 'Normal perfusion and stable pressure reduce immediate shock concern but do not remove sepsis risk', discriminator: 'Lactate, cultures, source exam, CBC, CMP, and response to fluids and antibiotics' }) },
+      { diagnosis: 'Pneumonia or respiratory infection', rationale: differentialRationale({ support: 'Fever, productive cough, dyspnea, wheezing, hypoxemia, or pneumonia history supports a respiratory source', against: 'Absence of cough or hypoxemia makes pneumonia a less direct fit', discriminator: 'Lung exam, chest radiograph, oxygen trend, and viral or sputum testing when indicated' }) },
+      { diagnosis: 'Soft tissue, urinary, line-related, or abdominal infection', rationale: differentialRationale({ support: 'Medical complexity, wounds, dialysis access, urinary symptoms, abdominal symptoms, or recent hospitalization can identify another source', against: 'No localizing source on triage history makes this a broader search rather than the primary fit', discriminator: 'Focused skin/access exam, urinalysis, abdominal exam, cultures, and source-directed imaging' }) }
     ];
   }
 
   if (/\bfinger laceration\b|\blaceration\b|\bcut\b|\bwound\b|\bsuture\b/.test(text)) {
     return [
-      { diagnosis: 'Finger laceration requiring wound assessment', rationale: 'Most consistent with the documented chief concern; depth, contamination, bleeding control, and repair need are not specified in the source record.' },
-      { diagnosis: 'Tendon, nerve, or vascular injury', rationale: 'Must be screened with range of motion, strength, sensation, capillary refill, and bleeding assessment before discharge or repair.' },
-      { diagnosis: 'Retained foreign body or fracture', rationale: 'Consider when mechanism, wound depth, focal bony tenderness, foreign body sensation, or exam findings support imaging; this source does not document those discriminators.' },
-      { diagnosis: 'Early wound infection risk', rationale: 'Consider when wound age, contamination, immunocompromise, drainage, spreading erythema, fever, or delayed presentation is documented.' }
+      { diagnosis: 'Finger laceration requiring wound assessment', rationale: differentialRationale({ support: 'The chief concern is a finger laceration; wound depth, contamination, bleeding control, repair need, and neurovascular status determine treatment', against: 'Stable vitals and low pain support local wound care rather than systemic illness', discriminator: 'Direct wound exam, tendon testing, sensation, capillary refill, and need for repair' }) },
+      { diagnosis: 'Tendon, nerve, or vascular injury', rationale: differentialRationale({ support: 'Digital lacerations can injure tendon, nerve, or vessel depending on depth and location', against: 'Normal range of motion, strength, sensation, capillary refill, and bleeding control would make this less likely', discriminator: 'Isolated tendon function, two-point discrimination, capillary refill, and active bleeding assessment' }) },
+      { diagnosis: 'Retained foreign body or fracture', rationale: differentialRationale({ support: 'Mechanism, wound depth, focal bony tenderness, foreign body sensation, or exam findings would support imaging', against: 'Superficial clean wounds without bony tenderness or foreign body sensation are less consistent', discriminator: 'Wound exploration and radiograph when mechanism or exam supports it' }) },
+      { diagnosis: 'Early wound infection risk', rationale: differentialRationale({ support: 'Wound age, contamination, immunocompromise, drainage, spreading erythema, fever, or delayed presentation increases infection risk', against: 'Fresh clean wounds without erythema or systemic symptoms are less consistent', discriminator: 'Skin exam, fever trend, drainage, and risk-factor review' }) }
     ];
   }
 
   if (/\b(wrist|foot|leg|ankle|fracture|injury|fall)\b/.test(text)) {
     return [
-      { diagnosis: 'Fracture, dislocation, or soft tissue injury', rationale: 'Considered for extremity pain, swelling, fall, or transfer for known traumatic injury.' },
-      { diagnosis: 'Laceration or wound complication', rationale: 'Supported when the chief concern involves a cut, sutures, drainage, or wound reassessment.' },
-      { diagnosis: 'Neurovascular compromise or infection', rationale: 'Screen for this when pain is severe, swelling is present, the wound is open, or comorbid risk factors are documented.' }
+      { diagnosis: 'Fracture, dislocation, or soft tissue injury', rationale: differentialRationale({ support: 'Extremity pain, swelling, fall mechanism, inability to bear weight, deformity, or transfer for known injury supports this category', against: 'Normal function, mild pain, and no focal tenderness would make major fracture less likely', discriminator: 'Focused musculoskeletal exam, neurovascular exam, weight-bearing status, and radiographs' }) },
+      { diagnosis: 'Laceration or wound complication', rationale: differentialRationale({ support: 'A cut, open fracture, sutures, drainage, or wound reassessment makes wound complication clinically relevant', against: 'Intact skin and absence of erythema, drainage, or bleeding lower this concern', discriminator: 'Skin inspection, wound depth, contamination, drainage, and tetanus status' }) },
+      { diagnosis: 'Neurovascular compromise or infection', rationale: differentialRationale({ support: 'Severe pain, swelling, open wound, delayed capillary refill, pulse change, sensory change, motor deficit, warmth, or fever increases risk', against: 'Palpable pulses, intact sensation, preserved motor function, and compressible compartments lower immediate neurovascular concern', discriminator: 'Serial distal pulse, motor, sensory, capillary refill, compartment, and skin exams' }) }
     ];
   }
 
   if (/\bmed refill|medication refill\b/.test(text)) {
     return [
-      { diagnosis: 'Medication access issue', rationale: 'Most consistent with the stated request when no acute symptoms or unstable vital signs are documented.' },
-      { diagnosis: 'Uncontrolled chronic disease', rationale: 'Considered if the missing medication could worsen hypertension, diabetes, seizure disorder, anticoagulation, or another chronic condition.' },
-      { diagnosis: 'Occult acute complaint', rationale: 'Less likely when the visit is limited to refill needs, but triage should still screen for new symptoms.' }
+      { diagnosis: 'Medication access issue', rationale: differentialRationale({ support: 'The visit is for a refill and vital signs do not show an immediate danger signal', against: 'New symptoms, withdrawal risk, or unstable disease control would shift the visit away from simple access', discriminator: 'Medication name, dose, last dose, missed doses, indication, contraindications, and outpatient access plan' }) },
+      { diagnosis: 'Uncontrolled chronic disease', rationale: differentialRationale({ support: 'Risk rises when the medication treats hypertension, diabetes, seizures, anticoagulation, psychiatric disease, or withdrawal prevention', against: 'Stable symptoms and a low-risk medication make this less likely', discriminator: 'Disease-specific symptom screen and medication safety review' }) },
+      { diagnosis: 'Occult acute complaint', rationale: differentialRationale({ support: 'A refill request can mask new symptoms or medication adverse effects', against: 'A focused screen without new symptoms supports routine outpatient-oriented care', discriminator: 'Review of new symptoms, adverse effects, pregnancy status when relevant, and return precautions' }) }
     ];
   }
 
   return [
-    { diagnosis: 'Primary presenting complaint', rationale: 'Most consistent with the documented chief concern and triage history.' },
-    { diagnosis: 'High-risk secondary cause', rationale: 'Considered when abnormal vital signs, severe pain, age, comorbid disease, or transfer status raises risk.' },
-    { diagnosis: 'Lower-acuity benign process', rationale: 'Possible when the patient is stable and lacks danger-zone symptoms, but not assumed until screening is complete.' }
+    { diagnosis: 'Primary presenting complaint', rationale: differentialRationale({ support: 'This is the best fit for the stated chief concern and triage history', against: 'Atypical vitals, high-risk history, or discordant symptoms should broaden the workup', discriminator: 'Focused history, exam, vital-sign trend, and expected ED resources' }) },
+    { diagnosis: 'High-risk secondary cause', rationale: differentialRationale({ support: 'Abnormal vital signs, severe pain, age, comorbid disease, or transfer status raises concern for a higher-risk cause', against: 'Stable vitals and reassuring focused exam lower immediate risk', discriminator: 'Targeted red-flag questions and objective reassessment' }) },
+    { diagnosis: 'Lower-acuity benign process', rationale: differentialRationale({ support: 'Stable presentation and absence of danger-zone symptoms can fit a benign cause', against: 'This should not be assumed when high-risk symptoms, abnormal vitals, or multiple resource needs are present', discriminator: 'Reassessment after focused exam and initial diagnostics' }) }
   ];
+}
+
+function relevantPmhForAssessment(caseData, patientView = {}) {
+  const text = `${soapClinicalText(caseData)} ${soapPrimaryDiagnosis(caseData)}`.toLowerCase();
+  const pmh = [...(patientView.medical_history || []), ...(patientView.cardiac_history || [])];
+  if (!pmh.length) return [];
+
+  const contextRules = [
+    {
+      context: /\b(chest pain|chest pressure|dyspnea|shortness of breath|heart failure|orthopnea|edema|syncope)\b/,
+      condition: /\b(coronary|myocardial infarction|heart attack|heart failure|chf|aortic stenosis|atrial fibrillation|arrhythmia|hypertension|hyperlipidemia|diabetes|copd|asthma|pulmonary|tobacco|renal|dialysis|ckd)\b/i
+    },
+    {
+      context: /\b(stroke|tia|focal neurologic|weakness|facial droop|gaze deviation|altered mental|confusion|seizure|subdural|headache)\b/,
+      condition: /\b(stroke|tia|seizure|epilepsy|hypertension|diabetes|atrial fibrillation|anticoag|cancer|renal|dialysis|ckd|adrenal|immunocompromised|hiv|copd)\b/i
+    },
+    {
+      context: /\b(fever|sepsis|infection|pneumonia|abscess|cellulitis|gangrene|osteomyelitis)\b/,
+      condition: /\b(diabetes|renal|dialysis|ckd|cancer|malignancy|transplant|hiv|immunocompromised|steroid|copd|asthma)\b/i
+    },
+    {
+      context: /\b(abdominal|pelvic|vomiting|nausea|crohn|fistula|dysphagia|difficulty swallowing)\b/,
+      condition: /\b(crohn|ulcerative|abdominal surgery|esophagectomy|acdf|diabetes|renal|dialysis|ckd|adrenal|pregnan|cancer|immunocompromised)\b/i
+    },
+    {
+      context: /\b(fracture|fall|injury|trauma|laceration|wound|bleeding)\b/,
+      condition: /\b(anticoag|bleeding disorder|hemophilia|diabetes|osteoporosis|renal|dialysis|ckd|immunocompromised|steroid|pregnan)\b/i
+    }
+  ];
+
+  return pmh.filter((item) => {
+    const value = String(item || '').trim();
+    if (!value) return false;
+    return contextRules.some((rule) => rule.context.test(text) && rule.condition.test(value));
+  });
 }
 
 function soapJustification(caseData) {
@@ -4105,10 +4290,17 @@ function soapJustification(caseData) {
 
   if (lowAcuityProfile) {
     return [
-      `This ${age}-year-old ${sex} presents without danger-zone vital signs, consistent with ${primary.toLowerCase()}.`,
-      pain > 0 ? `Pain is rated ${pain}/10.` : 'No pain is documented.',
-      `ESI ${acuity} reflects no anticipated ED resources for this visit.`,
-      lowAcuityProfile.verification_focus
+      `This ${age}-year-old ${sex} presents with ${lowAcuityProfile.problem} and no danger-zone vital signs.`,
+      pain > 0 ? `Pain is rated ${pain}/10.` : '',
+      'Plan is focused on problem-specific exam, symptom control, reassessment, and discharge safety if the clinical exam remains reassuring.'
+    ].filter(Boolean).join(' ');
+  }
+
+  if (isOpenLowerExtremityFractureCase(caseData)) {
+    return [
+      `This ${age}-year-old ${sex} has an open left lower-extremity fracture after a fall, with associated ankle and foot fractures.`,
+      hr >= 100 ? `Tachycardia (HR ${hr}) may reflect pain, blood loss, or stress response.` : '',
+      'This is a high-risk orthopedic injury requiring urgent wound protection, early antibiotics, tetanus assessment, immobilization, serial distal neurovascular and compartment exams, analgesia, and orthopedic evaluation.'
     ].filter(Boolean).join(' ');
   }
 
@@ -4119,21 +4311,23 @@ function soapJustification(caseData) {
   evidence.push(`This is a ${age}-year-old ${sex} presenting with ${presentingProblemText(caseData)}.`);
 
   // PMH as risk modifier
-  const pmh = [...(patientView.medical_history || []), ...(patientView.cardiac_history || [])];
+  const pmh = relevantPmhForAssessment(caseData, patientView);
   if (pmh.length) {
-    evidence.push(`Past medical history is notable for ${joinClinicalList(pmh.slice(0, 3))}.`);
+    evidence.push(`Relevant medical history includes ${joinClinicalList(pmh.slice(0, 3))}.`);
   }
 
   // Key positive symptoms supporting the primary dx
   const positives = (patientView.present_symptoms || []).slice(0, 4);
   if (positives.length) {
-    evidence.push(`Supporting the working diagnosis, the patient reports ${joinClinicalList(positives)}.`);
+    evidence.push(`Key associated symptoms include ${joinClinicalList(positives)}.`);
   }
 
   // Key negatives that help narrow the differential
-  const negatives = (patientView.relevant_negatives || []).slice(0, 3);
+  const negatives = Array.isArray(patientView.relevant_negatives)
+    ? patientView.relevant_negatives.slice(0, 3)
+    : patientView.relevant_negatives ? [patientView.relevant_negatives] : [];
   if (negatives.length) {
-    evidence.push(`Against competing diagnoses, the patient denies ${joinClinicalList(negatives)}.`);
+    evidence.push(`Pertinent negatives include ${joinClinicalList(negatives)}.`);
   }
 
   // Vital sign interpretation
@@ -4155,13 +4349,13 @@ function soapJustification(caseData) {
     evidence.push(`Moderate pain rated ${pain}/10 supports the need for evaluation and symptom management.`);
   }
 
-  // Acuity conclusion
-  const acuityRationale = acuity <= 2
-    ? `ESI ${acuity} reflects a high-risk presentation requiring immediate clinician evaluation and close monitoring.`
+  // Clinical priority conclusion
+  const priorityRationale = acuity <= 2
+    ? 'The presentation requires immediate clinician evaluation and close monitoring.'
     : acuity === 3
-    ? `ESI ${acuity} reflects a presentation that will require multiple ED resources and prompt evaluation.`
-    : `ESI ${acuity} reflects a lower-acuity presentation expected to require limited resources.`;
-  evidence.push(acuityRationale);
+    ? 'The presentation requires prompt ED evaluation, diagnostic workup, treatment, and reassessment.'
+    : 'The presentation is appropriate for focused evaluation with reassessment for symptom progression or vital-sign change.';
+  evidence.push(priorityRationale);
 
   return evidence.filter(Boolean).join(' ');
 }
@@ -4203,6 +4397,8 @@ function soapPlan(caseData, workflow) {
     problems.push({ problem: 'Acute focal neurologic deficit — stroke/TIA until proven otherwise', plan: `${primaryPlan} Activate stroke protocol. Obtain non-contrast CT head immediately. Document NIHSS. Neurology consult. Assess for tPA eligibility if within window.` });
   } else if (/\b(seizure|post-ictal|altered mental status|altered level of consciousness|encephalopathy)\b/.test(text)) {
     problems.push({ problem: 'Altered mental status / seizure', plan: `${primaryPlan} Immediate point-of-care glucose. Obtain full metabolic panel, ammonia, blood cultures, and brain imaging. Serial neurologic checks. Protect airway.` });
+  } else if (/\b(open left tibia|open tibia|tibia\/fibula|open fracture)\b/.test(text)) {
+    problems.push({ problem: 'Open lower-extremity fracture', plan: `${primaryPlan} Maintain sterile dressing and immobilization. Perform serial distal pulse, motor, sensory, capillary refill, and compartment checks. Give IV analgesia, early IV antibiotics, and tetanus prophylaxis as indicated. Obtain or review extremity radiographs and consult orthopedics urgently.` });
   } else if (/\b(rectal abscess|perianal abscess|anal pain|crohn|fistulizing|perianal)\b/.test(text)) {
     problems.push({ problem: 'Perianal or anorectal pain — abscess vs. fistula', plan: `${primaryPlan} Focused perianal and digital rectal exam under adequate analgesia. Order pelvic CT or MRI perianal protocol. Surgical or colorectal surgery consult for drainage decision.` });
   } else if (/\b(abdominal|pelvic pain|nausea|vomiting|abd pain|stomach)\b/.test(text)) {
@@ -4285,14 +4481,22 @@ function generateObjectiveExam(caseData) {
   const pain = caseData.vitals?.pain || 0;
 
   const findings = [];
+  const negatedBreathingConcern = /\b(?:no|denies|without)\s+(?:\w+\s+){0,5}(?:shortness of breath|dyspnea|trouble breathing|difficulty breathing|breathing difficult|respiratory distress)\b/.test(fullText);
+  const respiratoryConcern = !negatedBreathingConcern && /\b(?:shortness of breath|dyspnea|trouble breathing|difficulty breathing|labored breathing|respiratory distress|copd|asthma|chf|pneumonia)\b/.test(fullText);
+
+  if (/\b(open left tibia|open tibia|tibia\/fibula|open fracture)\b/.test(fullText)) {
+    return [
+      'Focused exam findings: Awake and in pain but protecting airway. Left lower leg has gross deformity with an open anterior tibial wound; bleeding is controlled with dressing. Distal dorsalis pedis and posterior tibial pulses are palpable with preserved toe movement and light-touch sensation. Compartments are compressible without pain out of proportion on passive stretch.'
+    ];
+  }
 
   if (fullText.includes('unresponsive') || fullText.includes('cardiac arrest') || fullText.includes('cpr')) {
     findings.push("Unresponsive. Apneic. No palpable central pulses.");
   } else if (fullText.includes('altered') || fullText.includes('lethargic') || fullText.includes('somnolent') || fullText.includes('confused') || fullText.includes('overdose') || fullText.includes('intoxicat') || fullText.includes('seizure')) {
     findings.push("Somnolent/lethargic; cooperates minimally.");
-  } else if (fullText.includes('anaphylaxis') || fullText.includes('allergic') || fullText.includes('stridor') || fullText.includes('choking') || fullText.includes('throat closing')) {
+  } else if (fullText.includes('anaphylaxis') || fullText.includes('stridor') || fullText.includes('choking') || fullText.includes('throat closing') || fullText.includes('angioedema')) {
     findings.push("Severe respiratory distress; anxious, stridorous.");
-  } else if (fullText.includes('shortness of breath') || fullText.includes('dyspnea') || fullText.includes('breath') || fullText.includes('copd') || fullText.includes('asthma') || fullText.includes('chf') || fullText.includes('pneumonia') || rr >= 26 || spO2 <= 91) {
+  } else if (respiratoryConcern || rr >= 26 || spO2 <= 91) {
     findings.push("Respiratory distress with increased effort/accessory muscle use.");
   } else if (rr >= 22 || spO2 < 95) {
     findings.push("Tachypneic; moderate respiratory distress.");
@@ -4302,7 +4506,7 @@ function generateObjectiveExam(caseData) {
     findings.push("Appears mildly ill and uncomfortable.");
   }
 
-  if (fullText.includes('wheez') || fullText.includes('asthma') || fullText.includes('copd') || fullText.includes('allergic')) {
+  if (fullText.includes('wheez') || fullText.includes('asthma') || fullText.includes('copd')) {
     findings.push("Expiratory wheezing present.");
   } else if (fullText.includes('cough') || fullText.includes('sputum') || fullText.includes('pneumonia') || fullText.includes('fever') || temp >= 100.4) {
     findings.push("Coarse rhonchi/crackles noted.");
@@ -4326,7 +4530,7 @@ function generateObjectiveExam(caseData) {
     if (fullText.includes('left-sided weakness') || fullText.includes('left sided weakness')) findings.push("Left-sided hemiparesis and facial droop.");
     else if (fullText.includes('right-sided weakness') || fullText.includes('right sided weakness')) findings.push("Right-sided hemiparesis and facial droop.");
     else findings.push("Focal neurologic asymmetry noted.");
-  } else if (fullText.includes('dizzy') || fullText.includes('unsteady') || fullText.includes('gait') || fullText.includes('fall')) {
+  } else if (fullText.includes('dizzy') || fullText.includes('unsteady') || fullText.includes('gait instability')) {
     findings.push("Unsteady gait; subjective dizziness.");
   }
 
@@ -4337,25 +4541,99 @@ function generateObjectiveExam(caseData) {
   return [`Focused exam findings: ${findings.join(' ')}`];
 }
 
+const SOAP_NOTE_OMIT_PATTERNS = [
+  /\bmissing\b/i,
+  /\bnot documented\b/i,
+  /\bnone documented\b/i,
+  /\bnot specified\b/i,
+  /\bnot recorded\b/i,
+  /\bdoes not document\b/i,
+  /\bdoes not provide\b/i,
+  /\btriage history does not show\b/i,
+  /\bcurrent source\b/i,
+  /\bsource record\b/i,
+  /\bsource bundle\b/i,
+  /\bdata limitation\b/i,
+  /\blimiting evidence\b/i,
+  /\brequires? verification\b/i,
+  /\bneed(?:s)? verification\b/i,
+  /\bunavailable\b/i
+];
+
+function hasSoapOmittedLanguage(value) {
+  const text = String(value || '');
+  return SOAP_NOTE_OMIT_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function cleanSoapNarrative(value, fallback = '') {
+  const text = stripMarkdown(value).replace(/\s+/g, ' ').trim();
+  if (!text) return fallback;
+  if (!hasSoapOmittedLanguage(text)) return text;
+  const sentences = sentenceSplit(text).filter((sentence) => !hasSoapOmittedLanguage(sentence));
+  return sentences.join(' ').trim() || fallback;
+}
+
+function cleanSoapList(items = []) {
+  return uniqueSentences(items.map((item) => cleanSoapNarrative(item)).filter(Boolean));
+}
+
+function sanitizeSoapNote(note = {}) {
+  const subjective = note.subjective || {};
+  const assessment = note.assessment || {};
+  const ddx = Array.isArray(assessment.ddx) ? assessment.ddx : [];
+  const plan = Array.isArray(note.plan) ? note.plan : [];
+
+  return {
+    subjective: {
+      chief_concern: cleanSoapNarrative(subjective.chief_concern),
+      history: cleanSoapNarrative(subjective.history),
+      hpi: cleanSoapNarrative(subjective.hpi),
+      pmh: cleanSoapNarrative(subjective.pmh),
+      meds: cleanSoapNarrative(subjective.meds),
+      allergies: cleanSoapNarrative(subjective.allergies)
+    },
+    objective: cleanSoapList(note.objective || []),
+    assessment: {
+      primary_diagnosis: cleanSoapNarrative(assessment.primary_diagnosis, 'Undifferentiated ED presentation'),
+      ddx: ddx.map((item) => ({
+        diagnosis: cleanSoapNarrative(item?.diagnosis),
+        rationale: cleanSoapNarrative(item?.rationale)
+      })).filter((item) => item.diagnosis),
+      justification: cleanSoapNarrative(assessment.justification)
+    },
+    plan: plan.map((item) => {
+      if (item && typeof item === 'object') {
+        return {
+          problem: cleanSoapNarrative(item.problem, 'Care plan'),
+          plan: cleanSoapNarrative(item.plan)
+        };
+      }
+      return {
+        problem: 'Care plan',
+        plan: cleanSoapNarrative(item)
+      };
+    }).filter((item) => item.plan)
+  };
+}
+
 function buildSoapNote(caseData, workflow) {
-  const physicalExamFacts = reviewedPhysicalExamFacts(caseData);
-  const limitations = sourceDataLimitations(caseData);
   const lowAcuityProfile = lowAcuityTeachingProfile(caseData);
   const patientView = buildPatientView(caseData) || {};
 
   const pmhList = [...(patientView.medical_history || []), ...(patientView.cardiac_history || [])];
-  const pmh = pmhList.length ? joinClinicalList(pmhList) : 'None documented';
-  const meds = (patientView.medications || []).length ? joinClinicalList(patientView.medications) : 'None documented';
-  const allergies = patientView.no_known_allergies ? 'No known drug allergies' : (patientView.allergies || []).length ? joinClinicalList(patientView.allergies) : 'None documented';
+  const medicationList = [...(patientView.medications || []), ...(patientView.negative_medications || [])];
+  const pmh = pmhList.length ? joinClinicalList(pmhList) : '';
+  const meds = medicationList.length ? joinClinicalList(medicationList) : '';
+  const allergies = patientView.no_known_allergies ? 'No known drug allergies' : (patientView.allergies || []).length ? joinClinicalList(patientView.allergies) : '';
 
   const historyText = lowAcuityProfile
-    ? `${capitalizeSentence(lowAcuityProfile.problem)} with stable triage vitals; medication details and access context require verification.`
+    ? `${capitalizeSentence(lowAcuityProfile.problem)} with stable triage vital signs and no danger-zone findings.`
     : clinicalHistoryDetails(caseData) || documentedMedicalHistoryText(caseData) || capitalizeSentence(patientView.presenting_concern || '');
 
-  return {
+  return sanitizeSoapNote({
     subjective: {
       chief_concern: capitalizeSentence(presentingProblemText(caseData)),
-      history: '', // History is now rendered via HPI field
+      history: '',
       hpi: capitalizeSentence(historyText),
       pmh: capitalizeSentence(pmh),
       meds: capitalizeSentence(meds),
@@ -4371,7 +4649,7 @@ function buildSoapNote(caseData, workflow) {
       justification: soapJustification(caseData)
     },
     plan: soapPlan(caseData, workflow)
-  };
+  });
 }
 
 function buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityItems = []) {
@@ -4661,7 +4939,7 @@ export function startStaticSimulation() {
   if (!cases.length) throw new Error('No cases available.');
   const playableCases = cases.filter((item) => {
     const complaint = String(item.complaint || '').trim();
-    return Boolean(complaint);
+    return Boolean(complaint) && !/#name\?/i.test(complaint);
   });
   const casePool = playableCases.length ? adaptiveCasePool(playableCases) : cases;
   const rawCaseData = clone(casePool[Math.floor(Math.random() * casePool.length)]);
@@ -5114,11 +5392,16 @@ export function getTutorSettings() {
 export function saveTutorSettings({ key, model = DEFAULT_TUTOR_MODEL, patientModel = DEFAULT_PATIENT_DIALOGUE_MODEL }) {
   const trimmedKey = String(key || '').trim();
   if (!trimmedKey) throw new Error('OpenRouter API key is required.');
+  const provider = detectProvider(trimmedKey);
+  const requestedModel = String(model || '').trim();
+  const resolvedModel = provider === 'openrouter'
+    ? (requestedModel || DEFAULT_TUTOR_MODEL)
+    : (!requestedModel || /^openrouter\//i.test(requestedModel) ? getDefaultModelForProvider(provider) : requestedModel);
   sessionStorage.removeItem(TUTOR_SESSION_KEY);
   localStorage.removeItem(TUTOR_LOCAL_KEY);
   localStorage.setItem(TUTOR_LOCAL_KEY, trimmedKey);
   localStorage.setItem(TUTOR_STORAGE_KEY, 'local');
-  localStorage.setItem(TUTOR_MODEL_KEY, String(model || DEFAULT_TUTOR_MODEL).trim() || DEFAULT_TUTOR_MODEL);
+  localStorage.setItem(TUTOR_MODEL_KEY, resolvedModel);
   localStorage.setItem(PATIENT_DIALOGUE_MODEL_KEY, String(patientModel || DEFAULT_PATIENT_DIALOGUE_MODEL).trim() || DEFAULT_PATIENT_DIALOGUE_MODEL);
   return getTutorSettings();
 }
@@ -5194,7 +5477,7 @@ function stripMarkdown(value) {
     .trim();
 }
 
-function normalizeTutorResponse(raw, model, fallbackContext = {}) {
+function normalizeTutorResponse(raw, model, fallbackContext = {}, source = 'OpenRouter') {
   const data = raw && typeof raw === 'object' ? raw : { summary: raw };
   const nextSteps = Array.isArray(data.next_steps)
     ? data.next_steps.slice(0, 4).map((item) => ({
@@ -5203,20 +5486,21 @@ function normalizeTutorResponse(raw, model, fallbackContext = {}) {
         action: cleanText(stripMarkdown(item.action), '')
       }))
     : [];
-  const sbar = data.gold_standard_sbar || data.sbar || fallbackContext?.physician_debrief?.gold_standard_sbar || {};
+  const hasSbar = Boolean(data.gold_standard_sbar || data.sbar);
+  const sbar = data.gold_standard_sbar || data.sbar || {};
   return {
-    source: 'OpenRouter',
+    source,
     model,
     role: 'Emergency physician tutor',
     summary: cleanText(stripMarkdown(data.summary), fallbackContext?.physician_debrief?.case_summary || 'Case review completed.'),
-    teaching_point: cleanText(stripMarkdown(data.teaching_point), stripMarkdown(data.key_takeaway) || 'Use the reference case evidence to connect acuity, resources, and escalation.'),
-    gold_standard_sbar: {
+    teaching_point: cleanText(stripMarkdown(data.teaching_point), stripMarkdown(data.key_takeaway)),
+    gold_standard_sbar: hasSbar ? {
       situation: cleanText(stripMarkdown(sbar.situation), ''),
       background: cleanText(stripMarkdown(sbar.background), ''),
       assessment: cleanText(stripMarkdown(sbar.assessment), ''),
       recommendation: cleanText(stripMarkdown(sbar.recommendation), '')
-    },
-    next_steps: nextSteps.length ? nextSteps : (fallbackContext?.priority_feedback || []).slice(0, 3),
+    } : null,
+    next_steps: nextSteps,
     bullets: cleanTextList(data.bullets || data.high_yield_points).map(stripMarkdown).filter(Boolean)
   };
 }
@@ -5225,17 +5509,23 @@ export async function askOpenRouterTutor(sessionIdValue, question) {
   const completed = getCompletedSession(sessionIdValue);
   if (!completed) throw new Error('Complete the case before asking the AI tutor.');
   const settings = getTutorSettings();
-  if (!settings.key) throw new Error('Use AI settings in the header to enable the clinical tutor.');
+  if (!settings.key) throw new Error('Add an API key in AI Settings to use the clinical tutor.');
 
   const context = conciseTutorContext(completed);
+
   const messages = [
     {
       role: 'system',
       content: [
         'You are an experienced emergency room physician teaching a triage learner after a simulation.',
         'Use only the supplied case summary, scoring fields, and deterministic debrief evidence.',
+        'Answer the learner question directly before giving case-specific teaching.',
+        'If the learner asks a general medical term question, define the term clearly and then tie it to this case when relevant.',
+        'Only include gold_standard_sbar when the learner explicitly asks for SBAR, handoff, or report; otherwise set gold_standard_sbar to null.',
+        'Do not merely repeat the SBAR or resource counts unless the question asks for them.',
+        'The teaching_point must explain a clinical reasoning principle, not repeat vital signs or resource totals.',
         'Return strict JSON only. No Markdown, tables, HTML, preface, or prose outside JSON.',
-        'Keep the response concise: one short summary, one teaching point, at most three next steps.',
+        'Keep the response concise: one direct answer, one teaching point, and at most three next steps when useful.',
         'Do not invent diagnoses, tests, procedures, protocols, or hidden chart details.'
       ].join(' ')
     },
@@ -5244,9 +5534,10 @@ export async function askOpenRouterTutor(sessionIdValue, question) {
       content: JSON.stringify({
         learner_question: question,
         expected_json_schema: {
-          summary: 'one concise paragraph',
-          teaching_point: 'one sentence',
-          gold_standard_sbar: {
+          summary: 'direct answer to the learner question in one concise paragraph',
+          teaching_point: 'one case-specific clinical reasoning sentence',
+          gold_standard_sbar: 'object only if the learner asks for SBAR/handoff/report; otherwise null',
+          sbar_shape_if_needed: {
             situation: 'one sentence',
             background: 'one sentence',
             assessment: 'one sentence',
@@ -5270,7 +5561,7 @@ export async function askOpenRouterTutor(sessionIdValue, question) {
   const requestOptions = {
     key: settings.key,
     model: settings.model || DEFAULT_TUTOR_MODEL,
-    maxTokens: 360,
+    maxTokens: 520,
     temperature: 0.15,
     timeoutMs: 15000
   };
@@ -5289,10 +5580,9 @@ export async function askOpenRouterTutor(sessionIdValue, question) {
     return normalizeTutorResponse(extractJsonObject(content), settings.model || DEFAULT_TUTOR_MODEL, context);
   } catch {
     return normalizeTutorResponse({
-      summary: context?.physician_debrief?.case_summary || stripMarkdown(content),
-      teaching_point: 'Review the reference ESI, missed safety signals, and next escalation action before the next case.',
-      gold_standard_sbar: context?.physician_debrief?.gold_standard_sbar,
-      next_steps: (context?.priority_feedback || []).slice(0, 3)
+      summary: stripMarkdown(content),
+      teaching_point: 'Connect the answer back to the case evidence before changing acuity or escalation decisions.',
+      next_steps: []
     }, settings.model || DEFAULT_TUTOR_MODEL, context);
   }
 }
@@ -5324,6 +5614,9 @@ export async function askOpenRouterDebrief(sessionIdValue) {
         'You are an experienced, board-certified emergency room physician.',
         'Your task is to generate a realistic, highly clinical Expert SOAP Note and personalized clinical tips for the triage learner based on their performance.',
         'The SOAP note must demonstrate clinical reasoning and thought, explicitly tailored to the acute diagnosis of the patient. Keep the subjective and objective sections extremely concise, focusing heavily on a comprehensive Assessment and Plan.',
+        'Do not describe missing, unavailable, undocumented, or source-limited data in the SOAP assessment or plan. Omit unknown PMH, medication, allergy, exam, and diagnostic details instead of documenting them as absent.',
+        'In the Assessment, include past medical history only when it changes the acute differential, risk, monitoring, or treatment plan. Do not mention irrelevant chronic diagnoses.',
+        'Write differential rationales as physician documentation: state why the diagnosis fits the presentation and which present findings make it less likely. Do not use labels such as "matches this patient", "best discriminator", "acuity implication", "reference ESI", "resource use", or "source record".',
         'The clinical tips MUST follow this strict structure: "Key red flags you caught / missed", "Interview quality", "What to do differently next time". Provide concrete, specific feedback based on the exact case data and learner log.',
         'Return strict JSON only. No Markdown outside the JSON.'
       ].join(' ')
@@ -5377,7 +5670,11 @@ export async function askOpenRouterDebrief(sessionIdValue) {
   }
 
   try {
-    return extractJsonObject(content);
+    const parsed = extractJsonObject(content);
+    if (parsed?.expert_soap_note) {
+      parsed.expert_soap_note = sanitizeSoapNote(parsed.expert_soap_note);
+    }
+    return parsed;
   } catch {
     return null; // Fallback if parse fails
   }

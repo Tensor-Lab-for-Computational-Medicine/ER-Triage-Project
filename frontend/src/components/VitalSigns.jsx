@@ -215,7 +215,7 @@ function getSystemFinding(system, matchingFacts, patientData = {}, vitals = []) 
     if (fullText.includes('altered') || fullText.includes('lethargic') || fullText.includes('somnolent') || fullText.includes('confused') || fullText.includes('overdose') || fullText.includes('intoxicat') || fullText.includes('seizure')) {
       return `Patient is somnolent/lethargic but rousable to tactile stimulation. Disoriented. Airway is patent but requires continuous monitoring.`;
     }
-    if (fullText.includes('anaphylaxis') || fullText.includes('allergic') || fullText.includes('stridor') || fullText.includes('choking') || fullText.includes('angioedema') || fullText.includes('throat closing')) {
+    if (fullText.includes('anaphylaxis') || fullText.includes('stridor') || fullText.includes('choking') || fullText.includes('angioedema') || fullText.includes('throat closing')) {
       return `Patient in severe distress. Noticeable facial/lip swelling. Audible stridor and hoarseness on vocalization. Threat to airway patency.`;
     }
     if (fullText.includes('shortness of breath') || fullText.includes('dyspnea') || fullText.includes('breath') || fullText.includes('copd') || fullText.includes('asthma') || fullText.includes('chf') || fullText.includes('pneumonia') || rr >= 26 || spO2 <= 91) {
@@ -237,7 +237,7 @@ function getSystemFinding(system, matchingFacts, patientData = {}, vitals = []) 
     if (fullText.includes('stridor') || fullText.includes('anaphylaxis') || fullText.includes('angioedema')) {
       return `Significant inspiratory stridor audible without stethoscope. Diminished air entry bilaterally secondary to upper airway edema.`;
     }
-    if (fullText.includes('wheez') || fullText.includes('asthma') || fullText.includes('copd') || fullText.includes('allergic')) {
+    if (fullText.includes('wheez') || fullText.includes('asthma') || fullText.includes('copd')) {
       return `Auscultation reveals loud diffuse expiratory wheezing bilaterally with a markedly prolonged expiratory phase. Decreased air movement at the bases. Suprasternal retractions present.`;
     }
     if (fullText.includes('cough') || fullText.includes('sputum') || fullText.includes('pneumonia') || fullText.includes('fever') || fullText.includes('chills') || fullText.includes('infection') || temp >= 100.4) {
@@ -260,7 +260,12 @@ function getSystemFinding(system, matchingFacts, patientData = {}, vitals = []) 
       } else if (sbp >= 180) {
         findings += ` Bounding peripheral pulses (3+) bilaterally. Blood pressure elevated at ${sbp}/${dbp} mmHg. No audible S3/S4 gallop or new regurgitant murmur.`;
       } else {
-        findings += ` Distal pulses are equal and 2+ bilaterally. Capillary refill <2s. No friction rubs or gallops. Patient notes central chest discomfort during exam.`;
+        findings += ` Distal pulses are equal and 2+ bilaterally. Capillary refill <2s. No friction rubs or gallops.`;
+        if (fullText.includes('chest pain') || fullText.includes('chest pressure') || fullText.includes('central chest')) {
+          findings += ` Patient notes central chest discomfort during exam.`;
+        } else {
+          findings += ` Peripheral perfusion remains preserved.`;
+        }
       }
       return findings;
     }
@@ -305,7 +310,7 @@ function getSystemFinding(system, matchingFacts, patientData = {}, vitals = []) 
     if (fullText.includes('laceration') || fullText.includes('cut') || fullText.includes('bleed') || fullText.includes('wound') || fullText.includes('trauma') || fullText.includes('fall')) {
       return `Inspection reveals a linear soft-tissue laceration/wound with clean margins over the affected area. Hemostasis achieved with direct pressure dressing. Surrounding tissue intact with no foreign body palpable.`;
     }
-    if (fullText.includes('rash') || fullText.includes('hives') || fullText.includes('urticaria') || fullText.includes('itch') || fullText.includes('allergic') || fullText.includes('anaphylaxis')) {
+    if (fullText.includes('rash') || fullText.includes('hives') || fullText.includes('urticaria') || fullText.includes('itch') || fullText.includes('anaphylaxis')) {
       return `Inspection reveals diffuse erythematous, blanching wheals and urticarial plaques across the anterior trunk and extremities. Intensely pruritic. Warm to touch.`;
     }
     if (fullText.includes('cellulitis') || fullText.includes('abscess') || fullText.includes('boil') || fullText.includes('spider bite') || fullText.includes('pus') || (fullText.includes('swelling') && (fullText.includes('red') || fullText.includes('warm') || fullText.includes('tender')))) {
@@ -374,6 +379,157 @@ function getSystemFinding(system, matchingFacts, patientData = {}, vitals = []) 
   }
 
   return system.normal;
+}
+
+const ABNORMAL_FINDING_PATTERNS = [
+  /\b(?:mild|moderate|severe)?\s*tachypnea(?:\s+present|\s+noted)?(?:\s*\(RR\s*\d+\))?/i,
+  /\bmoderate(?: to severe)? respiratory distress\b/i,
+  /\bsevere respiratory distress\b/i,
+  /\bmoderate(?: to severe)? distress\b/i,
+  /\bspeaking in (?:single words|partial sentences)\b/i,
+  /\bcradling affected area or restless on gurney\b/i,
+  /\bincreased respiratory effort\b/i,
+  /\baccessory muscle use\b/i,
+  /\bshallow\b/i,
+  /\bheart rate is \d+\s*bpm\s*\(tachycardic\)/i,
+  /\bheart rate is \d+\s*bpm\s*\(bradycardic\)/i,
+  /\(tachycardic\)/i,
+  /\(bradycardic\)/i,
+  /\bpatient notes central chest discomfort during exam\b/i,
+  /\bbounding peripheral pulses\s*\(3\+\)\s*bilaterally\b/i,
+  /\bblood pressure elevated at \d+\/\d+\s*mmHg\b/i,
+  /\belevated at \d+\/\d+\s*mmHg\b/i,
+  /\bhypertensive\b/i,
+  /\bhypotensive\b/i,
+  /\bweak and thready\s*\(1\+\)\b/i,
+  /\bcapillary refill is delayed[^.]*\b/i,
+  /\bdelayed at \d+(?:-\d+)?\s*seconds\b/i,
+  /\bexpiratory wheezing\b/i,
+  /\bwheezes?\b/i,
+  /\brales?\b/i,
+  /\brhonchi\b/i,
+  /\bcrackles?\b/i,
+  /\bretractions?\b/i,
+  /\bdiminished breath sounds\b/i,
+  /\bfocal neurologic asymmetry\b/i,
+  /\bhemiparesis\b/i,
+  /\bfacial droop\b/i,
+  /\bpronator drift\b/i,
+  /\bdecreased sensation\b/i,
+  /\bslurred speech\b/i,
+  /\bgross deformity\b/i,
+  /\bopen anterior tibial wound\b/i,
+  /\bbleeding is controlled with dressing\b/i,
+  /\bsevere tenderness\b/i,
+  /\bexquisite tenderness\b/i,
+  /\bswelling\b/i,
+  /\becchymosis\b/i,
+  /\berythema\b/i,
+  /\bwarmth\b/i,
+  /\bguarding\b/i,
+  /\brebound tenderness\b/i,
+  /\bunable to bear weight\b/i,
+  /\bpainful limitation\b/i,
+  /\blaceration\/wound\b/i,
+  /\bfluctuance\b/i,
+  /\binduration\b/i,
+  /\bdiaphoretic\b/i,
+  /\bpale\b/i,
+  /\bclammy\b/i
+];
+
+const NORMAL_FINDING_PATTERNS = [
+  /\bpatient is awake and alert\b/i,
+  /\bawake and in pain but protecting airway\b/i,
+  /\bairway is patent(?: and self-maintained)?\b/i,
+  /\bairway is intact\b/i,
+  /\bregular rhythm\b/i,
+  /\bS1 and S2 (?:heart sounds )?present\b/i,
+  /\bno audible S3\/S4 gallop or new regurgitant murmur\b/i,
+  /\bno friction rubs or gallops\b/i,
+  /\bgood bilateral air entry\b/i,
+  /\bgood air movement\b/i,
+  /\bno wheezes or rales\b/i,
+  /\bno wheezes, rales, rhonchi, or retractions\b/i,
+  /\bno focal motor or sensory deficits\b/i,
+  /\bcranial nerves (?:II-XII )?intact\b/i,
+  /\bdistal pulses (?:are )?(?:equal and )?2\+[^.]*\b/i,
+  /\bpulses are palpable\b/i,
+  /\bradial pulse is 2\+[^.]*\b/i,
+  /\bcapillary refill (?:is )?(?:brisk )?(?:<|at <)2s\b/i,
+  /\bpreserved toe movement and light-touch sensation\b/i,
+  /\bcompartments are compressible\b/i,
+  /\bwithout pain out of proportion on passive stretch\b/i,
+  /\bperipheral perfusion remains preserved\b/i,
+  /\bsensation is (?:fully )?intact\b/i,
+  /\bmotor function .* intact\b/i,
+  /\bskin is warm and dry\b/i,
+  /\bno open wounds, lacerations, or active bleeding\b/i,
+  /\bno fluctuance, purulent discharge, or open wounds\b/i,
+  /\bno rebound\b/i,
+  /\bno board-like rigidity\b/i
+];
+
+function collectFindingSpans(text, patterns, type) {
+  const spans = [];
+  for (const pattern of patterns) {
+    const flags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
+    const matcher = new RegExp(pattern.source, flags);
+    let match;
+    while ((match = matcher.exec(text))) {
+      if (!match[0]) break;
+      spans.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        type
+      });
+      if (matcher.lastIndex === match.index) matcher.lastIndex += 1;
+    }
+  }
+  return spans;
+}
+
+function findingFragments(text) {
+  const value = String(text || '');
+  const spans = [
+    ...collectFindingSpans(value, NORMAL_FINDING_PATTERNS, 'normal'),
+    ...collectFindingSpans(value, ABNORMAL_FINDING_PATTERNS, 'abnormal')
+  ].sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start) || (a.type === 'abnormal' ? -1 : 1));
+
+  const accepted = [];
+  let occupiedEnd = -1;
+  for (const span of spans) {
+    if (span.start < occupiedEnd) continue;
+    accepted.push(span);
+    occupiedEnd = span.end;
+  }
+
+  const parts = [];
+  let cursor = 0;
+  accepted.forEach((span, index) => {
+    if (span.start > cursor) {
+      parts.push({ text: value.slice(cursor, span.start), type: 'plain', key: `plain-${index}-${cursor}` });
+    }
+    parts.push({ text: value.slice(span.start, span.end), type: span.type, key: `${span.type}-${index}-${span.start}` });
+    cursor = span.end;
+  });
+  if (cursor < value.length) parts.push({ text: value.slice(cursor), type: 'plain', key: `plain-tail-${cursor}` });
+  return parts.length ? parts : [{ text: value, type: 'plain', key: 'plain-all' }];
+}
+
+function FindingText({ text }) {
+  return (
+    <p className="fact-statement annotated-finding">
+      {findingFragments(text).map((part) => (
+        <span
+          key={part.key}
+          className={part.type === 'plain' ? undefined : `finding-highlight ${part.type}`}
+        >
+          {part.text}
+        </span>
+      ))}
+    </p>
+  );
 }
 
 function VitalSigns({ sessionId, patientData, coachEnabled = false, onNext, onCapture, onClock }) {
@@ -527,7 +683,11 @@ function VitalSigns({ sessionId, patientData, coachEnabled = false, onNext, onCa
                       ) : (
                         <div className="specific-facts-list">
                           <div className="specific-fact-item">
-                            <p className="fact-statement">{findingText}</p>
+                            <div className="finding-legend" aria-hidden="true">
+                              <span className="legend-token abnormal">Abnormal signal</span>
+                              <span className="legend-token normal">Reassuring finding</span>
+                            </div>
+                            <FindingText text={findingText} />
                           </div>
                         </div>
                       )}

@@ -213,7 +213,7 @@ function TutorResponse({ response }) {
           <p>{response.teaching_point}</p>
         </div>
       )}
-      <SbarBlock sbar={response.gold_standard_sbar} />
+      {response.gold_standard_sbar && <SbarBlock sbar={response.gold_standard_sbar} />}
       {response.next_steps?.length > 0 && (
         <div className="next-step-grid tutor-next-steps">
           {response.next_steps.map((item) => (
@@ -242,16 +242,17 @@ function TutorPanel({ sessionId, aiSettings }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const settings = aiSettings || getTutorSettings();
+  const tutorLocked = !settings?.hasKey;
 
   const askQuestion = async (text = question) => {
     const trimmed = text.trim();
-    if (!trimmed) {
-      setError('Enter a question for the clinical tutor.');
-      return;
-    }
     const activeSettings = getTutorSettings();
     if (!activeSettings.hasKey) {
-      setError('Enable AI in settings to ask follow-up questions.');
+      setError('Add an API key from AI Settings in the header to use the AI tutor. OpenRouter, OpenAI, and Anthropic keys are supported.');
+      return;
+    }
+    if (!trimmed) {
+      setError('Enter a question for the clinical tutor.');
       return;
     }
 
@@ -278,7 +279,11 @@ function TutorPanel({ sessionId, aiSettings }) {
 
   return (
     <section className="feedback-section full-width tutor-panel" style={{ padding: 0, border: 'none', background: 'none' }}>
-      <p className="instruction">Ask any clinical question or request specific clarification on this case.</p>
+      <p className="instruction">
+        {tutorLocked
+          ? 'AI tutor is locked in Local mode. Add an API key from AI Settings in the header to ask case-specific follow-up questions.'
+          : 'Ask any clinical question or request specific clarification on this case.'}
+      </p>
 
       <div className="prompt-bank">
         {suggestedQuestions.map((item) => (
@@ -302,7 +307,7 @@ function TutorPanel({ sessionId, aiSettings }) {
           onChange={(event) => setQuestion(event.target.value)}
           placeholder="Example: Why was this patient placed in monitored care?"
           rows="3"
-          disabled={loading}
+          disabled={loading || tutorLocked}
         />
       </div>
 
@@ -474,20 +479,12 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                   }
                   
                   if (aiData.clinical_tips) {
-                    updated.next_case_checklist = [
-                      {
-                        title: 'Red Flags',
-                        items: aiData.clinical_tips.red_flags || []
-                      },
-                      {
-                        title: 'Interview Quality',
-                        items: aiData.clinical_tips.interview_quality || []
-                      },
-                      {
-                        title: 'Actionable Advice',
-                        items: aiData.clinical_tips.what_to_do_differently || []
-                      }
-                    ];
+                    const tips = [
+                      ...(aiData.clinical_tips.red_flags || []).map((item) => `Red flags: ${item}`),
+                      ...(aiData.clinical_tips.interview_quality || []).map((item) => `Interview: ${item}`),
+                      ...(aiData.clinical_tips.what_to_do_differently || []).map((item) => `Next case: ${item}`)
+                    ].filter(Boolean);
+                    if (tips.length) updated.next_case_checklist = tips;
                   }
                   
                   return updated;
@@ -523,7 +520,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
   const requestReasoningReview = async () => {
     const activeSettings = getTutorSettings();
     if (!activeSettings.hasKey) {
-      setReviewError('Enable AI in settings to request a critique.');
+      setReviewError('Add an API key from AI Settings in the header to request an AI critique.');
       return;
     }
     setReviewLoading(true);
@@ -629,9 +626,9 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                 {soapNote.subjective?.hpi ? (
                   <>
                     <p style={{ marginBottom: '8px' }}><strong>History of Present Illness:</strong> {soapNote.subjective.hpi}</p>
-                    <p style={{ marginBottom: '8px' }}><strong>Past Medical History:</strong> {soapNote.subjective.pmh || 'None documented'}</p>
-                    <p style={{ marginBottom: '8px' }}><strong>Home Medications:</strong> {soapNote.subjective.meds || 'None documented'}</p>
-                    <p style={{ marginBottom: '8px' }}><strong>Allergies:</strong> {soapNote.subjective.allergies || 'None documented'}</p>
+                    {soapNote.subjective?.pmh && <p style={{ marginBottom: '8px' }}><strong>Past Medical History:</strong> {soapNote.subjective.pmh}</p>}
+                    {soapNote.subjective?.meds && <p style={{ marginBottom: '8px' }}><strong>Home Medications:</strong> {soapNote.subjective.meds}</p>}
+                    {soapNote.subjective?.allergies && <p style={{ marginBottom: '8px' }}><strong>Allergies:</strong> {soapNote.subjective.allergies}</p>}
                   </>
                 ) : (
                   <p style={{ marginBottom: '8px' }}><strong>History & Context:</strong> {soapNote.subjective?.history}</p>
@@ -656,12 +653,12 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                   <ul className="ddx-list" style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
                     {(soapNote.assessment?.ddx || []).map((ddx, i) => (
                       <li key={i} className="ddx-item" style={{ marginBottom: '8px', background: '#fff', borderRadius: '6px', border: '1px solid #dcfce7', overflow: 'hidden' }}>
-                        <details style={{ padding: '0' }}>
+                        <details open style={{ padding: '0' }}>
                           <summary style={{ padding: '10px', color: '#166534', fontSize: '0.95rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             {ddx.diagnosis}
-                            <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>▼</span>
+                            <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>v</span>
                           </summary>
-                          <p style={{ margin: '0', padding: '0 10px 10px', fontSize: '0.9rem', color: '#475569', borderTop: '1px solid #f0fdf4', paddingTop: '8px' }}>{ddx.rationale}</p>
+                          <p className="ddx-rationale" style={{ margin: '0', padding: '0 10px 10px', fontSize: '0.9rem', color: '#475569', borderTop: '1px solid #f0fdf4', paddingTop: '8px' }}>{ddx.rationale}</p>
                         </details>
                       </li>
                     ))}
@@ -675,7 +672,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
               </div>
 
               <div className="soap-box plan-box" style={{ background: '#f8fafc', padding: '16px' }}>
-                <h4 style={{ marginBottom: '8px' }}>Initial ED Care Plan — Problem List</h4>
+                <h4 style={{ marginBottom: '8px' }}>Initial ED Care Plan - Problem List</h4>
                 <ul className="plan-list" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                   {(soapNote.plan || []).map((pItem, i) => {
                     const isObj = pItem && typeof pItem === 'object';

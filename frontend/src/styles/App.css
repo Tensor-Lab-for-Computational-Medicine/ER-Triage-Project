@@ -4365,6 +4365,62 @@ summary:focus-visible {
   color: var(--ink);
 }
 
+.annotated-finding {
+  display: block;
+}
+
+.finding-highlight {
+  display: inline;
+  padding: 1px 4px;
+  border-radius: 5px;
+  font-weight: 800;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.finding-highlight.abnormal {
+  color: #991b1b;
+  background: #fee2e2;
+  border-bottom: 2px solid #f87171;
+}
+
+.finding-highlight.normal {
+  color: #166534;
+  background: #dcfce7;
+  border-bottom: 2px solid #86efac;
+}
+
+.finding-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.legend-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.legend-token.abnormal {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.legend-token.normal {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
 .fact-rationale {
   font-size: 0.9rem;
   color: var(--ink-soft);

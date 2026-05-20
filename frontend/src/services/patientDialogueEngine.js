@@ -1,6 +1,6 @@
-export const PATIENT_DIALOGUE_ENGINE_VERSION = 'patient_dialogue_engine_v1';
+export const PATIENT_DIALOGUE_ENGINE_VERSION = 'patient_dialogue_engine_v2';
 export const PATIENT_DIALOGUE_PROMPT_VERSION = 'patient_dialogue_prompt_v4';
-export const PATIENT_DIALOGUE_CACHE_VERSION = 'patient_response_v5';
+export const PATIENT_DIALOGUE_CACHE_VERSION = 'patient_response_v6';
 
 const CATEGORY_ORDER = [
   'general_status',
@@ -121,7 +121,7 @@ const SYMPTOM_DEFINITIONS = [
   { id: 'seizure', label: 'seizure', patterns: [/\bseizure\b/i] },
   { id: 'fall', label: 'fall', patterns: [/\bfall\b/i, /\bfell\b/i, /\bfallen\b/i, /\bfalling\b/i] },
   { id: 'dizziness', label: 'dizziness or unsteadiness', patterns: [/\bdizz/i, /\bunsteady\b/i, /\bunsteadiness\b/i] },
-  { id: 'bleeding', label: 'bleeding', patterns: [/\bbleeding\b/i, /\bblood\b/i, /\bmelena\b/i, /\bhematochezia\b/i, /\bhematemesis\b/i] },
+  { id: 'bleeding', label: 'bleeding', patterns: [/\bbleeding\b/i, /\bbloody\b/i, /\bblood in (?:the )?(?:stool|urine|vomit)\b/i, /\bvomiting blood\b/i, /\bmelena\b/i, /\bhematochezia\b/i, /\bhematemesis\b/i] },
   { id: 'swallowing_trouble', label: 'trouble swallowing', patterns: [/\bdifficulty swallowing\b/i, /\btrouble swallowing\b/i, /\bunable to swallow\b/i, /\bdysphagia\b/i] },
   { id: 'hoarseness', label: 'hoarseness', patterns: [/\bhoarse/i] },
   { id: 'thirst', label: 'thirst', patterns: [/\bthirst\b/i, /\bthirsty\b/i] },
@@ -403,21 +403,30 @@ function extractPriorEpisodes(caseData) {
   return '';
 }
 
+function normalizeDurationPhrase(value) {
+  return String(value || '')
+    .replace(/\s*-\s*/g, ' ')
+    .replace(/\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(minute|hour|day|week|month|year)\b/gi, (match, count, unit) => {
+      const singular = /^(1|one)$/i.test(count);
+      return `${count} ${singular ? unit : `${unit}s`}`;
+    });
+}
+
 function extractDurationPhrase(caseData) {
   const text = sourceWithoutDemographics(caseData);
   const lower = text.toLowerCase();
 
   const overPast = lower.match(/\bover the past\s+((?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:minutes?|hours?|days?|weeks?|months?|years?))/i);
-  if (overPast?.[1]) return `over the past ${overPast[1]}`;
+  if (overPast?.[1]) return `over the past ${normalizeDurationPhrase(overPast[1])}`;
 
   const historyDuration = lower.match(/\b((?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s*[- ]?\s*(?:minute|hour|day|week|month|year)s?)\s+history\b/i);
-  if (historyDuration?.[1]) return `for about ${historyDuration[1].replace(/\s*-\s*/g, ' ')}`;
+  if (historyDuration?.[1]) return `for about ${normalizeDurationPhrase(historyDuration[1])}`;
 
   const ago = lower.match(/\b((?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s*[- ]?\s*(?:minute|hour|day|week|month|year)s?)\s+(?:ago|prior|before|earlier)\b/i);
-  if (ago?.[1]) return `about ${ago[1].replace(/\s*-\s*/g, ' ')} ago`;
+  if (ago?.[1]) return `about ${normalizeDurationPhrase(ago[1])} ago`;
 
   const lasted = lower.match(/\blasting about\s+((?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:minutes?|hours?|days?))/i);
-  if (lasted?.[1]) return `it lasted about ${lasted[1]}`;
+  if (lasted?.[1]) return `it lasted about ${normalizeDurationPhrase(lasted[1])}`;
 
   if (/\bday before\b|\byesterday\b/i.test(lower)) return 'yesterday';
   if (/\btoday\b|\bon the day of admission\b/i.test(lower)) return 'today';
@@ -447,6 +456,14 @@ function buildProgression(caseData) {
   return "It has been staying about the same since it started.";
 }
 
+function timelineSentenceFromDuration(duration) {
+  const value = String(duration || '').trim();
+  if (!value) return '';
+  if (/^it lasted\b/i.test(value)) return capitalizeSentence(value);
+  if (/^(for|over)\b/i.test(value)) return `It has been going on ${value}.`;
+  return `It started ${value}.`;
+}
+
 function buildTimeline(caseData, symptoms) {
   const text = sourceText(caseData);
   const lower = text.toLowerCase();
@@ -457,7 +474,7 @@ function buildTimeline(caseData, symptoms) {
   }
 
   if (hasSubduralLanguage(text)) {
-    if (duration) return `I'm not sure of the exact time, but the headache and unsteadiness started ${duration}.`;
+    if (duration) return `I'm not sure of the exact time, but the headache and unsteadiness have been going on ${duration}.`;
     if (/\b(chronic|weeks?|months?|gradual|progressive|worsening)\b/i.test(text)) {
       return "I'm not sure of the exact day, but the headache and unsteadiness have been getting worse over time.";
     }
@@ -481,7 +498,7 @@ function buildTimeline(caseData, symptoms) {
   if (/\bafter experiencing a seizure\b/i.test(text)) return 'It happened after I had a seizure and fell.';
   if (/\bafter waking from a nap\b/i.test(text)) return 'It started after I woke up from a nap.';
   if (/\bclinic parking lot\b/i.test(text)) return duration ? `The latest episode started in the clinic parking lot, and ${duration}.` : 'The latest episode started in the clinic parking lot.';
-  if (duration) return `It started ${duration}.`;
+  if (duration) return timelineSentenceFromDuration(duration);
   if (/\bworsening\b/i.test(lower)) return 'It has been getting worse before I came in.';
   if (/\bintermittent\b/i.test(lower)) return 'It has been coming and going.';
   return "I'm not exactly sure when it started, but it was already going on before I came in.";
@@ -491,6 +508,7 @@ function buildPresentingConcern(caseData, symptoms) {
   const text = sourceText(caseData);
   const lower = text.toLowerCase();
   const source = collateralSource(text);
+  const hasSymptom = (id) => symptoms.present_ids.includes(id);
 
   if (hasAlteredLanguage(text)) {
     const who = source && source !== 'EMS' ? `My ${source}` : 'Someone';
@@ -508,31 +526,39 @@ function buildPresentingConcern(caseData, symptoms) {
     return 'I have a headache, and I have been unsteady and falling more.';
   }
 
-  if (symptoms.present_ids.includes('rectal_pain') || /\brectal abscess|perianal abscess/i.test(text)) {
+  if (hasSymptom('rectal_pain') || /\brectal abscess|perianal abscess/i.test(text)) {
     return 'I have a very painful swollen area near my rectum.';
   }
-  if (symptoms.present_ids.includes('swallowing_trouble')) {
+  if (hasSymptom('swallowing_trouble')) {
     const parts = ['I am having trouble swallowing'];
-    if (symptoms.present_ids.includes('hoarseness')) parts.push('my voice is hoarse');
+    if (hasSymptom('hoarseness')) parts.push('my voice is hoarse');
     return `${capitalizeSentence(joinItems(parts))}.`;
   }
-  if (symptoms.present_ids.includes('seizure') && symptoms.present_ids.includes('fall')) {
+  if (hasSymptom('seizure') && hasSymptom('fall')) {
     return 'I had a seizure and fell.';
   }
-  if (symptoms.present_ids.includes('chest_pain') && symptoms.present_ids.includes('shortness_of_breath')) {
+  if (hasSymptom('fall') && hasSymptom('bleeding')) {
+    if (/\b(leg|ankle|foot|tibia|fibula|fracture|open wound|laceration|cut)\b/i.test(text)) {
+      return "I fell, got hurt, and I'm bleeding.";
+    }
+    return "I fell and I'm bleeding.";
+  }
+  if (hasSymptom('fall')) return 'I fell.';
+  if (hasSymptom('chest_pain') && hasSymptom('shortness_of_breath')) {
     return 'I am having chest pain and shortness of breath.';
   }
-  if (symptoms.present_ids.includes('shortness_of_breath') && symptoms.present_ids.includes('leg_swelling')) {
+  if (hasSymptom('shortness_of_breath') && hasSymptom('leg_swelling')) {
     return 'I am short of breath, and my legs are swollen.';
   }
-  if (symptoms.present_ids.includes('chest_pain')) return 'I am having chest pain.';
-  if (symptoms.present_ids.includes('shortness_of_breath')) return 'I am short of breath.';
-  if (symptoms.present_ids.includes('weakness') && symptoms.present_ids.includes('numbness')) return 'I am having weakness and numbness.';
-  if (symptoms.present_ids.includes('slurred_speech') || symptoms.present_ids.includes('facial_droop')) return 'My speech was slurred and my face felt weak.';
-  if (symptoms.present_ids.includes('nausea_vomiting') && symptoms.present_ids.includes('weakness')) return 'I have been throwing up and feeling weak.';
-  if (symptoms.present_ids.includes('abdominal_pain')) return lower.includes('pelvic') ? 'I have pelvic pain.' : 'My belly hurts.';
-  if (symptoms.present_ids.includes('fever_chills')) return 'I have had a fever.';
-  if (symptoms.present_ids.includes('headache')) return 'I have a headache.';
+  if (hasSymptom('chest_pain')) return 'I am having chest pain.';
+  if (hasSymptom('shortness_of_breath')) return 'I am short of breath.';
+  if (hasSymptom('weakness') && hasSymptom('numbness')) return 'I am having weakness and numbness.';
+  if (hasSymptom('slurred_speech') || hasSymptom('facial_droop')) return 'My speech was slurred and my face felt weak.';
+  if (hasSymptom('nausea_vomiting') && hasSymptom('weakness')) return 'I have been throwing up and feeling weak.';
+  if (hasSymptom('abdominal_pain')) return lower.includes('pelvic') ? 'I have pelvic pain.' : 'My belly hurts.';
+  if (hasSymptom('fever_chills')) return 'I have had a fever.';
+  if (hasSymptom('headache')) return 'I have a headache.';
+  if (hasSymptom('bleeding')) return "I'm bleeding.";
   if (symptoms.present.length) return `${capitalizeSentence(`I have ${symptoms.present.slice(0, 2).join(' and ')}`)}.`;
 
   return "I'm not feeling well.";
@@ -1172,6 +1198,10 @@ export function renderPatientAnswer(answerPlan, patientView) {
 
 function finalizePatientSpeech(text) {
   const cleaned = sanitizeSentence(text)
+    .replace(/\bI have (?:a )?fall and bleeding\b/gi, "I fell and I'm bleeding")
+    .replace(/\bI have bleeding and (?:a )?fall\b/gi, "I fell and I'm bleeding")
+    .replace(/\bI have (?:a )?fall\b/gi, 'I fell')
+    .replace(/\bI have bleeding\b/gi, "I'm bleeding")
     .replace(/\bI am having\b/g, "I'm having")
     .replace(/\bI am short\b/g, "I'm short")
     .replace(/\bI do not\b/g, "I don't")
