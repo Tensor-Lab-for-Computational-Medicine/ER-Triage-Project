@@ -3996,9 +3996,45 @@ function firstDiagnosisClause(value = '') {
     .trim();
 }
 
+function hasSepsisPrimaryEvidence(caseData) {
+  const text = soapClinicalText(caseData);
+  const temp = Number(caseData?.vitals?.temp ?? 98.6);
+  const hr = Number(caseData?.vitals?.hr ?? 0);
+  const sbp = Number(caseData?.vitals?.sbp ?? 120);
+  const infectionEvidence = /\b(sepsis|septic|infection|infectious|fever|chills|rigors|hypothermia|pneumonia|abscess|cellulitis|gangrene|osteomyelitis|purulent|pyelonephritis|urinary tract infection|uti|cholangitis|peritonitis)\b/.test(text)
+    || temp >= 100.4
+    || temp < 96;
+  const systemicEvidence = /\b(hypotension|tachycardia|shock|hemodynamic|organ dysfunction|altered mental status|confusion|agitation)\b/.test(text)
+    || hr >= 100
+    || sbp < 100;
+  return infectionEvidence && systemicEvidence;
+}
+
+function hasCriticalAbdominalVascularConcern(caseData) {
+  const text = soapClinicalText(caseData);
+  const pain = Number(caseData?.vitals?.pain ?? 0);
+  const abdominalConcern = /\b(abdominal pain|abd pain|acute abdomen|belly pain|stomach pain|abdominal distention)\b/.test(text);
+  const instabilityOrMentalStatus = /\b(altered mental status|altered level of consciousness|confusion|somnolent|lethargic|hemodynamically unstable|hemodynamic instability|shock)\b/.test(text);
+  return abdominalConcern && instabilityOrMentalStatus && pain >= 7;
+}
+
+function criticalAbdominalVascularDiagnosis(caseData) {
+  if (hasCriticalAbdominalVascularConcern(caseData)) {
+    return 'Critical abdominal pain with altered mental status concerning for abdominal vascular catastrophe';
+  }
+  return '';
+}
+
 function singleWorkingDiagnosis(value, caseData) {
   const diagnosis = String(value || '').trim();
-  const text = `${diagnosis} ${soapClinicalText(caseData)}`.toLowerCase();
+  const diagnosisText = diagnosis.toLowerCase();
+  const clinicalText = soapClinicalText(caseData);
+  const text = `${diagnosisText} ${clinicalText}`;
+
+  const abdominalVascularDiagnosis = criticalAbdominalVascularDiagnosis(caseData);
+  if (abdominalVascularDiagnosis && /\b(sepsis|septic|ruptur|aortic|aneurysm|aaa|mesenteric|ischemi|vascular|abdominal)\b/i.test(diagnosisText)) {
+    return abdominalVascularDiagnosis;
+  }
 
   if (/\bstroke|tia|intracranial hemorrhage|hemorrhagic stroke|ischemic stroke|gaze deviation|left-sided weakness|facial droop|flaccid\b/i.test(text)) {
     return 'Acute focal neurologic deficit concerning for stroke';
@@ -4015,7 +4051,7 @@ function singleWorkingDiagnosis(value, caseData) {
   if (/\bheart failure|aortic stenosis|pedal edema|orthopnea\b/i.test(text)) {
     return 'Dyspnea with cardiopulmonary risk factors';
   }
-  if (/\bseptic shock|sepsis\b/i.test(text)) {
+  if (/\bseptic shock|sepsis\b/i.test(diagnosisText) && hasSepsisPrimaryEvidence(caseData)) {
     return 'Sepsis in a medically complex patient';
   }
   if (/\bpelvic inflammatory disease|tubo-ovarian|ovarian torsion|appendicitis|acute pelvic pain\b/i.test(text)) {
@@ -4038,7 +4074,9 @@ function soapPrimaryDiagnosis(caseData) {
   const text = soapClinicalText(caseData);
   if (/\b(sdh|subdural)\b/.test(text)) return 'Subdural hematoma with headache and falls';
   if (/\b(open left tibia|tibia\/fibula|fibula fracture|malleolar fracture)\b/.test(text)) return 'Open left lower-extremity fracture after fall';
-  if (/\bsepsis|hypotension and tachycardia|wet gangrene|osteomyelitis\b/.test(text)) return 'Sepsis in a medically complex patient';
+  const abdominalVascularDiagnosis = criticalAbdominalVascularDiagnosis(caseData);
+  if (abdominalVascularDiagnosis) return abdominalVascularDiagnosis;
+  if (/\bsepsis|hypotension and tachycardia|wet gangrene|osteomyelitis\b/.test(text) && hasSepsisPrimaryEvidence(caseData)) return 'Sepsis in a medically complex patient';
   if (/\bseizure\b/.test(text) && /\b(fall|laceration|head lac|forehead)\b/.test(text)) return 'Breakthrough seizure with fall and forehead laceration';
   if (/\b(slurred speech|facial droop|left-sided weakness|flaccid|gaze deviation|stroke|cva|sensory changes)\b/.test(text)) return 'Acute focal neurologic deficit concerning for stroke';
   if (/\baltered mental status|altered level of consciousness|not oriented|bizarre conversation|encephalopathy\b/.test(text)) return 'Acute altered mental status';
@@ -4147,10 +4185,37 @@ function openFractureDifferential() {
   ];
 }
 
+function criticalAbdominalVascularDifferential(caseData) {
+  const temp = Number(caseData?.vitals?.temp ?? 98.6);
+  const hr = Number(caseData?.vitals?.hr ?? 0);
+  const sbp = Number(caseData?.vitals?.sbp ?? 0);
+  const dbp = Number(caseData?.vitals?.dbp ?? 0);
+  const pain = Number(caseData?.vitals?.pain ?? 0);
+  const pressure = sbp && dbp ? `${Math.round(sbp)}/${Math.round(dbp)}` : 'not hypotensive';
+  return [
+    {
+      diagnosis: 'Ruptured abdominal aortic aneurysm or intra-abdominal hemorrhage',
+      rationale: `Severe abdominal pain (${pain}/10), altered mental status, ambulance transfer, tachycardia (HR ${hr}), and reported hemodynamic instability fit an abdominal vascular or bleeding emergency. Triage blood pressure is ${pressure} mmHg rather than frankly hypotensive, so bedside aortic ultrasound, type and screen, and CT angiography abdomen/pelvis if stable enough for CT are needed to confirm or exclude it.`
+    },
+    {
+      diagnosis: 'Mesenteric ischemia or other bowel catastrophe',
+      rationale: `Pain out of proportion (${pain}/10), altered mental status, abdominal distention, and tachycardia fit bowel ischemia or another surgical abdominal emergency. Temperature is ${temp} F, so the presentation is not defined by fever; serum lactate, acid-base status, serial abdominal exam, and CT angiography help separate ischemia from inflammatory or obstructive causes.`
+    },
+    {
+      diagnosis: 'Intra-abdominal infection or sepsis',
+      rationale: `Abdominal pain and altered mental status can occur with infection, but temperature ${temp} F, preserved oxygenation, and no localizing infectious source in the triage evidence make sepsis less supported as the primary diagnosis. CBC, lactate, cultures when infection remains plausible, and CT abdomen/pelvis can evaluate for occult intra-abdominal infection while vascular and bleeding emergencies are addressed.`
+    }
+  ];
+}
+
 function soapDifferential(caseData) {
   const reviewedDdx = reviewedAugmentationDdx(caseData);
   if (reviewedDdx.length && isOpenLowerExtremityFractureCase(caseData)) {
     return openFractureDifferential();
+  }
+
+  if (hasCriticalAbdominalVascularConcern(caseData)) {
+    return criticalAbdominalVascularDifferential(caseData);
   }
 
   if (reviewedDdx.length) {
@@ -4262,6 +4327,10 @@ function relevantPmhForAssessment(caseData, patientView = {}) {
       condition: /\b(crohn|ulcerative|abdominal surgery|esophagectomy|acdf|diabetes|renal|dialysis|ckd|adrenal|pregnan|cancer|immunocompromised)\b/i
     },
     {
+      context: /\b(abdominal vascular|vascular catastrophe|mesenteric|ischemi|aortic|aneurysm|hemorrhage)\b/,
+      condition: /\b(hypertension|high blood pressure|hyperlipidemia|high cholesterol|atrial fibrillation|anticoag|coronary|vascular|atherosclero|stroke|smoking|tobacco)\b/i
+    },
+    {
       context: /\b(fracture|fall|injury|trauma|laceration|wound|bleeding)\b/,
       condition: /\b(anticoag|bleeding disorder|hemophilia|diabetes|osteoporosis|renal|dialysis|ckd|immunocompromised|steroid|pregnan)\b/i
     }
@@ -4301,6 +4370,18 @@ function soapJustification(caseData) {
       `This ${age}-year-old ${sex} has an open left lower-extremity fracture after a fall, with associated ankle and foot fractures.`,
       hr >= 100 ? `Tachycardia (HR ${hr}) may reflect pain, blood loss, or stress response.` : '',
       'This is a high-risk orthopedic injury requiring urgent wound protection, early antibiotics, tetanus assessment, immobilization, serial distal neurovascular and compartment exams, analgesia, and orthopedic evaluation.'
+    ].filter(Boolean).join(' ');
+  }
+
+  if (hasCriticalAbdominalVascularConcern(caseData)) {
+    return [
+      `This ${age}-year-old ${sex} presents with critical abdominal pain and altered mental status.`,
+      `Triage data show pain ${pain}/10, heart rate ${hr} bpm, blood pressure ${sbp}/${Number(caseData.vitals?.dbp ?? 0)} mmHg, temperature ${temp} F, and oxygen saturation ${Number(caseData.vitals?.o2 ?? 0)}%.`,
+      'The combination of severe abdominal pain, altered mentation, tachycardia, and reported hemodynamic instability is most concerning for an abdominal vascular, bleeding, or surgical catastrophe.',
+      hasSepsisPrimaryEvidence(caseData)
+        ? 'Infection remains clinically relevant because infectious evidence is present in the case data.'
+        : 'Sepsis remains a differential consideration, but the available triage evidence does not show fever or a localizing infectious source, so it should not be the primary working diagnosis.',
+      'The patient needs immediate resuscitation-area evaluation, analgesia, serial abdominal exams, lactate and type-and-screen testing, emergent abdominal vascular imaging if stable enough, and early surgical or vascular consultation.'
     ].filter(Boolean).join(' ');
   }
 
@@ -4395,15 +4476,17 @@ function soapPlan(caseData, workflow) {
     problems.push({ problem: 'Undifferentiated chest pain / dyspnea', plan: `${primaryPlan} Obtain 12-lead ECG within 10 minutes of arrival, serial troponins, CXR, and BNP. Rule out ACS, PE, and decompensated heart failure before disposition.` });
   } else if (/\b(slurred speech|facial droop|left-sided weakness|right-sided weakness|stroke|cva|gaze deviation|flaccid)\b/.test(text)) {
     problems.push({ problem: 'Acute focal neurologic deficit — stroke/TIA until proven otherwise', plan: `${primaryPlan} Activate stroke protocol. Obtain non-contrast CT head immediately. Document NIHSS. Neurology consult. Assess for tPA eligibility if within window.` });
+  } else if (hasCriticalAbdominalVascularConcern(caseData)) {
+    problems.push({ problem: 'Critical abdominal pain with altered mental status', plan: `${primaryPlan} Keep NPO. Check point-of-care glucose because mental status is abnormal. Establish two large-bore IVs if possible. Obtain CBC, CMP, venous or arterial lactate, coagulation studies, type and screen/crossmatch, and urinalysis. Perform serial abdominal exams. Obtain emergent CT angiography abdomen/pelvis if stable enough for CT; use bedside aortic ultrasound if unstable. Consult general surgery and vascular surgery early.` });
   } else if (/\b(seizure|post-ictal|altered mental status|altered level of consciousness|encephalopathy)\b/.test(text)) {
-    problems.push({ problem: 'Altered mental status / seizure', plan: `${primaryPlan} Immediate point-of-care glucose. Obtain full metabolic panel, ammonia, blood cultures, and brain imaging. Serial neurologic checks. Protect airway.` });
+    problems.push({ problem: 'Altered mental status', plan: `${primaryPlan} Immediate point-of-care glucose. Obtain full metabolic panel and targeted toxic-metabolic testing based on history. Serial neurologic checks. Protect airway and obtain brain imaging when trauma, focal deficit, anticoagulation, or persistent unexplained altered mental status is present.` });
   } else if (/\b(open left tibia|open tibia|tibia\/fibula|open fracture)\b/.test(text)) {
     problems.push({ problem: 'Open lower-extremity fracture', plan: `${primaryPlan} Maintain sterile dressing and immobilization. Perform serial distal pulse, motor, sensory, capillary refill, and compartment checks. Give IV analgesia, early IV antibiotics, and tetanus prophylaxis as indicated. Obtain or review extremity radiographs and consult orthopedics urgently.` });
   } else if (/\b(rectal abscess|perianal abscess|anal pain|crohn|fistulizing|perianal)\b/.test(text)) {
     problems.push({ problem: 'Perianal or anorectal pain — abscess vs. fistula', plan: `${primaryPlan} Focused perianal and digital rectal exam under adequate analgesia. Order pelvic CT or MRI perianal protocol. Surgical or colorectal surgery consult for drainage decision.` });
   } else if (/\b(abdominal|pelvic pain|nausea|vomiting|abd pain|stomach)\b/.test(text)) {
     problems.push({ problem: 'Acute abdominal or pelvic pain', plan: `${primaryPlan} Serial abdominal exams. Obtain CBC, CMP, lipase, urinalysis, and urine HCG (if applicable). Pelvic ultrasound or CT abdomen/pelvis based on clinical suspicion. NPO pending surgical evaluation.` });
-  } else if (/\b(sepsis|gangrene|osteomyelitis|hypotension and tachycardia)\b/.test(text)) {
+  } else if (/\b(sepsis|gangrene|osteomyelitis|hypotension and tachycardia)\b/.test(text) && hasSepsisPrimaryEvidence(caseData)) {
     problems.push({ problem: 'Sepsis / systemic infection', plan: `${primaryPlan} Initiate sepsis bundle: blood cultures × 2, serum lactate, broad-spectrum antibiotics within 1 hour, and 30 mL/kg IV crystalloid bolus for hypotension or lactate ≥4 mmol/L.` });
   } else if (isLacerationCase(caseData)) {
     problems.push({ problem: 'Soft tissue wound', plan: 'Focused wound exam: depth, contamination, active bleeding, tendon and neurovascular function. Irrigate, debride, and repair per wound type. Assess tetanus immunization status.' });
@@ -4434,7 +4517,7 @@ function soapPlan(caseData, workflow) {
   }
 
   // Problem 4: Infection / fever risk
-  if (temp >= 100.4 || /\b(fever|chills|rigors|sepsis|infection|abscess|cellulitis|pneumonia)\b/.test(text)) {
+  if (temp >= 100.4 || (/\b(fever|chills|rigors|sepsis|infection|abscess|cellulitis|pneumonia)\b/.test(text) && hasSepsisPrimaryEvidence(caseData))) {
     const onAbx = (patientView.medications || []).some((m) => /antibiotic|cipro|amoxicillin|ceftriaxone|vancomycin|metronidazole|bactrim/i.test(m));
     problems.push({
       problem: `Fever / infectious process${temp >= 100.4 ? ` (T ${temp}°F)` : ''}`,
@@ -4577,7 +4660,19 @@ function cleanSoapList(items = []) {
   return uniqueSentences(items.map((item) => cleanSoapNarrative(item)).filter(Boolean));
 }
 
-function sanitizeSoapNote(note = {}) {
+function evidenceBoundSoapPrimaryDiagnosis(value, caseData) {
+  const diagnosis = cleanSoapNarrative(value, 'Undifferentiated ED presentation');
+  if (!caseData) return diagnosis;
+  if (/\bsepsis|septic shock|septic\b/i.test(diagnosis) && !hasSepsisPrimaryEvidence(caseData)) {
+    return soapPrimaryDiagnosis(caseData);
+  }
+  if (/\bseizure\b/i.test(diagnosis) && !/\bseizure|post-ictal|convulsion|epilep/i.test(soapClinicalText(caseData))) {
+    return soapPrimaryDiagnosis(caseData);
+  }
+  return singleWorkingDiagnosis(diagnosis, caseData);
+}
+
+function sanitizeSoapNote(note = {}, caseData = null) {
   const subjective = note.subjective || {};
   const assessment = note.assessment || {};
   const ddx = Array.isArray(assessment.ddx) ? assessment.ddx : [];
@@ -4594,7 +4689,7 @@ function sanitizeSoapNote(note = {}) {
     },
     objective: cleanSoapList(note.objective || []),
     assessment: {
-      primary_diagnosis: cleanSoapNarrative(assessment.primary_diagnosis, 'Undifferentiated ED presentation'),
+      primary_diagnosis: evidenceBoundSoapPrimaryDiagnosis(assessment.primary_diagnosis, caseData),
       ddx: ddx.map((item) => ({
         diagnosis: cleanSoapNarrative(item?.diagnosis),
         rationale: cleanSoapNarrative(item?.rationale)
@@ -4649,7 +4744,7 @@ function buildSoapNote(caseData, workflow) {
       justification: soapJustification(caseData)
     },
     plan: soapPlan(caseData, workflow)
-  });
+  }, caseData);
 }
 
 function buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityItems = []) {
@@ -5614,6 +5709,9 @@ export async function askOpenRouterDebrief(sessionIdValue) {
         'You are an experienced, board-certified emergency room physician.',
         'Your task is to generate a realistic, highly clinical Expert SOAP Note and personalized clinical tips for the triage learner based on their performance.',
         'The SOAP note must demonstrate clinical reasoning and thought, explicitly tailored to the acute diagnosis of the patient. Keep the subjective and objective sections extremely concise, focusing heavily on a comprehensive Assessment and Plan.',
+        'The primary diagnosis must be one clinically coherent working diagnosis supported by the provided evidence. Do not make sepsis, seizure, stroke, or another named diagnosis primary unless the case data includes findings that support it.',
+        'For sepsis, require infection evidence such as fever or hypothermia plus a plausible infectious source, explicit sepsis language, pneumonia, abscess, cellulitis, gangrene, osteomyelitis, purulence, urinary infection, or peritonitis. Tachycardia, severe pain, or altered mental status alone are not enough.',
+        'For severe abdominal pain with altered mental status and no infection evidence, prioritize vascular, bleeding, ischemic, obstructive, or surgical abdominal emergencies over sepsis.',
         'Do not describe missing, unavailable, undocumented, or source-limited data in the SOAP assessment or plan. Omit unknown PMH, medication, allergy, exam, and diagnostic details instead of documenting them as absent.',
         'In the Assessment, include past medical history only when it changes the acute differential, risk, monitoring, or treatment plan. Do not mention irrelevant chronic diagnoses.',
         'Write differential rationales as physician documentation: state why the diagnosis fits the presentation and which present findings make it less likely. Do not use labels such as "matches this patient", "best discriminator", "acuity implication", "reference ESI", "resource use", or "source record".',
@@ -5672,7 +5770,7 @@ export async function askOpenRouterDebrief(sessionIdValue) {
   try {
     const parsed = extractJsonObject(content);
     if (parsed?.expert_soap_note) {
-      parsed.expert_soap_note = sanitizeSoapNote(parsed.expert_soap_note);
+      parsed.expert_soap_note = sanitizeSoapNote(parsed.expert_soap_note, completed.case);
     }
     return parsed;
   } catch {

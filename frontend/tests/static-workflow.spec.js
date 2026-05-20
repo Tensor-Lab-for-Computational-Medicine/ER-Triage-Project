@@ -496,7 +496,11 @@ test('completes the static triage workflow and shows local reasoning feedback', 
   expect(reportText.indexOf('Differential Diagnosis Considerations:')).toBeGreaterThan(reportText.indexOf('Primary Working Diagnosis:'));
   expect(reportText.indexOf('Clinical Rationale:')).toBeGreaterThan(reportText.indexOf('Differential Diagnosis Considerations:'));
   expect(reportText.indexOf('Initial ED Care Plan')).toBeGreaterThan(reportText.indexOf('Clinical Rationale:'));
-  expect(reportText.indexOf('Acuity Delta')).toBeGreaterThan(reportText.indexOf('Initial ED Care Plan'));
+  const bannerIndex = Math.max(
+    reportText.indexOf('Acuity Delta'),
+    reportText.indexOf('Acuity Alignment Achieved')
+  );
+  expect(bannerIndex).toBeGreaterThan(reportText.indexOf('Initial ED Care Plan'));
   await expect(page.getByText('Simulation realism')).toHaveCount(0);
   await expect(page.getByText('Data-bound grading')).toHaveCount(0);
   await expect(page.getByText('Browser semantic cache')).toHaveCount(0);
@@ -716,6 +720,39 @@ test('uses reviewed physical exam augmentation in the physician assessment and p
   await expect(soapNote).toContainText('focused foot exam');
   await expect(soapNote).toContainText('infection or crystal arthritis');
   await expect(soapNote).not.toContainText('should document');
+});
+
+test('keeps critical abdominal pain SOAP diagnosis evidence-bound', async ({ page }) => {
+  const abdominalTransferCase = caseBy((item) => item.id === 'case_025', 'critical abdominal pain with altered mental status');
+  await completeStaticWorkflow(page, {
+    randomValue: randomValueForCase(abdominalTransferCase),
+    finalEsi: 1,
+    finalRationale: 'ESI 1 for altered mental status with critical abdominal pain and reported instability.',
+    actionIds: [
+      'Prepare resuscitation placement',
+      'Request immediate clinician evaluation',
+      'Prioritize vascular access and bloodwork',
+      'Flag severe pain for reassessment'
+    ],
+    sbarHandoff: 'S: Ambulance transfer patient with critical abdominal pain and altered mental status. B: Older adult with hypertension and high cholesterol, pain 13 out of 10, HR 115, BP 125/95, afebrile. A: ESI 1 because abdominal vascular or surgical catastrophe must be ruled out immediately. R: Resuscitation bay, IV access, analgesia, lactate/type and screen, emergent abdominal imaging, and early surgery or vascular consultation.'
+  });
+
+  await expect(page.getByRole('heading', { name: 'Physician SOAP Assessment & Plan' })).toBeVisible();
+  const assessment = page.locator('.soap-box.highlighted');
+  await expect(assessment).toContainText('Critical abdominal pain with altered mental status concerning for abdominal vascular catastrophe');
+  await expect(assessment).toContainText('Ruptured abdominal aortic aneurysm or intra-abdominal hemorrhage');
+  await expect(assessment).toContainText('Mesenteric ischemia or other bowel catastrophe');
+  await expect(assessment).toContainText('make sepsis less supported as the primary diagnosis');
+  await expect(assessment).not.toContainText('Primary Working Diagnosis: Sepsis');
+  await expect(assessment).not.toContainText('Septic shock secondary to intra-abdominal infection');
+
+  const plan = page.locator('.soap-box.plan-box');
+  await expect(plan).toContainText('Critical abdominal pain with altered mental status');
+  await expect(plan).toContainText('CT angiography abdomen/pelvis');
+  await expect(plan).toContainText('general surgery and vascular surgery');
+  await expect(plan).not.toContainText('Altered mental status / seizure');
+  await expect(plan).not.toContainText('Sepsis / systemic infection');
+  await expect(plan).not.toContainText('blood cultures');
 });
 
 test('writes clinician-style SOAP assessment for open fracture cases', async ({ page }) => {
