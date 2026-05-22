@@ -141,7 +141,7 @@ def call_openrouter(prompt: str, *, model: str, api_key: str) -> dict[str, Any]:
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
             "HTTP-Referer": "http://localhost/er-triage-project",
-            "X-Title": "ED Triage Trainer Case Augmentation",
+            "X-Title": "ED Clinical Workflow Simulator Case Augmentation",
         },
         method="POST",
     )

@@ -50,9 +50,16 @@ def require(condition: bool, message: str) -> None:
         fail(message)
 
 
+def invalid_complaint(value: Any) -> bool:
+    text = " ".join(str(value or "").split()).lower()
+    return not text or text in {"unknown complaint", "unknown", "nan"} or "#name?" in text
+
+
 def check_source(case: dict[str, Any]) -> None:
     source = case["source"]
     require(source.get("reference_esi") == case["acuity"], f"{case['id']} source reference ESI does not match top-level acuity.")
+    require(not invalid_complaint(case.get("complaint")), f"{case['id']} has an invalid learner-facing complaint.")
+    require(not invalid_complaint(source.get("chief_complaint")), f"{case['id']} has an invalid source chief complaint.")
     require(source.get("vitals") == case["vitals"], f"{case['id']} source vitals do not match top-level vitals.")
     require(source.get("disposition") == case["disposition"], f"{case['id']} source disposition does not match top-level disposition.")
     require(source.get("arrival_transport") == case["demographics"]["transport"], f"{case['id']} source arrival transport mismatch.")
@@ -84,6 +91,12 @@ def check_augmentation(case: dict[str, Any]) -> None:
 
     facts = augmentation.get("inferred_facts", [])
     require(isinstance(facts, list), f"{case['id']} inferred_facts must be a list.")
+    physical_exam_facts = [
+        fact for fact in facts
+        if fact.get("domain") == "physical_exam" or "physical_exam" in set(fact.get("use_in", []))
+    ]
+    require(status == "reviewed", f"{case['id']} must have reviewed augmentation before public demo use.")
+    require(physical_exam_facts, f"{case['id']} is missing a reviewed focused physical exam target.")
     for fact in facts:
         for field in ["id", "domain", "statement", "rationale", "source_anchors", "confidence", "review_status", "use_in"]:
             require(fact.get(field), f"{case['id']} inferred fact missing {field}.")
@@ -96,6 +109,10 @@ def check_augmentation(case: dict[str, Any]) -> None:
             require(
                 fact["review_status"] == "reviewed",
                 f"{case['id']} physical exam fact must be reviewed or absent.",
+            )
+            require(
+                {"physical_exam", "soap", "decision_review"} <= use_in,
+                f"{case['id']} physical exam fact must support physical_exam, soap, and decision_review.",
             )
 
 

@@ -70,6 +70,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Chest pain, Dyspnea",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "53-year-old white male with a history of HCV/EtOH cirrhosis (on Harvoni), COPD with ongoing tobacco use, IDDM, and jugular vein thrombosis (on warfarin), presented to the ED with a chief complaint of chest pain and dyspnea. The patient was referred from a liver clinic due to a 3-day history of intermittent, productive cough with scant yellow sputum and sharp, central chest pain that occurs with coughing. The patient also reported fatigue, mild dyspnea on exertion, and wheezing. There were no symptoms of dyspnea at rest, upper respiratory symptoms, subjective fevers, chills, headache, nausea, vomiting, diarrhea, abdominal pain, dysuria, rashes, melena, hematochezia, orthopnea, paroxysmal nocturnal dyspnea (PND), or edema. The patient walked into the ED and has allergies to codeine and penicillins. BP 119/71, P 91, RR 22, SpO2 97%, T 98.9掳 F, Pain 8.",
       "vitals": {
         "temp": 98.9,
@@ -254,7 +255,31 @@
         "Productive cough and chest pain in a COPD patient requires ruling out acute coronary syndrome alongside infectious exacerbation.",
         "Vessel thrombosis history increases risk of thromboembolic events despite therapeutic anticoagulation."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_002_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess work of breathing, ability to speak, breath sounds for wheeze or crackles, chest wall tenderness, cardiac rhythm and perfusion, lower-extremity edema or asymmetry, and signs of volume overload.",
+          "rationale": "The source documents chest pain with dyspnea, cough, wheezing, COPD history, warfarin use, pain 8/10, tachypnea, admission, and multiple ED resources, but no structured cardiopulmonary exam.",
+          "source_anchors": [
+            "Chest pain, Dyspnea",
+            "productive cough, mild dyspnea, and wheezing",
+            "pain 8/10",
+            "exam_count: 2",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused cardiopulmonary and thromboembolic risk exam before deciding whether monitored placement, respiratory treatment, ECG/labs, or imaging is sufficient.",
+          "practice_rule": "For chest pain with dyspnea, pair cardiopulmonary exam findings with ECG, oxygenation, and resource needs before final acuity."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -339,6 +364,7 @@
       "sex": "M",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "Difficulty swallowing, Transfer",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "64-year-old white male with a history of type II diabetes mellitus, hypercholesterolemia, depression, anxiety, and chronic neck and low back pain. Recently underwent C5 corpectomy and C6-7 ACDF. He presents with difficulty swallowing, increased swelling around the surgical incision, and hoarseness. Unable to swallow pills or water, regurgitating attempts. Reports no stridor or breathing difficulties. Recently used cocaine, contributing to hypertensive urgency with BP at 180/104, headache, and chest pain. Arrived by ambulance, allergic to Tegretol.",
       "vitals": {
         "temp": 97.9,
@@ -522,7 +548,31 @@
         "Postoperative neck swelling and dysphagia after anterior cervical spine surgery is an airway emergency.",
         "Cocaine use can mask or complicate post-surgical pain and hypertensive presentation."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_004_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway patency, voice quality, stridor, secretion handling, neck swelling or hematoma around the surgical incision, ability to swallow, respiratory effort, and perfusion during hypertensive chest-pain symptoms.",
+          "rationale": "The source documents post-cervical spine surgery dysphagia, neck swelling, hoarseness, inability to swallow liquids or pills, severe pain, hypertension, and admission, but no structured airway or neck exam.",
+          "source_anchors": [
+            "Difficulty swallowing, Transfer",
+            "recent C5 corpectomy and C6-7 ACDF",
+            "increased swelling around the surgical incision and hoarseness",
+            "unable to swallow pills or water",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Prioritize airway-adjacent neck exam and secretion handling before treating the case as routine postoperative dysphagia.",
+          "practice_rule": "For postoperative neck swelling with dysphagia or hoarseness, document airway warning signs even when the patient denies current stridor."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -544,7 +594,7 @@
       "sex": "M",
       "transport": "UNKNOWN"
     },
-    "complaint": "#NAME?",
+    "complaint": "Fever / limb infection concern",
     "vitals": {
       "temp": 95.6,
       "hr": 79.0,
@@ -606,7 +656,8 @@
       "age": 55.43337918,
       "sex": "M",
       "arrival_transport": "UNKNOWN",
-      "chief_complaint": "#NAME?",
+      "chief_complaint": "Fever / limb infection concern",
+      "chief_complaint_source": "tiragecase-derived display complaint; source chiefcomplaint field was corrupted",
       "triage_narrative": "A 49-year-old male with a significant medical history including end-stage renal disease on hemodialysis, coronary artery disease, congestive heart failure, type 2 diabetes mellitus, and recent hospitalization for wet gangrene and osteomyelitis, presents with fever and signs of sepsis, including hypotension and tachycardia. The patient also exhibits intermittent agitation and anxiety. He is allergic to dobutamine.",
       "vitals": {
         "temp": 95.6,
@@ -688,8 +739,8 @@
       {
         "id": "documented_chief_complaint",
         "domain": "chief_complaint",
-        "statement": "Chief complaint: #NAME?.",
-        "source_field": "chiefcomplaint",
+        "statement": "Chief complaint: Fever / limb infection concern.",
+        "source_field": "tiragecase-derived display complaint; source chiefcomplaint field was corrupted",
         "confidence": "documented"
       },
       {
@@ -759,11 +810,6 @@
         "domain": "relevant_negatives",
         "needed_for": "DDx support and safer patient dialogue",
         "reason": "Relevant negative symptoms are not structured in the source bundle."
-      },
-      {
-        "domain": "imaging_or_exam_result",
-        "needed_for": "diagnostic reasoning and plan specificity",
-        "reason": "The bundle records imaging or exam use as a count but not the result."
       }
     ],
     "augmentation": {
@@ -796,7 +842,31 @@
         "Sepsis is a clinical diagnosis defined by infection and acute organ dysfunction; it is not a symptom.",
         "Medically complex patients with ESRD and diabetes are highly vulnerable to rapid decompensation."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_005_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess mental status, perfusion, volume status, dialysis access, cardiopulmonary status, and the affected limb or wound for gangrene, drainage, cellulitis, crepitus, tenderness, and distal perfusion.",
+          "rationale": "The source documents ESRD on hemodialysis, wet gangrene and osteomyelitis, fever or sepsis concern, pain beyond the standard scale, hypothermia, procedures, and admission, but no structured infection or limb exam.",
+          "source_anchors": [
+            "wet gangrene and osteomyelitis",
+            "fever and signs of sepsis",
+            "pain 13",
+            "temperature 95.6 F",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform source-directed sepsis and limb/wound exam while arranging monitored care, cultures, antibiotics, and procedural evaluation as indicated.",
+          "practice_rule": "For suspected sepsis from limb infection, pair global perfusion assessment with a focused wound and distal neurovascular exam."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -881,6 +951,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Chest pain",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 49-year-old African American male presents to the ED with a chief complaint of chest pain. He has a significant medical history, including paroxysmal atrial fibrillation (currently not on anticoagulation), cervical cord compression with associated complications, and a history of substance use (tobacco, alcohol, and IVDU on methadone). The patient describes his chest pain as sub-sternal, radiating to the left arm and jaw, with associated diaphoresis, shortness of breath, and palpitations. The pain occurs at rest, and he reports worsening orthopnea over the past two months. Vital signs are stable, and he has no known drug allergies. The patient walked into the ED and is currently not on anticoagulation despite atrial fibrillation.",
       "vitals": {
         "temp": 97.5,
@@ -1066,7 +1137,31 @@
         "IVDU history dramatically increases risk for infective endocarditis, valvular pathology, and septic emboli.",
         "Atrial fibrillation without anticoagulation is a major stroke and embolic risk factor."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_006_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess general distress, cardiac rhythm and perfusion, lung sounds, signs of heart failure such as JVD or edema, chest wall tenderness, and asymmetric leg swelling or other thromboembolic clues.",
+          "rationale": "The source documents rest chest pain radiating to the arm and jaw with diaphoresis, dyspnea, palpitations, orthopnea, atrial fibrillation history, admission, and diagnostic resources, but no structured cardiopulmonary exam.",
+          "source_anchors": [
+            "Chest pain",
+            "radiating to the left arm and jaw",
+            "diaphoresis, shortness of breath, and palpitations",
+            "worsening orthopnea",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Use a focused cardiopulmonary exam alongside ECG and labs to separate ACS, arrhythmia, heart failure, and other high-risk causes.",
+          "practice_rule": "For rest chest pain with classic associated symptoms, normal initial vitals do not replace a focused cardiopulmonary and perfusion exam."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -1151,6 +1246,7 @@
       "sex": "F",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "Fever, Pneumonia, Transfer",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 78-year-old white female with a complex medical history including hypertension, type 2 diabetes mellitus, hypothyroidism, chronic kidney disease stage 3, polymyalgia rheumatica, hyperlipidemia, anemia, hyperparathyroidism, and recent metastatic malignancy status post resection of a cerebellar mass presents to the emergency department with fever, presumed pneumonia, and shock. She arrives via ambulance. The patient has experienced severe hypotension and supraventricular tachycardia (SVT). She was recently intubated for airway protection and had a central line placed for vascular access. Her vital signs on arrival were BP 120/58, HR 150, RR 20, SpO2 97%, and temperature 98.8掳 F, with no reported pain. The patient has a known allergy to penicillins.",
       "vitals": {
         "temp": 98.8,
@@ -1331,7 +1427,31 @@
         "Intubated and mechanically ventilated patients are automatically ESI 1.",
         "Severe tachycardia (HR 150) and recent intracranial surgery require aggressive diagnostic evaluation for infection."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_007_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway and ventilatory status, oxygenation, breath sounds, mental status, skin perfusion, central line or access sites, volume status, and signs of shock or recurrent SVT.",
+          "rationale": "The source documents fever or pneumonia with shock, severe hypotension, SVT, recent intubation, central line placement, tachycardia, admission, and high resource use, but no structured respiratory or shock exam.",
+          "source_anchors": [
+            "Fever, Pneumonia, Transfer",
+            "presumed pneumonia, and shock",
+            "severe hypotension and supraventricular tachycardia",
+            "recently intubated for airway protection",
+            "reference ESI 1"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Treat this as a resuscitation-level reassessment with airway, breathing, circulation, perfusion, and line/access checks.",
+          "practice_rule": "For ESI 1 infection or shock cases, focused exam starts with ABCs, perfusion, mental status, and response to stabilization."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -1416,6 +1536,7 @@
       "sex": "F",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "Dyspnea, Pedal edema",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 72-year-old female with a complex medical history including heart failure, aortic stenosis, history of strokes, COPD, and chronic urinary retention with a Foley catheter, presents to the emergency department with shortness of breath, chest pain, and bilateral pedal edema. The patient reports a one-week history of worsening shortness of breath and pedal edema, along with intermittent left-sided chest and arm pain. On the day of admission, she experienced worsening shortness of breath, requiring oxygen supplementation. The patient denies cough, fever, abdominal pain, or recent weight gain. She was transported by ambulance and has no known drug allergies.",
       "vitals": {
         "temp": 98.5,
@@ -1607,7 +1728,31 @@
         "Shortness of breath and pedal edema are symptoms of decompensated heart failure, which is exacerbated by valvular aortic stenosis.",
         "Indwelling catheters are common sources of occult bacteremia in older patients."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_008_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess work of breathing, oxygen requirement, breath sounds for crackles or wheeze, jugular venous distention, cardiac murmur, peripheral edema symmetry, perfusion, and signs of volume overload.",
+          "rationale": "The source documents dyspnea, chest pain, bilateral pedal edema, heart failure, aortic stenosis, COPD, oxygen supplementation, admission, and resource use, but no structured cardiopulmonary or volume exam.",
+          "source_anchors": [
+            "Dyspnea, Pedal edema",
+            "heart failure, aortic stenosis, history of strokes, COPD",
+            "worsening shortness of breath and pedal edema",
+            "requiring oxygen supplementation",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform cardiopulmonary and volume-status exam to guide oxygen, diuresis, ECG/labs, imaging, and reassessment needs.",
+          "practice_rule": "For dyspnea with edema, connect lung sounds, JVD, edema, oxygen need, and perfusion to acuity and disposition."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -1692,6 +1837,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "RECTAL ABSCESS",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 41-year-old white male with a complex medical history including HIV, diabetes mellitus type 2, hidradenitis suppurativa, chronic renal insufficiency, hyperlipidemia, asthma, obstructive sleep apnea, and obesity, presents with a chief complaint of perianal abscess. The patient experiences significant pain exacerbated by sitting, similar to previous abscess episodes, but denies fever, chills, drainage, diarrhea, or bloody stools. He has a history of internal anal condylomata excision and appendectomy. The patient is allergic to erythromycin base. He walked into the ED with vital signs: HR 98, RR 18, BP 126/71, SpO2 100%, Temp 97.8掳F, and pain rated 8.",
       "vitals": {
         "temp": 97.8,
@@ -1860,7 +2006,31 @@
         "Perianal pain is a symptom; perianal abscess is the clinical diagnosis requiring surgical drainage.",
         "HIV and diabetes compromise immune defense, placing patients at high risk for necrotizing soft-tissue infections."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_009_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess perianal location, erythema, warmth, fluctuance, drainage, spreading cellulitis, tenderness out of proportion, crepitus, rectal exam tolerance when indicated, and systemic toxicity.",
+          "rationale": "The source documents perianal abscess in a patient with HIV, diabetes, hidradenitis, chronic renal insufficiency, severe pain, admission, and procedural resource use, but no structured perianal exam.",
+          "source_anchors": [
+            "RECTAL ABSCESS",
+            "perianal abscess",
+            "HIV, diabetes mellitus type 2, hidradenitis suppurativa",
+            "pain rated 8",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused perianal and systemic infection exam before deciding on imaging, antibiotics, analgesia, and drainage consultation.",
+          "practice_rule": "For perianal abscess in immunocompromised or diabetic patients, look for deep-space infection and necrotizing warning signs."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -1945,6 +2115,7 @@
       "sex": "F",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Lower abdominal pain",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "49-year-old white female presented to the ED with a chief complaint of lower abdominal pain rated as 7/10. The patient arrived by walking in. Upon arrival, her vital signs were stable: heart rate 75, respiratory rate 14, blood pressure 138/90, SpO2 100%, and temperature 98.3掳F.",
       "vitals": {
         "temp": 98.3,
@@ -2123,7 +2294,31 @@
         "Acute abdominal pain is a symptom, not a diagnosis. A complete assessment must consider specific localized infectious, mechanical, or gynecologic etiologies.",
         "Stable vital signs do not preclude ESI 3 assignment when multiple resource categories are expected (labs, imaging)."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_012_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal tenderness location, guarding, rebound, distention, bowel sounds, CVA tenderness, hydration status, and pelvic or pregnancy-related findings when clinically indicated.",
+          "rationale": "The source documents lower abdominal pain rated 7/10, stable vital signs, labs/imaging resources, and home disposition, but no structured abdominal or pelvic exam.",
+          "source_anchors": [
+            "Lower abdominal pain",
+            "pain rated as 7/10",
+            "stable vital signs",
+            "exam_count: 1",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Use focused abdominal and pelvic-risk exam to determine whether labs, imaging, reassessment, or safe discharge criteria are met.",
+          "practice_rule": "For lower abdominal pain, document peritoneal signs and pregnancy or pelvic risk before treating stable vitals as reassuring."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -2208,6 +2403,7 @@
       "sex": "M",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 62-year-old white male with a history of esophageal cancer (status post-esophagectomy), right-sided CVA, chronic pain syndrome on chronic opioids, COPD, and depression presents to the ED with altered mental status. The patient's wife found him having a bizarre conversation, not oriented to date or time, and he had fallen without head trauma. Suspected factors for AMS include possible narcotic overdose (pinpoint pupils, slurred speech). The patient has chronic left-sided weakness post-CVA and was found with a pill bottle, suggesting an extra dose of oxycontin may have been taken. The patient was transported by ambulance and has no known drug allergies. He is alert to person and place but complains of significant thirst.",
       "vitals": {
         "temp": 97.7,
@@ -2388,7 +2584,31 @@
         "Altered mental status is a symptom, not a diagnosis. Intoxications, trauma, and surgical complications must be differentiated.",
         "Pinpoint pupils and slurred speech are key signs of opioid toxicity."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_013_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway protection, respiratory effort, pupil size and reactivity, glucose or toxidrome clues, orientation, speech, cranial nerves, motor asymmetry, trauma signs, and baseline versus new neurologic deficits.",
+          "rationale": "The source documents altered mental status, possible extra opioid ingestion with pinpoint pupils and slurred speech, chronic stroke deficits, fall, tachycardia, low oxygen saturation, and admission, but no structured neurologic exam.",
+          "source_anchors": [
+            "ALTERED LEVEL OF CONSCIOUSNESS",
+            "not oriented to date or time",
+            "possible narcotic overdose, pinpoint pupils, slurred speech",
+            "chronic left-sided weakness post-CVA",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused airway, toxidrome, trauma, and neurologic exam before anchoring on overdose or baseline stroke deficits.",
+          "practice_rule": "For altered mental status, document glucose/toxidrome clues, airway protection, and new focal deficits early."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -2473,6 +2693,7 @@
       "sex": "F",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "Acute Pelvic pain",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 61-year-old white female was brought to the emergency department by ambulance with a chief complaint of acute pelvic pain. Her vital signs were BP 143/72, pulse 65, respiratory rate 16, SpO2 94%, and temperature 98.4掳F. The patient reported a severe pain level of 9 out of 10. She had no known allergies and no previous medical history was provided.",
       "vitals": {
         "temp": 98.4,
@@ -2651,7 +2872,31 @@
         "Pelvic pain is a symptom; gynecologic, urologic, and gastrointestinal diagnoses must be systematically ruled out.",
         "Severe pain (9/10) warrants immediate assessment and analgesia, even with stable vital signs."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_014_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal and pelvic tenderness, guarding or rebound, adnexal or uterine tenderness when indicated, vaginal bleeding or discharge history when appropriate, hydration, and pain-related distress.",
+          "rationale": "The source documents acute severe pelvic pain rated 9/10, ambulance arrival, oxygen saturation 94%, resource use, and home disposition, but no structured abdominal or pelvic exam.",
+          "source_anchors": [
+            "Acute Pelvic pain",
+            "pain level of 9 out of 10",
+            "SpO2 94%",
+            "exam_count: 1",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Use focused abdominal/pelvic exam and pregnancy-sensitive risk assessment to separate torsion, ectopic pregnancy, infection, urinary, and GI causes.",
+          "practice_rule": "For severe pelvic pain, stable blood pressure does not replace assessment for peritoneal, pregnancy-related, or torsion warning signs."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -2736,6 +2981,7 @@
       "sex": "M",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "N/V, Weakness",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 51-year-old Asian male with a past medical history of ESRD secondary to IgA nephropathy, hypertension, adrenal insufficiency, and other comorbidities presented to the ED with nausea, vomiting, and left-sided weakness. The patient was noted to be flaccid on the left side with possible gaze deviation and actively vomiting. Vital signs on arrival were BP 198/107, P 108, RR 22, SpO2 97%, and T 97.0掳 F. He was transported to the ED by ambulance and has an allergy to isoniazid.",
       "vitals": {
         "temp": 97.0,
@@ -2927,7 +3173,31 @@
         "Left-sided weakness and gaze deviation are signs of stroke; they are not the diagnosis itself.",
         "Adrenal insufficiency is a life-threatening condition that can cause rapid shock if untreated during stress."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_017_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway protection during vomiting, hydration, complete neurologic status including gaze, cranial nerves, speech, motor strength, sensation, coordination, and serial blood pressure-related end-organ findings.",
+          "rationale": "The source documents nausea, vomiting, left-sided weakness, flaccid left side, possible gaze deviation, severe hypertension, tachypnea, procedures, and admission, but no structured stroke or neurologic exam.",
+          "source_anchors": [
+            "N/V, Weakness",
+            "left-sided weakness",
+            "flaccid on the left side with possible gaze deviation",
+            "BP 198/107",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform stroke-focused neurologic exam and aspiration-risk assessment while activating time-sensitive evaluation and BP reassessment.",
+          "practice_rule": "For vomiting with focal weakness or gaze deviation, treat neurologic exam and airway protection as immediate priorities."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -3012,6 +3282,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Finger laceration",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 26-year-old Hispanic/Latino male arrived at the emergency department with a chief complaint of a finger laceration. The patient walked into the ED, indicating stable condition upon arrival. Vital signs show a blood pressure of 147/87, heart rate of 90 bpm, respiratory rate of 18 breaths per minute, SpO2 of 100%, and a temperature of 99.0掳 F. The patient reports a pain level of 3 out of 10.",
       "vitals": {
         "temp": 99.0,
@@ -3193,7 +3464,31 @@
         "Finger lacerations require testing of two tendons (FDS and FDP) and digital nerve sensation before closure.",
         "Tetanus prophylaxis status must be verified for all traumatic lacerations."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_018_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess laceration location, depth, contamination, active bleeding, foreign body concern, tendon function, range of motion, two-point sensation, capillary refill, distal pulse when relevant, and tetanus status.",
+          "rationale": "The source documents finger laceration, walk-in stability, pain 3/10, intramuscular medication, exam or wound-care resource use, and home disposition, but no structured wound or hand exam.",
+          "source_anchors": [
+            "Finger laceration",
+            "pain level of 3 out of 10",
+            "exam_count: 1",
+            "disposition: HOME",
+            "reference ESI 4"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused wound, tendon, and neurovascular exam before repair, dressing, tetanus prophylaxis, or discharge.",
+          "practice_rule": "For finger lacerations, function and distal neurovascular status determine whether the wound is simple or needs escalation."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -3278,6 +3573,7 @@
       "sex": "F",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Finger laceration",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 49-year-old Asian female presented to the ED with a chief complaint of a finger laceration. The patient arrived via walk-in and reports mild pain at a level of 3 out of 10. Vital signs are as follows: BP 179/72, P 96, RR 16, SpO2 100%, T 97.6掳F. The patient appears stable with no immediate life-threatening conditions noted.",
       "vitals": {
         "temp": 97.6,
@@ -3454,7 +3750,31 @@
         "A finger laceration is the diagnosis; check distal sensation and tendon integrity before wound closure.",
         "Irrigate wounds thoroughly to reduce the risk of bacterial contamination."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_019_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess laceration location, depth, active bleeding, contamination, tendon function, range of motion, two-point sensation, capillary refill, distal perfusion, and whether the wound edges are appropriate for simple closure or dressing.",
+          "rationale": "The source documents finger laceration, mild pain, stable appearance, wound-related medications, home disposition, and no structured hand exam.",
+          "source_anchors": [
+            "Finger laceration",
+            "mild pain at a level of 3 out of 10",
+            "appears stable",
+            "disposition: HOME",
+            "reference ESI 4"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Confirm wound simplicity with tendon and neurovascular exam before assigning low-acuity wound care.",
+          "practice_rule": "For apparently stable lacerations, document depth, contamination, tendon function, and sensation before discharge planning."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -3539,6 +3859,7 @@
       "sex": "F",
       "arrival_transport": "WALK IN",
       "chief_complaint": "R Wrist pain",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 23-year-old African American female presented to the ED with a chief complaint of right wrist pain, rated as 8 out of 10. The patient walked into the ED. Vital signs on arrival were: heart rate 72, respiratory rate 20, blood pressure 114/74, SpO2 99%, and temperature 99.4掳F. The patient did not report any other symptoms or relevant medical history upon triage.",
       "vitals": {
         "temp": 99.4,
@@ -3836,6 +4157,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "R Foot swelling",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 54-year-old white male presented to the ED with a chief complaint of right foot swelling, reporting a pain level of 7. The patient arrived as a walk-in. Vital signs upon arrival: BP 153/100, P 61, RR 16, SpO2 100%, T 97.9掳F. The patient has a history of hypertension.",
       "vitals": {
         "temp": 97.9,
@@ -4028,7 +4350,7 @@
         {
           "id": "case_021_exam_01",
           "domain": "physical_exam",
-          "statement": "Focused exam should document right foot location of swelling, erythema or warmth, wounds, focal bony tenderness, range of motion, weight-bearing ability, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
+          "statement": "Focused exam should assess right foot location of swelling, erythema or warmth, wounds, focal bony tenderness, range of motion, weight-bearing ability, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
           "rationale": "The source documents right foot swelling, pain 7/10, hypertension, laboratory testing, and one exam or imaging resource, but no physical exam details.",
           "source_anchors": [
             "R Foot swelling",
@@ -4135,6 +4457,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Abd pain, Abdominal distention",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 77-year-old male with a significant medical history, including laryngeal cancer, moderate COPD, GERD, obstructive sleep apnea on CPAP, atrial fibrillation on anticoagulation, hypertension, gout, and a history of colonic polyps presented to the ED with a chief complaint of severe abdominal pain (rated 10/10) and abdominal distention. Upon arrival, vital signs were: HR 100, RR 16, BP 122/84, SpO2 99%, T 97.2掳F. He has a known allergy to penicillins. The patient is at risk for complications due to his anticoagulation therapy and history of atrial fibrillation.",
       "vitals": {
         "temp": 97.2,
@@ -4322,7 +4645,31 @@
         "Abdominal pain is a symptom; acute mesenteric ischemia is a diagnosis that must be suspected in elderly patients with atrial fibrillation.",
         "Anticoagulation therapy carries a constant risk of spontaneous retroperitoneal hemorrhage."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_022_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal distention, tenderness location, guarding, rebound, rigidity, bowel sounds, perfusion, bleeding signs, rectal exam when indicated, and serial abdominal exam changes.",
+          "rationale": "The source documents severe abdominal pain rated 10/10 with abdominal distention, anticoagulation, atrial fibrillation, admission, procedures, and multiple resources, but no structured abdominal exam.",
+          "source_anchors": [
+            "Abd pain, Abdominal distention",
+            "severe abdominal pain (rated 10/10) and abdominal distention",
+            "atrial fibrillation on anticoagulation",
+            "exam_count: 2",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused and serial abdominal exams while preparing labs, imaging, analgesia, and escalation for bleeding, obstruction, ischemia, or perforation.",
+          "practice_rule": "For severe abdominal pain with distention or anticoagulation, exam must look for peritonitis and perfusion changes even when initial vitals are not frankly unstable."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -4407,6 +4754,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Abd pain, Vomiting, Nausea, Dyspnea",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 67-year-old Black/African American male with a history of hypertension, bilateral pulmonary emboli, stage II chronic kidney disease, and metastatic renal cell carcinoma to the lungs and mediastinum, presented to the ED with abdominal pain, vomiting, nausea, and dyspnea. He recently underwent a right radical nephrectomy one month ago and has been experiencing right lower quadrant pain since the surgery, with non-bilious non-bloody emesis in the past two weeks. This morning, he developed acute right-sided chest pain and dyspnea that resolved with rest. He denies fever but reports taking oxycodone for post-surgical abdominal pain. The patient is a walk-in arrival with no known allergies. Vital signs: BP 166/84, HR 85, RR 16, SpO2 90%, T 99.6掳 F. Pain is rated at 7/10. Family history includes multiple early deaths from coronary artery disease among siblings and renal cancer in the mother.",
       "vitals": {
         "temp": 99.6,
@@ -4586,7 +4934,31 @@
         "Cancer patients are in a baseline hypercoagulable state and have a high risk of thromboembolism.",
         "Hypoxia (SpO2 90%) in a patient with a history of PE is a critical red flag."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_023_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal tenderness and distention, hydration, work of breathing, oxygen requirement, lung sounds, chest pain/perfusion findings, leg swelling or DVT signs, and postoperative abdominal warning signs.",
+          "rationale": "The source documents abdominal pain with vomiting, nausea, dyspnea, hypoxemia, recent nephrectomy, pulmonary emboli history, metastatic cancer, admission, and multiple resources, but no structured abdominal or cardiopulmonary exam.",
+          "source_anchors": [
+            "Abd pain, Vomiting, Nausea, Dyspnea",
+            "recent right radical nephrectomy",
+            "acute right-sided chest pain and dyspnea",
+            "SpO2 90%",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform combined abdominal, respiratory, and thromboembolic-risk exam before narrowing the case to postoperative abdominal pain alone.",
+          "practice_rule": "For abdominal pain plus dyspnea or hypoxemia, examine both abdomen and cardiopulmonary systems before choosing acuity and plan."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -4671,6 +5043,7 @@
       "sex": "F",
       "arrival_transport": "WALK IN",
       "chief_complaint": "Suture removal",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 31-year-old female presented to the emergency department with a chief complaint of suture removal. The patient arrived as a walk-in and reported no pain. On arrival, her vital signs were stable: heart rate 74, respiratory rate 16, blood pressure 125/69, SpO2 100%, and temperature 98.1掳 F.",
       "vitals": {
         "temp": 98.1,
@@ -4823,7 +5196,31 @@
         "Suture removal is an administrative/clinical encounter, not an acute illness.",
         "Assess for wound dehiscence or localized wound infection before removing sutures."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_024_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess wound location, approximation, erythema, warmth, drainage, dehiscence, tenderness, surrounding cellulitis, retained suture issues, and distal function if the wound is on an extremity.",
+          "rationale": "The source documents suture removal, walk-in arrival, no pain, stable vital signs, zero resources, home disposition, and no structured wound exam.",
+          "source_anchors": [
+            "Suture removal",
+            "no pain",
+            "stable vital signs",
+            "resources_used: 0",
+            "reference ESI 5"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Verify wound healing and absence of infection or dehiscence before routine suture removal and discharge instructions.",
+          "practice_rule": "For suture removal, low acuity depends on a focused wound check, not the procedure label alone."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -4908,6 +5305,7 @@
       "sex": "F",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "Abd pain, Transfer",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 67-year-old female with a history of hypertension and hyperlipidemia presents to the ED with a chief complaint of abdominal pain and altered mental status. The patient was discovered by her husband with altered mental status. She is hemodynamically unstable. The situation is critical, requiring immediate medical intervention.",
       "vitals": {
         "temp": 98.1,
@@ -5093,7 +5491,31 @@
         "Hemodynamic instability with altered mental status is an immediate life threat (ESI 1).",
         "Spontaneous alteration in mental status in older patients with abdominal pain requires ruling out sepsis and vascular catastrophe."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_025_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway protection, mental status, perfusion and shock signs, abdominal distention, guarding, rebound, rigidity, vascular or bleeding clues, bedside glucose, and response to immediate stabilization.",
+          "rationale": "The source documents abdominal pain with altered mental status, hemodynamic instability, critical status, pain beyond the standard scale, tachycardia, admission, and high resource use, but no structured resuscitation exam.",
+          "source_anchors": [
+            "Abd pain, Transfer",
+            "abdominal pain and altered mental status",
+            "hemodynamically unstable",
+            "situation is critical",
+            "reference ESI 1"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform ABC, perfusion, neurologic, and abdominal resuscitation exam while activating immediate clinician evaluation and critical diagnostics.",
+          "practice_rule": "For critical abdominal pain with altered mental status, focused exam is a repeated resuscitation survey plus abdominal catastrophe screen."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -5178,6 +5600,7 @@
       "sex": "F",
       "arrival_transport": "AMBULANCE",
       "chief_complaint": "Med refill",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 40-year-old white female presented to the ED with a chief complaint of needing a medication refill. The patient arrived by ambulance. Her vital signs on arrival were stable: BP 120/70, HR 97, RR 16, SpO2 97%, and temperature 99.6掳F, with no reported pain.",
       "vitals": {
         "temp": 99.6,
@@ -5330,7 +5753,31 @@
         "Medication refills represent low-acuity care unless high-risk withdrawal medications are involved.",
         "Connect patients with social work or outpatient clinics to establish regular medication access."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_027_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess general appearance, cardiopulmonary and neurologic screening, signs of withdrawal or disease decompensation, medication-specific risk clues, and whether any new symptom makes the refill request unsafe for routine care.",
+          "rationale": "The source documents medication refill request, stable vital signs, no pain, zero resources, and home disposition, but no structured exam or medication-specific safety screen.",
+          "source_anchors": [
+            "Med refill",
+            "stable vital signs",
+            "no reported pain",
+            "resources_used: 0",
+            "reference ESI 5"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Verify there are no symptoms from missed therapy, withdrawal, adverse effects, or unstable chronic disease before treating the visit as ESI 5.",
+          "practice_rule": "For medication refills, low acuity requires a focused safety screen for the medication and underlying condition."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",
@@ -5415,6 +5862,7 @@
       "sex": "F",
       "arrival_transport": "UNKNOWN",
       "chief_complaint": "L Leg injury, Transfer",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 40-year-old female with a history of hypothyroidism and depression, allergic to erythromycin base, was transferred to the emergency department with a chief complaint of left leg pain. The patient sustained injuries after falling from a porch, resulting in an open left tibia/fibula fracture, a nondisplaced left medial malleolar fracture, and a fracture of the base of the left metatarsal. She reported falling after the porch railing gave way, landing on her left leg. Her vital signs upon arrival were stable, with a heart rate of 100, respiratory rate of 16, blood pressure of 138/78, SpO2 at 98%, and temperature of 98.1掳F. The patient rated her pain at 2/10.",
       "vitals": {
         "temp": 98.1,
@@ -5601,7 +6049,7 @@
         {
           "id": "case_029_exam_01",
           "domain": "physical_exam",
-          "statement": "Focused exam should document open wound status, deformity, bleeding, contamination, compartment firmness, pain with passive stretch, distal pulses, capillary refill, motor function, and sensation.",
+          "statement": "Focused exam should assess open wound status, deformity, bleeding, contamination, compartment firmness, pain with passive stretch, distal pulses, capillary refill, motor function, and sensation.",
           "rationale": "The source documents transfer for open tibia/fibula fracture with associated ankle and metatarsal fractures, but it does not provide the structured neurovascular exam.",
           "source_anchors": [
             "L Leg injury, Transfer",
@@ -5708,6 +6156,7 @@
       "sex": "F",
       "arrival_transport": "WALK IN",
       "chief_complaint": "R Foot pain",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 22-year-old white female presents to the emergency department with a chief complaint of right foot pain, rated as 6 out of 10. She arrived at the ED by walking in. Vital signs are blood pressure 148/86, heart rate 81, respiratory rate 18, SpO2 99%, and temperature 98.9掳F. The patient reports no additional symptoms.",
       "vitals": {
         "temp": 98.9,
@@ -5881,7 +6330,7 @@
         {
           "id": "case_030_exam_01",
           "domain": "physical_exam",
-          "statement": "Focused exam should document swelling, bruising, deformity, focal bony tenderness at the midfoot or fifth metatarsal, ability to bear weight, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
+          "statement": "Focused exam should assess swelling, bruising, deformity, focal bony tenderness at the midfoot or fifth metatarsal, ability to bear weight, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
           "rationale": "The source documents isolated right foot pain, pain 6/10, one exam or imaging resource, stable vital signs, and home disposition, but no structured foot exam.",
           "source_anchors": [
             "R Foot pain",
@@ -5986,6 +6435,7 @@
       "sex": "M",
       "arrival_transport": "WALK IN",
       "chief_complaint": "ABDOMINAL PAIN",
+      "chief_complaint_source": "chiefcomplaint",
       "triage_narrative": "A 34-year-old Black/African American male with a history of fistulizing Crohn's disease presented to the ED with severe anal pain. The patient reports increasing anal pain, decreased oral intake due to fear of bowel movements, and an 18-pound weight loss over the last two months. The patient also experiences purulent and bloody discharge from abscesses, episodic fevers, and night sweats. Initial vital signs in the ED were stable.",
       "vitals": {
         "temp": 98.8,
@@ -6170,7 +6620,31 @@
         "Anal pain in fistulizing Crohn's disease is often due to an abscess or complex fistula; it is a clinical flare, not a benign symptom.",
         "Weight loss and episodic fevers indicate a chronic systemic inflammatory or infectious burden."
       ],
-      "inferred_facts": [],
+      "inferred_facts": [
+        {
+          "id": "case_031_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess perianal inspection for abscess openings, drainage, erythema, warmth, fluctuance, fistula tracts, cellulitis, tenderness out of proportion, abdominal tenderness, hydration, and systemic toxicity.",
+          "rationale": "The source documents fistulizing Crohn disease with severe anal pain, purulent and bloody drainage, weight loss, fevers, night sweats, admission, and labs, but no structured perianal or abdominal exam.",
+          "source_anchors": [
+            "ABDOMINAL PAIN",
+            "fistulizing Crohn's disease",
+            "severe anal pain",
+            "purulent and bloody discharge from abscesses",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused perianal, abdominal, hydration, and systemic infection exam before deciding on imaging, antibiotics, analgesia, or surgical/GI consultation.",
+          "practice_rule": "For Crohn-related anal pain with drainage and systemic symptoms, examine for abscess, fistula, cellulitis, and sepsis risk."
+        }
+      ],
       "protected_source_fields": [
         "reference_esi",
         "vitals",

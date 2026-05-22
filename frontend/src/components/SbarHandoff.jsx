@@ -46,9 +46,7 @@ function SbarHandoff({ sessionId, coachEnabled = false, onNext, onCapture, onClo
     <section className="step-card">
       <div className="section-header">
         <div>
-          <span className="eyebrow">
-            Step 5 of 6 <span className="provenance-tag student-tag">Student Decision</span>
-          </span>
+          <span className="eyebrow">Initial Plan <span className="provenance-tag student-tag">Student Decision</span></span>
           <h2 id="sbar-heading">SBAR Handoff</h2>
         </div>
         <span className="clinical-badge">{submitted ? 'Recorded' : 'Required'}</span>

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -14,10 +15,12 @@ import {
   updateLearnerProfileFromFeedback
 } from '../src/services/learnerProfileService.js';
 import { evaluateInterview } from '../src/services/interviewEngine.js';
+import { buildFocusedExamSelection } from '../src/services/examEngine.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const staticCases = JSON.parse(readFileSync(resolve(__dirname, '../src/data/cases.json'), 'utf8'))
-  .filter((item) => item.complaint && !String(item.complaint).includes('#NAME?'));
+const repoRoot = resolve(__dirname, '../..');
+const staticCases = JSON.parse(readFileSync(resolve(__dirname, '../src/data/cases.json'), 'utf8'));
+const groundingAuditFixture = JSON.parse(readFileSync(resolve(__dirname, 'fixtures/grounding_audit_fixture.safe.json'), 'utf8'));
 
 function caseBy(predicate, label) {
   const match = staticCases.find(predicate);
@@ -238,16 +241,260 @@ test('patient dialogue engine handles natural dialogue regressions', () => {
   const fallAnswer = validatePatientSpeech(renderPatientAnswer(fallPlan, fallView), fallPlan, fallView, []);
   expect(fallAnswer).toMatch(/I fell and I'm bleeding\./);
   expect(fallAnswer).not.toMatch(/I have fall|I have bleeding/i);
+
+  const dysphagiaCase = caseBy((item) => item.id === 'case_004', 'difficulty swallowing after neck procedure');
+  const dysphagiaView = buildPatientView(dysphagiaCase);
+  const triggerPlan = planPatientAnswer('What were you doing when this happened?', dysphagiaView, []);
+  expect(triggerPlan.intents).toContain('trigger_activity');
+  const triggerAnswer = validatePatientSpeech(renderPatientAnswer(triggerPlan, dysphagiaView), triggerPlan, dysphagiaView, []);
+  expect(triggerAnswer).toMatch(/neck|procedure|surgery|not doing anything|specific|strenuous/i);
+  expect(triggerAnswer).not.toMatch(/coming and going/i);
 });
 
 test('static case bundle excludes non-retained validation rows and preserves provenance', () => {
   expect(staticCases.find((item) => item.id === 'case_026')).toBeFalsy();
   for (const caseData of staticCases) {
     expect(caseData.schema_version).toBe('clinical_case_v1');
+    expect(caseData.complaint).toBeTruthy();
+    expect(caseData.complaint).not.toMatch(/#NAME\?|unknown complaint/i);
+    expect(caseData.source?.chief_complaint).not.toMatch(/#NAME\?|unknown complaint/i);
     expect(caseData.source?.adjudication?.final_decision).toBe('RETAIN');
     expect(caseData.documented_evidence?.length).toBeGreaterThan(0);
     expect(caseData.augmentation?.review_status).not.toMatch(/draft|rejected/);
   }
+});
+
+test('every static public case has reviewed focused exam target coverage', () => {
+  const missing = [];
+  for (const caseData of staticCases) {
+    const examFacts = (caseData.augmentation?.inferred_facts || [])
+      .filter((fact) => fact.domain === 'physical_exam' || fact.use_in?.includes('physical_exam'));
+    if (!examFacts.length) missing.push(caseData.id);
+    for (const fact of examFacts) {
+      expect(fact.review_status, `${caseData.id} exam review status`).toBe('reviewed');
+      expect(fact.use_in, `${caseData.id} exam use_in`).toEqual(expect.arrayContaining(['physical_exam', 'soap', 'decision_review']));
+      expect(fact.statement, `${caseData.id} exam statement`).toMatch(/Focused exam should|Source physical exam context/i);
+      expect(fact.statement, `${caseData.id} exam statement`).not.toMatch(/No reviewed exam findings/i);
+    }
+  }
+  expect(missing).toEqual([]);
+});
+
+test('focused exam targets cover representative clinical categories', () => {
+  const representatives = [
+    [/chest pain/i, /cardiac rhythm|cardiopulmonary|breath sounds/i, 'chest pain'],
+    [/abdominal distention/i, /guarding|rebound|abdominal distention|serial abdominal/i, 'abdominal pain'],
+    [/altered level of consciousness/i, /airway protection|pupil|neurologic|orientation/i, 'altered mental status'],
+    [/finger laceration/i, /tendon|two-point sensation|capillary refill|laceration/i, 'laceration'],
+    [/suture removal/i, /wound|erythema|dehiscence|suture/i, 'suture removal'],
+    [/med refill/i, /withdrawal|disease decompensation|medication-specific/i, 'med refill']
+  ];
+
+  for (const [complaintPattern, examPattern, label] of representatives) {
+    const caseData = caseBy((item) => complaintPattern.test(item.complaint), label);
+    const examText = (caseData.augmentation.inferred_facts || [])
+      .filter((fact) => fact.domain === 'physical_exam' || fact.use_in?.includes('physical_exam'))
+      .map((fact) => fact.statement)
+      .join(' ');
+    expect(examText, label).toMatch(examPattern);
+  }
+});
+
+test('focused exam engine expects complaint-directed systems', () => {
+  const factList = (caseData) => (caseData.augmentation?.inferred_facts || [])
+    .filter((fact) => fact.domain === 'physical_exam' || fact.use_in?.includes('physical_exam'));
+  const vitalsList = (caseData) => [
+    { name: 'Heart Rate', value: `${caseData.vitals?.hr ?? 80} bpm` },
+    { name: 'Respiratory Rate', value: `${caseData.vitals?.rr ?? 16} breaths/min` },
+    { name: 'Oxygen Saturation', value: `${caseData.vitals?.o2 ?? 99}%` },
+    { name: 'Pain Level', value: `${caseData.vitals?.pain ?? 0}/10` }
+  ];
+  const expectSystems = (caseData, selected, expectedNames) => {
+    const result = buildFocusedExamSelection(caseData, selected, factList(caseData), vitalsList(caseData));
+    const names = result.expected_systems.map((item) => item.name).join(' ');
+    for (const expectedName of expectedNames) expect(names).toContain(expectedName);
+    return result;
+  };
+
+  expectSystems(caseBy((item) => item.id === 'case_004', 'dysphagia'), ['general_airway', 'head_neck_ent'], ['General / Airway', 'Head / Neck / ENT']);
+  expectSystems(caseBy((item) => item.id === 'case_018', 'laceration'), ['skin_wound', 'msk_extremity'], ['Skin / Wound', 'MSK / Extremity']);
+  expectSystems(caseBy((item) => item.id === 'case_022', 'abdominal pain'), ['abdomen_gi'], ['Abdomen / GI']);
+  expectSystems(caseBy((item) => item.id === 'case_025', 'altered abdominal pain'), ['general_airway', 'neuro'], ['General / Airway', 'Neuro / Mental Status']);
+  const refill = expectSystems(caseBy((item) => item.id === 'case_027', 'med refill'), ['general_airway', 'abdomen_gi', 'respiratory'], ['General / Airway']);
+  expect(refill.extra_systems.map((item) => item.name)).toEqual(expect.arrayContaining(['Abdomen / GI', 'Respiratory / Chest']));
+});
+
+test('restricted MIMIC-derived paths are gitignored', () => {
+  const restrictedPaths = [
+    'mimic-iv-ext-clinical-decision-support-for-referral-triage-and-diagnosis-1.0.2',
+    'data/restricted/example.json',
+    'frontend/src/data/mimic.restricted.json',
+    'reports/restricted/audit.json'
+  ];
+
+  for (const path of restrictedPaths) {
+    expect(() => execFileSync('git', ['check-ignore', '-q', path], { cwd: repoRoot })).not.toThrow();
+  }
+});
+
+test('loads a local restricted MIMIC-shaped bundle through browser memory only', async ({ page }, testInfo) => {
+  const bundlePath = resolve(testInfo.outputDir, 'local-mimic-bundle.json');
+  mkdirSync(dirname(bundlePath), { recursive: true });
+  writeFileSync(bundlePath, JSON.stringify({
+    schema_version: 'restricted_case_bundle_v1',
+    source_dataset: 'MIMIC-IV-Ext-CDS',
+    source_restriction: 'credentialed_local_only',
+    cases: [
+      {
+        schema_version: 'clinical_case_v2',
+        id: 'synthetic_local_mimic_case',
+        case_source: 'mimic_restricted_local',
+        source_restriction: 'credentialed_local_only',
+        source: { dataset: 'MIMIC-IV-Ext-CDS', restriction: 'credentialed_local_only' },
+        tasks_available: { triage: true, diagnosis: true, referral: true, management: true, reassessment: true, sbar: true },
+        demographics: { age: 80, sex: 'Female', transport: 'AMBULANCE' },
+        complaint: 'SHORTNESS OF BREATH',
+        history: 'Synthetic patient with worsening shortness of breath, fever, cough, and increased work of breathing over two days.',
+        vitals: { temp: 100.2, hr: 122, rr: 28, o2: 90, sbp: 99, dbp: 47, pain: 8 },
+        acuity: 2,
+        disposition: 'ADMITTED',
+        ground_truth: {
+          diagnoses: {
+            primary: ['Acute hypoxemic respiratory failure', 'Pneumonia'],
+            secondary: ['Anemia'],
+            icd: { code: 'J9600', title: 'Acute respiratory failure', version: 10 }
+          },
+          referral: { clinician_approved_specialty: ['Pulmonology'] },
+          disposition: 'ADMITTED',
+          tests: 'Chest x-ray and basic labs obtained.',
+          medications: 'Home albuterol inhaler.'
+        },
+        documented_evidence: [
+          {
+            domain: 'history_of_present_illness',
+            statement: 'Worsening shortness of breath, fever, cough, and increased work of breathing.',
+            provenance: 'source_record',
+            source_restriction: 'credentialed_local_only',
+            use: 'simulation_grounding'
+          }
+        ],
+        augmentation: {
+          review_status: 'local_teaching_draft',
+          inferred_facts: [
+            {
+              id: 'synthetic_local_mimic_case_exam_01',
+              domain: 'physical_exam',
+              statement: 'Focused exam should assess work of breathing, oxygen requirement, breath sounds, perfusion, and hydration status.',
+              rationale: 'Synthetic local MIMIC fixture includes respiratory complaint and abnormal vitals but no source physical exam.',
+              source_anchors: ['SHORTNESS OF BREATH', 'Reference ESI 2'],
+              confidence: 'moderate',
+              review_status: 'local_teaching_draft',
+              provenance: 'local_teaching_inference',
+              source_restriction: 'credentialed_local_only',
+              use_in: ['physical_exam', 'soap', 'decision_review']
+            }
+          ]
+        }
+      }
+    ]
+  }), 'utf8');
+
+  await page.goto('/');
+  await openTools(page);
+  await expect(page.getByLabel('Case source mode')).toContainText('Data: Public demo');
+  await page.setInputFiles('#local-case-bundle', bundlePath);
+  await openTools(page);
+  await expect(page.getByLabel('Case source mode')).toContainText('Data: Local MIMIC');
+  await expect(page.getByLabel('Case summary')).toContainText(/shortness of breath/i);
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+});
+
+test('clinical_case_v2 restricted cases require local-only source provenance', () => {
+  const syntheticCase = {
+    schema_version: 'clinical_case_v2',
+    case_source: 'mimic_restricted_local',
+    source_restriction: 'credentialed_local_only',
+    source: { dataset: 'MIMIC-IV-Ext-CDS', restriction: 'credentialed_local_only' },
+    tasks_available: {
+      triage: true,
+      diagnosis: true,
+      referral: true,
+      management: true,
+      reassessment: true,
+      sbar: true
+    },
+    ground_truth: {
+      diagnoses: {
+        primary: ['Synthetic diagnosis'],
+        secondary: ['Synthetic alternative'],
+        icd: { code: 'X000', title: 'Synthetic diagnosis', version: 10 }
+      },
+      referral: { clinician_approved_specialty: ['Synthetic specialty'] },
+      disposition: 'ADMITTED',
+      tests: 'Synthetic lab result',
+      medications: 'Synthetic medication context'
+    },
+    documented_evidence: [
+      {
+        domain: 'primary_diagnosis',
+        statement: 'Synthetic diagnosis',
+        provenance: 'source_record',
+        source_restriction: 'credentialed_local_only',
+        use: 'retrospective_grounding'
+      },
+      {
+        domain: 'tests',
+        statement: 'Synthetic lab result',
+        provenance: 'source_record',
+        source_restriction: 'credentialed_local_only',
+        use: 'retrospective_grounding'
+      }
+    ],
+    augmentation: {
+      review_status: 'local_teaching_draft',
+      inferred_facts: [
+        {
+          id: 'synthetic_exam_01',
+          domain: 'physical_exam',
+          statement: 'Focused exam should assess complaint-directed findings before local simulation use.',
+          rationale: 'Synthetic fixture requires local-only focused exam coverage.',
+          source_anchors: ['Synthetic diagnosis'],
+          confidence: 'low',
+          review_status: 'local_teaching_draft',
+          provenance: 'local_teaching_inference',
+          source_restriction: 'credentialed_local_only',
+          use_in: ['physical_exam', 'soap', 'decision_review']
+        }
+      ]
+    }
+  };
+
+  expect(syntheticCase.schema_version).toBe('clinical_case_v2');
+  expect(syntheticCase.case_source).toBe('mimic_restricted_local');
+  expect(syntheticCase.source_restriction).toBe('credentialed_local_only');
+  expect(syntheticCase.source.dataset).toBe('MIMIC-IV-Ext-CDS');
+  expect(syntheticCase.tasks_available.referral).toBe(true);
+  expect(syntheticCase.ground_truth.referral.clinician_approved_specialty).toEqual(['Synthetic specialty']);
+  expect(syntheticCase.augmentation.inferred_facts[0]).toMatchObject({
+    domain: 'physical_exam',
+    review_status: 'local_teaching_draft',
+    provenance: 'local_teaching_inference',
+    source_restriction: 'credentialed_local_only'
+  });
+  for (const item of syntheticCase.documented_evidence) {
+    expect(item.provenance).toBeTruthy();
+    expect(item.source_restriction).toBe('credentialed_local_only');
+    expect(['simulation_grounding', 'retrospective_grounding']).toContain(item.use);
+  }
+});
+
+test('safe grounding audit fixture exposes unsupported and contradicted claim classes', () => {
+  expect(groundingAuditFixture.schema_version).toBe('grounding_audit_v1');
+  expect(groundingAuditFixture.summary.claim_counts.supported).toBeGreaterThan(0);
+  expect(groundingAuditFixture.summary.claim_counts.unsupported).toBeGreaterThan(0);
+  expect(groundingAuditFixture.summary.claim_counts.contradicted).toBeGreaterThan(0);
+  expect(groundingAuditFixture.failure_modes).toEqual(expect.arrayContaining(['disposition', 'medication']));
+  expect(JSON.stringify(groundingAuditFixture)).not.toMatch(/stay_id|subject_id|hadm_id|MIMIC/i);
 });
 
 test('reviewed augmentation facts are explicit and cannot silently become grading truth', () => {
@@ -283,7 +530,24 @@ function coachSwitch(page) {
   return page.getByRole('switch', { name: 'Coach' });
 }
 
+async function openTools(page) {
+  const tools = page.locator('.tools-menu');
+  const isOpen = await tools.evaluate((node) => node.hasAttribute('open')).catch(() => false);
+  if (!isOpen) {
+    await page.locator('.tools-menu > summary').click();
+  }
+}
+
+async function closeTools(page) {
+  const tools = page.locator('.tools-menu');
+  const isOpen = await tools.evaluate((node) => node.hasAttribute('open')).catch(() => false);
+  if (isOpen) {
+    await page.locator('.tools-menu > summary').click();
+  }
+}
+
 async function setCoachEnabled(page, enabled) {
+  await openTools(page);
   const control = coachSwitch(page);
   await expect(control).toHaveCount(1);
   const current = await control.isChecked();
@@ -292,6 +556,30 @@ async function setCoachEnabled(page, enabled) {
   }
   if (enabled) await expect(control).toBeChecked();
   else await expect(control).not.toBeChecked();
+  await closeTools(page);
+}
+
+async function conductObjectiveReview(page, preferredSystems = []) {
+  const summary = await page.getByLabel('Case summary').innerText().catch(() => '');
+  const text = summary.toLowerCase();
+  const systems = new Set(preferredSystems.length ? preferredSystems : ['General / Airway']);
+  if (/chest|cardiac|syncope|blood pressure/.test(text)) systems.add('Cardiovascular / Perfusion');
+  if (/shortness|breath|cough|oxygen|pneumonia/.test(text)) systems.add('Respiratory / Chest');
+  if (/altered|confusion|seizure|stroke|headache|weakness|numb/.test(text)) systems.add('Neuro / Mental Status');
+  if (/abd|belly|stomach|rectal|pelvic/.test(text)) systems.add('Abdomen / GI');
+  if (/fracture|wrist|foot|ankle|leg|finger|fall/.test(text)) systems.add('MSK / Extremity');
+  if (/laceration|wound|suture|infection|fever|gangrene|cellulitis/.test(text)) systems.add('Skin / Wound');
+  if (/rectal|pelvic|urinary|pregnan/.test(text)) systems.add('GU / Rectal / Pelvic');
+
+  const drawer = page.locator('summary').filter({ hasText: 'Review objective data' });
+  await drawer.click();
+  await expect(page.locator('.objective-review-panel')).toBeVisible();
+  await expect(page.getByLabel('Choose focused exams')).toBeVisible();
+  for (const system of systems) {
+    await page.getByRole('button', { name: system }).click();
+  }
+  await page.getByRole('button', { name: 'Conduct selected exam' }).click();
+  await expect(page.getByLabel('Simulated focused exam findings')).toBeVisible();
 }
 
 async function completeStaticWorkflow(page, options = {}) {
@@ -315,6 +603,9 @@ async function completeStaticWorkflow(page, options = {}) {
   const finalEsi = options.finalEsi || 3;
   const finalRationale = options.finalRationale ?? `Final ESI ${finalEsi} based on vital signs, complaint risk, and expected ED resources.`;
   const actionIds = options.actionIds || [];
+  const reassessmentTargets = options.reassessmentTargets || ['Repeat abnormal vital signs'];
+  const workingDiagnosis = options.workingDiagnosis || 'Undifferentiated ED presentation';
+  const diagnosisEvidence = options.diagnosisEvidence || 'The working diagnosis is based on the presenting complaint, vital signs, focused history, and exam findings.';
 
   await page.goto('/');
   const initialClock = await page.locator('.case-summary-clock').innerText();
@@ -323,6 +614,11 @@ async function completeStaticWorkflow(page, options = {}) {
     .not.toBe(initialClock);
 
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await expect(page.locator('.topbar-data-chip')).toContainText('Data: Public demo');
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Encounter');
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Impression');
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Plan');
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Debrief');
   await expect(page.getByLabel('Case summary')).toBeVisible();
   await setCoachEnabled(page, Boolean(options.enableCoach));
   await expect(page.locator('.case-chart')).toHaveCount(0);
@@ -335,7 +631,7 @@ async function completeStaticWorkflow(page, options = {}) {
   await expect(page.getByText('Airway or breathing threat')).toHaveCount(0);
   await expect(page.getByText('Perfusion, bleeding, or hemodynamic signal documented.')).toHaveCount(0);
   await expect(page.getByText('No circulation warning signal documented.')).toHaveCount(0);
-  await expect(page.getByText('INTERVIEW GOALS')).toBeVisible();
+  await expect(page.locator('summary').filter({ hasText: 'Help' })).toBeVisible();
   await expect(page.getByText('Question budget')).toHaveCount(0);
   await expect(page.getByText('questions left')).toHaveCount(0);
   await expect(page.getByText('Practice')).toHaveCount(0);
@@ -356,40 +652,72 @@ async function completeStaticWorkflow(page, options = {}) {
     await expect(page.getByText(`Question ${index + 1}`)).toBeVisible();
   }
   await expect(page.getByText('Question budget used')).toHaveCount(0);
-  await expect(page.getByText('INTERVIEW GOALS')).toBeVisible();
-  await page.getByRole('button', { name: 'Continue to provisional ESI' }).click();
+  await expect(page.locator('summary').filter({ hasText: 'Help' })).toBeVisible();
+  await conductObjectiveReview(page, options.examSystems);
+  await page.getByRole('button', { name: 'Continue to impression' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Examine & Vitals Review' })).toBeVisible();
-  await expectDecisionHintState(page, Boolean(options.enableCoach));
-  await page.getByRole('button', { name: 'Conduct Complete Exam' }).click();
-  await page.getByRole('button', { name: 'Proceed to Definitive ESI Decision' }).click();
-
-  await expect(page.getByRole('heading', { name: 'Definitive ESI Acuity Assignment' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Acuity, Diagnosis, Referral' })).toBeVisible();
   await expectDecisionHintState(page, Boolean(options.enableCoach));
   await page.getByRole('button', { name: new RegExp(`ESI ${finalEsi}`) }).click();
-  await page.getByLabel('Clinical Rationale for ESI Selection').fill(finalRationale);
-  await page.getByRole('button', { name: 'Lock Definitive ESI & Proceed to Care Priorities' }).click();
-
-  await expect(page.getByRole('heading', { name: 'Care Priorities & Orders' })).toBeVisible();
-  await expectDecisionHintState(page, Boolean(options.enableCoach));
-  if (actionIds.length) {
-    for (const label of actionIds) {
-      await page.getByLabel(label).check();
-    }
-    await page.getByRole('button', { name: 'Lock Care Priorities & Proceed to SBAR Handoff' }).click();
+  await page.getByLabel('ESI Rationale').fill(finalRationale);
+  await page.getByLabel('Working Diagnosis').fill(workingDiagnosis);
+  await page.getByLabel('Differential').fill(options.differentialText || 'Serious time-sensitive diagnosis\nBenign self-limited cause');
+  await page.getByLabel('Diagnosis Evidence').fill(diagnosisEvidence);
+  if (options.referralNeeded) {
+    await page.getByRole('button', { name: 'Specialty Input Needed' }).click();
   } else {
-    await page.getByRole('button', { name: 'Routine Waiting (Zero Immediate Actions)' }).click();
+    await page.getByRole('button', { name: 'No Immediate Referral' }).click();
   }
-  const proceedToSbar = page.getByRole('button', { name: 'Proceed to SBAR Handoff' });
-  await proceedToSbar.click();
+  await page.getByLabel('Referral Rationale').fill(options.referralRationale || 'No immediate specialty input is needed unless the patient worsens or initial evaluation identifies a procedural need.');
+  await page.getByRole('button', { name: 'Continue to plan' }).click();
 
-  await expect(page.getByRole('heading', { name: 'SBAR Handoff' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Actions, Reassessment, SBAR' })).toBeVisible();
   await expectDecisionHintState(page, Boolean(options.enableCoach));
+  await page.getByLabel('Management Rationale').fill(options.managementRationale || 'Initial priorities are based on acuity, vital signs, and immediate safety needs.');
+  await page.getByLabel('Diagnostic Tests').fill(options.planDiagnostics || 'Order case-directed diagnostic testing based on the working diagnosis and ESI level.');
+  await page.getByLabel('Immediate Treatments').fill(options.planTreatments || 'Treat immediate symptoms, monitor for deterioration, and escalate if reassessment changes.');
+  await page.getByLabel('Medication Considerations').fill(options.planMedications || 'Review allergies, contraindications, and medication route needs before treatment.');
+  await page.getByLabel('Disposition Intent').fill(options.planDisposition || 'Disposition depends on reassessment, test results, and clinical stability.');
+  for (const label of actionIds) {
+    await page.getByLabel(label).check();
+  }
+  await page.getByLabel('Reassessment Rationale').fill(options.reassessmentRationale || 'I would recheck vital signs and symptoms before handoff or routine waiting.');
+  for (const label of reassessmentTargets) {
+    await page.getByLabel(label).check();
+  }
   await page.getByRole('button', { name: 'Insert SBAR labels' }).click();
-  await page.getByLabel('Handoff Summary (SBAR Format)').fill(sbarHandoff);
-  await page.getByRole('button', { name: 'Record SBAR' }).click();
+  await page.getByLabel('Handoff Summary').fill(sbarHandoff);
   await page.getByRole('button', { name: 'Continue to debrief' }).click();
-  await expect(page.getByText('Step 6 of 6')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief' })).toBeVisible();
+  if (options.openDebriefDetails !== false) {
+    await page.locator('summary').filter({ hasText: 'Clinical Review' }).click();
+    await page.locator('summary').filter({ hasText: 'Scoring & Validation' }).click();
+  }
+}
+
+async function reachImpression(page) {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await page.getByLabel('Question to patient').fill('How bad is your pain or distress right now?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await conductObjectiveReview(page);
+  await page.getByRole('button', { name: 'Continue with gaps' }).click();
+  await expect(page.getByRole('heading', { name: 'Acuity, Diagnosis, Referral' })).toBeVisible();
+}
+
+async function reachPlan(page) {
+  await reachImpression(page);
+  await page.getByRole('button', { name: 'ESI 3' }).click();
+  await page.getByLabel('ESI Rationale').fill('ESI 3 based on stable appearance with expected diagnostic resources and reassessment needs.');
+  await page.getByLabel('Working Diagnosis').fill('Undifferentiated ED presentation');
+  await page.getByLabel('Differential').fill('Serious acute process');
+  await page.getByLabel('Diagnosis Evidence').fill('The working diagnosis is supported by the presenting complaint, interview, and initial objective context.');
+  await page.getByRole('button', { name: 'No Immediate Referral' }).click();
+  await page.getByLabel('Referral Rationale').fill('No immediate specialty input is needed unless initial evaluation or reassessment identifies a procedural need.');
+  await page.getByRole('button', { name: 'Continue to plan' }).click();
+  await expect(page.getByRole('heading', { name: 'Actions, Reassessment, SBAR' })).toBeVisible();
 }
 
 test('requires interview coverage before normal progression and supports acknowledged gaps', async ({ page }) => {
@@ -405,16 +733,18 @@ test('requires interview coverage before normal progression and supports acknowl
   await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
   await expect(page.getByText('Question 1')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Continue to provisional ESI' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Continue to impression' })).toBeDisabled();
 
   await page.getByLabel('Question to patient').fill('How bad is your pain or distress right now?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
   await expect(page.getByText('Question 2')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Continue to provisional ESI' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Continue to impression' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Continue with gaps' })).toBeVisible();
-  await expect(page.getByText('Required domains remain open')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue with gaps' })).toBeDisabled();
+  await conductObjectiveReview(page);
+  await expect(page.getByRole('button', { name: 'Continue with gaps' })).toBeEnabled();
   await page.getByRole('button', { name: 'Continue with gaps' }).click();
-  await expect(page.getByRole('heading', { name: 'Examine & Vitals Review' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Acuity, Diagnosis, Referral' })).toBeVisible();
   await expectDecisionHintState(page, false);
   expect(openRouterCalls).toBe(0);
 });
@@ -428,9 +758,11 @@ test('coach toggle is off by default, shows local hints when enabled, and persis
 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await openTools(page);
   const coach = coachSwitch(page);
   await expect(coach).toHaveCount(1);
   await expect(coach).not.toBeChecked();
+  await closeTools(page);
 
   await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
@@ -438,9 +770,10 @@ test('coach toggle is off by default, shows local hints when enabled, and persis
   await page.getByLabel('Question to patient').fill('How bad is your pain or distress right now?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
   await expect(page.getByText('Question 2')).toBeVisible();
+  await conductObjectiveReview(page);
   await page.getByRole('button', { name: 'Continue with gaps' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Examine & Vitals Review' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Acuity, Diagnosis, Referral' })).toBeVisible();
   await expectDecisionHintState(page, false);
 
   await setCoachEnabled(page, true);
@@ -458,6 +791,7 @@ test('coach toggle is off by default, shows local hints when enabled, and persis
   const persistedPage = await context.newPage();
   await persistedPage.goto('/');
   await expect(persistedPage.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await openTools(persistedPage);
   await expect(coachSwitch(persistedPage)).toBeChecked();
   await persistedPage.close();
   expect(openRouterCalls).toBe(0);
@@ -470,8 +804,106 @@ test('credits multi-intent interview questions and renders turn-level coaching',
   await page.getByLabel('Question to patient').fill('When did this start, how bad is it, and are you having chest pain, trouble breathing, weakness, confusion, bleeding, fever, or vomiting?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
   await expect(page.getByText('Question 1')).toBeVisible();
-  await expect(page.locator('.interview-progress-bar-container')).toContainText('COVERED');
-  await expect(page.locator('.interview-progress-bar-container')).not.toContainText('0 / 6 COVERED');
+  await page.locator('summary').filter({ hasText: 'Help' }).click();
+  await expect(page.locator('.interview-progress-bar-container')).toContainText('covered');
+  await expect(page.locator('.interview-progress-bar-container')).not.toContainText('0 / 6 covered');
+});
+
+test('streamlined first viewport keeps advanced controls tucked away', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Encounter');
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Impression');
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Plan');
+  await expect(page.getByLabel('Clinical reasoning spine')).toContainText('Debrief');
+  await expect(page.getByLabel('Clinical reasoning spine')).not.toContainText('Gather');
+  await expect(page.getByText('Load Local MIMIC Bundle')).toBeHidden();
+  await expect(page.getByText('Expected local file:')).toBeHidden();
+  await expect(page.getByText('Validation first')).toBeHidden();
+  await expect(page.getByText('Enable patient voice audio (TTS)')).toBeHidden();
+  await expect(page.locator('.interview-support-drawer')).toHaveCount(1);
+  await expect(page.locator('summary').filter({ hasText: 'Help' })).toBeVisible();
+  await expect(page.locator('summary').filter({ hasText: 'Interview goals' })).toHaveCount(0);
+  await expect(page.locator('summary').filter({ hasText: 'Suggested topics' })).toHaveCount(0);
+  await expect(page.getByText('Get a free API key')).toBeHidden();
+  await expect(page.getByText(/Step \d+ of \d+/)).toHaveCount(0);
+});
+
+test('Help drawer contains suggested topics and interview goals', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await page.locator('summary').filter({ hasText: 'Help' }).click();
+  await expect(page.locator('.learner-help-drawer .suggestion-pill').first()).toBeVisible();
+  await expect(page.locator('.learner-help-drawer')).toContainText('Interview goals');
+  await expect(page.locator('.interview-progress-bar-container')).toContainText('covered');
+});
+
+test('tools and voice controls stay compact and accessible', async ({ page }) => {
+  await page.goto('/');
+  await openTools(page);
+  await expect(page.locator('.tools-panel')).not.toContainText(/Coach\s+Coach\s+Off/i);
+  await expect(page.locator('.coach-toggle')).toBeVisible();
+  await expect(page.getByRole('switch', { name: 'Coach' })).toHaveCount(1);
+  await expect(page.getByLabel('Enable patient voice audio (TTS)')).toBeVisible();
+  await expect(page.getByLabel('Start continuous voice mode')).toBeVisible();
+
+  await expect(page.getByLabel('Start dictation')).toBeVisible();
+  await closeTools(page);
+  await expect(page.getByLabel('Enable patient voice audio (TTS)')).toBeHidden();
+  await expect(page.getByLabel('Start continuous voice mode')).toBeHidden();
+});
+
+test('objective data loads only after the Encounter drawer is opened', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await expect(page.locator('.objective-review-panel')).toHaveCount(0);
+  await expect(page.getByText('Heart Rate')).toHaveCount(0);
+
+  await page.locator('summary').filter({ hasText: 'Review objective data' }).click();
+  await expect(page.locator('.objective-review-panel')).toBeVisible();
+  await expect(page.getByLabel('Choose focused exams')).toBeVisible();
+  await expect(page.getByText('Focused exam should assess')).toHaveCount(0);
+  await expect(page.getByLabel('Simulated focused exam findings')).toHaveCount(0);
+  await page.getByRole('button', { name: 'General / Airway' }).click();
+  await page.getByRole('button', { name: 'Conduct selected exam' }).click();
+  await expect(page.getByLabel('Simulated focused exam findings')).toBeVisible();
+
+  await page.locator('summary').filter({ hasText: 'Review objective data' }).click();
+  await page.locator('summary').filter({ hasText: 'Review objective data' }).click();
+  await expect(page.locator('.objective-review-panel')).toHaveCount(1);
+  await expect(page.getByText('Loading objective data...')).toHaveCount(0);
+});
+
+test('Impression requires a differential diagnosis before continuing', async ({ page }) => {
+  await reachImpression(page);
+  await page.getByRole('button', { name: 'ESI 3' }).click();
+  await page.getByLabel('ESI Rationale').fill('ESI 3 based on stable appearance with expected diagnostic resources and reassessment needs.');
+  await page.getByLabel('Working Diagnosis').fill('Undifferentiated ED presentation');
+  await page.getByLabel('Diagnosis Evidence').fill('The working diagnosis is supported by the presenting complaint, interview, and initial objective context.');
+  await page.getByRole('button', { name: 'No Immediate Referral' }).click();
+  await page.getByLabel('Referral Rationale').fill('No immediate specialty input is needed unless the patient worsens or testing identifies a procedural need.');
+  await page.getByRole('button', { name: 'Continue to plan' }).click();
+  await expect(page.getByRole('alert')).toContainText('Enter at least one differential diagnosis.');
+  await expect(page.getByRole('heading', { name: 'Acuity, Diagnosis, Referral' })).toBeVisible();
+});
+
+test('Plan requires plan details and reassessment target before debrief', async ({ page }) => {
+  await reachPlan(page);
+  await page.getByLabel('Management Rationale').fill('Initial priorities are based on acuity, vital signs, and immediate safety needs.');
+  await page.getByLabel('Reassessment Rationale').fill('I would repeat objective data and symptoms before handoff or disposition.');
+  await page.getByRole('button', { name: 'Insert SBAR labels' }).click();
+  await page.getByLabel('Handoff Summary').fill('S: ED patient needs evaluation. B: Initial symptoms require workup. A: Stable but needs resources. R: Complete workup and reassess.');
+
+  await page.getByRole('button', { name: 'Continue to debrief' }).click();
+  await expect(page.getByRole('alert')).toContainText('Add diagnostic tests.');
+
+  await page.getByLabel('Diagnostic Tests').fill('Order case-directed tests.');
+  await page.getByLabel('Immediate Treatments').fill('Treat symptoms and monitor.');
+  await page.getByLabel('Medication Considerations').fill('Check allergies and contraindications.');
+  await page.getByLabel('Disposition Intent').fill('Disposition depends on reassessment.');
+  await page.getByRole('button', { name: 'Continue to debrief' }).click();
+  await expect(page.getByRole('alert')).toContainText('Select at least one reassessment target.');
+  await expect(page.getByRole('heading', { name: 'Actions, Reassessment, SBAR' })).toBeVisible();
 });
 
 test('completes the static triage workflow and shows local reasoning feedback', async ({ page }) => {
@@ -483,13 +915,20 @@ test('completes the static triage workflow and shows local reasoning feedback', 
 
   await completeStaticWorkflow(page);
 
-  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief & SOAP Breakdown' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Physician SOAP Assessment & Plan' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Simulation Assessment & Initial Plan' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Working Diagnosis Review' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Referral Judgment Review' })).toBeVisible();
+  await expect(page.locator('.validation-notice')).toContainText('hallucination validation');
+  await expect(page.getByLabel('Debrief provenance legend')).toContainText('LLM draft awaiting validation');
+  await expect(page.getByLabel('Debrief provenance legend')).toContainText('Source record');
   const soapNote = page.locator('.expert-soap-breakdown');
   await expect(soapNote).toContainText('Primary Working Diagnosis:');
   await expect(soapNote).toContainText('Differential Diagnosis Considerations:');
   await expect(soapNote).toContainText('Clinical Rationale:');
   await expect(soapNote).toContainText('Initial ED Care Plan');
+  await expect(page.getByRole('heading', { name: 'Reassessment Review' })).toBeVisible();
+  await expect(page.locator('.reassessment-debrief-box')).toContainText('Reassessment');
 
   const reportText = await page.locator('.debrief-card').textContent();
   expect(reportText.indexOf('Primary Working Diagnosis:')).toBeGreaterThanOrEqual(0);
@@ -506,20 +945,19 @@ test('completes the static triage workflow and shows local reasoning feedback', 
   await expect(page.getByText('Browser semantic cache')).toHaveCount(0);
   await expect(page.getByText('Interview coverage 1 / 15')).toHaveCount(0);
   await expect(page.getByText('Final ESI accuracy 0 / 30')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Clinical Tips & Tutor' }).click();
   await expect(page.locator('.learner-profile-panel')).toBeVisible();
-  await expect(page.getByText('Next case focus', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Triage Rationale' }).click();
+  await expect(page.locator('.learner-profile-panel').getByText('Next case focus', { exact: true })).toBeVisible();
   const scoreAuditSummary = page.locator('summary').filter({ hasText: 'Complete Clinical Domain Scoring Ledger' });
   await expect(scoreAuditSummary).toHaveCount(1);
   await scoreAuditSummary.click();
   await expect(page.getByRole('heading', { name: 'Score Domains' })).toBeVisible();
   await expect(page.getByText('Objective safety reasoning')).toBeVisible();
+  await expect(page.getByText('Reassessment targets', { exact: true })).toBeVisible();
   await expect(page.getByText('Arrival safety screen')).toHaveCount(0);
   await expect(page.getByText('First-look disposition')).toHaveCount(0);
 
   await expect(page.getByRole('heading', { name: 'Communication & SBAR Handoff' })).toBeVisible();
-  const referenceSbar = page.locator('.gold-standard-sbar');
+  const referenceSbar = page.locator('.reference-informed-sbar');
   await expect(referenceSbar).toContainText('calling report');
   await expect(referenceSbar).toContainText('Recorded triage vital signs');
   await expect(referenceSbar).not.toContainText("I don't");
@@ -527,13 +965,27 @@ test('completes the static triage workflow and shows local reasoning feedback', 
   expect(openRouterCalls).toBe(0);
 });
 
+test('debrief defaults to summary cards and hides provenance until details are opened', async ({ page }) => {
+  await completeStaticWorkflow(page, { openDebriefDetails: false });
+  await expect(page.getByLabel('Debrief summary')).toContainText('What happened');
+  await expect(page.getByLabel('Debrief summary')).toContainText('What to improve');
+  await expect(page.getByLabel('Debrief summary')).toContainText('Next case focus');
+  await expect(page.getByRole('heading', { name: 'Simulation Assessment & Initial Plan' })).toBeHidden();
+  await expect(page.getByLabel('Debrief provenance legend')).toBeHidden();
+  await page.locator('summary').filter({ hasText: 'Clinical Review' }).click();
+  await expect(page.getByRole('heading', { name: 'Simulation Assessment & Initial Plan' })).toBeVisible();
+  await expect(page.getByLabel('Debrief provenance legend')).toBeHidden();
+  await page.locator('summary').filter({ hasText: 'Scoring & Validation' }).click();
+  await expect(page.getByLabel('Debrief provenance legend')).toContainText('Source record');
+  await expect(page.getByLabel('Debrief provenance legend')).toContainText('LLM draft awaiting validation');
+});
+
 test('penalizes meaningless SBAR labels instead of awarding full credit', async ({ page }) => {
   await completeStaticWorkflow(page, {
     sbarHandoff: 'S: asdf qwer zxcv. B: zzzz qqqq yyyy. A: plmn qqqq zzzz. R: xxyy zzqq qwer.'
   });
 
-  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief & SOAP Breakdown' })).toBeVisible();
-  await page.getByRole('button', { name: 'Triage Rationale' }).click();
+  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief' })).toBeVisible();
   const sbarReview = page.locator('.sbar-critique-section');
   await expect(sbarReview).toContainText('Your SBAR Handoff');
   await expect(sbarReview).toContainText('Rubric Score');
@@ -548,7 +1000,7 @@ test('shows case-specific decision deltas for under-triage', async ({ page }) =>
     sbarHandoff: 'S: ED patient after a fall with head injury concern. B: Arrived by ambulance for evaluation. A: Assigned ESI 5 despite head injury risk. R: Needs clinician evaluation and monitored placement.'
   });
 
-  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief & SOAP Breakdown' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief' })).toBeVisible();
   await expect(page.locator('.result-badge')).toContainText('Under-triaged');
   await expect(page.locator('.takeaway-banner')).toContainText('Student ESI 5 vs Reference ESI 2');
   await expect(page.locator('.takeaway-banner')).toContainText('Clinical Takeaway');
@@ -564,7 +1016,7 @@ test('explains ESI 4 versus ESI 5 for a source-limited finger laceration without
     sbarHandoff: 'S: Stable 26-year-old male with a finger laceration. B: Walk-in patient with pain 3 out of 10 and no major history documented. A: Low acuity ESI 5 with stable vitals. R: Address bleeding and discharge.'
   });
 
-  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief & SOAP Breakdown' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief' })).toBeVisible();
   const feedback = page.locator('.debrief-card');
   await expect(feedback).toContainText('Under-triaged: Student ESI 5 vs Reference ESI 4');
   await expect(feedback).not.toContainText('Escalate airway or oxygenation support');
@@ -576,7 +1028,6 @@ test('explains ESI 4 versus ESI 5 for a source-limited finger laceration without
   await expect(soapNote).toContainText('tetanus immunization status');
   await expect(soapNote).not.toContainText('Assess airway, breathing, oxygenation');
 
-  await page.getByRole('button', { name: 'Triage Rationale' }).click();
   await page.locator('summary').filter({ hasText: 'Complete Clinical Domain Scoring Ledger' }).click();
   await expect(page.getByRole('heading', { name: 'Score Domains' })).toBeVisible();
 });
@@ -605,7 +1056,7 @@ test('does not turn normal or negated breathing text into airway escalation', as
   await expect(page.locator('.debrief-card')).not.toContainText('Escalate airway or oxygenation support');
 });
 
-test('marks negated abdominal exam findings as reassuring text', async ({ page }) => {
+test('keeps objective data review inside the Encounter screen', async ({ page }) => {
   const abdominalPainCase = caseBy((item) => item.id === 'case_022', 'severe abdominal pain with distention');
 
   await pinStaticCase(page, abdominalPainCase);
@@ -616,22 +1067,17 @@ test('marks negated abdominal exam findings as reassuring text', async ({ page }
   await page.getByRole('button', { name: 'Ask patient' }).click();
   await page.getByLabel('Question to patient').fill('How bad is your pain or distress right now?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
-  await page.getByRole('button', { name: 'Continue with gaps' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Examine & Vitals Review' })).toBeVisible();
-  await page.getByRole('button', { name: 'Conduct Complete Exam' }).click();
-
-  const abdominalCard = page.locator('.conducted-system-card').filter({ hasText: 'Abdominal & Gastrointestinal' });
-  await expect(abdominalCard).toBeVisible();
-
-  const abnormalText = (await abdominalCard.locator('.finding-highlight.abnormal').allTextContents()).join(' ');
-  const reassuringText = (await abdominalCard.locator('.finding-highlight.normal').allTextContents()).join(' ');
-
-  expect(abnormalText).toMatch(/moderately tender|Voluntary guarding/i);
-  expect(abnormalText).not.toMatch(/board-like rigidity|rebound tenderness|Active bowel sounds|Abdomen is soft/i);
-  expect(reassuringText).toMatch(/Abdomen is soft/i);
-  expect(reassuringText).toMatch(/no board-like rigidity or severe rebound tenderness/i);
-  expect(reassuringText).toMatch(/Active bowel sounds/i);
+  await page.locator('summary').filter({ hasText: 'Review objective data' }).click();
+  const objectivePanel = page.locator('.objective-review-panel');
+  await expect(objectivePanel).toBeVisible();
+  await expect(objectivePanel).toContainText('Pain Level');
+  await expect(page.getByLabel('Choose focused exams')).toBeVisible();
+  await page.getByRole('button', { name: 'Abdomen / GI' }).click();
+  await page.getByRole('button', { name: 'Conduct selected exam' }).click();
+  await expect(page.getByLabel('Simulated focused exam findings')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pain or injury focus' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
 });
 
 test('credits a concise low-acuity laceration SBAR against wound-care expectations', async ({ page }) => {
@@ -643,11 +1089,10 @@ test('credits a concise low-acuity laceration SBAR against wound-care expectatio
     sbarHandoff: 'S: Stable 26-year-old male with a finger laceration. B: Walk-in patient with pain 3 out of 10 and no major history documented. A: Low acuity ESI 4 with stable vitals and a likely wound-care resource. R: Address bleeding, complete wound exam, check tetanus, repair or dress the wound, and discharge with return precautions.'
   });
 
-  await page.getByRole('button', { name: 'Triage Rationale' }).click();
   const sbarReview = page.locator('.sbar-critique-section');
   await expect(sbarReview).toContainText('Rubric Score');
   await expect(sbarReview).toContainText(/8 \/ 20|9 \/ 20|10 \/ 20|1[1-9] \/ 20|20 \/ 20/);
-  const referenceSbar = page.locator('.gold-standard-sbar');
+  const referenceSbar = page.locator('.reference-informed-sbar');
   await expect(referenceSbar).toContainText('fast-track or minor-care workflow');
   await expect(referenceSbar).toContainText('wound exam, bleeding control, tetanus assessment');
   await expect(referenceSbar).not.toContainText('airway or oxygenation');
@@ -664,7 +1109,7 @@ test('teaches matched ESI 5 medication-refill cases without failure-style feedba
     sbarHandoff: 'S: Patient needs medication refill. B: 41 YO F with PMH not documented and medication details not documented. A: Stable ESI 5 with normal vitals and no pain. R: Refill or bridge medication if safe and arrange pharmacy or primary care follow-up.'
   });
 
-  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief & SOAP Breakdown' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief' })).toBeVisible();
   const feedback = page.locator('.debrief-card');
   await expect(feedback).toContainText('Matched Reference Acuity: ESI 5');
   await expect(feedback).toContainText('No danger-zone vital signs were present at triage');
@@ -676,20 +1121,18 @@ test('teaches matched ESI 5 medication-refill cases without failure-style feedba
   await expect(soapNote).toContainText('Screen for symptoms from missed therapy');
   await expect(soapNote).not.toContainText('Reference disposition is home');
 
-  await page.getByRole('button', { name: 'Clinical Tips & Tutor' }).click();
   const checklist = page.locator('.next-case-checklist');
   await expect(checklist).toContainText('Ask for the medication name, dose, last dose');
   await expect(checklist).toContainText('Close the plan with refill safety, outpatient access, and return precautions');
   await expect(checklist).not.toContainText('Reference disposition is home');
 
-  await page.getByRole('button', { name: 'Triage Rationale' }).click();
   await expect(page.getByRole('heading', { name: 'Communication & SBAR Handoff' })).toBeVisible();
   await expect(page.locator('.sbar-critique-section')).toContainText('Rubric Score');
-  await expect(page.locator('.gold-standard-sbar')).toContainText('No danger-zone vital signs were present at triage');
+  await expect(page.locator('.reference-informed-sbar')).toContainText('No danger-zone vital signs were present at triage');
 
   const scoreAuditSummary = page.locator('summary').filter({ hasText: 'Complete Clinical Domain Scoring Ledger' });
   await scoreAuditSummary.click();
-  await expect(page.locator('.score-domain').filter({ hasText: 'SBAR handoff' })).toContainText(/8 \/ 20|9 \/ 20|1[0-9] \/ 20|20 \/ 20/);
+  await expect(page.locator('.score-domain').filter({ hasText: 'SBAR handoff' })).toContainText(/[5-9] \/ 10|10 \/ 10/);
 });
 
 test('deduplicates severe pain in the clinical decision review', async ({ page }) => {
@@ -699,11 +1142,11 @@ test('deduplicates severe pain in the clinical decision review', async ({ page }
     finalEsi: 4
   });
 
-  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief & SOAP Breakdown' })).toBeVisible();
-  const debriefText = await page.locator('.debrief-card').textContent();
+  await expect(page.getByRole('heading', { name: 'Clinical Judgment Debrief' })).toBeVisible();
+  const debriefText = await page.locator('.clinical-review-details').textContent();
   const severePainMentions = (debriefText.match(/severe pain|pain rated 8\/10|pain level 8\/10/gi) || []).length;
   expect(severePainMentions).toBeGreaterThanOrEqual(1);
-  expect(severePainMentions).toBeLessThanOrEqual(3);
+  expect(severePainMentions).toBeLessThanOrEqual(4);
 });
 
 test('uses reviewed physical exam augmentation in the physician assessment and plan', async ({ page }) => {
@@ -714,7 +1157,7 @@ test('uses reviewed physical exam augmentation in the physician assessment and p
     sbarHandoff: 'S: ED patient with right foot swelling and pain. B: Walk-in patient with hypertension history. A: ESI 3 with pain, labs, and exam resource needs. R: Treat pain, assess foot and neurovascular status, and complete ED evaluation.'
   });
 
-  await expect(page.getByRole('heading', { name: 'Physician SOAP Assessment & Plan' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Simulation Assessment & Initial Plan' })).toBeVisible();
   const soapNote = page.locator('.expert-soap-breakdown');
   await expect(soapNote).toContainText('Right foot swelling and pain requiring evaluation');
   await expect(soapNote).toContainText('focused foot exam');
@@ -737,7 +1180,7 @@ test('keeps critical abdominal pain SOAP diagnosis evidence-bound', async ({ pag
     sbarHandoff: 'S: Ambulance transfer patient with critical abdominal pain and altered mental status. B: Older adult with hypertension and high cholesterol, pain 13 out of 10, HR 115, BP 125/95, afebrile. A: ESI 1 because abdominal vascular or surgical catastrophe must be ruled out immediately. R: Resuscitation bay, IV access, analgesia, lactate/type and screen, emergent abdominal imaging, and early surgery or vascular consultation.'
   });
 
-  await expect(page.getByRole('heading', { name: 'Physician SOAP Assessment & Plan' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Simulation Assessment & Initial Plan' })).toBeVisible();
   const assessment = page.locator('.soap-box.highlighted');
   await expect(assessment).toContainText('Critical abdominal pain with altered mental status concerning for abdominal vascular catastrophe');
   await expect(assessment).toContainText('Ruptured abdominal aortic aneurysm or intra-abdominal hemorrhage');
@@ -757,50 +1200,27 @@ test('keeps critical abdominal pain SOAP diagnosis evidence-bound', async ({ pag
 
 test('writes clinician-style SOAP assessment for open fracture cases', async ({ page }) => {
   const openFractureCase = caseBy((item) => item.id === 'case_029', 'open tibia/fibula fracture');
+  await completeStaticWorkflow(page, {
+    randomValue: randomValueForCase(openFractureCase),
+    finalEsi: 2,
+    finalRationale: 'Open long-bone fracture requires urgent wound, neurovascular, and orthopedic management.',
+    workingDiagnosis: 'Open tibia fibula fracture',
+    differentialText: 'Compartment syndrome\nNeurovascular injury',
+    diagnosisEvidence: 'Open deforming lower leg injury with severe pain requires orthopedic emergency management.',
+    referralNeeded: true,
+    referralRationale: 'Orthopedic input is needed now because open long-bone fracture management changes antibiotics, procedure timing, and disposition.',
+    managementRationale: 'Open fracture needs monitored placement, clinician evaluation, and orthopedic escalation.',
+    actionIds: ['Place in monitored care area', 'Request immediate clinician evaluation'],
+    planDiagnostics: 'Obtain extremity radiographs and preoperative labs if indicated.',
+    planTreatments: 'Protect wound, control pain, immobilize, and monitor distal neurovascular status.',
+    planMedications: 'Give antibiotics, tetanus prophylaxis, and analgesia if no contraindication.',
+    planDisposition: 'Anticipate admission or transfer after orthopedic evaluation.',
+    reassessmentTargets: ['Repeat distal neurovascular checks'],
+    reassessmentRationale: 'I would repeat distal neurovascular checks and reassess pain before handoff.',
+    sbarHandoff: 'S: Transfer patient after fall with open left tibia/fibula fracture. B: Adult female with controlled bleeding and associated ankle and foot fractures. A: High-risk open long-bone fracture requiring monitored care and serial neurovascular checks. R: Place in monitored care, protect the wound, start antibiotics and tetanus assessment, and notify orthopedics.'
+  });
 
-  await pinStaticCase(page, openFractureCase);
-  await page.goto('/');
-  await expect(page.getByLabel('Case summary')).toContainText(/left leg|L Leg/i);
-
-  const interviewQuestions = [
-    'What brought you to the emergency department today?',
-    'When did this start and what happened?',
-    'Are you having bleeding, numbness, weakness, severe pain, or trouble breathing right now?',
-    'What medical problems, medicines, allergies, pregnancy status, or similar prior episodes should I know about?',
-    'What medicines or blood thinners do you take every day?',
-    'How bad is your pain or discomfort right now?'
-  ];
-  for (const text of interviewQuestions) {
-    await page.getByLabel('Question to patient').fill(text);
-    await page.getByRole('button', { name: 'Ask patient' }).click();
-  }
-
-  await page.getByRole('button', { name: 'Continue to provisional ESI' }).click();
-  await expect(page.getByRole('heading', { name: 'Examine & Vitals Review' })).toBeVisible();
-  await page.getByRole('button', { name: 'Conduct Complete Exam' }).click();
-  await page.getByRole('button', { name: 'Proceed to Definitive ESI Decision' }).click();
-
-  await expect(page.getByRole('heading', { name: /Definitive ESI|Final ESI|ESI decision/i })).toBeVisible();
-  await page.getByRole('button', { name: /ESI 2/ }).click();
-  await page.getByLabel(/rationale/i).fill('Open long-bone fracture requires urgent wound, neurovascular, and orthopedic management.');
-  await page.getByRole('button', { name: /Lock|Record.*ESI/i }).click();
-
-  await expect(page.getByRole('heading', { name: /Care priorities/i })).toBeVisible();
-  await page.getByLabel('Place in monitored care area').check();
-  await page.getByLabel('Request immediate clinician evaluation').check();
-  const proceedToSbar = page.getByRole('button', { name: /Proceed to SBAR Handoff/i });
-  await proceedToSbar.click();
-  if (await proceedToSbar.isVisible().catch(() => false)) {
-    await proceedToSbar.click();
-  }
-
-  await expect(page.getByRole('heading', { name: /SBAR/i })).toBeVisible();
-  await page.getByRole('button', { name: 'Insert SBAR labels' }).click();
-  await page.getByLabel('Handoff').fill('S: Transfer patient after fall with open left tibia/fibula fracture. B: Adult female with controlled bleeding and associated ankle and foot fractures. A: High-risk open long-bone fracture requiring monitored care and serial neurovascular checks. R: Place in monitored care, protect the wound, start antibiotics and tetanus assessment, and notify orthopedics.');
-  await page.getByRole('button', { name: 'Record SBAR' }).click();
-  await page.getByRole('button', { name: 'Continue to debrief' }).click();
-
-  await expect(page.getByRole('heading', { name: 'Physician SOAP Assessment & Plan' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Simulation Assessment & Initial Plan' })).toBeVisible();
   const assessment = page.locator('.soap-box.highlighted');
   await expect(assessment).toContainText('Open left tibia/fibula fracture with associated ankle and foot fractures after fall');
   await expect(assessment).toContainText('open left lower-extremity fracture after a fall');
@@ -825,8 +1245,10 @@ test('enables mocked patient voice playback controls without loading a model', a
 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
+  await openTools(page);
   await page.getByLabel('Enable patient voice audio (TTS)').check();
   await expect(page.getByLabel('Enable patient voice audio (TTS)')).toBeChecked();
+  await closeTools(page);
 
   await page.getByLabel('Question to patient').fill('What brought you to the emergency department today?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
@@ -876,15 +1298,16 @@ test('supports a hands-free voice conversation loop', async ({ page }) => {
 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
-  await page.getByRole('button', { name: 'Start Continuous Voice Mode' }).click();
-  await expect(page.getByRole('button', { name: 'Continuous Voice Active' })).toBeVisible();
+  await openTools(page);
+  await page.getByLabel('Start continuous voice mode').click();
+  await expect(page.getByLabel('Stop continuous voice mode')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Ask patient' })).toBeDisabled();
   await expect(page.getByText('Question 1')).toBeVisible();
   await expect(page.locator('.learner-turn')).toContainText('What brought you to the emergency department today?');
   await expect(page.locator('.patient-turn')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Replay patient answer 1' })).toBeVisible();
-  await page.getByRole('button', { name: 'Continuous Voice Active' }).click();
-  await expect(page.getByRole('button', { name: 'Start Continuous Voice Mode' })).toBeVisible();
+  await page.getByLabel('Stop continuous voice mode').click();
+  await expect(page.getByLabel('Start continuous voice mode')).toBeVisible();
 });
 
 test('keeps coded mental-status labels out of patient speech and answers follow-ups by domain', async ({ page }) => {
@@ -1089,11 +1512,12 @@ test('renders raw AI tutor markdown as structured guidance', async ({ page }) =>
 
   await completeStaticWorkflow(page);
 
+  await openTools(page);
   await page.getByRole('button', { name: /AI settings/ }).click();
   await page.getByLabel('API key').fill('test-key');
   await page.getByRole('button', { name: 'Save' }).click();
+  await closeTools(page);
 
-  await page.getByRole('button', { name: 'Clinical Tips & Tutor' }).click();
   await page.getByRole('button', { name: 'What should I improve next time?' }).click();
 
   const tutorThread = page.locator('.tutor-thread');
@@ -1106,11 +1530,12 @@ test('renders raw AI tutor markdown as structured guidance', async ({ page }) =>
 test('closes the global AI settings panel on outside click', async ({ page }) => {
   await page.goto('/');
 
+  await openTools(page);
   await page.getByRole('button', { name: /AI settings/ }).click();
-  await expect(page.getByRole('heading', { name: 'AI settings' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /AI settings/i })).toBeVisible();
 
-  await page.getByRole('heading', { name: 'ED Triage Trainer' }).click();
-  await expect(page.getByRole('heading', { name: 'AI settings' })).toBeHidden();
+  await page.getByRole('heading', { name: 'ED Clinical Workflow Simulator' }).click();
+  await expect(page.getByRole('heading', { name: /AI settings/i })).toBeHidden();
 });
 
 test('does not reuse a special-risk answer for a broad background question', async ({ page }) => {
@@ -1118,6 +1543,7 @@ test('does not reuse a special-risk answer for a broad background question', asy
 
   await expect(page.getByRole('heading', { name: 'Focused triage interview' })).toBeVisible();
 
+  await page.locator('summary').filter({ hasText: 'Help' }).click();
   await page.getByRole('button', { name: /Check special population risks/ }).click();
   await page.getByRole('button', { name: 'Ask patient' }).click();
   await expect(page.getByText('Question 1')).toBeVisible();

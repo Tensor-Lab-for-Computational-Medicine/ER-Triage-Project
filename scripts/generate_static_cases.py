@@ -150,6 +150,30 @@ def compact_text(value: str) -> str:
     return " ".join(str(value or "").split())
 
 
+def invalid_complaint(value: str) -> bool:
+    text = compact_text(value).lower()
+    return not text or text in {"unknown complaint", "unknown", "nan"} or "#name?" in text
+
+
+def derived_complaint(raw_complaint: str, history: str) -> tuple[str, str]:
+    complaint = compact_text(raw_complaint)
+    if not invalid_complaint(complaint):
+        return complaint, "chiefcomplaint"
+
+    text = compact_text(history).lower()
+    if "wet gangrene" in text or "osteomyelitis" in text:
+        return "Fever / limb infection concern", "tiragecase-derived display complaint; source chiefcomplaint field was corrupted"
+    if "sepsis" in text or "hypotension" in text:
+        return "Fever / sepsis concern", "tiragecase-derived display complaint; source chiefcomplaint field was corrupted"
+    if "chest pain" in text:
+        return "Chest pain", "tiragecase-derived display complaint; source chiefcomplaint field was corrupted"
+    if "shortness of breath" in text or "dyspnea" in text:
+        return "Shortness of breath", "tiragecase-derived display complaint; source chiefcomplaint field was corrupted"
+    if "abdominal pain" in text:
+        return "Abdominal pain", "tiragecase-derived display complaint; source chiefcomplaint field was corrupted"
+    return "Unknown complaint", "chiefcomplaint"
+
+
 def evidence_item(
     evidence_id: str,
     domain: str,
@@ -172,7 +196,7 @@ def is_valid(case: dict[str, Any]) -> bool:
     required_vitals = ["temp", "hr", "rr", "o2", "sbp", "dbp", "pain"]
     if any(vitals[field] is None for field in required_vitals):
         return False
-    if not case["complaint"] or case["complaint"] == "Unknown complaint":
+    if invalid_complaint(case["complaint"]):
         return False
     if not case["history"] or case["history"] == "No medical history available":
         return False
@@ -226,7 +250,7 @@ def build_documented_evidence(case: dict[str, Any], row: pd.Series) -> list[dict
             "documented_chief_complaint",
             "chief_complaint",
             f"Chief complaint: {case['complaint']}.",
-            "chiefcomplaint",
+            case.get("source", {}).get("chief_complaint_source", "chiefcomplaint"),
         ),
         evidence_item(
             "documented_triage_narrative",
@@ -374,6 +398,7 @@ def build_augmentation(case_id: str, review: dict[str, Any]) -> dict[str, Any]:
 
 def row_to_case(row: pd.Series, case_id: str, raw_row_index: int, review: dict[str, Any]) -> dict[str, Any]:
     history = text_field(row, "tiragecase", "No medical history available")
+    complaint, complaint_source = derived_complaint(text_field(row, "chiefcomplaint", ""), history)
     interventions = {field: parse_bool(row.get(field, 0)) for field in INTERVENTION_FIELDS}
     case = {
         "schema_version": CASE_SCHEMA_VERSION,
@@ -383,7 +408,7 @@ def row_to_case(row: pd.Series, case_id: str, raw_row_index: int, review: dict[s
             "sex": text_field(row, "gender", "Unknown"),
             "transport": text_field(row, "arrival_transport", "Unknown"),
         },
-        "complaint": text_field(row, "chiefcomplaint", "Unknown complaint"),
+        "complaint": complaint,
         "vitals": {
             "temp": parse_float(row.get("temperature")),
             "hr": parse_float(row.get("heartrate")),
@@ -419,6 +444,7 @@ def row_to_case(row: pd.Series, case_id: str, raw_row_index: int, review: dict[s
         "sex": case["demographics"]["sex"],
         "arrival_transport": case["demographics"]["transport"],
         "chief_complaint": case["complaint"],
+        "chief_complaint_source": complaint_source,
         "triage_narrative": history,
         "vitals": case["vitals"],
         "reference_esi": case["acuity"],

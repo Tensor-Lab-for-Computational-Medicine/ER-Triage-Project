@@ -35,7 +35,10 @@ function judgmentRows(domains = [], workflowAnalysis = {}, triageAnalysis = {}) 
   const safety = getDomain(domains, 'safety');
   const interview = getDomain(domains, 'interview');
   const finalEsi = getDomain(domains, 'esi');
+  const diagnosis = getDomain(domains, 'diagnosis');
+  const referral = getDomain(domains, 'referral');
   const escalation = getDomain(domains, 'escalation');
+  const reassessment = getDomain(domains, 'reassessment');
   const sbar = getDomain(domains, 'sbar');
 
   return [
@@ -49,25 +52,25 @@ function judgmentRows(domains = [], workflowAnalysis = {}, triageAnalysis = {}) 
     },
     {
       label: 'Interpreting',
-      score: averagePercentage([finalEsi]),
-      evidence: triageAnalysis?.rationale_feedback || finalEsi?.message || 'Acuity interpretation was scored from ESI decisions.',
-      action: finalEsi?.message || 'Connect risk, vital signs, and expected resources in the ESI rationale.'
+      score: averagePercentage([finalEsi, diagnosis]),
+      evidence: diagnosis?.message || triageAnalysis?.rationale_feedback || finalEsi?.message || 'Acuity and diagnostic interpretation were scored from learner decisions.',
+      action: diagnosis?.message || finalEsi?.message || 'Connect risk, vital signs, diagnosis, and expected resources.'
     },
     {
       label: 'Responding',
-      score: averagePercentage([escalation, safety]),
-      evidence: workflowAnalysis?.escalation?.message || escalation?.message || 'Response scoring used placement, monitoring, and escalation priorities.',
-      action: workflowAnalysis?.escalation?.missed?.length
+      score: averagePercentage([escalation, referral, safety]),
+      evidence: workflowAnalysis?.referral?.message || workflowAnalysis?.escalation?.message || escalation?.message || 'Response scoring used referral, placement, monitoring, and escalation priorities.',
+      action: workflowAnalysis?.referral?.message || (workflowAnalysis?.escalation?.missed?.length
         ? `Missed actions: ${workflowAnalysis.escalation.missed.map((item) => item.name).join(', ')}.`
-        : 'Escalation choices matched the main data-grounded priorities.'
+        : 'Escalation choices matched the main data-grounded priorities.')
     },
     {
       label: 'Reflecting',
-      score: averagePercentage([sbar]),
-      evidence: workflowAnalysis?.sbar?.message || sbar?.message || 'Reflection was scored from handoff completeness.',
+      score: averagePercentage([reassessment, sbar]),
+      evidence: workflowAnalysis?.reassessment?.message || workflowAnalysis?.sbar?.message || sbar?.message || 'Reflection was scored from reassessment and handoff completeness.',
       action: workflowAnalysis?.sbar?.missing?.length
         ? `Missing SBAR elements: ${workflowAnalysis.sbar.missing.join(', ')}.`
-        : 'The handoff included the expected SBAR structure.'
+        : 'Reassessment and handoff closed the loop on the ED encounter.'
     }
   ];
 }
@@ -273,7 +276,7 @@ function TutorPanel({ sessionId, aiSettings }) {
 
   const suggestedQuestions = [
     'Summarize this case like an attending physician.',
-    'Show the gold-standard SBAR.',
+    'Show the reference-informed SBAR.',
     'What should I improve next time?'
   ];
 
@@ -443,7 +446,6 @@ function DebriefAccordion({ title, badge, children, defaultOpen = false }) {
 }
 
 function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRestart }) {
-  const [activeTab, setActiveTab] = useState('performance');
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -539,7 +541,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
   if (loading) {
     return (
       <section className="step-card">
-        <div className="loading">Generating Clinical Debrief & SOAP note...</div>
+        <div className="loading">Generating simulation debrief...</div>
       </section>
     );
   }
@@ -581,218 +583,325 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
     : 0;
 
   const soapNote = physician_debrief?.soap_note || physician_case_review?.soap_note;
+  const missedEscalation = workflow_analysis?.escalation?.missed?.[0]?.name;
+  const firstChecklistItem = next_case_checklist?.[0];
+  const secondChecklistItem = next_case_checklist?.[1];
+  const diagnosisMessage = workflow_analysis?.diagnosis?.message || 'Working diagnosis was reviewed against available case context.';
+  const referralMessage = workflow_analysis?.referral?.message || 'Referral judgment was reviewed when source context was available.';
 
   return (
     <section className="step-card debrief-card" aria-labelledby="debrief-heading">
       <div className="section-header">
         <div>
-          <span className="eyebrow">
-            Step 6 of 6 <span className="provenance-tag reference-tag">Reference & Expert Debrief</span>
-          </span>
-          <h2 id="debrief-heading">Clinical Judgment Debrief & SOAP Breakdown</h2>
-          <p className="subtitle">Review the expert clinical synthesis and compare your reasoning against reference benchmarks.</p>
+          <span className="eyebrow">Debrief</span>
+          <h2 id="debrief-heading">Clinical Judgment Debrief</h2>
         </div>
         <span className={`result-badge ${comparisonClass}`}>{triage_analysis?.comparison}</span>
       </div>
-      <div className="feedback-tabs-nav" style={{ display: 'flex', gap: '16px', borderBottom: '2px solid var(--line)', marginBottom: '24px', marginTop: '12px' }}>
-        <button type="button" className={`feedback-tab-btn ${activeTab === 'performance' ? 'active' : ''}`} onClick={() => setActiveTab('performance')} style={{ background: 'none', border: 'none', borderBottom: activeTab === 'performance' ? '2px solid var(--teal)' : '2px solid transparent', padding: '8px 12px', fontSize: '0.95rem', fontWeight: '750', color: activeTab === 'performance' ? 'var(--teal)' : 'var(--muted)', cursor: 'pointer', marginBottom: '-2px', transition: 'all 0.2s' }}>Clinical Performance</button>
-        <button type="button" className={`feedback-tab-btn ${activeTab === 'rationale' ? 'active' : ''}`} onClick={() => setActiveTab('rationale')} style={{ background: 'none', border: 'none', borderBottom: activeTab === 'rationale' ? '2px solid var(--teal)' : '2px solid transparent', padding: '8px 12px', fontSize: '0.95rem', fontWeight: '750', color: activeTab === 'rationale' ? 'var(--teal)' : 'var(--muted)', cursor: 'pointer', marginBottom: '-2px', transition: 'all 0.2s' }}>Triage Rationale</button>
-        <button type="button" className={`feedback-tab-btn ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')} style={{ background: 'none', border: 'none', borderBottom: activeTab === 'tips' ? '2px solid var(--teal)' : '2px solid transparent', padding: '8px 12px', fontSize: '0.95rem', fontWeight: '750', color: activeTab === 'tips' ? 'var(--teal)' : 'var(--muted)', cursor: 'pointer', marginBottom: '-2px', transition: 'all 0.2s' }}>Clinical Tips & Tutor</button>
+
+      <div className="debrief-quick-grid" aria-label="Debrief summary">
+        <article className="debrief-quick-card">
+          <span>What happened</span>
+          <h3>{bannerHeadline}</h3>
+          <p>{missedEscalation ? `Critical missed action: ${missedEscalation}.` : diagnosisMessage}</p>
+          <small>{referralMessage}</small>
+        </article>
+        <article className="debrief-quick-card">
+          <span>What to improve</span>
+          <h3>{primaryTakeaway}</h3>
+          {firstChecklistItem && <p>{firstChecklistItem}</p>}
+          {secondChecklistItem && <small>{secondChecklistItem}</small>}
+        </article>
+        <article className="debrief-quick-card">
+          <span>Next case focus</span>
+          <h3>{next_case_recommendation?.focus || 'Balanced ED workflow practice'}</h3>
+          <p>{next_case_recommendation?.rationale || 'Keep connecting history, vitals, exam, acuity, plan, reassessment, and handoff.'}</p>
+        </article>
       </div>
 
-      <div className="feedback-tab-content">
-        {activeTab === 'performance' && (
-          <div className="tab-pane fade-in">
-            {/* Section 1: Expert Clinical SOAP Note & Case Breakdown */}
-      {aiDebriefLoading ? (
-        <div className="expert-soap-breakdown loading-state" style={{ textAlign: 'center', padding: '40px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '32px' }}>
-          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-          <div className="spinner" style={{ margin: '0 auto 16px', width: '40px', height: '40px', border: '4px solid #cbd5e1', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-          <h4 style={{ color: '#0f172a', margin: '0 0 8px' }}>AI Attending Physician is reviewing your case...</h4>
-          <p style={{ color: '#475569', margin: 0, fontSize: '0.95rem' }}>Synthesizing clinical assessment and personalized tips based on your triage performance.</p>
-        </div>
-      ) : soapNote && (
-        <div className="expert-soap-breakdown">
-          <div className="soap-header">
-            <span className="provenance-tag reference-tag">Expert Clinical Synthesis</span>
-            <h3>Physician SOAP Assessment & Plan</h3>
-          </div>
+      <div className="debrief-detail-grid">
+        <details className="advanced-debrief-details clinical-review-details">
+          <summary>
+            <span>Clinical Review</span>
+            <strong>Assessment, referral, reassessment, and SBAR</strong>
+          </summary>
+          <div className="advanced-debrief-content">
+            {aiDebriefLoading ? (
+              <div className="expert-soap-breakdown loading-state" style={{ textAlign: 'center', padding: '40px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
+                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                <div className="spinner" style={{ margin: '0 auto 16px', width: '40px', height: '40px', border: '4px solid #cbd5e1', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <h4 style={{ color: '#0f172a', margin: '0 0 8px' }}>Generating simulation guidance...</h4>
+                <p style={{ color: '#475569', margin: 0, fontSize: '0.95rem' }}>Draft assessment and plan text must be validated before clinical use.</p>
+              </div>
+            ) : soapNote && (
+              <div className="expert-soap-breakdown">
+                <div className="soap-header">
+                  <span className="detail-kicker">Simulation synthesis</span>
+                  <h3>Simulation Assessment & Initial Plan</h3>
+                  <p className="subtitle" style={{ margin: '4px 0 0' }}>
+                    Diagnosis and management guidance is simulation support unless source-backed or clinician-reviewed in the validation view.
+                  </p>
+                </div>
 
-          <div className="soap-grid">
-            <div className="soap-column subjective-objective">
-              <div className="soap-box">
-                <h4>Subjective & Objective Baseline</h4>
-                <p style={{ marginBottom: '8px' }}><strong>Chief Concern:</strong> {soapNote.subjective?.chief_concern}</p>
-                {soapNote.subjective?.hpi ? (
-                  <>
-                    <p style={{ marginBottom: '8px' }}><strong>History of Present Illness:</strong> {soapNote.subjective.hpi}</p>
-                    {soapNote.subjective?.pmh && <p style={{ marginBottom: '8px' }}><strong>Past Medical History:</strong> {soapNote.subjective.pmh}</p>}
-                    {soapNote.subjective?.meds && <p style={{ marginBottom: '8px' }}><strong>Home Medications:</strong> {soapNote.subjective.meds}</p>}
-                    {soapNote.subjective?.allergies && <p style={{ marginBottom: '8px' }}><strong>Allergies:</strong> {soapNote.subjective.allergies}</p>}
-                  </>
-                ) : (
-                  <p style={{ marginBottom: '8px' }}><strong>History & Context:</strong> {soapNote.subjective?.history}</p>
+                <div className="soap-grid">
+                  <div className="soap-column subjective-objective">
+                    <div className="soap-box">
+                      <h4>Subjective & Objective Baseline</h4>
+                      <p style={{ marginBottom: '8px' }}><strong>Chief Concern:</strong> {soapNote.subjective?.chief_concern}</p>
+                      {soapNote.subjective?.hpi ? (
+                        <>
+                          <p style={{ marginBottom: '8px' }}><strong>History of Present Illness:</strong> {soapNote.subjective.hpi}</p>
+                          {soapNote.subjective?.pmh && <p style={{ marginBottom: '8px' }}><strong>Past Medical History:</strong> {soapNote.subjective.pmh}</p>}
+                          {soapNote.subjective?.meds && <p style={{ marginBottom: '8px' }}><strong>Home Medications:</strong> {soapNote.subjective.meds}</p>}
+                          {soapNote.subjective?.allergies && <p style={{ marginBottom: '8px' }}><strong>Allergies:</strong> {soapNote.subjective.allergies}</p>}
+                        </>
+                      ) : (
+                        <p style={{ marginBottom: '8px' }}><strong>History & Context:</strong> {soapNote.subjective?.history}</p>
+                      )}
+                      <div className="objective-list" style={{ marginTop: '16px' }}>
+                        <strong>Objective Vitals & Physical Exam:</strong>
+                        <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
+                          {(soapNote.objective || []).map((obj, i) => (
+                            <li key={i} style={{ marginBottom: '4px', fontSize: '0.95rem' }}>{obj}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="soap-column assessment-plan">
+                    <div className="soap-box highlighted">
+                      <h4>Simulation Assessment & Differential Diagnosis</h4>
+                      <p><strong>Primary Working Diagnosis:</strong> {soapNote.assessment?.primary_diagnosis || 'Undifferentiated acute presentation'}</p>
+                      <div className="ddx-container" style={{ marginTop: '12px' }}>
+                        <strong>Differential Diagnosis Considerations:</strong>
+                        <ul className="ddx-list" style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
+                          {(soapNote.assessment?.ddx || []).map((ddx, i) => (
+                            <li key={i} className="ddx-item" style={{ marginBottom: '8px', background: '#fff', borderRadius: '6px', border: '1px solid #dcfce7', overflow: 'hidden' }}>
+                              <details open style={{ padding: '0' }}>
+                                <summary style={{ padding: '10px', color: '#166534', fontSize: '0.95rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  {ddx.diagnosis}
+                                  <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>v</span>
+                                </summary>
+                                <p className="ddx-rationale" style={{ margin: '0', padding: '0 10px 10px', fontSize: '0.9rem', color: '#475569', borderTop: '1px solid #f0fdf4', paddingTop: '8px' }}>{ddx.rationale}</p>
+                              </details>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {soapNote.assessment?.justification && (
+                        <p className="justification-text" style={{ marginTop: '12px', fontSize: '0.95rem', fontStyle: 'italic', borderTop: '1px dashed #bbf7d0', paddingTop: '8px' }}>
+                          <strong>Clinical Rationale:</strong> {soapNote.assessment.justification}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="soap-box plan-box" style={{ background: '#f8fafc', padding: '16px' }}>
+                      <h4 style={{ marginBottom: '8px' }}>Initial ED Care Plan - Simulation Draft</h4>
+                      <ul className="plan-list" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                        {(soapNote.plan || []).map((pItem, i) => {
+                          const isObj = pItem && typeof pItem === 'object';
+                          return (
+                            <li key={i} style={{ padding: '6px 0', borderBottom: i < soapNote.plan.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                              {isObj ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{i + 1}. {pItem.problem}</strong>
+                                  <span style={{ fontSize: '0.9rem', color: '#475569', paddingLeft: '16px' }}>{pItem.plan}</span>
+                                </div>
+                              ) : (
+                                <span style={{ fontSize: '0.9rem', color: '#0f172a' }}>{i + 1}. {pItem}</span>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="decision-review-grid">
+              <article className="decision-review-card">
+                <span className="detail-kicker">Diagnosis</span>
+                <h3>Working Diagnosis Review</h3>
+                <p><strong>Your diagnosis:</strong> {session_summary?.working_diagnosis || 'No working diagnosis recorded.'}</p>
+                {session_summary?.differential?.length > 0 && (
+                  <p><strong>Your differential:</strong> {session_summary.differential.join(', ')}</p>
                 )}
-                <div className="objective-list" style={{ marginTop: '16px' }}>
-                  <strong>Objective Vitals & Physical Exam:</strong>
-                  <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
-                    {(soapNote.objective || []).map((obj, i) => (
-                      <li key={i} style={{ marginBottom: '4px', fontSize: '0.95rem' }}>{obj}</li>
-                    ))}
-                  </ul>
+                <p><strong>Reference context:</strong> {workflow_analysis?.diagnosis?.reference?.primary?.join(', ') || 'No reference diagnosis available.'}</p>
+                <p>{workflow_analysis?.diagnosis?.message}</p>
+              </article>
+
+              <article className="decision-review-card">
+                <span className="detail-kicker">Referral</span>
+                <h3>Referral Judgment Review</h3>
+                <p>
+                  <strong>Your decision:</strong>{' '}
+                  {session_summary?.referral_needed === null || session_summary?.referral_needed === undefined
+                    ? 'No referral decision recorded.'
+                    : session_summary.referral_needed
+                      ? `Request ${session_summary.referral_specialty}`
+                      : 'No immediate specialty referral.'}
+                </p>
+                <p>
+                  <strong>Reference context:</strong>{' '}
+                  {workflow_analysis?.referral?.reference?.clinician_approved_specialty?.length
+                    ? workflow_analysis.referral.reference.clinician_approved_specialty.join(', ')
+                    : 'No clinician-approved specialty reference for this case.'}
+                </p>
+                <p>{workflow_analysis?.referral?.message}</p>
+              </article>
+
+              <article className="decision-review-card">
+                <span className="detail-kicker">Exam</span>
+                <h3>Focused Exam Review</h3>
+                <p>
+                  <strong>Selected:</strong>{' '}
+                  {workflow_analysis?.focused_exam?.selected_systems?.length
+                    ? workflow_analysis.focused_exam.selected_systems.map((item) => item.name).join(', ')
+                    : 'No focused exam systems recorded.'}
+                </p>
+                <p>
+                  <strong>Expected:</strong>{' '}
+                  {workflow_analysis?.focused_exam?.expected_systems?.length
+                    ? workflow_analysis.focused_exam.expected_systems.map((item) => item.name).join(', ')
+                    : 'No case-specific focused exam reference available.'}
+                </p>
+                <p>{workflow_analysis?.focused_exam?.message}</p>
+              </article>
+            </div>
+
+            <div className={`takeaway-banner ${matched ? 'matched' : 'mismatched'}`}>
+              <div className="banner-content">
+                <span className="takeaway-badge">{matched ? 'Acuity Alignment Achieved' : 'Acuity Delta'}</span>
+                <h3 style={{ margin: '8px 0', fontSize: '1.4rem' }}>{bannerHeadline}</h3>
+                <div className="banner-details">
+                  <p className="takeaway-point" style={{ fontSize: '1.05rem', margin: '4px 0 12px' }}>
+                    <strong>Clinical Takeaway:</strong> {physician_debrief?.physician_read || primaryTakeaway}
+                  </p>
+                  <div className="student-rationale-box" style={{ background: 'rgba(255,255,255,0.6)', padding: '12px', borderRadius: '6px', border: '1px dashed rgba(0,0,0,0.1)' }}>
+                    <strong style={{ display: 'block', fontSize: '0.88rem', textTransform: 'uppercase', color: '#475569', marginBottom: '4px' }}>Your Documented Triage Rationale</strong>
+                    <p style={{ margin: 0, fontSize: '0.95rem', fontStyle: 'italic', color: '#1e293b' }}>
+                      "{session_summary?.triage_rationale || 'No rationale documented.'}"
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="soap-column assessment-plan">
-              <div className="soap-box highlighted">
-                <h4>Clinical Assessment & Differential Diagnosis</h4>
-                <p><strong>Primary Working Diagnosis:</strong> {soapNote.assessment?.primary_diagnosis || 'Undifferentiated acute presentation'}</p>
-                <div className="ddx-container" style={{ marginTop: '12px' }}>
-                  <strong>Differential Diagnosis Considerations:</strong>
-                  <ul className="ddx-list" style={{ margin: '8px 0 0', paddingLeft: 0, listStyle: 'none' }}>
-                    {(soapNote.assessment?.ddx || []).map((ddx, i) => (
-                      <li key={i} className="ddx-item" style={{ marginBottom: '8px', background: '#fff', borderRadius: '6px', border: '1px solid #dcfce7', overflow: 'hidden' }}>
-                        <details open style={{ padding: '0' }}>
-                          <summary style={{ padding: '10px', color: '#166534', fontSize: '0.95rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            {ddx.diagnosis}
-                            <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>v</span>
-                          </summary>
-                          <p className="ddx-rationale" style={{ margin: '0', padding: '0 10px 10px', fontSize: '0.9rem', color: '#475569', borderTop: '1px solid #f0fdf4', paddingTop: '8px' }}>{ddx.rationale}</p>
-                        </details>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {soapNote.assessment?.justification && (
-                  <p className="justification-text" style={{ marginTop: '12px', fontSize: '0.95rem', fontStyle: 'italic', borderTop: '1px dashed #bbf7d0', paddingTop: '8px' }}>
-                    <strong>Clinical Rationale:</strong> {soapNote.assessment.justification}
+            <div className="reassessment-debrief-box">
+              <span className="detail-kicker">Reassessment</span>
+              <h3 style={{ margin: '8px 0' }}>Reassessment Review</h3>
+              <p style={{ margin: '0 0 12px' }}>
+                {workflow_analysis?.reassessment?.message || 'No reassessment analysis was recorded.'}
+              </p>
+              <div className="reassessment-targets" style={{ display: 'grid', gap: '8px' }}>
+                <p style={{ margin: 0 }}>
+                  <strong>Selected:</strong>{' '}
+                  {workflow_analysis?.reassessment?.selected_targets?.length
+                    ? workflow_analysis.reassessment.selected_targets.map((item) => item.label).join(', ')
+                    : 'No reassessment targets selected.'}
+                </p>
+                <p style={{ margin: 0 }}>
+                  <strong>Expected:</strong>{' '}
+                  {workflow_analysis?.reassessment?.expected?.length
+                    ? workflow_analysis.reassessment.expected.map((item) => item.label).join(', ')
+                    : 'No required reassessment target from available fields.'}
+                </p>
+                {session_summary?.reassessment_rationale && (
+                  <p style={{ margin: 0 }}>
+                    <strong>Rationale:</strong> {session_summary.reassessment_rationale}
                   </p>
                 )}
               </div>
+            </div>
 
-              <div className="soap-box plan-box" style={{ background: '#f8fafc', padding: '16px' }}>
-                <h4 style={{ marginBottom: '8px' }}>Initial ED Care Plan - Problem List</h4>
-                <ul className="plan-list" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                  {(soapNote.plan || []).map((pItem, i) => {
-                    const isObj = pItem && typeof pItem === 'object';
-                    return (
-                      <li key={i} style={{ padding: '6px 0', borderBottom: i < soapNote.plan.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
-                        {isObj ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{i + 1}. {pItem.problem}</strong>
-                            <span style={{ fontSize: '0.9rem', color: '#475569', paddingLeft: '16px' }}>{pItem.plan}</span>
-                          </div>
-                        ) : (
-                          <span style={{ fontSize: '0.9rem', color: '#0f172a' }}>{i + 1}. {pItem}</span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+            <div className="sbar-critique-section">
+              <h3>Communication & SBAR Handoff</h3>
+              <div className="sbar-comparison-grid">
+                <div className="sbar-card student-sbar">
+                  <h4>Your SBAR Handoff</h4>
+                  <pre className="sbar-text">{session_summary?.sbar_handoff || 'No handoff documented.'}</pre>
+                </div>
+                <div className="sbar-card reference-informed-sbar">
+                  <h4>Reference-Informed SBAR Example</h4>
+                  <SbarBlock sbar={physician_case_review?.gold_standard_sbar || physician_debrief?.gold_standard_sbar} />
+                </div>
               </div>
+              {workflow_analysis?.sbar?.message && (
+                <div className="sbar-rubric-feedback">
+                  <strong>Rubric Score: {workflow_analysis.sbar.score} / {workflow_analysis.sbar.possible}</strong>
+                  <p>{workflow_analysis.sbar.message}</p>
+                  {workflow_analysis?.sbar?.gaps?.length > 0 && (
+                    <small style={{ display: 'block', marginTop: '8px', color: '#1e40af' }}>Key opportunities to improve: {workflow_analysis.sbar.gaps.join('; ')}</small>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        </details>
 
-      {/* Section 2: Acuity Alignment Banner */}
-      <div className={`takeaway-banner ${matched ? 'matched' : 'mismatched'}`} style={{ padding: '24px', borderRadius: '12px', marginBottom: '32px' }}>
-        <div className="banner-content">
-          <span className="takeaway-badge">{matched ? 'Acuity Alignment Achieved' : 'Acuity Delta'}</span>
-          <h3 style={{ margin: '8px 0', fontSize: '1.4rem' }}>{bannerHeadline}</h3>
-          <div className="banner-details">
-            <p className="takeaway-point" style={{ fontSize: '1.05rem', margin: '4px 0 12px' }}>
-              <strong>Clinical Takeaway:</strong> {physician_debrief?.physician_read || primaryTakeaway}
-            </p>
-            <div className="student-rationale-box" style={{ background: 'rgba(255,255,255,0.6)', padding: '12px', borderRadius: '6px', border: '1px dashed rgba(0,0,0,0.1)' }}>
-              <strong style={{ display: 'block', fontSize: '0.88rem', textTransform: 'uppercase', color: '#475569', marginBottom: '4px' }}>Your Documented Triage Rationale</strong>
-              <p style={{ margin: 0, fontSize: '0.95rem', fontStyle: 'italic', color: '#1e293b' }}>
-                "{session_summary?.triage_rationale || 'No rationale documented.'}"
-              </p>
+        <details className="advanced-debrief-details scoring-validation-details">
+          <summary>
+            <span>Scoring & Validation</span>
+            <strong>Provenance, score ledger, AI review, and tutor</strong>
+          </summary>
+          <div className="advanced-debrief-content">
+            <div className="provenance-legend" aria-label="Debrief provenance legend">
+              <span className="provenance-tag source-tag">Source record</span>
+              <span className="provenance-tag inference-tag">Reviewed teaching inference</span>
+              <span className="provenance-tag warning-tag">LLM draft awaiting validation</span>
             </div>
-          </div>
-        </div>
-      </div>
-          </div>
-        )}
 
-        {activeTab === 'rationale' && (
-          <div className="tab-pane fade-in">
-            {/* Section 3: SBAR Handoff Critique */}
-      <div className="sbar-critique-section" style={{ marginBottom: '32px' }}>
-        <h3>Communication & SBAR Handoff</h3>
-        <div className="sbar-comparison-grid">
-          <div className="sbar-card student-sbar">
-            <h4>Your SBAR Handoff</h4>
-            <pre className="sbar-text">{session_summary?.sbar_handoff || 'No handoff documented.'}</pre>
-          </div>
-          <div className="sbar-card gold-standard-sbar">
-            <h4>Gold Standard Expert SBAR</h4>
-            <SbarBlock sbar={physician_case_review?.gold_standard_sbar || physician_debrief?.gold_standard_sbar} />
-          </div>
-        </div>
-        {workflow_analysis?.sbar?.message && (
-          <div className="sbar-rubric-feedback">
-            <strong>Rubric Score: {workflow_analysis.sbar.score} / {workflow_analysis.sbar.possible}</strong>
-            <p>{workflow_analysis.sbar.message}</p>
-            {workflow_analysis?.sbar?.gaps?.length > 0 && (
-              <small style={{ display: 'block', marginTop: '8px', color: '#1e40af' }}>Key opportunities to improve: {workflow_analysis.sbar.gaps.join('; ')}</small>
-            )}
-          </div>
-        )}
-      </div>
-
-
-      {/* Section 5: Expandable Domain Ledger & AI Clinical Tutor */}
-      <div className="debrief-accordion-stack simplified">
-        <DebriefAccordion title="Expandable Details: Complete Clinical Domain Scoring Ledger" badge={`Overall Score: ${scorePercent}% (${scorecard?.total ?? 0}/${scorecard?.possible ?? 100})`}>
-          <section className="feedback-section full-width" style={{ padding: 0 }}>
-            <h4>Case Score Overview</h4>
-            <div className="score-meter" aria-label={`Case score ${scorePercent}%`} style={{ margin: '12px 0 20px' }}>
-              <span style={{ width: `${Math.max(0, Math.min(scorePercent, 100))}%` }} />
+            <div className="validation-notice" role="note">
+              Diagnosis, referral, and management guidance is for simulation debriefing until hallucination validation and clinical expert review are complete.
             </div>
-            <p className="instruction">{scorecard?.method}</p>
-          </section>
 
-          <section className="feedback-section full-width" style={{ padding: 0, marginTop: '24px' }}>
-            <h4>Score Domains</h4>
-            <div className="score-domain-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {domains.filter(domain => domain.key !== 'provisional_esi').map((domain) => (
-                <DomainScore domain={domain} key={domain.key} />
-              ))}
+            <div className="debrief-accordion-stack simplified">
+              <DebriefAccordion title="Complete Clinical Domain Scoring Ledger" badge={`Overall Score: ${scorePercent}% (${scorecard?.total ?? 0}/${scorecard?.possible ?? 100})`}>
+                <section className="feedback-section full-width" style={{ padding: 0 }}>
+                  <h4>Case Score Overview</h4>
+                  <div className="score-meter" aria-label={`Case score ${scorePercent}%`} style={{ margin: '12px 0 20px' }}>
+                    <span style={{ width: `${Math.max(0, Math.min(scorePercent, 100))}%` }} />
+                  </div>
+                  <p className="instruction">{scorecard?.method}</p>
+                </section>
+
+                <section className="feedback-section full-width" style={{ padding: 0, marginTop: '24px' }}>
+                  <h4>Score Domains</h4>
+                  <div className="score-domain-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {domains.filter(domain => domain.key !== 'provisional_esi').map((domain) => (
+                      <DomainScore domain={domain} key={domain.key} />
+                    ))}
+                  </div>
+                </section>
+
+                <div style={{ marginTop: '24px' }}>
+                  <JudgmentRubricAudit
+                    domains={domains}
+                    workflowAnalysis={workflow_analysis}
+                    triageAnalysis={triage_analysis}
+                  />
+                </div>
+
+                <div style={{ marginTop: '24px' }}>
+                  <ReasoningReviewPanel
+                    review={reasoningReview}
+                    loading={reviewLoading}
+                    error={reviewError}
+                    settings={aiSettings || getTutorSettings()}
+                    onRetry={requestReasoningReview}
+                  />
+                </div>
+              </DebriefAccordion>
             </div>
-          </section>
 
-          <div style={{ marginTop: '24px' }}>
-            <JudgmentRubricAudit
-              domains={domains}
-              workflowAnalysis={workflow_analysis}
-              triageAnalysis={triage_analysis}
-            />
+            <LearnerProfilePanel delta={learner_profile_delta} recommendation={next_case_recommendation} />
+            <NextCaseChecklist items={next_case_checklist} />
+            <TutorPanel sessionId={sessionId} aiSettings={aiSettings} />
           </div>
-
-          <div style={{ marginTop: '24px' }}>
-            <ReasoningReviewPanel
-              review={reasoningReview}
-              loading={reviewLoading}
-              error={reviewError}
-              settings={aiSettings || getTutorSettings()}
-              onRetry={requestReasoningReview}
-            />
-          </div>
-        </DebriefAccordion>
-        </div>
-      </div>
-      )}
-
-      {activeTab === 'tips' && (
-        <div className="tab-pane fade-in" style={{ marginTop: '24px' }}>
-          <LearnerProfilePanel delta={learner_profile_delta} recommendation={next_case_recommendation} />
-          <NextCaseChecklist items={next_case_checklist} />
-          <TutorPanel sessionId={sessionId} aiSettings={aiSettings} />
-        </div>
-      )}
+        </details>
       </div>
 
       <div className="step-actions">

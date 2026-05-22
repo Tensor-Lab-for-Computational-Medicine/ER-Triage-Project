@@ -607,9 +607,7 @@ function VitalSigns({ sessionId, patientData, coachEnabled = false, onNext, onCa
     <section className="step-card examine-card" aria-labelledby="examine-heading">
       <div className="section-header">
         <div>
-          <span className="eyebrow">
-            Step 2 of 6 <span className="provenance-tag source-tag">Source: MIETIC Record</span>
-          </span>
+          <span className="eyebrow">Encounter <span className="provenance-tag source-tag">Source record</span></span>
           <h2 id="examine-heading">Examine & Vitals Review</h2>
           <p className="subtitle">
             Interpret objective baseline vital signs and conduct focused physical examinations.
@@ -725,7 +723,7 @@ function VitalSigns({ sessionId, patientData, coachEnabled = false, onNext, onCa
           className="btn-primary"
           onClick={onNext}
         >
-          Proceed to Definitive ESI Decision
+          Continue to clinical impression
         </button>
       </div>
     </section>

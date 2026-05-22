@@ -10,6 +10,12 @@ Raw MIETIC validation data is stored at:
 data/raw/mietic_validate_samples.csv
 ```
 
+Credentialed MIMIC-IV-Ext-CDS data must stay local and ignored by git. The expected local folder name is:
+
+```text
+mimic-iv-ext-clinical-decision-support-for-referral-triage-and-diagnosis-1.0.2/
+```
+
 The public app reads the generated bundle:
 
 ```text
@@ -69,3 +75,35 @@ npm run build
 ```
 
 The deployable artifact is `frontend/dist`, which is intentionally ignored by git.
+
+## Restricted Data Privacy Check
+
+Run this before generating or sharing artifacts:
+
+```powershell
+python scripts/check_restricted_data_privacy.py
+```
+
+The script fails if restricted MIMIC data, MIMIC-derived case bundles, or restricted reports are tracked or visible to git.
+
+## Local MIMIC-IV-Ext-CDS Case Generation
+
+The MIMIC adapter creates `clinical_case_v2` bundles for local validation only:
+
+```powershell
+python scripts/generate_mimic_restricted_cases.py --limit 50
+```
+
+The default output is ignored:
+
+```text
+data/restricted/mimic_iv_ext_cases.restricted.json
+```
+
+Use the grounding audit to classify generated diagnosis, medication, testing, treatment, disposition, and ESI claims as supported, contradicted, or unsupported:
+
+```powershell
+python scripts/audit_grounding.py --cases data/restricted/mimic_iv_ext_cases.restricted.json --outputs data/restricted/generated_outputs.restricted.json
+```
+
+The same ignored bundle can be loaded through the app's case-source banner for local research demos. The browser loader validates `clinical_case_v2`, `MIMIC-IV-Ext-CDS`, and `credentialed_local_only` before starting a restricted local case.

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   acknowledgeInterviewGaps,
   askPatientQuestion,
@@ -72,6 +73,7 @@ function FocusedInterview({
   initialProgress = null,
   patientSex = '',
   coachEnabled = false,
+  objectiveReview = null,
   onNext,
   onCapture,
   onClock
@@ -90,8 +92,11 @@ function FocusedInterview({
   const [conversationActive, setConversationActive] = useState(false);
   const [conversationStatus, setConversationStatus] = useState('');
   const [interviewProgress, setInterviewProgress] = useState(() => normalizeProgress(initialProgress));
+  const [objectiveOpen, setObjectiveOpen] = useState(false);
+  const [objectiveStatus, setObjectiveStatus] = useState({ loaded: false, examConducted: false, selectedSystemIds: [] });
   const [error, setError] = useState('');
   const [voiceHelpUrl, setVoiceHelpUrl] = useState('');
+  const [voiceToolsRoot, setVoiceToolsRoot] = useState(null);
   const recognitionRef = useRef(null);
   const recognitionModeRef = useRef('');
   const suppressRecognitionEndRef = useRef(false);
@@ -122,6 +127,8 @@ function FocusedInterview({
     setSpeakingIndex(null);
     setConversationActive(false);
     setConversationStatus('');
+    setObjectiveOpen(false);
+    setObjectiveStatus({ loaded: false, examConducted: false, selectedSystemIds: [] });
     conversationActiveRef.current = false;
     conversationWaitingRef.current = false;
     pendingConversationQuestionRef.current = '';
@@ -165,6 +172,15 @@ function FocusedInterview({
     };
   }, [patientVoiceEnabled]);
 
+  useEffect(() => {
+    const updateVoiceToolsRoot = () => {
+      setVoiceToolsRoot(document.getElementById('encounter-voice-tools-root'));
+    };
+    updateVoiceToolsRoot();
+    const frameId = window.requestAnimationFrame(updateVoiceToolsRoot);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [sessionId]);
+
   const supportsEnabled = interviewSupports.length > 0;
   const canContinue = Boolean(interviewProgress.can_continue);
   const canContinueWithGaps = Boolean(interviewProgress.continue_requires_acknowledgement);
@@ -173,6 +189,9 @@ function FocusedInterview({
   const stillNeededDomains = interviewProgress.missed_domains || [];
   const optionalDomains = interviewProgress.optional_domains || [];
   const optionalCoveredDomains = interviewProgress.optional_covered_domains || [];
+  const objectiveReady = !objectiveReview || (objectiveStatus.loaded && objectiveStatus.examConducted);
+  const continueDisabled = loading || !canContinue || !objectiveReady;
+  const continueWithGapsDisabled = loading || !objectiveReady;
 
   const supportCostLabel = (support) => {
     const used = supportUses.find((item) => item.id === support.id);
@@ -525,6 +544,10 @@ function FocusedInterview({
   };
 
   const continueWithGaps = async () => {
+    if (!objectiveReady) {
+      setError('Review objective data and conduct at least one focused exam before continuing.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -547,7 +570,36 @@ function FocusedInterview({
     }
   };
 
+  const voiceTools = (
+    <div className="composer-options-row voice-tools-control">
+      <label className="voice-tools-checkbox">
+        <input
+          type="checkbox"
+          checked={patientVoiceEnabled}
+          disabled={conversationActive}
+          onChange={(event) => setPatientVoice(event.target.checked)}
+        />
+        <span>Enable patient voice audio (TTS)</span>
+      </label>
+      <button
+        type="button"
+        className={`continuous-voice-btn ${conversationActive ? 'active' : ''}`}
+        onClick={startConversation}
+        disabled={loading}
+        aria-label={conversationActive ? 'Stop continuous voice mode' : 'Start continuous voice mode'}
+      >
+        <span className="continuous-voice-dot" aria-hidden="true" />
+        {conversationActive ? 'Continuous Voice Active' : 'Start Continuous Voice Mode'}
+      </button>
+      {(patientVoiceStatus || conversationStatus) && (
+        <small className="voice-tools-status">{conversationStatus || patientVoiceStatus}</small>
+      )}
+    </div>
+  );
+
   return (
+    <>
+    {voiceToolsRoot && createPortal(voiceTools, voiceToolsRoot)}
     <section className="step-card">
       <div className="section-header">
         <div>
@@ -557,31 +609,53 @@ function FocusedInterview({
         <span className="clinical-badge">{log.length} questions asked</span>
       </div>
 
-      {/* Modern, Compact Progress Bar */}
-      <div className="interview-progress-bar-container" style={{ margin: '0 0 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', color: 'var(--muted)', marginBottom: '6px' }}>
-          <span>INTERVIEW GOALS</span>
-          <span>{coveredDomains.length} / {coveredDomains.length + stillNeededDomains.length} COVERED</span>
-        </div>
-        <div className="progress-track" style={{ height: '6px', background: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
-          <div
-            className="progress-fill"
-            style={{
-              height: '100%',
-              background: 'var(--teal)',
-              width: `${((coveredDomains.length) / Math.max(coveredDomains.length + stillNeededDomains.length, 1)) * 100}%`,
-              transition: 'width 0.4s ease'
-            }}
-          />
-        </div>
-        {!progressComplete && (
-          <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: 'var(--muted)' }}>
-            {canContinueWithGaps
-              ? 'Required domains remain open; you may proceed by acknowledging gaps.'
-              : `Ask at least ${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} to enable gap progression.`}
-          </p>
+      <details className="interview-support-drawer learner-help-drawer">
+        <summary>Help</summary>
+        {supportsEnabled && interviewSupports.length > 0 && (
+          <div className="suggestions-pills help-suggestions">
+            {interviewSupports.map((item) => {
+              const used = supportUses.some((support) => support.id === item.id);
+              const queued = queuedSupportId === item.id;
+              return (
+                <button
+                  type="button"
+                  className={`suggestion-pill ${used ? 'used' : ''} ${queued ? 'active' : ''}`}
+                  key={item.id}
+                  onClick={() => openSupport(item)}
+                  disabled={loading}
+                  title={item.cue}
+                >
+                  {item.label} {used && '✓'}
+                </button>
+              );
+            })}
+          </div>
         )}
-      </div>
+        <div className="interview-progress-bar-container help-progress" style={{ margin: '10px 0 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', color: 'var(--muted)', marginBottom: '6px' }}>
+            <span>Interview goals</span>
+            <span>{coveredDomains.length} / {coveredDomains.length + stillNeededDomains.length} covered</span>
+          </div>
+          <div className="progress-track" style={{ height: '6px', background: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
+            <div
+              className="progress-fill"
+              style={{
+                height: '100%',
+                background: 'var(--teal)',
+                width: `${((coveredDomains.length) / Math.max(coveredDomains.length + stillNeededDomains.length, 1)) * 100}%`,
+                transition: 'width 0.4s ease'
+              }}
+            />
+          </div>
+          {!progressComplete && (
+            <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: 'var(--muted)' }}>
+              {canContinueWithGaps
+                ? 'Required domains remain open; you may proceed by acknowledging gaps.'
+                : `Ask at least ${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} to enable gap progression.`}
+            </p>
+          )}
+        </div>
+      </details>
 
       {/* Chat Thread Rendered Above the Composer */}
       {log.length > 0 && (
@@ -616,41 +690,16 @@ function FocusedInterview({
         </div>
       )}
 
-      {/* Suggestion Pills Right Above the Input Composer */}
-      {supportsEnabled && interviewSupports.length > 0 && (
-        <div className="prompt-suggestions-row" style={{ marginBottom: '12px' }}>
-          <span className="suggestions-label" style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--muted)' }}>Suggested Topics:</span>
-          <div className="suggestions-pills" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
-            {interviewSupports.map((item, index) => {
-              const used = supportUses.some((support) => support.id === item.id);
-              const queued = queuedSupportId === item.id;
-              return (
-                <button
-                  type="button"
-                  className={`suggestion-pill ${used ? 'used' : ''} ${queued ? 'active' : ''}`}
-                  key={item.id}
-                  onClick={() => openSupport(item)}
-                  disabled={loading}
-                  title={item.cue}
-                >
-                  {item.label} {used && '✓'}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* Composer Input Area */}
-      <div className="question-input" style={{ marginBottom: '16px' }}>
+      <div className="question-input" style={{ marginBottom: '10px' }}>
         <label htmlFor="focused-question" style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--muted)' }}>Question to patient</label>
-        <div className="conversation-composer" style={{ marginTop: '6px' }}>
+        <div className="conversation-composer" style={{ marginTop: '4px' }}>
           <textarea
             id="focused-question"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Type your question or click a suggestion above..."
-            rows="3"
+            placeholder="Ask a focused question..."
+            rows="2"
             disabled={loading}
           />
           <button
@@ -658,6 +707,7 @@ function FocusedInterview({
             className={`voice-button ${voiceStatus ? 'active' : ''}`}
             onClick={startVoiceInput}
             disabled={loading || conversationActive}
+            aria-label={voiceStatus ? 'Stop dictation' : 'Start dictation'}
             aria-pressed={Boolean(voiceStatus)}
             title={voiceStatus || 'Dictate'}
           >
@@ -666,41 +716,24 @@ function FocusedInterview({
         </div>
       </div>
 
-      {/* Continuous Voice Loop & TTS Options */}
-      <div className="composer-options-row" style={{ display: 'flex', gap: '20px', margin: '8px 0 24px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--muted)', fontWeight: '600' }}>
-          <input
-            type="checkbox"
-            checked={patientVoiceEnabled}
-            disabled={conversationActive}
-            onChange={(event) => setPatientVoice(event.target.checked)}
-            style={{ width: '14px', height: '14px', margin: 0 }}
-          />
-          <span>Enable patient voice audio (TTS)</span>
-        </label>
-        <span style={{ color: 'var(--line)' }}>|</span>
-        <button
-          type="button"
-          className={`continuous-voice-btn ${conversationActive ? 'active' : ''}`}
-          onClick={startConversation}
-          disabled={loading}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: conversationActive ? 'var(--teal)' : 'var(--muted)',
-            fontWeight: '700',
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
+      {objectiveReview && (
+        <details
+          className="encounter-objective-drawer"
+          open={objectiveOpen}
+          onToggle={(event) => setObjectiveOpen(event.currentTarget.open)}
         >
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: conversationActive ? 'var(--teal)' : '#cbd5e1', display: 'inline-block' }} />
-          {conversationActive ? 'Continuous Voice Active' : 'Start Continuous Voice Mode'}
-        </button>
-      </div>
+          <summary>Review objective data</summary>
+          {React.isValidElement(objectiveReview)
+            ? React.cloneElement(objectiveReview, { active: objectiveOpen, onObjectiveStatusChange: setObjectiveStatus })
+            : objectiveReview}
+        </details>
+      )}
+
+      {!objectiveReady && (canContinue || canContinueWithGaps) && (
+        <div className="compact-guidance objective-required-note">
+          Review objective data and conduct at least one focused exam to continue.
+        </div>
+      )}
 
       {error && (
         <div className="error-message" style={{ marginBottom: '16px' }}>
@@ -715,20 +748,21 @@ function FocusedInterview({
       {loadingMessage && <div className="loading compact-loading" style={{ marginBottom: '16px' }}>{loadingMessage}</div>}
 
       {/* Navigation / Action Buttons */}
-      <div className="button-group" style={{ borderTop: '1px solid var(--line)', paddingTop: '20px', marginTop: '12px' }}>
+      <div className="button-group" style={{ borderTop: '1px solid var(--line)', paddingTop: '12px', marginTop: '8px' }}>
         <button className="btn-primary" onClick={() => submitQuestion()} disabled={loading || conversationActive}>
           {loading ? 'Asking patient...' : 'Ask patient'}
         </button>
-        <button className="btn-secondary" onClick={onNext} disabled={!canContinue || loading}>
-          Continue to provisional ESI
+        <button className="btn-secondary" onClick={onNext} disabled={continueDisabled}>
+          Continue to impression
         </button>
         {canContinueWithGaps && (
-          <button className="btn-secondary" onClick={continueWithGaps} disabled={loading}>
+          <button className="btn-secondary" onClick={continueWithGaps} disabled={continueWithGapsDisabled}>
             Continue with gaps
           </button>
         )}
       </div>
     </section>
+    </>
   );
 }
 

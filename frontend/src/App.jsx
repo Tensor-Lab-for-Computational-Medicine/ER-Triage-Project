@@ -2,68 +2,56 @@ import React, { useState, useEffect, useRef } from 'react';
 import './styles/App.css';
 import {
   clearTutorSettings,
+  clearLocalCaseBundle,
+  getCaseSourceState,
   getCoachPreference,
   getTutorSettings,
+  loadLocalCaseBundle,
   prewarmSemanticCache,
   saveCoachPreference,
   saveTutorSettings,
   startSimulation
 } from './services/api';
-import FocusedInterview from './components/FocusedInterview';
-import VitalSigns from './components/VitalSigns';
-import TriageAssignment from './components/TriageAssignment';
-import Interventions from './components/Interventions';
-import SbarHandoff from './components/SbarHandoff';
+import EncounterPhase from './components/EncounterPhase';
+import ClinicalImpressionPhase from './components/ClinicalImpressionPhase';
+import InitialPlanPhase from './components/InitialPlanPhase';
 import Feedback from './components/Feedback';
 import CaseSummaryBanner from './components/CaseSummaryBanner';
+import CaseSourceControls from './components/CaseSourceControls';
 import DecisionHint from './components/DecisionHint';
 
-const WORKFLOW_STEPS = [
+const WORKFLOW_PHASES = [
   {
-    id: 'gather',
-    label: 'Gather',
-    title: 'Patient conversation',
-    detail: 'Gather the history that changes risk, acuity, or next actions.'
+    id: 'encounter',
+    label: 'Encounter',
+    title: 'Interview and examine',
+    detail: 'Ask focused questions, review vitals, and reveal exam findings.'
   },
   {
-    id: 'examine',
-    label: 'Examine',
-    title: 'Examine & vitals review',
-    detail: 'Interpret objective vitals and focused physical exam findings.'
+    id: 'impression',
+    label: 'Impression',
+    title: 'Acuity, diagnosis, and referral',
+    detail: 'Assign ESI, commit to a working diagnosis, and decide on specialty input.'
   },
   {
-    id: 'decide',
-    label: 'Decide',
-    title: 'Definitive ESI assignment',
-    detail: 'Lock the Emergency Severity Index level with required clinical rationale.'
+    id: 'plan',
+    label: 'Plan',
+    title: 'Manage, reassess, and hand off',
+    detail: 'Choose first actions, monitoring targets, and SBAR handoff.'
   },
   {
-    id: 'act',
-    label: 'Act',
-    title: 'Care priorities & orders',
-    detail: 'Group placement, monitoring, and treatment actions by clinical intent.'
-  },
-  {
-    id: 'handoff',
-    label: 'Handoff',
-    title: 'SBAR handoff',
-    detail: 'Communicate the case in a concise, structured ED handoff.'
-  },
-  {
-    id: 'learn',
-    label: 'Learn',
-    title: 'Expert debrief & report',
-    detail: 'Review clinical judgment, decision drivers, and next practice steps.'
+    id: 'debrief',
+    label: 'Debrief',
+    title: 'Simulation debrief',
+    detail: 'Review the highest-yield performance signal and next practice focus.'
   }
 ];
 
 function getStageName(stepIndex) {
   switch (stepIndex) {
     case 0: return 'interview';
-    case 1: return 'provisional';
-    case 2: return 'final';
-    case 3: return 'escalation';
-    case 4: return 'sbar';
+    case 1: return 'final';
+    case 2: return 'escalation';
     default: return null;
   }
 }
@@ -79,9 +67,18 @@ const INITIAL_CASE_RECORD = {
   historyResponse: '',
   triageLevel: null,
   triageRationale: '',
+  workingDiagnosis: '',
+  differential: [],
+  diagnosisEvidence: '',
+  referralNeeded: null,
+  referralSpecialty: '',
+  referralRationale: '',
   interventions: [],
   escalationActions: [],
   escalationRationale: '',
+  initialPlan: {},
+  reassessmentPlan: [],
+  reassessmentRationale: '',
   sbarHandoff: ''
 };
 
@@ -96,7 +93,7 @@ function ReasoningSpine({ currentStep }) {
   return (
     <nav className="reasoning-spine" aria-label="Clinical reasoning spine">
       <div className="spine-container">
-        {WORKFLOW_STEPS.map((item, index) => {
+        {WORKFLOW_PHASES.map((item, index) => {
           const isComplete = index < currentStep;
           const isActive = index === currentStep;
           const icon = isComplete ? '✓' : isActive ? '●' : '○';
@@ -116,7 +113,7 @@ function LoadingScreen() {
   return (
     <div className="app app-centered">
       <div className="status-panel">
-        <span className="eyebrow">ED Triage Trainer</span>
+        <span className="eyebrow">ED Clinical Workflow Simulator</span>
         <h1>Preparing a case</h1>
         <div className="loading-bar">
           <span />
@@ -175,7 +172,7 @@ const PROVIDER_INFO = {
   }
 };
 
-function AiSettingsMenu({ settings, onSettingsChange }) {
+function AiSettingsMenu({ settings, onSettingsChange, sourceState }) {
   const [open, setOpen] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [message, setMessage] = useState('');
@@ -187,6 +184,7 @@ function AiSettingsMenu({ settings, onSettingsChange }) {
     : (settings.hasKey ? (settings.key?.startsWith('sk-ant-') ? 'anthropic' : settings.key?.startsWith('sk-') && !settings.key?.startsWith('sk-or-') ? 'openai' : 'openrouter') : null);
 
   const providerInfo = detectedProvider ? PROVIDER_INFO[detectedProvider] : null;
+  const restrictedLocalMode = sourceState?.mode === 'mimic_restricted_local';
 
   useEffect(() => {
     if (!open) return undefined;
@@ -236,6 +234,17 @@ function AiSettingsMenu({ settings, onSettingsChange }) {
     setError('');
     onSettingsChange(next);
     setOpen(false);
+  };
+
+  const toggleRestrictedAi = (enabled) => {
+    const activeSettings = getTutorSettings();
+    const next = saveTutorSettings({
+      key: activeSettings.key,
+      model: activeSettings.model,
+      patientModel: activeSettings.patientModel,
+      restrictedAiEnabled: enabled
+    });
+    onSettingsChange(next);
   };
 
   return (
@@ -303,6 +312,19 @@ function AiSettingsMenu({ settings, onSettingsChange }) {
           {message && <div className="success-message compact-message">{message}</div>}
           {error && <div className="error-message compact-message">{error}</div>}
 
+          {restrictedLocalMode && (
+            <label className="restricted-ai-opt-in">
+              <input
+                type="checkbox"
+                checked={Boolean(settings.restrictedAiEnabled)}
+                onChange={(event) => toggleRestrictedAi(event.target.checked)}
+              />
+              <span>
+                Allow external AI for local MIMIC cases this session. Restricted case text may be sent to your configured provider.
+              </span>
+            </label>
+          )}
+
           {/* Free key instructions */}
           <div style={{ marginTop: '14px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
             <p style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '600', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Get a free API key</p>
@@ -344,6 +366,57 @@ function CoachToggle({ enabled, onChange }) {
   );
 }
 
+function DataStatusChip({ sourceState }) {
+  const localMode = sourceState?.mode === 'mimic_restricted_local';
+  return (
+    <span className={`data-chip topbar-data-chip ${localMode ? 'restricted' : ''}`}>
+      Data: {localMode ? 'Local MIMIC' : 'Public demo'}
+    </span>
+  );
+}
+
+function ToolsMenu({
+  coachEnabled,
+  onCoachChange,
+  aiSettings,
+  onAiSettingsChange,
+  sourceState,
+  loading,
+  onLoadLocalBundle,
+  onUsePublicDemo,
+  showVoiceTools = false
+}) {
+  return (
+    <details className="tools-menu">
+      <summary>Tools</summary>
+      <div className="tools-panel">
+        <div className="tools-row">
+          <CoachToggle enabled={coachEnabled} onChange={onCoachChange} />
+        </div>
+        <div className="tools-row">
+          <span>AI</span>
+          <AiSettingsMenu settings={aiSettings} onSettingsChange={onAiSettingsChange} sourceState={sourceState} />
+        </div>
+        {showVoiceTools && (
+          <div className="tools-row stacked voice-tools-row">
+            <span>Voice</span>
+            <div id="encounter-voice-tools-root" className="voice-tools-root" />
+          </div>
+        )}
+        <div className="tools-row stacked">
+          <span>Data</span>
+          <CaseSourceControls
+            sourceState={sourceState}
+            loading={loading}
+            onLoadLocalBundle={onLoadLocalBundle}
+            onUsePublicDemo={onUsePublicDemo}
+          />
+        </div>
+      </div>
+    </details>
+  );
+}
+
 function App() {
   const [step, setStep] = useState(-1);
   const [sessionId, setSessionId] = useState(null);
@@ -355,6 +428,7 @@ function App() {
   const [caseRecord, setCaseRecord] = useState(INITIAL_CASE_RECORD);
   const [aiSettings, setAiSettings] = useState(() => getTutorSettings());
   const [coachPreference, setCoachPreference] = useState(() => getCoachPreference());
+  const [sourceState, setSourceState] = useState(() => getCaseSourceState());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const coachEnabled = Boolean(coachPreference.enabled);
@@ -372,8 +446,12 @@ function App() {
         sex: data.sex,
         transport: data.transport,
         complaint: data.complaint,
-        intake: data.intake || null
+        intake: data.intake || null,
+        caseSource: data.case_source,
+        sourceRestriction: data.source_restriction,
+        tasksAvailable: data.tasks_available || {}
       });
+      setSourceState(data.source_state || getCaseSourceState());
       setInterviewSupports(data.interview_supports || []);
       setInterviewProgress(data.interview_progress || null);
       setClock(data.clock || { elapsed_seconds: 0, timing_events: {} });
@@ -387,7 +465,7 @@ function App() {
   };
 
   const handleNext = () => {
-    setStep((prev) => Math.min(prev + 1, WORKFLOW_STEPS.length - 1));
+    setStep((prev) => Math.min(prev + 1, WORKFLOW_PHASES.length - 1));
   };
 
   const [coachTrigger, setCoachTrigger] = useState(0);
@@ -411,6 +489,38 @@ function App() {
     setTimerTick(0);
     setError('');
     await handleStart();
+  };
+
+  const handleLoadLocalBundle = async (payload, fileName) => {
+    setLoading(true);
+    setError('');
+    try {
+      const nextSource = await loadLocalCaseBundle(payload, fileName);
+      setSourceState(nextSource);
+      setCaseRecord(INITIAL_CASE_RECORD);
+      setStep(-1);
+      await handleStart();
+    } catch (err) {
+      setError(err.message || 'Local case bundle could not be loaded.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUsePublicDemo = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const nextSource = await clearLocalCaseBundle();
+      setSourceState(nextSource);
+      setCaseRecord(INITIAL_CASE_RECORD);
+      setStep(-1);
+      await handleStart();
+    } catch (err) {
+      setError(err.message || 'Could not return to public demo mode.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -462,24 +572,27 @@ function App() {
     return <ErrorScreen error={error} onRetry={handleStart} />;
   }
 
-  const activeStep = WORKFLOW_STEPS[step];
+  const activeStep = WORKFLOW_PHASES[step];
   const displayElapsed = realElapsedSeconds(clock, timerTick);
 
   return (
     <div className="app">
       <header className="app-topbar">
         <div>
-          <span className="eyebrow">Emergency medicine education</span>
-          <h1>ED Triage Trainer <span className="logo-pulse-dot" /></h1>
+          <h1>ED Clinical Workflow Simulator <span className="logo-pulse-dot" /></h1>
         </div>
         <div className="topbar-actions">
-          <CoachToggle
-            enabled={coachEnabled}
-            onChange={handleCoachPreferenceChange}
-          />
-          <AiSettingsMenu
-            settings={aiSettings}
-            onSettingsChange={setAiSettings}
+          <DataStatusChip sourceState={sourceState} />
+          <ToolsMenu
+            coachEnabled={coachEnabled}
+            onCoachChange={handleCoachPreferenceChange}
+            aiSettings={aiSettings}
+            onAiSettingsChange={setAiSettings}
+            sourceState={sourceState}
+            loading={loading}
+            onLoadLocalBundle={handleLoadLocalBundle}
+            onUsePublicDemo={handleUsePublicDemo}
+            showVoiceTools={step === 0}
           />
         </div>
       </header>
@@ -494,16 +607,24 @@ function App() {
 
       {(() => {
         const stageName = getStageName(step);
-        const showSidebar = coachEnabled && stageName;
         return (
-          <div className={`app-layout ${showSidebar ? 'with-coach' : ''}`}>
+          <div className="app-layout">
             <main className="case-stage">
-              {step === 0 && (
-                <FocusedInterview
+              {coachEnabled && stageName && (
+                <DecisionHint
+                  key={`${sessionId}-${step}-${coachTrigger}`}
                   sessionId={sessionId}
+                  stage={stageName}
+                  active={coachEnabled}
+                />
+              )}
+
+              {step === 0 && (
+                <EncounterPhase
+                  sessionId={sessionId}
+                  patientData={patientData}
                   interviewSupports={interviewSupports}
                   initialProgress={interviewProgress}
-                  patientSex={patientData?.sex}
                   coachEnabled={coachEnabled}
                   onNext={handleNext}
                   onCapture={handleCapture}
@@ -512,9 +633,8 @@ function App() {
               )}
 
               {step === 1 && (
-                <VitalSigns
+                <ClinicalImpressionPhase
                   sessionId={sessionId}
-                  patientData={patientData}
                   coachEnabled={coachEnabled}
                   onNext={handleNext}
                   onCapture={handleCapture}
@@ -523,7 +643,7 @@ function App() {
               )}
 
               {step === 2 && (
-                <TriageAssignment
+                <InitialPlanPhase
                   sessionId={sessionId}
                   coachEnabled={coachEnabled}
                   onNext={handleNext}
@@ -533,26 +653,6 @@ function App() {
               )}
 
               {step === 3 && (
-                <Interventions
-                  sessionId={sessionId}
-                  coachEnabled={coachEnabled}
-                  onNext={handleNext}
-                  onCapture={handleCapture}
-                  onClock={setClock}
-                />
-              )}
-
-              {step === 4 && (
-                <SbarHandoff
-                  sessionId={sessionId}
-                  coachEnabled={coachEnabled}
-                  onNext={handleNext}
-                  onCapture={handleCapture}
-                  onClock={setClock}
-                />
-              )}
-
-              {step === 5 && (
                 <Feedback
                   sessionId={sessionId}
                   caseRecord={caseRecord}
@@ -562,23 +662,6 @@ function App() {
                 />
               )}
             </main>
-
-            {showSidebar && (
-              <aside className="coach-sidebar">
-                <div className="coach-card">
-                  <div className="coach-card-header">
-                    <span className="coach-status-dot"></span>
-                    <h3>Clinical Coach</h3>
-                  </div>
-                  <DecisionHint
-                    key={`${sessionId}-${step}-${coachTrigger}`}
-                    sessionId={sessionId}
-                    stage={stageName}
-                    active={coachEnabled}
-                  />
-                </div>
-              </aside>
-            )}
           </div>
         );
       })()}

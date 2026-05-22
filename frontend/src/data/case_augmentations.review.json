@@ -37,10 +37,21 @@
           "domain": "physical_exam",
           "statement": "Focused exam should assess right wrist swelling, deformity, focal bony tenderness, range of motion, grip strength, radial pulse, capillary refill, and sensation.",
           "rationale": "The source documents isolated right wrist pain with pain 8/10 and one exam or imaging resource, but no structured extremity exam findings.",
-          "source_anchors": ["R Wrist pain", "pain 8 out of 10", "exam_count: 1", "disposition: HOME", "reference ESI 4"],
+          "source_anchors": [
+            "R Wrist pain",
+            "pain 8 out of 10",
+            "exam_count: 1",
+            "disposition: HOME",
+            "reference ESI 4"
+          ],
           "confidence": "moderate",
           "review_status": "reviewed",
-          "use_in": ["physical_exam", "soap", "decision_review", "dialogue"],
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
           "expected_action": "Perform and document focused wrist exam before deciding whether imaging, splinting, analgesia, or outpatient follow-up is sufficient.",
           "practice_rule": "For wrist pain, connect pain severity and exam findings to imaging need, immobilization, and reassessment."
         }
@@ -79,12 +90,24 @@
         {
           "id": "case_021_exam_01",
           "domain": "physical_exam",
-          "statement": "Focused exam should document right foot location of swelling, erythema or warmth, wounds, focal bony tenderness, range of motion, weight-bearing ability, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
+          "statement": "Focused exam should assess right foot location of swelling, erythema or warmth, wounds, focal bony tenderness, range of motion, weight-bearing ability, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
           "rationale": "The source documents right foot swelling, pain 7/10, hypertension, laboratory testing, and one exam or imaging resource, but no physical exam details.",
-          "source_anchors": ["R Foot swelling", "pain level of 7", "lab_event_count: 36", "exam_count: 1", "reference ESI 3"],
+          "source_anchors": [
+            "R Foot swelling",
+            "pain level of 7",
+            "lab_event_count: 36",
+            "exam_count: 1",
+            "reference ESI 3"
+          ],
           "confidence": "moderate",
           "review_status": "reviewed",
-          "use_in": ["physical_exam", "soap", "decision_review", "dialogue", "grading_reference"],
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue",
+            "grading_reference"
+          ],
           "action_id": "pain_reassessment",
           "expected_action": "Treat pain, perform focused foot and neurovascular exam, and use labs or imaging to distinguish injury, infection, crystal arthritis, or vascular compromise.",
           "practice_rule": "For foot swelling, name the exam finding that separates injury, infection, inflammatory arthritis, and vascular risk."
@@ -124,12 +147,24 @@
         {
           "id": "case_029_exam_01",
           "domain": "physical_exam",
-          "statement": "Focused exam should document open wound status, deformity, bleeding, contamination, compartment firmness, pain with passive stretch, distal pulses, capillary refill, motor function, and sensation.",
+          "statement": "Focused exam should assess open wound status, deformity, bleeding, contamination, compartment firmness, pain with passive stretch, distal pulses, capillary refill, motor function, and sensation.",
           "rationale": "The source documents transfer for open tibia/fibula fracture with associated ankle and metatarsal fractures, but it does not provide the structured neurovascular exam.",
-          "source_anchors": ["L Leg injury, Transfer", "open left tibia/fibula fracture", "nondisplaced left medial malleolar fracture", "fracture of the base of the left metatarsal", "reference ESI 2"],
+          "source_anchors": [
+            "L Leg injury, Transfer",
+            "open left tibia/fibula fracture",
+            "nondisplaced left medial malleolar fracture",
+            "fracture of the base of the left metatarsal",
+            "reference ESI 2"
+          ],
           "confidence": "high",
           "review_status": "reviewed",
-          "use_in": ["physical_exam", "soap", "decision_review", "dialogue", "grading_reference"],
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue",
+            "grading_reference"
+          ],
           "action_id": "critical_procedure_team",
           "expected_action": "Place in monitored care, notify clinician and orthopedics, protect the wound, assess tetanus and antibiotics, and repeat neurovascular checks.",
           "practice_rule": "For open long-bone fracture, treat the open fracture and neurovascular exam as the acuity anchor, not the current pain score alone."
@@ -162,14 +197,1105 @@
         {
           "id": "case_030_exam_01",
           "domain": "physical_exam",
-          "statement": "Focused exam should document swelling, bruising, deformity, focal bony tenderness at the midfoot or fifth metatarsal, ability to bear weight, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
+          "statement": "Focused exam should assess swelling, bruising, deformity, focal bony tenderness at the midfoot or fifth metatarsal, ability to bear weight, dorsalis pedis pulse, capillary refill, motor function, and sensation.",
           "rationale": "The source documents isolated right foot pain, pain 6/10, one exam or imaging resource, stable vital signs, and home disposition, but no structured foot exam.",
-          "source_anchors": ["R Foot pain", "pain 6 out of 10", "exam_count: 1", "disposition: HOME", "reference ESI 4"],
+          "source_anchors": [
+            "R Foot pain",
+            "pain 6 out of 10",
+            "exam_count: 1",
+            "disposition: HOME",
+            "reference ESI 4"
+          ],
           "confidence": "moderate",
           "review_status": "reviewed",
-          "use_in": ["physical_exam", "soap", "decision_review", "dialogue"],
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
           "expected_action": "Use focused foot exam and imaging criteria to decide whether x-ray, analgesia, splinting, or outpatient follow-up is appropriate.",
           "practice_rule": "For isolated foot pain, document weight-bearing status, focal bony tenderness, and distal neurovascular status before assigning low acuity."
+        }
+      ]
+    },
+    "case_012": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Acute pelvic inflammatory disease, tubo-ovarian abscess, or acute appendicitis",
+      "ddx": [
+        {
+          "diagnosis": "Intra-abdominal inflammatory or infectious process (e.g. acute appendicitis, diverticulitis)",
+          "support": "Lower abdominal pain, walk-in presentation, pain rated 7/10, stable vital signs, and expected resources support a localized inflammatory or infectious process.",
+          "against_or_missing": "The source does not document localizing signs, fever, vomiting, or abdominal distention.",
+          "next_discriminator": "Focused abdominal exam, CBC, and CT abdomen/pelvis.",
+          "acuity_implication": "ESI 3 is consistent with multiple expected resources when hemodynamically stable."
+        },
+        {
+          "diagnosis": "Obstruction, perforation, abscess, or Crohn disease complication",
+          "support": "Significant abdominal pain, especially if prior history of Crohn or abdominal surgeries exists.",
+          "against_or_missing": "No documented weight loss, prior surgery, distention, or purulent drainage.",
+          "next_discriminator": "Inspect for distention, perianal/peranal exam, and CT abdomen/pelvis.",
+          "acuity_implication": "Would escalate if signs of peritonitis or shock are present."
+        },
+        {
+          "diagnosis": "Genitourinary or gynecologic source (e.g. pelvic inflammatory disease, ruptured ovarian cyst, ectopic pregnancy)",
+          "support": "Lower abdominal or pelvic pain in a female of childbearing or peri-menopausal age.",
+          "against_or_missing": "No pelvic exam details or pregnancy status documented in the source bundle.",
+          "next_discriminator": "Pelvic exam, serum/urine hCG, and pelvic ultrasound.",
+          "acuity_implication": "Would escalate if ectopic pregnancy, torsion, or severe sepsis is suspected."
+        }
+      ],
+      "teaching_points": [
+        "Acute abdominal pain is a symptom, not a diagnosis. A complete assessment must consider specific localized infectious, mechanical, or gynecologic etiologies.",
+        "Stable vital signs do not preclude ESI 3 assignment when multiple resource categories are expected (labs, imaging)."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_012_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal tenderness location, guarding, rebound, distention, bowel sounds, CVA tenderness, hydration status, and pelvic or pregnancy-related findings when clinically indicated.",
+          "rationale": "The source documents lower abdominal pain rated 7/10, stable vital signs, labs/imaging resources, and home disposition, but no structured abdominal or pelvic exam.",
+          "source_anchors": [
+            "Lower abdominal pain",
+            "pain rated as 7/10",
+            "stable vital signs",
+            "exam_count: 1",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Use focused abdominal and pelvic-risk exam to determine whether labs, imaging, reassessment, or safe discharge criteria are met.",
+          "practice_rule": "For lower abdominal pain, document peritoneal signs and pregnancy or pelvic risk before treating stable vitals as reassuring."
+        }
+      ]
+    },
+    "case_002": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Pneumonia exacerbating COPD vs. acute coronary syndrome or pulmonary embolism",
+      "ddx": [
+        {
+          "diagnosis": "Pneumonia exacerbating chronic obstructive pulmonary disease (COPD)",
+          "support": "Intermittent productive cough with yellow sputum, wheezing, tachypnea (RR 22), and active tobacco use support a lower respiratory tract infection.",
+          "against_or_missing": "No documented fever or chills.",
+          "next_discriminator": "Chest X-ray, CBC, sputum culture, and bedside lung ultrasound.",
+          "acuity_implication": "ESI 2 is supported by respiratory distress (tachypnea) and risk factors."
+        },
+        {
+          "diagnosis": "Acute coronary syndrome (ACS) or acute cardiac ischemia",
+          "support": "Sharp central chest pain and history of diabetes and cardiovascular risk factors.",
+          "against_or_missing": "Chest pain is description-specific to coughing rather than exertional pressure.",
+          "next_discriminator": "Electrocardiogram (ECG) and serial high-sensitivity troponin assays.",
+          "acuity_implication": "Requires immediate ECG and placement in a monitored area (ESI 2)."
+        },
+        {
+          "diagnosis": "Pulmonary embolism (PE)",
+          "support": "Active jugular vein thrombosis on warfarin represents a high hypercoagulable risk state.",
+          "against_or_missing": "No acute unilateral leg swelling or pain, and oxygen saturation is normal.",
+          "next_discriminator": "CT pulmonary angiogram (CTPA) or V/Q scan if CT is contraindicated.",
+          "acuity_implication": "Requires immediate rule-out due to potential life-threatening nature."
+        }
+      ],
+      "teaching_points": [
+        "Productive cough and chest pain in a COPD patient requires ruling out acute coronary syndrome alongside infectious exacerbation.",
+        "Vessel thrombosis history increases risk of thromboembolic events despite therapeutic anticoagulation."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_002_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess work of breathing, ability to speak, breath sounds for wheeze or crackles, chest wall tenderness, cardiac rhythm and perfusion, lower-extremity edema or asymmetry, and signs of volume overload.",
+          "rationale": "The source documents chest pain with dyspnea, cough, wheezing, COPD history, warfarin use, pain 8/10, tachypnea, admission, and multiple ED resources, but no structured cardiopulmonary exam.",
+          "source_anchors": [
+            "Chest pain, Dyspnea",
+            "productive cough, mild dyspnea, and wheezing",
+            "pain 8/10",
+            "exam_count: 2",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused cardiopulmonary and thromboembolic risk exam before deciding whether monitored placement, respiratory treatment, ECG/labs, or imaging is sufficient.",
+          "practice_rule": "For chest pain with dyspnea, pair cardiopulmonary exam findings with ECG, oxygenation, and resource needs before final acuity."
+        }
+      ]
+    },
+    "case_004": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Post-surgical neck hematoma or abscess concern vs. cocaine-induced hypertensive urgency",
+      "ddx": [
+        {
+          "diagnosis": "Post-surgical neck hematoma, edema, or abscess",
+          "support": "Recent ACDF/corpectomy surgery, difficulty swallowing, surgical site swelling, and hoarseness point directly to a post-surgical compressive neck lesion.",
+          "against_or_missing": "No active respiratory distress, stridor, or tracheal deviation documented.",
+          "next_discriminator": "Soft tissue neck CT, direct laryngoscopy, and urgent neurosurgical consultation.",
+          "acuity_implication": "Threatens airway stability, justifying high-priority ESI 2 status."
+        },
+        {
+          "diagnosis": "Cocaine-induced hypertensive urgency and chest pain",
+          "support": "Recent cocaine use with BP 180/104, severe headache, and chest pain.",
+          "against_or_missing": "No evidence of acute end-organ damage (e.g. pulmonary edema, active stroke findings).",
+          "next_discriminator": "ECG, troponins, and observation of vitals trend.",
+          "acuity_implication": "Surgical airway compression remains the primary safety risk over blood pressure alone."
+        }
+      ],
+      "teaching_points": [
+        "Postoperative neck swelling and dysphagia after anterior cervical spine surgery is an airway emergency.",
+        "Cocaine use can mask or complicate post-surgical pain and hypertensive presentation."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_004_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway patency, voice quality, stridor, secretion handling, neck swelling or hematoma around the surgical incision, ability to swallow, respiratory effort, and perfusion during hypertensive chest-pain symptoms.",
+          "rationale": "The source documents post-cervical spine surgery dysphagia, neck swelling, hoarseness, inability to swallow liquids or pills, severe pain, hypertension, and admission, but no structured airway or neck exam.",
+          "source_anchors": [
+            "Difficulty swallowing, Transfer",
+            "recent C5 corpectomy and C6-7 ACDF",
+            "increased swelling around the surgical incision and hoarseness",
+            "unable to swallow pills or water",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Prioritize airway-adjacent neck exam and secretion handling before treating the case as routine postoperative dysphagia.",
+          "practice_rule": "For postoperative neck swelling with dysphagia or hoarseness, document airway warning signs even when the patient denies current stridor."
+        }
+      ]
+    },
+    "case_005": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Sepsis secondary to osteomyelitis or wet gangrene in a medically complex patient",
+      "ddx": [
+        {
+          "diagnosis": "Sepsis secondary to osteomyelitis or wet gangrene",
+          "support": "Fever, tachycardia, hypotension, and a history of recent hospitalization for wet gangrene and osteomyelitis.",
+          "against_or_missing": "No documented localized physical signs of worsening infection in the summary.",
+          "next_discriminator": "Blood cultures, CBC, lactate levels, and imaging of the affected extremity.",
+          "acuity_implication": "Meets criteria for systemic inflammatory response syndrome (SIRS)/sepsis protocol, requiring ESI 2."
+        },
+        {
+          "diagnosis": "Acute cardiac decompensation or uremic complications",
+          "support": "End-stage renal disease, CAD, CHF, and diabetes place patient at high risk for acute fluid overload or uremia.",
+          "against_or_missing": "No documented chest pain, orthopnea, or focal neurological signs.",
+          "next_discriminator": "ECG, chest radiograph, electrolytes, and dialysis history verification.",
+          "acuity_implication": "ESRD complications require close monitoring for electrolyte abnormalities."
+        }
+      ],
+      "teaching_points": [
+        "Sepsis is a clinical diagnosis defined by infection and acute organ dysfunction; it is not a symptom.",
+        "Medically complex patients with ESRD and diabetes are highly vulnerable to rapid decompensation."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_005_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess mental status, perfusion, volume status, dialysis access, cardiopulmonary status, and the affected limb or wound for gangrene, drainage, cellulitis, crepitus, tenderness, and distal perfusion.",
+          "rationale": "The source documents ESRD on hemodialysis, wet gangrene and osteomyelitis, fever or sepsis concern, pain beyond the standard scale, hypothermia, procedures, and admission, but no structured infection or limb exam.",
+          "source_anchors": [
+            "wet gangrene and osteomyelitis",
+            "fever and signs of sepsis",
+            "pain 13",
+            "temperature 95.6 F",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform source-directed sepsis and limb/wound exam while arranging monitored care, cultures, antibiotics, and procedural evaluation as indicated.",
+          "practice_rule": "For suspected sepsis from limb infection, pair global perfusion assessment with a focused wound and distal neurovascular exam."
+        }
+      ]
+    },
+    "case_006": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Acute coronary syndrome vs. decompensated heart failure or endocarditis",
+      "ddx": [
+        {
+          "diagnosis": "Acute coronary syndrome (ACS)",
+          "support": "Sub-sternal chest pain radiating to left arm/jaw, associated with diaphoresis, shortness of breath, and palpitations.",
+          "against_or_missing": "Stable vital signs on arrival.",
+          "next_discriminator": "ECG, high-sensitivity cardiac troponins.",
+          "acuity_implication": "Acuity ESI 2 is required for cardiac chest pain rule-out."
+        },
+        {
+          "diagnosis": "Decompensated heart failure",
+          "support": "Worsening orthopnea over two months and history of atrial fibrillation not on anticoagulation.",
+          "against_or_missing": "No pedal edema or jugular venous distention documented on intake.",
+          "next_discriminator": "Chest X-ray, BNP levels, and echocardiogram.",
+          "acuity_implication": "Atrial fibrillation increases thromboembolic and heart failure risks."
+        },
+        {
+          "diagnosis": "Infective endocarditis",
+          "support": "History of intravenous drug use (IVDU) and methadone treatment presenting with chest pain/palpitations.",
+          "against_or_missing": "No fever or documented heart murmur on arrival.",
+          "next_discriminator": "Blood cultures, inflammatory markers, and transesophageal echocardiography.",
+          "acuity_implication": "Must maintain a high index of suspicion in patients with IVDU history."
+        }
+      ],
+      "teaching_points": [
+        "IVDU history dramatically increases risk for infective endocarditis, valvular pathology, and septic emboli.",
+        "Atrial fibrillation without anticoagulation is a major stroke and embolic risk factor."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_006_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess general distress, cardiac rhythm and perfusion, lung sounds, signs of heart failure such as JVD or edema, chest wall tenderness, and asymmetric leg swelling or other thromboembolic clues.",
+          "rationale": "The source documents rest chest pain radiating to the arm and jaw with diaphoresis, dyspnea, palpitations, orthopnea, atrial fibrillation history, admission, and diagnostic resources, but no structured cardiopulmonary exam.",
+          "source_anchors": [
+            "Chest pain",
+            "radiating to the left arm and jaw",
+            "diaphoresis, shortness of breath, and palpitations",
+            "worsening orthopnea",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Use a focused cardiopulmonary exam alongside ECG and labs to separate ACS, arrhythmia, heart failure, and other high-risk causes.",
+          "practice_rule": "For rest chest pain with classic associated symptoms, normal initial vitals do not replace a focused cardiopulmonary and perfusion exam."
+        }
+      ]
+    },
+    "case_007": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Septic shock secondary to severe pneumonia vs. postoperative central nervous system infection",
+      "ddx": [
+        {
+          "diagnosis": "Septic shock secondary to severe pneumonia",
+          "support": "History of fever, presumed pneumonia, severe hypotension, and supraventricular tachycardia (SVT) requiring intubation.",
+          "against_or_missing": "Blood pressure stabilized to 120/58 post-intervention.",
+          "next_discriminator": "Blood and sputum cultures, lactate clearance, and chest X-ray.",
+          "acuity_implication": "ESI 1 is required due to active intubation and mechanical ventilation."
+        },
+        {
+          "diagnosis": "Postoperative central nervous system infection",
+          "support": "Recent metastatic cerebellar mass resection presenting with severe fever and hemodynamic instability.",
+          "against_or_missing": "No neck stiffness or focal focal neurological deficits documented since intubation.",
+          "next_discriminator": "Head CT followed by lumbar puncture (if safe) and CSF analysis.",
+          "acuity_implication": "Requires broad-spectrum CNS-penetrating antibiotics."
+        }
+      ],
+      "teaching_points": [
+        "Intubated and mechanically ventilated patients are automatically ESI 1.",
+        "Severe tachycardia (HR 150) and recent intracranial surgery require aggressive diagnostic evaluation for infection."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_007_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway and ventilatory status, oxygenation, breath sounds, mental status, skin perfusion, central line or access sites, volume status, and signs of shock or recurrent SVT.",
+          "rationale": "The source documents fever or pneumonia with shock, severe hypotension, SVT, recent intubation, central line placement, tachycardia, admission, and high resource use, but no structured respiratory or shock exam.",
+          "source_anchors": [
+            "Fever, Pneumonia, Transfer",
+            "presumed pneumonia, and shock",
+            "severe hypotension and supraventricular tachycardia",
+            "recently intubated for airway protection",
+            "reference ESI 1"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Treat this as a resuscitation-level reassessment with airway, breathing, circulation, perfusion, and line/access checks.",
+          "practice_rule": "For ESI 1 infection or shock cases, focused exam starts with ABCs, perfusion, mental status, and response to stabilization."
+        }
+      ]
+    },
+    "case_008": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Decompensated heart failure with aortic stenosis vs. acute coronary syndrome or chronic catheter-associated UTI",
+      "ddx": [
+        {
+          "diagnosis": "Decompensated heart failure with severe aortic stenosis",
+          "support": "History of AS and heart failure, presenting with worsening shortness of breath, pedal edema, and oxygen requirement.",
+          "against_or_missing": "No documented weight gain, rales, or S3 gallop.",
+          "next_discriminator": "Echocardiogram, chest X-ray, and BNP levels.",
+          "acuity_implication": "ESI 3 is consistent with stable vital signs, though respiratory distress requires oxygen."
+        },
+        {
+          "diagnosis": "Acute coronary syndrome (ACS)",
+          "support": "Intermittent left-sided chest and arm pain in a patient with significant cardiovascular risk factors.",
+          "against_or_missing": "No diagnostic ECG changes or active severe chest pain on arrival.",
+          "next_discriminator": "Serial ECGs and troponin assays.",
+          "acuity_implication": "Cardiovascular comorbidities demand ruling out acute ischemia."
+        },
+        {
+          "diagnosis": "Catheter-associated urinary tract infection (CAUTI)",
+          "support": "Chronic urinary retention with indwelling Foley catheter in place.",
+          "against_or_missing": "Patient denies fever, flank pain, or dysuria.",
+          "next_discriminator": "Urinalysis and urine culture.",
+          "acuity_implication": "Foley catheter presence represents a constant infectious risk vector."
+        }
+      ],
+      "teaching_points": [
+        "Shortness of breath and pedal edema are symptoms of decompensated heart failure, which is exacerbated by valvular aortic stenosis.",
+        "Indwelling catheters are common sources of occult bacteremia in older patients."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_008_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess work of breathing, oxygen requirement, breath sounds for crackles or wheeze, jugular venous distention, cardiac murmur, peripheral edema symmetry, perfusion, and signs of volume overload.",
+          "rationale": "The source documents dyspnea, chest pain, bilateral pedal edema, heart failure, aortic stenosis, COPD, oxygen supplementation, admission, and resource use, but no structured cardiopulmonary or volume exam.",
+          "source_anchors": [
+            "Dyspnea, Pedal edema",
+            "heart failure, aortic stenosis, history of strokes, COPD",
+            "worsening shortness of breath and pedal edema",
+            "requiring oxygen supplementation",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform cardiopulmonary and volume-status exam to guide oxygen, diuresis, ECG/labs, imaging, and reassessment needs.",
+          "practice_rule": "For dyspnea with edema, connect lung sounds, JVD, edema, oxygen need, and perfusion to acuity and disposition."
+        }
+      ]
+    },
+    "case_009": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Perianal abscess in an immunocompromised patient",
+      "ddx": [
+        {
+          "diagnosis": "Perianal or rectal abscess",
+          "support": "Chief concern of rectal pain, history of hidradenitis suppurativa, and previous anal condylomata surgery.",
+          "against_or_missing": "No documented visible purulent drainage, fever, or fluctuance.",
+          "next_discriminator": "Focused digital rectal exam and pelvic CT scan or MRI.",
+          "acuity_implication": "ESI 3 is supported by the need for imaging and pain management."
+        },
+        {
+          "diagnosis": "Perianal cellulitis or complicated fistula-in-ano",
+          "support": "Immunocompromised status (HIV) and severe localized pain (8/10).",
+          "against_or_missing": "No visible fistulous openings or actively draining tracts noted.",
+          "next_discriminator": "Pelvic imaging and surgical evaluation.",
+          "acuity_implication": "Requires prompt surgical consult due to risk of rapid spread in HIV."
+        }
+      ],
+      "teaching_points": [
+        "Perianal pain is a symptom; perianal abscess is the clinical diagnosis requiring surgical drainage.",
+        "HIV and diabetes compromise immune defense, placing patients at high risk for necrotizing soft-tissue infections."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_009_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess perianal location, erythema, warmth, fluctuance, drainage, spreading cellulitis, tenderness out of proportion, crepitus, rectal exam tolerance when indicated, and systemic toxicity.",
+          "rationale": "The source documents perianal abscess in a patient with HIV, diabetes, hidradenitis, chronic renal insufficiency, severe pain, admission, and procedural resource use, but no structured perianal exam.",
+          "source_anchors": [
+            "RECTAL ABSCESS",
+            "perianal abscess",
+            "HIV, diabetes mellitus type 2, hidradenitis suppurativa",
+            "pain rated 8",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused perianal and systemic infection exam before deciding on imaging, antibiotics, analgesia, and drainage consultation.",
+          "practice_rule": "For perianal abscess in immunocompromised or diabetic patients, look for deep-space infection and necrotizing warning signs."
+        }
+      ]
+    },
+    "case_013": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Opioid-induced encephalopathy vs. acute post-fall intracranial injury or post-esophagectomy anastomosis leak",
+      "ddx": [
+        {
+          "diagnosis": "Opioid-induced encephalopathy (accidental overdose)",
+          "support": "Altered mental status, pinpoint pupils, slurred speech, chronic opioid therapy, and an empty pill bottle.",
+          "against_or_missing": "Respiratory rate is normal at 18 and SpO2 is 93% (borderline).",
+          "next_discriminator": "Response to low-dose naloxone (Narcan) and serial mental status checks.",
+          "acuity_implication": "ESI 2 is justified due to severe neurological impairment and aspiration risk."
+        },
+        {
+          "diagnosis": "Acute intracranial hemorrhage or trauma secondary to fall",
+          "support": "History of mechanical fall and prior right-sided stroke with baseline left-sided weakness.",
+          "against_or_missing": "No signs of direct head trauma, laceration, or pupillary asymmetry.",
+          "next_discriminator": "Non-contrast head CT scan.",
+          "acuity_implication": "Routinely indicated for acute altered mental status following a fall."
+        },
+        {
+          "diagnosis": "Post-esophagectomy complication (e.g. sepsis or anastomosis leak)",
+          "support": "History of esophageal cancer status post-esophagectomy, tachycardia (HR 120), and severe thirst.",
+          "against_or_missing": "No fever, active chest pain, or abdominal tenderness.",
+          "next_discriminator": "Complete blood count, lactate, and CT chest/abdomen with oral contrast.",
+          "acuity_implication": "Late complications can present with systemic sepsis."
+        }
+      ],
+      "teaching_points": [
+        "Altered mental status is a symptom, not a diagnosis. Intoxications, trauma, and surgical complications must be differentiated.",
+        "Pinpoint pupils and slurred speech are key signs of opioid toxicity."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_013_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway protection, respiratory effort, pupil size and reactivity, glucose or toxidrome clues, orientation, speech, cranial nerves, motor asymmetry, trauma signs, and baseline versus new neurologic deficits.",
+          "rationale": "The source documents altered mental status, possible extra opioid ingestion with pinpoint pupils and slurred speech, chronic stroke deficits, fall, tachycardia, low oxygen saturation, and admission, but no structured neurologic exam.",
+          "source_anchors": [
+            "ALTERED LEVEL OF CONSCIOUSNESS",
+            "not oriented to date or time",
+            "possible narcotic overdose, pinpoint pupils, slurred speech",
+            "chronic left-sided weakness post-CVA",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused airway, toxidrome, trauma, and neurologic exam before anchoring on overdose or baseline stroke deficits.",
+          "practice_rule": "For altered mental status, document glucose/toxidrome clues, airway protection, and new focal deficits early."
+        }
+      ]
+    },
+    "case_014": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Acute pelvic inflammatory disease vs. nephrolithiasis or ovarian torsion",
+      "ddx": [
+        {
+          "diagnosis": "Acute pelvic inflammatory disease (PID) or tubo-ovarian abscess",
+          "support": "61-year-old female presenting with acute severe pelvic pain (9/10).",
+          "against_or_missing": "No fever, vaginal discharge, or cervical motion tenderness details provided.",
+          "next_discriminator": "Pelvic exam, wet mount, cervical cultures, and pelvic ultrasound.",
+          "acuity_implication": "ESI 3 is consistent with stable vitals and expected resources (labs/imaging)."
+        },
+        {
+          "diagnosis": "Nephrolithiasis (kidney stone)",
+          "support": "Sudden onset of severe unilateral pelvic/lower abdominal pain (9/10).",
+          "against_or_missing": "No documented hematuria, nausea, vomiting, or flank pain.",
+          "next_discriminator": "Urinalysis and non-contrast CT abdomen/pelvis.",
+          "acuity_implication": "Severe pain requires prompt analgesia and diagnostic imaging."
+        },
+        {
+          "diagnosis": "Ovarian torsion or ruptured cyst",
+          "support": "Acute onset of pelvic pain in a female patient.",
+          "against_or_missing": "Less common in post-menopausal age, but remains a critical surgical risk.",
+          "next_discriminator": "Pelvic ultrasound with Doppler flow.",
+          "acuity_implication": "Torsion represents a surgical emergency if suspected."
+        }
+      ],
+      "teaching_points": [
+        "Pelvic pain is a symptom; gynecologic, urologic, and gastrointestinal diagnoses must be systematically ruled out.",
+        "Severe pain (9/10) warrants immediate assessment and analgesia, even with stable vital signs."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_014_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal and pelvic tenderness, guarding or rebound, adnexal or uterine tenderness when indicated, vaginal bleeding or discharge history when appropriate, hydration, and pain-related distress.",
+          "rationale": "The source documents acute severe pelvic pain rated 9/10, ambulance arrival, oxygen saturation 94%, resource use, and home disposition, but no structured abdominal or pelvic exam.",
+          "source_anchors": [
+            "Acute Pelvic pain",
+            "pain level of 9 out of 10",
+            "SpO2 94%",
+            "exam_count: 1",
+            "reference ESI 3"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Use focused abdominal/pelvic exam and pregnancy-sensitive risk assessment to separate torsion, ectopic pregnancy, infection, urinary, and GI causes.",
+          "practice_rule": "For severe pelvic pain, stable blood pressure does not replace assessment for peritoneal, pregnancy-related, or torsion warning signs."
+        }
+      ]
+    },
+    "case_017": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Acute ischemic or hemorrhagic stroke vs. adrenal crisis or uremic encephalopathy",
+      "ddx": [
+        {
+          "diagnosis": "Acute ischemic stroke or intracranial hemorrhage",
+          "support": "New onset left-sided flaccid weakness, possible gaze deviation, slurred speech, and severe hypertension (BP 198/107).",
+          "against_or_missing": "No documented headache or trauma.",
+          "next_discriminator": "Non-contrast head CT, CT angiogram of head/neck, and stroke code activation.",
+          "acuity_implication": "ESI 2 is required due to acute focal neurological deficits within stroke window."
+        },
+        {
+          "diagnosis": "Acute adrenal crisis",
+          "support": "History of adrenal insufficiency presenting with active vomiting, nausea, and weakness.",
+          "against_or_missing": "Presenting blood pressure is hypertensive (198/107) rather than hypotensive.",
+          "next_discriminator": "Serum cortisol, ACTH, and electrolyte levels.",
+          "acuity_implication": "Requires stress-dose steroids (hydrocortisone) if adrenal crisis is suspected."
+        },
+        {
+          "diagnosis": "Uremic encephalopathy or severe electrolyte imbalance",
+          "support": "End-stage renal disease (ESRD) secondary to IgA nephropathy.",
+          "against_or_missing": "Usually presents with generalized confusion/asterixis rather than focal hemiparesis.",
+          "next_discriminator": "BMP, BUN, creatinine, and dialysis compliance history.",
+          "acuity_implication": "Electrolyte imbalances can lower seizure thresholds and alter mentation."
+        }
+      ],
+      "teaching_points": [
+        "Left-sided weakness and gaze deviation are signs of stroke; they are not the diagnosis itself.",
+        "Adrenal insufficiency is a life-threatening condition that can cause rapid shock if untreated during stress."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_017_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway protection during vomiting, hydration, complete neurologic status including gaze, cranial nerves, speech, motor strength, sensation, coordination, and serial blood pressure-related end-organ findings.",
+          "rationale": "The source documents nausea, vomiting, left-sided weakness, flaccid left side, possible gaze deviation, severe hypertension, tachypnea, procedures, and admission, but no structured stroke or neurologic exam.",
+          "source_anchors": [
+            "N/V, Weakness",
+            "left-sided weakness",
+            "flaccid on the left side with possible gaze deviation",
+            "BP 198/107",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform stroke-focused neurologic exam and aspiration-risk assessment while activating time-sensitive evaluation and BP reassessment.",
+          "practice_rule": "For vomiting with focal weakness or gaze deviation, treat neurologic exam and airway protection as immediate priorities."
+        }
+      ]
+    },
+    "case_018": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Finger laceration requiring closure",
+      "ddx": [
+        {
+          "diagnosis": "Finger laceration with possible tendon or digital nerve involvement",
+          "support": "Traumatic laceration to the finger with pain 3/10 and expected suture or repair procedure.",
+          "against_or_missing": "No documented motor deficit, sensory loss, or active arterial bleeding.",
+          "next_discriminator": "Focused neurovascular exam of the finger, tendon function testing, and exploration.",
+          "acuity_implication": "ESI 4 is consistent with a single resource (procedure) and stable vital signs."
+        }
+      ],
+      "teaching_points": [
+        "Finger lacerations require testing of two tendons (FDS and FDP) and digital nerve sensation before closure.",
+        "Tetanus prophylaxis status must be verified for all traumatic lacerations."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_018_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess laceration location, depth, contamination, active bleeding, foreign body concern, tendon function, range of motion, two-point sensation, capillary refill, distal pulse when relevant, and tetanus status.",
+          "rationale": "The source documents finger laceration, walk-in stability, pain 3/10, intramuscular medication, exam or wound-care resource use, and home disposition, but no structured wound or hand exam.",
+          "source_anchors": [
+            "Finger laceration",
+            "pain level of 3 out of 10",
+            "exam_count: 1",
+            "disposition: HOME",
+            "reference ESI 4"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused wound, tendon, and neurovascular exam before repair, dressing, tetanus prophylaxis, or discharge.",
+          "practice_rule": "For finger lacerations, function and distal neurovascular status determine whether the wound is simple or needs escalation."
+        }
+      ]
+    },
+    "case_019": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Finger laceration requiring closure",
+      "ddx": [
+        {
+          "diagnosis": "Finger laceration with possible tendon or digital nerve involvement",
+          "support": "Walk-in female with finger laceration, pain 3/10, and stable vitals.",
+          "against_or_missing": "No tendon exposure, neurovascular compromise, or uncontrolled hemorrhage documented.",
+          "next_discriminator": "Focused digital block, wound irrigation, tendon range check, and suture closure.",
+          "acuity_implication": "ESI 4 is appropriate when only wound repair is expected."
+        }
+      ],
+      "teaching_points": [
+        "A finger laceration is the diagnosis; check distal sensation and tendon integrity before wound closure.",
+        "Irrigate wounds thoroughly to reduce the risk of bacterial contamination."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_019_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess laceration location, depth, active bleeding, contamination, tendon function, range of motion, two-point sensation, capillary refill, distal perfusion, and whether the wound edges are appropriate for simple closure or dressing.",
+          "rationale": "The source documents finger laceration, mild pain, stable appearance, wound-related medications, home disposition, and no structured hand exam.",
+          "source_anchors": [
+            "Finger laceration",
+            "mild pain at a level of 3 out of 10",
+            "appears stable",
+            "disposition: HOME",
+            "reference ESI 4"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Confirm wound simplicity with tendon and neurovascular exam before assigning low-acuity wound care.",
+          "practice_rule": "For apparently stable lacerations, document depth, contamination, tendon function, and sensation before discharge planning."
+        }
+      ]
+    },
+    "case_022": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Acute mesenteric ischemia vs. gastrointestinal perforation or anticoagulation-related retroperitoneal hemorrhage",
+      "ddx": [
+        {
+          "diagnosis": "Acute mesenteric ischemia",
+          "support": "Atrial fibrillation (currently on anticoagulation) and severe abdominal pain (10/10) out of proportion to exam findings, in an older patient.",
+          "against_or_missing": "No documented hematochezia or active metabolic acidosis.",
+          "next_discriminator": "CT angiography of the abdomen/pelvis and serum lactate levels.",
+          "acuity_implication": "Needing immediate surgical evaluation due to high mortality (ESI 2)."
+        },
+        {
+          "diagnosis": "Gastrointestinal tract perforation or peritonitis",
+          "support": "Severe abdominal pain (10/10) and abdominal distention in a patient with a history of colonic polyps.",
+          "against_or_missing": "Patient is afebrile (97.2 F) and has stable vital signs.",
+          "next_discriminator": "Upright chest radiograph or CT abdomen/pelvis looking for free air.",
+          "acuity_implication": "Perforation requires urgent antibiotic administration and surgery consult."
+        },
+        {
+          "diagnosis": "Anticoagulation-related retroperitoneal or abdominal wall hematoma",
+          "support": "Atrial fibrillation on anticoagulants presenting with sudden onset severe abdominal pain.",
+          "against_or_missing": "Hemodynamics are stable, and no visible flank ecchymosis is described.",
+          "next_discriminator": "CBC (checking hemoglobin drop) and CT abdomen/pelvis.",
+          "acuity_implication": "Requires close blood pressure monitoring and potential reversal of anticoagulation."
+        }
+      ],
+      "teaching_points": [
+        "Abdominal pain is a symptom; acute mesenteric ischemia is a diagnosis that must be suspected in elderly patients with atrial fibrillation.",
+        "Anticoagulation therapy carries a constant risk of spontaneous retroperitoneal hemorrhage."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_022_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal distention, tenderness location, guarding, rebound, rigidity, bowel sounds, perfusion, bleeding signs, rectal exam when indicated, and serial abdominal exam changes.",
+          "rationale": "The source documents severe abdominal pain rated 10/10 with abdominal distention, anticoagulation, atrial fibrillation, admission, procedures, and multiple resources, but no structured abdominal exam.",
+          "source_anchors": [
+            "Abd pain, Abdominal distention",
+            "severe abdominal pain (rated 10/10) and abdominal distention",
+            "atrial fibrillation on anticoagulation",
+            "exam_count: 2",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused and serial abdominal exams while preparing labs, imaging, analgesia, and escalation for bleeding, obstruction, ischemia, or perforation.",
+          "practice_rule": "For severe abdominal pain with distention or anticoagulation, exam must look for peritonitis and perfusion changes even when initial vitals are not frankly unstable."
+        }
+      ]
+    },
+    "case_023": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Recurrent pulmonary embolism or surgical site complication (e.g. retroperitoneal hematoma/abscess) vs. metastatic progression",
+      "ddx": [
+        {
+          "diagnosis": "Recurrent pulmonary embolism (PE)",
+          "support": "History of bilateral PE and metastatic renal cell carcinoma (hypercoagulable state) presenting with acute chest pain, dyspnea, and hypoxia (SpO2 90%).",
+          "against_or_missing": "Chest pain resolved with rest.",
+          "next_discriminator": "CT pulmonary angiogram (CTPA) and checking oxygen requirement.",
+          "acuity_implication": "Hypoxia and pulmonary embolism risk require urgent ESI 2 assignment."
+        },
+        {
+          "diagnosis": "Surgical site complication (e.g. abscess, hematoma, or urine leak)",
+          "support": "Right radical nephrectomy surgery one month ago, right lower quadrant pain, and persistent emesis.",
+          "against_or_missing": "No documented surgical site drainage or fever.",
+          "next_discriminator": "CT abdomen/pelvis with contrast and renal panel.",
+          "acuity_implication": "Complicated post-surgical presentation requires comprehensive workup."
+        },
+        {
+          "diagnosis": "Metastatic progression or tumor erosion",
+          "support": "Known history of renal cell carcinoma with metastases to the lungs and mediastinum.",
+          "against_or_missing": "No acute hemoptysis or worsening systemic cachexia documented.",
+          "next_discriminator": "Staging CT chest/abdomen/pelvis and oncology follow-up.",
+          "acuity_implication": "Cancer pain and dyspnea represent advanced disease burden."
+        }
+      ],
+      "teaching_points": [
+        "Cancer patients are in a baseline hypercoagulable state and have a high risk of thromboembolism.",
+        "Hypoxia (SpO2 90%) in a patient with a history of PE is a critical red flag."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_023_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess abdominal tenderness and distention, hydration, work of breathing, oxygen requirement, lung sounds, chest pain/perfusion findings, leg swelling or DVT signs, and postoperative abdominal warning signs.",
+          "rationale": "The source documents abdominal pain with vomiting, nausea, dyspnea, hypoxemia, recent nephrectomy, pulmonary emboli history, metastatic cancer, admission, and multiple resources, but no structured abdominal or cardiopulmonary exam.",
+          "source_anchors": [
+            "Abd pain, Vomiting, Nausea, Dyspnea",
+            "recent right radical nephrectomy",
+            "acute right-sided chest pain and dyspnea",
+            "SpO2 90%",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform combined abdominal, respiratory, and thromboembolic-risk exam before narrowing the case to postoperative abdominal pain alone.",
+          "practice_rule": "For abdominal pain plus dyspnea or hypoxemia, examine both abdomen and cardiopulmonary systems before choosing acuity and plan."
+        }
+      ]
+    },
+    "case_024": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Routine post-procedural suture removal",
+      "ddx": [
+        {
+          "diagnosis": "Suture removal encounter with well-healed wound",
+          "support": "Presented to the ED solely for suture removal, walk-in, with stable vital signs and no pain.",
+          "against_or_missing": "No signs of wound dehiscence, erythema, warmth, or purulent drainage.",
+          "next_discriminator": "Focused skin inspection to verify wound healing.",
+          "acuity_implication": "ESI 5 is consistent with zero expected resources."
+        }
+      ],
+      "teaching_points": [
+        "Suture removal is an administrative/clinical encounter, not an acute illness.",
+        "Assess for wound dehiscence or localized wound infection before removing sutures."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_024_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess wound location, approximation, erythema, warmth, drainage, dehiscence, tenderness, surrounding cellulitis, retained suture issues, and distal function if the wound is on an extremity.",
+          "rationale": "The source documents suture removal, walk-in arrival, no pain, stable vital signs, zero resources, home disposition, and no structured wound exam.",
+          "source_anchors": [
+            "Suture removal",
+            "no pain",
+            "stable vital signs",
+            "resources_used: 0",
+            "reference ESI 5"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Verify wound healing and absence of infection or dehiscence before routine suture removal and discharge instructions.",
+          "practice_rule": "For suture removal, low acuity depends on a focused wound check, not the procedure label alone."
+        }
+      ]
+    },
+    "case_025": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Septic shock secondary to intra-abdominal infection (e.g. ischemic bowel, peritonitis) vs. ruptured abdominal aortic aneurysm",
+      "ddx": [
+        {
+          "diagnosis": "Septic shock secondary to intra-abdominal infection",
+          "support": "Abdominal pain, altered mental status, and severe hemodynamic instability (tachycardia HR 115, critical pain 13).",
+          "against_or_missing": "No documented fever (T 98.1 F) or source of infection.",
+          "next_discriminator": "Blood and urine cultures, serum lactate, and emergent abdominal CT.",
+          "acuity_implication": "ESI 1 is required due to hemodynamic instability and altered mental status."
+        },
+        {
+          "diagnosis": "Ruptured abdominal aortic aneurysm (AAA)",
+          "support": "Sudden onset of severe abdominal pain with altered mental status and hemodynamic instability.",
+          "against_or_missing": "No pulsatile abdominal mass or history of vascular disease documented.",
+          "next_discriminator": "Bedside abdominal ultrasound, CT angiogram of abdomen/pelvis.",
+          "acuity_implication": "Vascular emergency requiring immediate surgical consultation."
+        }
+      ],
+      "teaching_points": [
+        "Hemodynamic instability with altered mental status is an immediate life threat (ESI 1).",
+        "Spontaneous alteration in mental status in older patients with abdominal pain requires ruling out sepsis and vascular catastrophe."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_025_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess airway protection, mental status, perfusion and shock signs, abdominal distention, guarding, rebound, rigidity, vascular or bleeding clues, bedside glucose, and response to immediate stabilization.",
+          "rationale": "The source documents abdominal pain with altered mental status, hemodynamic instability, critical status, pain beyond the standard scale, tachycardia, admission, and high resource use, but no structured resuscitation exam.",
+          "source_anchors": [
+            "Abd pain, Transfer",
+            "abdominal pain and altered mental status",
+            "hemodynamically unstable",
+            "situation is critical",
+            "reference ESI 1"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform ABC, perfusion, neurologic, and abdominal resuscitation exam while activating immediate clinician evaluation and critical diagnostics.",
+          "practice_rule": "For critical abdominal pain with altered mental status, focused exam is a repeated resuscitation survey plus abdominal catastrophe screen."
+        }
+      ]
+    },
+    "case_027": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Routine medication refill request",
+      "ddx": [
+        {
+          "diagnosis": "Medication refill request",
+          "support": "Presents to the ED for medication refill, afebrile, stable vital signs, and no pain.",
+          "against_or_missing": "No acute clinical instability, withdrawal symptoms, or medication adverse effects documented.",
+          "next_discriminator": "Confirm medication history, dose, compliance, and outpatient clinic follow-up plan.",
+          "acuity_implication": "ESI 5 is consistent with zero expected ED resources."
+        }
+      ],
+      "teaching_points": [
+        "Medication refills represent low-acuity care unless high-risk withdrawal medications are involved.",
+        "Connect patients with social work or outpatient clinics to establish regular medication access."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_027_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess general appearance, cardiopulmonary and neurologic screening, signs of withdrawal or disease decompensation, medication-specific risk clues, and whether any new symptom makes the refill request unsafe for routine care.",
+          "rationale": "The source documents medication refill request, stable vital signs, no pain, zero resources, and home disposition, but no structured exam or medication-specific safety screen.",
+          "source_anchors": [
+            "Med refill",
+            "stable vital signs",
+            "no reported pain",
+            "resources_used: 0",
+            "reference ESI 5"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Verify there are no symptoms from missed therapy, withdrawal, adverse effects, or unstable chronic disease before treating the visit as ESI 5.",
+          "practice_rule": "For medication refills, low acuity requires a focused safety screen for the medication and underlying condition."
+        }
+      ]
+    },
+    "case_031": {
+      "review_status": "reviewed",
+      "generated_by": "clinical_inference",
+      "model": "clinical_review_seed_v1",
+      "prompt_version": "case_augmentation_prompt_v1",
+      "generated_at": "2026-05-19",
+      "reviewed_by": "clinical_review",
+      "reviewed_at": "2026-05-19",
+      "likely_working_diagnosis": "Perianal Crohn's flare with fistulizing abscess",
+      "ddx": [
+        {
+          "diagnosis": "Perianal Crohn's flare with abscess or fistula formation",
+          "support": "History of fistulizing Crohn's disease, severe anal pain (9/10), purulent/bloody discharge from abscesses, fevers, weight loss.",
+          "against_or_missing": "Vitals are stable on arrival.",
+          "next_discriminator": "Focused perianal exam, pelvic CT/MRI, and surgical/GI consult.",
+          "acuity_implication": "ESI 2 is supported by signs of chronic systemic illness, severe pain, and active discharge."
+        },
+        {
+          "diagnosis": "Systemic bacteremia or sepsis secondary to perianal abscess",
+          "support": "Episodic fevers, night sweats, decreased oral intake, and purulent discharge.",
+          "against_or_missing": "Initial vital signs are stable (HR 77, BP 125/65).",
+          "next_discriminator": "Blood cultures, CBC, and lactate levels.",
+          "acuity_implication": "Requires aggressive monitoring to prevent progression to shock."
+        }
+      ],
+      "teaching_points": [
+        "Anal pain in fistulizing Crohn's disease is often due to an abscess or complex fistula; it is a clinical flare, not a benign symptom.",
+        "Weight loss and episodic fevers indicate a chronic systemic inflammatory or infectious burden."
+      ],
+      "inferred_facts": [
+        {
+          "id": "case_031_exam_01",
+          "domain": "physical_exam",
+          "statement": "Focused exam should assess perianal inspection for abscess openings, drainage, erythema, warmth, fluctuance, fistula tracts, cellulitis, tenderness out of proportion, abdominal tenderness, hydration, and systemic toxicity.",
+          "rationale": "The source documents fistulizing Crohn disease with severe anal pain, purulent and bloody drainage, weight loss, fevers, night sweats, admission, and labs, but no structured perianal or abdominal exam.",
+          "source_anchors": [
+            "ABDOMINAL PAIN",
+            "fistulizing Crohn's disease",
+            "severe anal pain",
+            "purulent and bloody discharge from abscesses",
+            "reference ESI 2"
+          ],
+          "confidence": "moderate",
+          "review_status": "reviewed",
+          "use_in": [
+            "physical_exam",
+            "soap",
+            "decision_review",
+            "dialogue"
+          ],
+          "expected_action": "Perform focused perianal, abdominal, hydration, and systemic infection exam before deciding on imaging, antibiotics, analgesia, or surgical/GI consultation.",
+          "practice_rule": "For Crohn-related anal pain with drainage and systemic symptoms, examine for abscess, fistula, cellulitis, and sepsis risk."
         }
       ]
     }

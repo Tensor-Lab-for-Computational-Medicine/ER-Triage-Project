@@ -73,7 +73,7 @@ function TriageAssignment({ sessionId, coachEnabled = false, onNext, onCapture, 
     } catch (err) {
       setError('Failed to record definitive ESI level.');
       setSelectedLevel(null);
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -81,9 +81,7 @@ function TriageAssignment({ sessionId, coachEnabled = false, onNext, onCapture, 
     <section className="step-card esi-assignment-card" aria-labelledby="esi-heading">
       <div className="section-header">
         <div>
-          <span className="eyebrow">
-            Step 3 of 6 <span className="provenance-tag student-tag">Student Decision</span>
-          </span>
+          <span className="eyebrow">Clinical Impression <span className="provenance-tag student-tag">Student Decision</span></span>
           <h2 id="esi-heading">Definitive ESI Acuity Assignment</h2>
           <p className="subtitle">
             Assign the Emergency Severity Index level based on gathered history, vitals, and physical exam targets.
@@ -156,7 +154,7 @@ function TriageAssignment({ sessionId, coachEnabled = false, onNext, onCapture, 
             className="btn-primary"
             disabled={loading || submitted || !selectedLevel || !rationaleReady}
           >
-            {loading ? 'Locking Definitive Acuity...' : 'Lock Definitive ESI & Proceed to Care Priorities'}
+            {loading ? 'Locking Definitive Acuity...' : 'Lock ESI & continue'}
           </button>
         </div>
       </form>

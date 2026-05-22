@@ -32,9 +32,14 @@ import {
   learnerProfileFocus,
   readLearnerProfile
 } from './learnerProfileService';
+import {
+  buildFocusedExamSelection,
+  scoreFocusedExamSelection
+} from './examEngine';
 
 const sessions = new Map();
 const completedSessions = new Map();
+let localResearchCaseBundle = null;
 
 export const DEFAULT_TUTOR_MODEL = 'openrouter/free';
 export const DEFAULT_PATIENT_DIALOGUE_MODEL = 'openrouter/auto';
@@ -42,13 +47,14 @@ const TUTOR_SESSION_KEY = 'ed_triage_openrouter_key';
 const TUTOR_LOCAL_KEY = 'ed_triage_openrouter_key';
 const TUTOR_MODEL_KEY = 'ed_triage_openrouter_model';
 const PATIENT_DIALOGUE_MODEL_KEY = 'ed_triage_openrouter_patient_model';
+const RESTRICTED_AI_SESSION_KEY = 'ed_triage_restricted_ai_enabled';
 const TUTOR_STORAGE_KEY = 'ed_triage_openrouter_storage';
 const PATIENT_RESPONSE_CACHE_VERSION = PATIENT_DIALOGUE_CACHE_VERSION;
 const PATIENT_PERSONA_VERSION = PATIENT_DIALOGUE_ENGINE_VERSION;
 const PATIENT_PROMPT_VERSION = PATIENT_DIALOGUE_PROMPT_VERSION;
 const PATIENT_AI_FAST_TIMEOUT_MS = 6000;
 const PATIENT_AI_BACKGROUND_TIMEOUT_MS = 8000;
-const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v6';
+const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v7';
 const PATIENT_RESPONSE_CACHE_LIMIT = 250;
 const REASONING_REVIEW_CACHE_KEY = 'ed_triage_reasoning_review_cache_v1';
 const REASONING_REVIEW_CACHE_LIMIT = 60;
@@ -129,57 +135,302 @@ const TRIAGE_ACTIONS = [
     name: 'Escalate airway or oxygenation support',
     category: 'Airway and breathing',
     description: 'Supported by abnormal oxygenation, respiratory distress, nebulized treatment, or ventilation fields.',
-    evidence_type: 'MIETIC record or ESI/vitals'
+    evidence_type: 'Source record or ESI/vitals'
   },
   {
     id: 'vascular_access',
     name: 'Prioritize vascular access and bloodwork',
     category: 'Access and circulation',
     description: 'Supported by IV access, IV fluids, parenteral medications, labs, transfusion, or resource counts.',
-    evidence_type: 'MIETIC record'
+    evidence_type: 'Source record'
   },
   {
     id: 'medication_route_priority',
     name: 'Anticipate medication route needs',
     category: 'Medications',
     description: 'Supported by recorded IV, IM, nebulized, psychotropic, or medication-tier fields.',
-    evidence_type: 'MIETIC record'
+    evidence_type: 'Source record'
   },
   {
     id: 'bleeding_transfusion_readiness',
     name: 'Escalate bleeding or transfusion readiness',
     category: 'Access and circulation',
     description: 'Supported by transfusion, red-cell order, shock-like vitals, or bleeding language in the case.',
-    evidence_type: 'MIETIC record or ESI/vitals'
+    evidence_type: 'Source record or ESI/vitals'
   },
   {
     id: 'critical_procedure_team',
     name: 'Prepare for critical procedure support',
     category: 'Critical procedures',
     description: 'Supported by recorded critical procedure, emergency medication, or immediate stabilization signals.',
-    evidence_type: 'MIETIC record'
+    evidence_type: 'Source record'
   },
   {
     id: 'behavioral_safety',
     name: 'Begin behavioral safety precautions',
     category: 'Safety',
     description: 'Supported by psychotropic medication use or behavioral health risk language in the case.',
-    evidence_type: 'MIETIC record or case text'
+    evidence_type: 'Source record or case text'
   },
   {
     id: 'pain_reassessment',
     name: 'Flag severe pain for reassessment',
     category: 'Safety',
     description: 'Supported by the structured triage pain score.',
-    evidence_type: 'MIETIC vitals'
+    evidence_type: 'Source vitals'
   }
 ];
 
 const TRIAGE_ACTION_ORDER = TRIAGE_ACTIONS.map((item) => item.id);
 const actionLookup = Object.fromEntries(TRIAGE_ACTIONS.map((item) => [item.id, item]));
 
+const REASSESSMENT_TARGETS = [
+  {
+    id: 'vital_trend',
+    label: 'Repeat abnormal vital signs',
+    category: 'Objective trend',
+    description: 'Track heart rate, blood pressure, respiratory rate, oxygen saturation, temperature, or pain after initial actions.'
+  },
+  {
+    id: 'pain_response',
+    label: 'Reassess pain and distress',
+    category: 'Symptoms',
+    description: 'Confirm whether pain, distress, nausea, or discomfort improves or worsens after initial treatment.'
+  },
+  {
+    id: 'airway_breathing',
+    label: 'Recheck airway and breathing',
+    category: 'Airway and breathing',
+    description: 'Watch work of breathing, oxygenation, speech, wheezing, and need for oxygen or ventilatory support.'
+  },
+  {
+    id: 'circulation_bleeding',
+    label: 'Recheck perfusion or bleeding risk',
+    category: 'Circulation',
+    description: 'Reassess blood pressure, perfusion, bleeding, IV access needs, and response to fluids or blood product readiness.'
+  },
+  {
+    id: 'neuro_mental_status',
+    label: 'Reassess neurologic or mental status',
+    category: 'Neurologic safety',
+    description: 'Trend confusion, focal deficits, seizure risk, headache red flags, behavioral safety, or level of consciousness.'
+  },
+  {
+    id: 'infection_fever',
+    label: 'Reassess fever or infection trajectory',
+    category: 'Infection risk',
+    description: 'Watch fever curve, systemic symptoms, suspected source, sepsis risk, and response to early treatment.'
+  },
+  {
+    id: 'distal_neurovascular',
+    label: 'Repeat distal neurovascular checks',
+    category: 'Extremity injury',
+    description: 'Trend pulses, sensation, motor function, capillary refill, swelling, and compartment-type pain.'
+  },
+  {
+    id: 'disposition_safety',
+    label: 'Confirm disposition safety',
+    category: 'Flow and handoff',
+    description: 'Confirm whether the patient is safe for routine wait, monitored placement, admission, transfer, or discharge planning.'
+  }
+];
+
+const reassessmentTargetLookup = Object.fromEntries(REASSESSMENT_TARGETS.map((item) => [item.id, item]));
+
+const COMMON_SPECIALTY_OPTIONS = [
+  'Emergency medicine attending',
+  'Cardiology',
+  'Neurology',
+  'General surgery',
+  'Orthopedics',
+  'Pulmonology',
+  'Critical care',
+  'Obstetrics and gynecology',
+  'Psychiatry',
+  'Social work or case management'
+];
+
+const DEFAULT_INTERVENTION_FLAGS = {
+  invasive_ventilation: false,
+  intravenous: false,
+  intravenous_fluids: false,
+  intramuscular: false,
+  oral_medications: false,
+  nebulized_medications: false,
+  tier1_med_usage_1h: false,
+  tier2_med_usage: false,
+  tier3_med_usage: false,
+  tier4_med_usage: false,
+  critical_procedure: false,
+  psychotropic_med_within_120min: false
+};
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function listFromValue(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item || '').trim()).filter(Boolean);
+  if (value === null || value === undefined) return [];
+  const text = String(value).trim();
+  if (!text) return [];
+  return text
+    .replace(/^\[|\]$/g, '')
+    .split(/;|,\s*(?=[A-Z][A-Za-z/ -]{2,})/)
+    .map((item) => item.replace(/^['"]|['"]$/g, '').trim())
+    .filter(Boolean);
+}
+
+function normalizeClinicalCase(rawCaseData, sourceMode = 'public_demo') {
+  const caseData = clone(rawCaseData);
+  const isMimicV2 = caseData.schema_version === 'clinical_case_v2' ||
+    caseData.source_restriction === 'credentialed_local_only';
+  const sourceDataset = caseData.source?.dataset || (isMimicV2 ? 'MIMIC-IV-Ext-CDS' : 'MIETIC validation sample');
+  const sourceRestriction = caseData.source_restriction || caseData.source?.restriction || (isMimicV2 ? 'credentialed_local_only' : 'public_demo');
+  const diagnoses = caseData.ground_truth?.diagnoses || {};
+  const referral = caseData.ground_truth?.referral || {
+    clinician_approved_specialty: caseData.ground_truth?.clinician_approved_specialty || []
+  };
+
+  return {
+    ...caseData,
+    case_source: isMimicV2 ? 'mimic_restricted_local' : 'mietic_public_demo',
+    source_restriction: sourceRestriction,
+    source_mode: sourceMode,
+    outcome: caseData.outcome || caseData.history || '',
+    disposition: caseData.disposition || caseData.ground_truth?.disposition || '',
+    interventions: {
+      ...DEFAULT_INTERVENTION_FLAGS,
+      ...(caseData.interventions || {})
+    },
+    transfer_to_icu_in_1h: Boolean(caseData.transfer_to_icu_in_1h),
+    transfer_to_icu_beyond_1h: Boolean(caseData.transfer_to_icu_beyond_1h),
+    transfer_within_1h: Boolean(caseData.transfer_within_1h),
+    transfer_beyond_1h: Boolean(caseData.transfer_beyond_1h),
+    expired_within_1h: Boolean(caseData.expired_within_1h),
+    expired_beyond_1h: Boolean(caseData.expired_beyond_1h),
+    red_cell_order_more_than_1: Boolean(caseData.red_cell_order_more_than_1),
+    transfusion_within_1h: Boolean(caseData.transfusion_within_1h),
+    transfusion_beyond_1h: Boolean(caseData.transfusion_beyond_1h),
+    non_invasive_ventilation: Boolean(caseData.non_invasive_ventilation),
+    lab_event_count: Number(caseData.lab_event_count || 0),
+    microbio_event_count: Number(caseData.microbio_event_count || 0),
+    exam_count: Number(caseData.exam_count || 0),
+    consults_count: Number(caseData.consults_count || 0),
+    procedure_count: Number(caseData.procedure_count || 0),
+    resources_used: Number(caseData.resources_used || 0),
+    tasks_available: {
+      triage: true,
+      diagnosis: true,
+      referral: isMimicV2,
+      management: true,
+      reassessment: true,
+      sbar: true,
+      ...(caseData.tasks_available || {})
+    },
+    ground_truth: {
+      ...(caseData.ground_truth || {}),
+      diagnoses: {
+        primary: listFromValue(diagnoses.primary),
+        secondary: listFromValue(diagnoses.secondary),
+        icd: diagnoses.icd || {},
+        raw_diagnosis_text: diagnoses.raw_diagnosis_text || ''
+      },
+      referral: {
+        clinician_approved_specialty: listFromValue(referral.clinician_approved_specialty)
+      },
+      disposition: caseData.ground_truth?.disposition || caseData.disposition || '',
+      tests: caseData.ground_truth?.tests || '',
+      medications: caseData.ground_truth?.medications || caseData.ground_truth?.past_medication || '',
+      reference_esi: caseData.ground_truth?.reference_esi || caseData.acuity
+    },
+    source: {
+      ...(caseData.source || {}),
+      dataset: sourceDataset,
+      restriction: sourceRestriction,
+      display_name: isMimicV2 ? 'Restricted local MIMIC-IV-Ext-CDS mode' : 'Public demo mode'
+    },
+    documented_evidence: (caseData.documented_evidence || []).map((item) => ({
+      provenance: item.provenance || 'source_record',
+      source_restriction: item.source_restriction || sourceRestriction,
+      ...item
+    }))
+  };
+}
+
+function publicCaseSourceState() {
+  return {
+    mode: 'public_demo',
+    label: 'Public demo mode',
+    dataset: 'Nonrestricted demo bundle',
+    restriction: 'public_demo',
+    case_count: cases.length,
+    validation_note: 'Public deployment does not expose credentialed MIMIC data.'
+  };
+}
+
+function activeCaseSourceState() {
+  if (!localResearchCaseBundle) return publicCaseSourceState();
+  return {
+    mode: 'mimic_restricted_local',
+    label: 'Restricted local MIMIC mode',
+    dataset: localResearchCaseBundle.source_dataset || 'MIMIC-IV-Ext-CDS',
+    restriction: localResearchCaseBundle.source_restriction || 'credentialed_local_only',
+    case_count: localResearchCaseBundle.cases.length,
+    file_name: localResearchCaseBundle.file_name || '',
+    validation_note: 'Credentialed cases are loaded only into browser memory for local validation.'
+  };
+}
+
+function validateLocalResearchBundle(payload) {
+  const parsed = typeof payload === 'string' ? JSON.parse(payload) : payload;
+  const caseList = Array.isArray(parsed) ? parsed : parsed?.cases;
+  if (!Array.isArray(caseList) || !caseList.length) {
+    throw new Error('Local case bundle must contain a non-empty cases array.');
+  }
+  const invalid = caseList.find((item) =>
+    item.schema_version !== 'clinical_case_v2' ||
+    item.source_restriction !== 'credentialed_local_only' ||
+    item.source?.dataset !== 'MIMIC-IV-Ext-CDS'
+  );
+  if (invalid) {
+    throw new Error('Local MIMIC mode accepts only clinical_case_v2 cases marked credentialed_local_only.');
+  }
+  const missingExam = caseList.find((item) => !(item.augmentation?.inferred_facts || []).some((fact) =>
+    (fact.domain === 'physical_exam' || (fact.use_in || []).includes('physical_exam')) &&
+    ['local_teaching_draft', 'reviewed'].includes(fact.review_status) &&
+    ['source_record', 'local_teaching_inference'].includes(fact.provenance)
+  ));
+  if (missingExam) {
+    throw new Error(`Local MIMIC case ${missingExam.id || 'unknown'} is missing focused exam coverage. Regenerate the restricted case bundle before learner use.`);
+  }
+  return {
+    source_dataset: parsed.source_dataset || 'MIMIC-IV-Ext-CDS',
+    source_version: parsed.source_version || '',
+    source_restriction: parsed.source_restriction || 'credentialed_local_only',
+    cases: caseList
+  };
+}
+
+export function loadStaticLocalCaseBundle(payload, fileName = '') {
+  localResearchCaseBundle = {
+    ...validateLocalResearchBundle(payload),
+    file_name: fileName
+  };
+  sessions.clear();
+  completedSessions.clear();
+  return activeCaseSourceState();
+}
+
+export function clearStaticLocalCaseBundle() {
+  localResearchCaseBundle = null;
+  sessions.clear();
+  completedSessions.clear();
+  return activeCaseSourceState();
+}
+
+export function getStaticCaseSourceState() {
+  return activeCaseSourceState();
 }
 
 function stableStringify(value) {
@@ -308,9 +559,12 @@ function hasPositiveRespiratoryEvidence(caseData) {
     /\bhypox(?:ia|emic|emia)\b/i,
     /\bstridor\b/i
   ];
-  const reviewedRespiratory = reviewedInferredFacts(caseData).some((fact) =>
-    /respiratory|dyspnea|shortness of breath|oxygen|wheeze|hypox/i.test(`${fact.domain || ''} ${fact.statement || ''}`)
-  );
+  const reviewedRespiratory = reviewedInferredFacts(caseData).some((fact) => {
+    const isExamTarget = fact.domain === 'physical_exam' || (fact.use_in || []).includes('physical_exam');
+    const isSourceFact = fact.provenance === 'source_record' || (fact.use_in || []).includes('grading_reference');
+    if (isExamTarget && !isSourceFact) return false;
+    return /respiratory|dyspnea|shortness of breath|oxygen|wheeze|hypox/i.test(`${fact.domain || ''} ${fact.statement || ''}`);
+  });
   return respiratoryPatterns.some((pattern) => pattern.test(complaint)) ||
     sentenceHasPositiveClinicalPhrase(history, respiratoryPatterns) ||
     reviewedRespiratory;
@@ -408,8 +662,15 @@ function reviewedFactStatements(caseData, useIn = '') {
 }
 
 function reviewedPhysicalExamFacts(caseData) {
-  return reviewedInferredFacts(caseData, 'physical_exam')
+  const reviewedFacts = reviewedInferredFacts(caseData, 'physical_exam')
     .filter((fact) => fact.domain === 'physical_exam' || (fact.use_in || []).includes('physical_exam'));
+  if (reviewedFacts.length) return reviewedFacts;
+
+  if (caseData?.source_restriction !== 'credentialed_local_only') return [];
+  return (caseData?.augmentation?.inferred_facts || [])
+    .filter((fact) => fact.domain === 'physical_exam' || (fact.use_in || []).includes('physical_exam'))
+    .filter((fact) => ['local_teaching_draft', 'reviewed'].includes(fact.review_status))
+    .filter((fact) => ['source_record', 'local_teaching_inference'].includes(fact.provenance));
 }
 
 function reviewedGradingFacts(caseData) {
@@ -750,6 +1011,7 @@ function patientForbiddenTerms(caseData) {
     'altered mental status',
     'ams',
     'mietic',
+    'mimic',
     'dataset',
     'recorded ed',
     'esi',
@@ -1470,7 +1732,7 @@ function answerAddressesIntent(caseData, answer, intentKey, category, question =
 }
 
 function validatePatientAnswer({ caseData, answer, intentKey, category, question, session, answerPlan = null, patientView = null, usedAi = false }) {
-  if (answerPlan && patientView && !usedAi) {
+  if (answerPlan && patientView) {
     return validatePatientSpeech(answer, answerPlan, patientView, session ? recentPatientTurns(session, 6) : []);
   }
   const cleaned = cleanPatientResponse(answer);
@@ -1513,6 +1775,11 @@ function writePersistentPatientCache(caseData, intentKey, payload) {
       category: payload.category,
       category_label: payload.category_label,
       covered_categories: payload.covered_categories || [],
+      validated: payload.validated !== false,
+      fallback_reason: payload.fallback_reason || '',
+      addressed_intents: payload.addressed_intents || [],
+      used_fields: payload.used_fields || [],
+      uncertainty_used: Boolean(payload.uncertainty_used),
       time_cost_seconds: payload.time_cost_seconds,
       updated_at: new Date().toISOString()
     };
@@ -1838,7 +2105,7 @@ async function callOpenRouter(messages, { model, key, maxTokens = 220, temperatu
       headers['Authorization'] = `Bearer ${key}`;
       if (provider === 'openrouter') {
         headers['HTTP-Referer'] = window.location.origin;
-        headers['X-Title'] = 'ED Triage Trainer';
+        headers['X-Title'] = 'ED Clinical Workflow Simulator';
       }
       body = JSON.stringify({
         model: resolvedModel,
@@ -1977,6 +2244,9 @@ function normalizePatientAiObject(content) {
     return {
       answer: parsed.answer || parsed.patient_answer || parsed.response || '',
       addressed_domains: parsed.addressed_domains || parsed.domains || [],
+      addressed_intents: parsed.addressed_intents || parsed.intents || [],
+      used_fields: parsed.used_fields || parsed.fields || [],
+      uncertainty_used: Boolean(parsed.uncertainty_used),
       confidence: parsed.confidence || ''
     };
   }
@@ -2002,7 +2272,7 @@ async function askOpenRouterPatient(session, question, answerPlan, patientView, 
           'If asked for diagnosis, triage level, admission status, treatments, test results, or what clinicians did, say you do not know that as the patient.',
           'Stay consistent with the supplied patient view. Do not invent unrelated positive symptoms.',
           'If the learner asks what a chart abbreviation means, do not define it. Say you are not sure and describe the symptoms that brought you in.',
-          'Return only JSON with this shape: {"answer":"short patient answer","addressed_domains":["domain"]}.'
+          'Return only JSON with this shape: {"answer":"short patient answer","addressed_intents":["intent"],"used_fields":["patient_view_field"],"uncertainty_used":false}.'
         ].join(' ')
       },
       {
@@ -2037,26 +2307,24 @@ async function askOpenRouterPatient(session, question, answerPlan, patientView, 
     content = await callOpenRouter(messages, { ...requestOptions, responseFormat: null });
   }
 
-  const candidate = normalizePatientAiObject(content).answer;
-  return validatePatientAnswer({
+  const parsed = normalizePatientAiObject(content);
+  const candidate = validatePatientAnswer({
     caseData: session.case,
-    answer: candidate,
+    answer: parsed.answer,
     intentKey: answerPlan.signature,
     category: answerPlan.primary_category,
     question,
     session,
     answerPlan,
     patientView
-  }) || validatePatientAnswer({
-    caseData: session.case,
-    answer: localFallback,
-    intentKey: answerPlan.signature,
-    category: answerPlan.primary_category,
-    question,
-    session: null,
-    answerPlan,
-    patientView
   });
+  if (!candidate) return null;
+  return {
+    answer: candidate,
+    addressed_intents: parsed.addressed_intents || answerPlan.intents || [],
+    used_fields: parsed.used_fields || [],
+    uncertainty_used: Boolean(parsed.uncertainty_used)
+  };
 }
 
 function answerUsedInSession(session, answer, intentKey = '') {
@@ -2152,7 +2420,7 @@ function evaluateEscalation(caseData, selectedActionIds) {
   const missed = TRIAGE_ACTION_ORDER.filter((id) => expectedIds.has(id) && !selected.has(id)).map((id) => expectedById[id]);
   const extra = TRIAGE_ACTION_ORDER.filter((id) => selected.has(id) && !expectedIds.has(id)).map((id) => ({
     ...actionLookup[id],
-    evidence: ['No supporting MIETIC or ESI/vital signal was identified for this case.']
+    evidence: ['No supporting source-record or ESI/vital signal was identified for this case.']
   }));
   return {
     expected,
@@ -2708,6 +2976,304 @@ function escalationScoreDetails(workflow, possible = 20) {
   };
 }
 
+function expectedReassessmentTargets(caseData, workflow = {}) {
+  const expected = {};
+  const add = (id, evidence) => {
+    if (!reassessmentTargetLookup[id]) return;
+    if (!expected[id]) expected[id] = [];
+    if (evidence && !expected[id].includes(evidence)) expected[id].push(evidence);
+  };
+  const text = complaintText(caseData);
+  const flags = vitalFlags(caseData);
+  const expectedEscalationIds = new Set((workflow.escalation?.expected || []).map((item) => item.id));
+
+  if (flags.length) {
+    add('vital_trend', flags.slice(0, 3).map((item) => `${item.name} ${item.value}`).join('; '));
+  }
+  if (Number(caseData.vitals?.pain) >= 6 || expectedEscalationIds.has('pain_reassessment')) {
+    add('pain_response', `pain score ${formatVitalNumber(caseData.vitals?.pain)}/10`);
+  }
+  if (expectedEscalationIds.has('airway_oxygenation_support') || caseData.vitals?.o2 < 94 || caseData.vitals?.rr >= 24 || /\b(shortness of breath|dyspnea|sob|wheez|hypoxi|respiratory)\b/i.test(text)) {
+    add('airway_breathing', 'respiratory complaint, oxygenation, or airway-support signal');
+  }
+  if (expectedEscalationIds.has('bleeding_transfusion_readiness') || caseData.vitals?.sbp < 100 || caseData.vitals?.hr >= 120 || /\b(bleed|melena|hematemesis|hypotension|tachycardia|syncope)\b/i.test(text)) {
+    add('circulation_bleeding', 'perfusion, bleeding, or hemodynamic signal');
+  }
+  if (expectedEscalationIds.has('behavioral_safety') || /\b(confus|altered|seizure|stroke|weakness|numbness|head injury|suicid|agitat)\b/i.test(text)) {
+    add('neuro_mental_status', 'neurologic, mental-status, or behavioral safety language');
+  }
+  if (caseData.vitals?.temp >= 100.4 || /\b(fever|infection|abscess|cellulitis|pneumonia|sepsis|purulent|chills)\b/i.test(text)) {
+    add('infection_fever', 'fever or infection language');
+  }
+  if (/\b(foot|leg|wrist|hand|ankle|fracture|injury|fall|swelling|laceration|open fracture)\b/i.test(text)) {
+    add('distal_neurovascular', 'extremity injury or wound language');
+  }
+  if (caseData.acuity <= 3 || String(caseData.disposition || '').trim()) {
+    add('disposition_safety', caseData.disposition ? `reference disposition ${caseData.disposition}` : `reference ESI ${caseData.acuity}`);
+  }
+
+  reviewedInferredFacts(caseData).forEach((fact) => {
+    const textValue = `${fact.statement || ''} ${fact.rationale || ''} ${fact.practice_rule || ''}`.toLowerCase();
+    if (/\bpulse|sensation|motor|capillary|neurovascular|compartment\b/.test(textValue)) {
+      add('distal_neurovascular', `reviewed inferred finding: ${fact.statement}`);
+    }
+    if (/\bpain|analgesia|reassess\b/.test(textValue)) {
+      add('pain_response', `reviewed inferred finding: ${fact.statement}`);
+    }
+  });
+
+  return REASSESSMENT_TARGETS
+    .filter((item) => expected[item.id])
+    .map((item) => ({ ...item, evidence: expected[item.id] }));
+}
+
+function evaluateReassessment(session, caseData, workflow = {}) {
+  const plan = session.reassessment_plan || [];
+  const rationale = session.reassessment_rationale || '';
+  const selected = new Set(plan);
+  const expected = expectedReassessmentTargets(caseData, workflow);
+  const expectedIds = new Set(expected.map((item) => item.id));
+  const expectedById = Object.fromEntries(expected.map((item) => [item.id, item]));
+  const matched = REASSESSMENT_TARGETS
+    .filter((item) => selected.has(item.id) && expectedIds.has(item.id))
+    .map((item) => expectedById[item.id]);
+  const missed = expected.filter((item) => !selected.has(item.id));
+  const extra = REASSESSMENT_TARGETS
+    .filter((item) => selected.has(item.id) && !expectedIds.has(item.id));
+  const selectedTargets = REASSESSMENT_TARGETS
+    .filter((item) => selected.has(item.id));
+  const ddx = reviewedAugmentationDdx(caseData);
+  const facts = reviewedInferredFacts(caseData);
+  const targets = [...ddx.map((d) => d.next_discriminator), ...facts.map((f) => f.practice_rule)].filter(Boolean);
+  return {
+    plan,
+    selected_targets: selectedTargets,
+    rationale,
+    expected,
+    matched,
+    missed,
+    extra,
+    score: matched.length,
+    possible: expected.length,
+    message: missed.length
+      ? 'One or more reassessment targets tied to case risk were not selected.'
+      : expected.length
+        ? 'Reassessment plan covered the main case-specific monitoring targets.'
+        : plan.length
+          ? 'Reassessment targets were recorded; no required target was derived from available fields.'
+          : 'No active reassessment target was required by the available case fields.',
+    targets
+  };
+}
+
+function reassessmentScoreDetails(workflow, possible = 10) {
+  const reassessment = workflow.reassessment || {};
+  const expected = reassessment.expected || [];
+  const matched = reassessment.matched || [];
+  const extra = reassessment.extra || [];
+  let score = possible;
+  if (expected.length) {
+    score = Math.max(0, Math.round((matched.length / expected.length) * possible) - Math.min(extra.length, 3));
+  } else if (extra.length) {
+    score = Math.round(possible * 0.8);
+  }
+  return {
+    score,
+    possible,
+    message: reassessment.message || 'Reassessment plan was evaluated from case-specific monitoring targets.',
+    action: (reassessment.missed || []).length
+      ? `Add reassessment targets for ${reassessment.missed.slice(0, 3).map((item) => item.label).join(', ')}.`
+      : 'Use reassessment to close the loop after initial management priorities.'
+  };
+}
+
+function referenceDiagnosisList(caseData) {
+  const sourcePrimary = caseData.ground_truth?.diagnoses?.primary || [];
+  const sourceSecondary = caseData.ground_truth?.diagnoses?.secondary || [];
+  const sourceIcd = caseData.ground_truth?.diagnoses?.icd?.title;
+  const reviewed = reviewedAugmentationDiagnosis(caseData);
+  const reference = uniqueSentences([
+    ...sourcePrimary,
+    sourceIcd,
+    reviewed
+  ].filter(Boolean));
+  const alternatives = uniqueSentences([
+    ...sourceSecondary,
+    ...(reviewedAugmentationDdx(caseData).map((item) => item.diagnosis))
+  ].filter(Boolean));
+  return {
+    primary: reference.length ? reference : [soapPrimaryDiagnosis(caseData)],
+    alternatives,
+    source_status: caseData.case_source === 'mimic_restricted_local'
+      ? 'source_record'
+      : reviewed
+        ? 'reviewed_teaching_inference'
+        : 'llm_draft'
+  };
+}
+
+function clinicalTokenSet(value) {
+  return new Set(tokenizeForScoring(String(value || ''))
+    .filter((token) => token.length >= 4)
+    .filter((token) => !['diagnosis', 'patient', 'acute', 'possible', 'working'].includes(token)));
+}
+
+function bestReferenceOverlap(learnerText, references = []) {
+  const learner = clinicalTokenSet(learnerText);
+  if (!learner.size) return 0;
+  return references.reduce((best, reference) => {
+    const referenceTokens = clinicalTokenSet(reference);
+    if (!referenceTokens.size) return best;
+    const overlap = [...learner].filter((token) => referenceTokens.has(token)).length;
+    return Math.max(best, overlap / Math.max(referenceTokens.size, 1));
+  }, 0);
+}
+
+function evaluateDiagnosis(session, caseData) {
+  const reference = referenceDiagnosisList(caseData);
+  const learnerText = [
+    session.working_diagnosis,
+    ...(session.differential || []),
+    session.diagnosis_evidence
+  ].filter(Boolean).join(' ');
+  const overlap = bestReferenceOverlap(learnerText, [...reference.primary, ...reference.alternatives]);
+  const evidenceText = String(session.diagnosis_evidence || '').toLowerCase();
+  const evidenceMentionsVitals = hasAny(evidenceText, ['vital', 'heart', 'blood pressure', 'oxygen', 'respiratory', 'pain', 'fever', 'tachy', 'hypotens']);
+  const evidenceMentionsHistory = hasAny(evidenceText, ['history', 'onset', 'started', 'duration', 'risk', 'complaint', 'symptom', 'exam']);
+  const sourceRecord = reference.source_status === 'source_record';
+  const possible = sourceRecord ? 15 : 10;
+  let score = 0;
+  if (session.working_diagnosis) score += sourceRecord ? 4 : 3;
+  if ((session.differential || []).length) score += sourceRecord ? 2 : 2;
+  if (session.diagnosis_evidence?.length >= 20) score += sourceRecord ? 3 : 3;
+  if (evidenceMentionsVitals || evidenceMentionsHistory) score += sourceRecord ? 2 : 2;
+  if (sourceRecord) score += Math.round(overlap * 4);
+  score = Math.max(0, Math.min(score, possible));
+
+  return {
+    learner: {
+      working_diagnosis: session.working_diagnosis || '',
+      differential: clone(session.differential || []),
+      evidence: session.diagnosis_evidence || ''
+    },
+    reference,
+    overlap_score: Number(overlap.toFixed(2)),
+    score,
+    possible,
+    message: sourceRecord
+      ? (overlap >= 0.5
+        ? 'Working diagnosis aligned with the source-record diagnosis context.'
+        : 'Working diagnosis was compared with source-record diagnosis context; strengthen the evidence link.')
+      : 'Diagnosis reasoning was scored for structure and evidence use because public demo cases do not contain a source-record diagnosis.',
+    action: session.diagnosis_evidence
+      ? 'Keep tying the working diagnosis to specific history, vitals, exam, and risk signals.'
+      : 'Add evidence that supports and limits the working diagnosis.'
+  };
+}
+
+function evaluateReferral(session, caseData) {
+  const approved = caseData.ground_truth?.referral?.clinician_approved_specialty || [];
+  const learnerSpecialty = session.referral_specialty || '';
+  const learnerNeeded = Boolean(session.referral_needed);
+  const hasReference = approved.length > 0;
+  const specialtyOverlap = bestReferenceOverlap(learnerSpecialty, approved);
+  const score = hasReference
+    ? (learnerNeeded ? 4 : 0) + (specialtyOverlap >= 0.45 ? 6 : 0)
+    : 0;
+  return {
+    learner: {
+      needed: session.referral_needed,
+      specialty: learnerSpecialty,
+      rationale: session.referral_rationale || ''
+    },
+    reference: {
+      clinician_approved_specialty: approved,
+      source_status: hasReference ? 'source_record' : 'source_limited_unscored'
+    },
+    score,
+    possible: hasReference ? 10 : 0,
+    scored: hasReference,
+    message: hasReference
+      ? (score >= 8
+        ? 'Referral decision matched the clinician-approved specialty reference.'
+        : 'Referral decision did not fully match the clinician-approved specialty reference.')
+      : 'Referral judgment is recorded but unscored because this case has no clinician-approved specialty reference.',
+    action: hasReference
+      ? 'Name why that service changes immediate ED workup, stabilization, or disposition.'
+      : 'Document whether specialty input is needed now and what clinical change would trigger escalation.'
+  };
+}
+
+function diagnosisScoreDetails(workflow) {
+  const diagnosis = workflow.diagnosis || {};
+  return {
+    score: diagnosis.score || 0,
+    possible: diagnosis.possible || 0,
+    message: diagnosis.message || 'Diagnosis reasoning was not evaluated.',
+    action: diagnosis.action || 'Submit a working diagnosis with case evidence.'
+  };
+}
+
+function referralScoreDetails(workflow) {
+  const referral = workflow.referral || {};
+  return {
+    score: referral.score || 0,
+    possible: referral.possible || 0,
+    message: referral.message || 'Referral judgment was not evaluated.',
+    action: referral.action || 'Submit a referral decision with rationale.'
+  };
+}
+
+function evaluateFocusedExam(session, caseData) {
+  const result = session.focused_exam_results || null;
+  if (!result) {
+    const expected = buildFocusedExamSelection(
+      caseData,
+      ['general_airway'],
+      reviewedPhysicalExamFacts(caseData),
+      session.checked_vitals?.length ? session.checked_vitals : formatVitals(caseData)
+    );
+    return {
+      selected_systems: [],
+      expected_systems: expected.expected_systems || [],
+      matched_systems: [],
+      missed_systems: expected.expected_systems || [],
+      extra_systems: [],
+      findings: [],
+      score: 0,
+      possible: 10,
+      message: 'No focused exam systems were conducted before clinical impression.',
+      action: 'Select focused exam systems that fit the complaint, vitals, and immediate threats before committing to the impression.'
+    };
+  }
+  const score = result.score ?? scoreFocusedExamSelection(result);
+  const missedCount = result.missed_systems?.length || 0;
+  const extraCount = result.extra_systems?.length || 0;
+  return {
+    ...clone(result),
+    score,
+    possible: 10,
+    message: missedCount
+      ? 'Focused exam covered some priorities but missed case-specific systems.'
+      : extraCount > 1
+        ? 'Focused exam found the core systems but included broad extra systems that should be justified.'
+        : 'Focused exam choices matched the key case-specific systems.',
+    action: missedCount
+      ? `Add ${result.missed_systems.map((item) => item.name).join(', ')} when the complaint or vitals point there.`
+      : 'Keep pairing each selected exam system with a specific clinical reason.'
+  };
+}
+
+function focusedExamScoreDetails(workflow) {
+  const focusedExam = workflow.focused_exam || {};
+  return {
+    score: focusedExam.score || 0,
+    possible: focusedExam.possible || 10,
+    message: focusedExam.message || 'Focused exam selection was not evaluated.',
+    action: focusedExam.action || 'Select and conduct focused exams before moving to the clinical impression.'
+  };
+}
+
 function generateActionFeedback(session, caseData, workflow, details) {
   const evidenceText = (items) => items.map((item) => typeof item === 'string' ? item : `${item.label}: ${item.value || item.reason || ''}`);
   const selectedEscalation = session.escalation_actions || [];
@@ -2717,6 +3283,12 @@ function generateActionFeedback(session, caseData, workflow, details) {
     workflow.escalation.missed.length ? `Missed: ${workflow.escalation.missed.map((item) => item.name).join(', ')}` : '',
     workflow.escalation.extra.length ? `Extra: ${workflow.escalation.extra.map((item) => item.name).join(', ')}` : '',
     !selectedEscalation.length ? 'Learner selected no immediate escalation actions.' : ''
+  ].filter(Boolean);
+  const reassessmentEvidence = [
+    session.reassessment_rationale ? `Rationale: ${session.reassessment_rationale}` : 'No reassessment rationale recorded.',
+    workflow.reassessment?.matched?.length ? `Matched: ${workflow.reassessment.matched.map((item) => item.label).join(', ')}` : '',
+    workflow.reassessment?.missed?.length ? `Missed: ${workflow.reassessment.missed.map((item) => item.label).join(', ')}` : '',
+    workflow.reassessment?.extra?.length ? `Extra: ${workflow.reassessment.extra.map((item) => item.label).join(', ')}` : ''
   ].filter(Boolean);
 
   return [
@@ -2745,6 +3317,24 @@ function generateActionFeedback(session, caseData, workflow, details) {
       evidence: details.vital_rationale.evidence
     },
     {
+      id: 'focused_exam',
+      label: 'Focused exam selection',
+      learner: workflow.focused_exam?.selected_systems?.length
+        ? workflow.focused_exam.selected_systems.map((item) => item.name).join(', ')
+        : 'No focused exam recorded',
+      reference: workflow.focused_exam?.expected_systems?.length
+        ? workflow.focused_exam.expected_systems.map((item) => item.name).join(', ')
+        : 'General complaint-directed exam',
+      score: `${details.focused_exam.score} / ${details.focused_exam.possible}`,
+      feedback: details.focused_exam.message,
+      action: details.focused_exam.action,
+      evidence: [
+        workflow.focused_exam?.matched_systems?.length ? `Matched: ${workflow.focused_exam.matched_systems.map((item) => item.name).join(', ')}` : 'Matched: None',
+        workflow.focused_exam?.missed_systems?.length ? `Missed: ${workflow.focused_exam.missed_systems.map((item) => item.name).join(', ')}` : 'Missed: None',
+        workflow.focused_exam?.extra_systems?.length ? `Extra: ${workflow.focused_exam.extra_systems.map((item) => item.name).join(', ')}` : 'Extra: None'
+      ]
+    },
+    {
       id: 'final_esi',
       label: 'Final ESI',
       learner: session.triage_level ? `ESI ${session.triage_level}` : 'Not recorded',
@@ -2760,14 +3350,68 @@ function generateActionFeedback(session, caseData, workflow, details) {
       ]
     },
     {
+      id: 'diagnosis',
+      label: 'Working diagnosis',
+      learner: session.working_diagnosis || 'No working diagnosis recorded',
+      reference: workflow.diagnosis?.reference?.primary?.join(', ') || 'Simulation diagnosis reference unavailable',
+      score: `${details.diagnosis.score} / ${details.diagnosis.possible}`,
+      feedback: details.diagnosis.message,
+      action: details.diagnosis.action,
+      evidence: [
+        `Differential: ${(session.differential || []).join(', ') || 'None recorded'}`,
+        `Evidence: ${session.diagnosis_evidence || 'No diagnosis evidence recorded'}`,
+        `Reference status: ${workflow.diagnosis?.reference?.source_status || 'unknown'}`
+      ]
+    },
+    {
+      id: 'referral',
+      label: 'Referral judgment',
+      learner: session.referral_needed === null
+        ? 'No referral decision recorded'
+        : session.referral_needed
+          ? `Referral requested: ${session.referral_specialty}`
+          : 'No immediate specialty referral',
+      reference: workflow.referral?.reference?.clinician_approved_specialty?.length
+        ? workflow.referral.reference.clinician_approved_specialty.join(', ')
+        : 'No clinician-approved specialty reference for this case',
+      score: workflow.referral?.scored ? `${details.referral.score} / ${details.referral.possible}` : 'Unscored',
+      feedback: details.referral.message,
+      action: details.referral.action,
+      evidence: [
+        `Rationale: ${session.referral_rationale || 'No referral rationale recorded'}`,
+        `Reference status: ${workflow.referral?.reference?.source_status || 'source_limited_unscored'}`
+      ]
+    },
+    {
       id: 'escalation',
-      label: 'Escalation and placement',
+      label: 'Initial management priorities',
       learner: selectedEscalation.length ? selectedEscalation.map((item) => item.name).join(', ') : 'No immediate escalation',
       reference: workflow.escalation.expected.length ? workflow.escalation.expected.map((item) => item.name).join(', ') : 'No required escalation action from available fields',
       score: `${details.escalation.score} / ${details.escalation.possible}`,
       feedback: details.escalation.message,
       action: details.escalation.action,
-      evidence: escalationEvidence.length ? escalationEvidence : ['No MIETIC, vital, or ESI signal required escalation.']
+      evidence: [
+        ...escalationEvidence,
+        session.initial_plan?.diagnostics ? `Diagnostics: ${session.initial_plan.diagnostics}` : '',
+        session.initial_plan?.treatments ? `Treatments: ${session.initial_plan.treatments}` : '',
+        session.initial_plan?.medications ? `Medications: ${session.initial_plan.medications}` : '',
+        session.initial_plan?.disposition ? `Disposition intent: ${session.initial_plan.disposition}` : '',
+        !escalationEvidence.length ? 'No immediate source-record, vital, or ESI signal required escalation.' : ''
+      ].filter(Boolean)
+    },
+    {
+      id: 'reassessment',
+      label: 'Reassessment plan',
+      learner: (session.reassessment_plan || []).length
+        ? session.reassessment_plan.map((id) => reassessmentTargetLookup[id]?.label || id).join(', ')
+        : 'No reassessment targets recorded',
+      reference: workflow.reassessment?.expected?.length
+        ? workflow.reassessment.expected.map((item) => item.label).join(', ')
+        : 'No required reassessment target from available fields',
+      score: `${details.reassessment.score} / ${details.reassessment.possible}`,
+      feedback: details.reassessment.message,
+      action: details.reassessment.action,
+      evidence: reassessmentEvidence
     },
     {
       id: 'sbar',
@@ -2793,7 +3437,11 @@ function generateScorecard(session, caseData, workflow) {
   const finalEsi = esiAccuracyScore(session.triage_level, caseData.acuity, 30, 'Final ESI');
   const vitalRationale = vitalRationaleScoreDetails(session, caseData);
   const interview = interviewScoreDetails(workflow);
+  const focusedExam = focusedExamScoreDetails(workflow);
+  const diagnosis = diagnosisScoreDetails(workflow);
+  const referral = referralScoreDetails(workflow);
   const escalation = escalationScoreDetails(workflow);
+  const reassessment = reassessmentScoreDetails(workflow);
   const sbarScore = Math.round((workflow.sbar.score / Math.max(workflow.sbar.possible, 1)) * 10);
   const sbar = {
     score: sbarScore,
@@ -2805,7 +3453,11 @@ function generateScorecard(session, caseData, workflow) {
     domain('esi', 'Final ESI accuracy', finalEsi.score, 30, finalEsi.message),
     domain('safety', 'Objective safety reasoning', vitalRationale.score, 15, vitalRationale.message),
     domain('interview', 'Interview coverage', interview.score, 15, interview.message),
-    domain('escalation', 'Escalation priorities', escalation.score, 20, escalation.message),
+    domain('focused_exam', 'Focused exam selection', focusedExam.score, focusedExam.possible, focusedExam.message),
+    domain('diagnosis', 'Working diagnosis', diagnosis.score, diagnosis.possible, diagnosis.message),
+    ...(referral.possible > 0 ? [domain('referral', 'Referral judgment', referral.score, referral.possible, referral.message)] : []),
+    domain('escalation', 'Initial management priorities', escalation.score, 20, escalation.message),
+    domain('reassessment', 'Reassessment targets', reassessment.score, 10, reassessment.message),
     domain('sbar', 'SBAR handoff', sbarScore, 10, workflow.sbar.message)
   ];
   const total = domains.reduce((sum, item) => sum + item.score, 0);
@@ -2814,7 +3466,11 @@ function generateScorecard(session, caseData, workflow) {
     final_esi: finalEsi,
     vital_rationale: vitalRationale,
     interview,
+    focused_exam: focusedExam,
+    diagnosis,
+    referral,
     escalation,
+    reassessment,
     sbar
   };
   return {
@@ -2823,7 +3479,7 @@ function generateScorecard(session, caseData, workflow) {
     percentage: Math.round((total / possible) * 100),
     domains,
     details,
-    method: 'Deterministic score from MIETIC fields, ESI-derived priorities, vital-sign thresholds, resource fields, and structured learner actions.'
+    method: 'Deterministic score from source fields, ESI-derived priorities, vital-sign thresholds, selected focused exam systems, diagnosis/referral references when available, reassessment targets, and structured learner actions.'
   };
 }
 
@@ -4564,12 +5220,30 @@ function generateObjectiveExam(caseData) {
   const pain = caseData.vitals?.pain || 0;
 
   const findings = [];
-  const negatedBreathingConcern = /\b(?:no|denies|without)\s+(?:\w+\s+){0,5}(?:shortness of breath|dyspnea|trouble breathing|difficulty breathing|breathing difficult|respiratory distress)\b/.test(fullText);
-  const respiratoryConcern = !negatedBreathingConcern && /\b(?:shortness of breath|dyspnea|trouble breathing|difficulty breathing|labored breathing|respiratory distress|copd|asthma|chf|pneumonia)\b/.test(fullText);
+  const airwayThreat = sentenceHasPositiveClinicalPhrase(fullText, [
+    /\banaphylaxis\b/i,
+    /\bstridor\b/i,
+    /\bchoking\b/i,
+    /\bthroat closing\b/i,
+    /\bangioedema\b/i
+  ]);
+  const respiratoryConcern = sentenceHasPositiveClinicalPhrase(fullText, [
+    /\bshort(?:ness)? of breath\b/i,
+    /\bdyspnea\b/i,
+    /\btrouble breathing\b/i,
+    /\bdifficulty breathing\b/i,
+    /\bbreathing difficult(?:y|ies)?\b/i,
+    /\blabored breathing\b/i,
+    /\brespiratory distress\b/i,
+    /\bcopd\b/i,
+    /\basthma\b/i,
+    /\bchf\b/i,
+    /\bpneumonia\b/i
+  ]);
 
   if (/\b(open left tibia|open tibia|tibia\/fibula|open fracture)\b/.test(fullText)) {
     return [
-      'Focused exam findings: Awake and in pain but protecting airway. Left lower leg has gross deformity with an open anterior tibial wound; bleeding is controlled with dressing. Distal dorsalis pedis and posterior tibial pulses are palpable with preserved toe movement and light-touch sensation. Compartments are compressible without pain out of proportion on passive stretch.'
+      'Focused exam target: assess airway and distress, open wound status, bleeding control, deformity, distal pulses, capillary refill, motor function, sensation, compartment firmness, and pain with passive stretch.'
     ];
   }
 
@@ -4577,12 +5251,12 @@ function generateObjectiveExam(caseData) {
     findings.push("Unresponsive. Apneic. No palpable central pulses.");
   } else if (fullText.includes('altered') || fullText.includes('lethargic') || fullText.includes('somnolent') || fullText.includes('confused') || fullText.includes('overdose') || fullText.includes('intoxicat') || fullText.includes('seizure')) {
     findings.push("Somnolent/lethargic; cooperates minimally.");
-  } else if (fullText.includes('anaphylaxis') || fullText.includes('stridor') || fullText.includes('choking') || fullText.includes('throat closing') || fullText.includes('angioedema')) {
+  } else if (airwayThreat) {
     findings.push("Severe respiratory distress; anxious, stridorous.");
   } else if (respiratoryConcern || rr >= 26 || spO2 <= 91) {
     findings.push("Respiratory distress with increased effort/accessory muscle use.");
   } else if (rr >= 22 || spO2 < 95) {
-    findings.push("Tachypneic; moderate respiratory distress.");
+    findings.push("Borderline respiratory vital sign; assess work of breathing and oxygenation.");
   } else if (pain >= 8 || sbp >= 180 || hr >= 120 || sbp < 90) {
     findings.push("Appears in moderate to severe distress.");
   } else if (pain >= 5 || temp >= 101) {
@@ -4618,10 +5292,22 @@ function generateObjectiveExam(caseData) {
   }
 
   if (findings.length === 0) {
-    return ["General exam unremarkable; awake, alert, in no acute distress."];
+    return ["Focused exam target: assess general appearance, mental status, airway and breathing, perfusion, pain or distress, and complaint-directed findings."];
   }
 
-  return [`Focused exam findings: ${findings.join(' ')}`];
+  return [`Focused exam target: ${findings.join(' ')}`];
+}
+
+function objectiveExamLines(caseData) {
+  const physicalExamFacts = reviewedPhysicalExamFacts(caseData);
+  if (!physicalExamFacts.length) return generateObjectiveExam(caseData);
+  return physicalExamFacts.map((fact) => {
+    const statement = cleanText(fact.statement || fact.rationale || '', '');
+    if (!statement) return '';
+    if (/^focused exam/i.test(statement)) return statement;
+    const prefix = fact.provenance === 'source_record' ? 'Focused exam finding' : 'Focused exam target';
+    return `${prefix}: ${statement}`;
+  }).filter(Boolean);
 }
 
 const SOAP_NOTE_OMIT_PATTERNS = [
@@ -4736,7 +5422,7 @@ function buildSoapNote(caseData, workflow) {
     },
     objective: [
       `Vitals: ${formattedVitalSigns(caseData)}.`,
-      ...generateObjectiveExam(caseData)
+      ...objectiveExamLines(caseData)
     ].filter(Boolean),
     assessment: {
       primary_diagnosis: soapPrimaryDiagnosis(caseData),
@@ -4771,20 +5457,6 @@ function buildPhysicianDebrief(session, caseData, workflow, scorecard, priorityI
   };
 }
 
-function evaluateReassessment(session, caseData) {
-  const plan = session.reassessment_plan || [];
-  const rationale = session.reassessment_rationale || '';
-  const ddx = reviewedAugmentationDdx(caseData);
-  const facts = reviewedInferredFacts(caseData);
-  const targets = [...ddx.map((d) => d.next_discriminator), ...facts.map((f) => f.practice_rule)].filter(Boolean);
-  return {
-    plan,
-    rationale,
-    message: plan.length ? `Selected monitoring targets: ${plan.join(', ')}.` : 'No active monitoring risks selected.',
-    targets
-  };
-}
-
 function generateFeedback(session) {
   const caseData = session.case;
   const selectedActionIds = (session.escalation_actions || []).map((item) => item.id);
@@ -4797,10 +5469,14 @@ function generateFeedback(session) {
       message: 'Case clock records real elapsed time during the active case. Scoring is based on case evidence and clinical reasoning.'
     },
     interview: evaluateInterview(caseData, session.interview_log, session.support_uses, session.interview_mode, session.interview_gaps_acknowledged),
+    focused_exam: evaluateFocusedExam(session, caseData),
+    diagnosis: evaluateDiagnosis(session, caseData),
+    referral: evaluateReferral(session, caseData),
     escalation: evaluateEscalation(caseData, selectedActionIds),
-    reassessment: evaluateReassessment(session, caseData),
+    reassessment: null,
     sbar: scoreSbar(session.sbar_handoff, caseData, session.triage_level)
   };
+  workflow.reassessment = evaluateReassessment(session, caseData, workflow);
   const comparison = session.triage_level < caseData.acuity ? 'Over-triaged' : session.triage_level > caseData.acuity ? 'Under-triaged' : 'Correct triage';
   const recordedActions = clinicalFeedback(caseData);
   const scorecard = generateScorecard(session, caseData, workflow);
@@ -4831,11 +5507,19 @@ function generateFeedback(session) {
       provisional_triage_rationale: session.provisional_triage_rationale,
       elapsed_seconds: session.elapsed_seconds,
       vitals_checked: session.checked_vitals,
+      focused_exam: clone(session.focused_exam_results),
       interview_log: clone(session.interview_log),
       interview_mode: session.interview_mode,
       support_uses: clone(session.support_uses),
+      working_diagnosis: session.working_diagnosis || '',
+      differential: clone(session.differential || []),
+      diagnosis_evidence: session.diagnosis_evidence || '',
+      referral_needed: session.referral_needed,
+      referral_specialty: session.referral_specialty || '',
+      referral_rationale: session.referral_rationale || '',
       escalation_actions: clone(session.escalation_actions),
       escalation_rationale: session.escalation_rationale,
+      initial_plan: clone(session.initial_plan || {}),
       reassessment_plan: clone(session.reassessment_plan || []),
       reassessment_rationale: session.reassessment_rationale || '',
       sbar_handoff: session.sbar_handoff,
@@ -4913,13 +5597,21 @@ function visibleDecisionEvidence(session, stage = '') {
     session.provisional_triage_level ? `Working acuity: ESI ${session.provisional_triage_level}` : '',
     session.checked_vitals.length ? `Reviewed vitals: ${formattedVitalSigns(caseData)}` : '',
     session.triage_level ? `Final acuity selected: ESI ${session.triage_level}` : '',
-    session.escalation_actions.length ? `Care priorities selected: ${session.escalation_actions.map((item) => item.name).join(', ')}` : ''
+    session.working_diagnosis ? `Working diagnosis: ${session.working_diagnosis}` : '',
+    session.referral_needed !== null
+      ? (session.referral_needed ? `Referral plan: ${session.referral_specialty}` : 'Referral plan: no immediate specialty input')
+      : '',
+    session.escalation_actions.length ? `Initial priorities selected: ${session.escalation_actions.map((item) => item.name).join(', ')}` : '',
+    session.reassessment_plan.length ? `Reassessment targets selected: ${session.reassessment_plan.map((id) => reassessmentTargetLookup[id]?.label || id).join(', ')}` : ''
   ].filter(Boolean);
   const missing = [
     ...progress.missed_domains.map((domain) => `Interview: ${domain}`),
-    !session.checked_vitals.length && ['final', 'escalation', 'sbar'].includes(stage) ? 'Objective vitals review' : '',
-    !session.triage_rationale && ['final', 'escalation', 'sbar'].includes(stage) ? 'Final ESI rationale' : '',
-    !session.escalation_rationale && ['sbar'].includes(stage) ? 'Escalation rationale' : ''
+    !session.checked_vitals.length && ['final', 'diagnosis', 'referral', 'escalation', 'reassessment', 'sbar'].includes(stage) ? 'Objective vitals review' : '',
+    !session.triage_rationale && ['final', 'diagnosis', 'referral', 'escalation', 'reassessment', 'sbar'].includes(stage) ? 'Final ESI rationale' : '',
+    !session.working_diagnosis && ['referral', 'escalation', 'reassessment', 'sbar'].includes(stage) ? 'Working diagnosis' : '',
+    session.referral_needed === null && ['escalation', 'reassessment', 'sbar'].includes(stage) ? 'Referral judgment' : '',
+    !session.escalation_rationale && ['reassessment', 'sbar'].includes(stage) ? 'Initial management rationale' : '',
+    !session.reassessment_rationale && ['sbar'].includes(stage) ? 'Reassessment rationale' : ''
   ].filter(Boolean);
   return { gathered, missing, progress };
 }
@@ -4953,8 +5645,20 @@ function buildDecisionCoach(session, stage = 'interview') {
       next_best_action: 'Connect the selected ESI to stability, risk, vitals, and resource expectation in one concise rationale.',
       reasoning_frame: 'Separate immediate danger from resource prediction before choosing ESI 3, 4, or 5.'
     },
+    diagnosis: {
+      title: 'Diagnosis coach',
+      esi_implication: 'The working diagnosis should stay provisional while still explaining the most likely threat.',
+      next_best_action: 'State one working diagnosis, two alternatives, and the evidence that supports or argues against each.',
+      reasoning_frame: 'Use history, vitals, exam targets, and acuity to explain uncertainty without pretending the diagnosis is final.'
+    },
+    referral: {
+      title: 'Referral coach',
+      esi_implication: 'Specialty input should be tied to a decision it changes: stabilization, diagnostic pathway, procedure, or disposition.',
+      next_best_action: missing.length ? `Resolve ${missing.slice(0, 2).join(' and ')} before deciding referral.` : 'Choose whether specialty help is needed now and name the service if it is.',
+      reasoning_frame: 'Referral judgment is about timing and clinical consequence, not naming every possible consult.'
+    },
     escalation: {
-      title: 'Care priority coach',
+      title: 'Initial management coach',
       esi_implication: expectedActions.length
         ? 'Escalation choices should match immediate safety, placement, monitoring, bleeding, respiratory, behavioral, or pain signals.'
         : 'No immediate escalation signal is obvious from the structured triage evidence.',
@@ -4962,6 +5666,12 @@ function buildDecisionCoach(session, stage = 'interview') {
         ? `Consider whether ${expectedActions.slice(0, 2).map((item) => item.name).join(' and ')} is supported by the case evidence.`
         : 'Document why routine waiting with reassessment is appropriate.',
       reasoning_frame: 'Choose actions that a triage nurse can initiate or escalate before routine queue placement.'
+    },
+    reassessment: {
+      title: 'Reassessment coach',
+      esi_implication: 'Reassessment closes the loop between initial priorities and safe handoff.',
+      next_best_action: 'Select the specific changes you would recheck before handing off or moving the patient in the queue.',
+      reasoning_frame: 'Tie each reassessment target to a threat that could worsen: vitals, pain, breathing, circulation, neurologic status, infection, or disposition safety.'
     },
     sbar: {
       title: 'SBAR coach',
@@ -5031,18 +5741,23 @@ export async function askStaticInCaseCoach(id, stage = 'interview', learnerConte
 }
 
 export function startStaticSimulation() {
-  if (!cases.length) throw new Error('No cases available.');
-  const playableCases = cases.filter((item) => {
+  const sourceState = activeCaseSourceState();
+  const sourceCases = localResearchCaseBundle?.cases?.length ? localResearchCaseBundle.cases : cases;
+  if (!sourceCases.length) throw new Error('No cases available.');
+  const playableCases = sourceCases.filter((item) => {
     const complaint = String(item.complaint || '').trim();
     return Boolean(complaint) && !/#name\?/i.test(complaint);
   });
-  const casePool = playableCases.length ? adaptiveCasePool(playableCases) : cases;
+  const casePool = localResearchCaseBundle
+    ? (playableCases.length ? playableCases : sourceCases)
+    : (playableCases.length ? adaptiveCasePool(playableCases) : cases);
   const rawCaseData = clone(casePool[Math.floor(Math.random() * casePool.length)]);
-  const caseData = { ...rawCaseData };
+  let caseData = { ...rawCaseData };
   const reviewedAug = reviewedAugmentations.cases[caseData.id];
   if (reviewedAug && reviewedAug.review_status === 'reviewed') {
     caseData.augmentation = clone(reviewedAug);
   }
+  caseData = normalizeClinicalCase(caseData, sourceState.mode);
   const patientView = buildPatientView(caseData);
   const id = sessionId();
   const session = {
@@ -5058,6 +5773,18 @@ export function startStaticSimulation() {
     provisional_triage_rationale: '',
     triage_level: null,
     triage_rationale: '',
+    working_diagnosis: '',
+    differential: [],
+    diagnosis_evidence: '',
+    referral_needed: null,
+    referral_specialty: '',
+    referral_rationale: '',
+    initial_plan: {
+      diagnostics: '',
+      treatments: '',
+      medications: '',
+      disposition: ''
+    },
     interventions: [],
     escalation_actions: [],
     escalation_rationale: '',
@@ -5072,6 +5799,8 @@ export function startStaticSimulation() {
     interview_mode: 'assessment',
     interview_gaps_acknowledged: false,
     support_uses: [],
+    focused_exam_selection: [],
+    focused_exam_results: null,
     response_cache: {}
   };
   sessions.set(id, session);
@@ -5083,6 +5812,10 @@ export function startStaticSimulation() {
     sex: caseData.demographics.sex,
     transport: caseData.demographics.transport,
     complaint: caseData.complaint,
+    case_source: caseData.case_source,
+    source_restriction: caseData.source_restriction,
+    tasks_available: clone(caseData.tasks_available || {}),
+    source_state: sourceState,
     intake,
     interview_modes: clone(INTERVIEW_MODES),
     interview_supports: clone(INTERVIEW_SUPPORTS),
@@ -5192,7 +5925,7 @@ export async function askStaticPatientQuestion(id, question) {
         time_cost_seconds: metadata.cost_seconds
       };
       session.response_cache[cacheKey] = clone(answerPayload);
-    } else if (getTutorSettings().hasKey) {
+    } else if (!getTutorSettings().hasKey) {
       const semanticCached = await readSemanticPatientCache(session.case, text, category, coveredCategories, intentKey, {
         session,
         answerPlan,
@@ -5224,14 +5957,23 @@ export async function askStaticPatientQuestion(id, question) {
     let source = 'Local patient response';
     let usedAi = false;
     let aiError = '';
+    let fallbackReason = '';
+    let addressedIntents = answerPlan.intents || [];
+    let usedFields = [];
+    let uncertaintyUsed = /\b(not sure|don't know|do not know|not really sure)\b/i.test(fallbackAnswer);
 
     const settings = getTutorSettings();
-    if (settings.hasKey) {
+    const restrictedCase = session.case?.source_restriction === 'credentialed_local_only';
+    const aiAllowed = settings.hasKey && (!restrictedCase || settings.restrictedAiEnabled);
+    if (settings.hasKey && !aiAllowed) {
+      fallbackReason = 'Restricted local MIMIC AI calls require session opt-in.';
+    }
+    if (aiAllowed) {
       const aiPromise = askOpenRouterPatient(session, text, answerPlan, patientView, fallbackAnswer)
-        .then((aiAnswer) => {
+        .then((aiResult) => {
           const cleanedAiAnswer = validatePatientAnswer({
             caseData: session.case,
-            answer: aiAnswer,
+            answer: aiResult?.answer,
             intentKey,
             category,
             question: text,
@@ -5243,31 +5985,40 @@ export async function askStaticPatientQuestion(id, question) {
           if (!cleanedAiAnswer || normalizedAnswerText(cleanedAiAnswer) === normalizedAnswerText(fallbackAnswer)) {
             return null;
           }
-          return cleanedAiAnswer;
+          return { ...aiResult, answer: cleanedAiAnswer };
         })
         .catch((error) => {
           aiError = error.message || 'OpenRouter patient response failed.';
           return null;
         });
 
-      const fastAiAnswer = await promiseWithTimeout(aiPromise, PATIENT_AI_FAST_TIMEOUT_MS);
-      if (fastAiAnswer) {
-        answer = fastAiAnswer;
+      const fastAiResult = await promiseWithTimeout(aiPromise, PATIENT_AI_FAST_TIMEOUT_MS);
+      if (fastAiResult?.answer) {
+        answer = fastAiResult.answer;
         source = 'OpenRouter patient response';
         usedAi = true;
+        addressedIntents = fastAiResult.addressed_intents || addressedIntents;
+        usedFields = fastAiResult.used_fields || [];
+        uncertaintyUsed = Boolean(fastAiResult.uncertainty_used);
       } else {
-        aiPromise.then((backgroundAnswer) => {
-          if (!backgroundAnswer) return;
+        if (!aiError) fallbackReason = 'AI response timed out or failed validation.';
+        aiPromise.then((backgroundResult) => {
+          if (!backgroundResult?.answer) return;
           storePatientAnswer(session, cacheKey, {
             question: text,
             category,
             category_label: metadata.label,
             covered_categories: coveredCategories,
-            answer: backgroundAnswer,
+            answer: backgroundResult.answer,
             source: 'OpenRouter patient response',
             used_ai: true,
             cached: false,
             intent_key: intentKey,
+            validated: true,
+            fallback_reason: '',
+            addressed_intents: backgroundResult.addressed_intents || answerPlan.intents || [],
+            used_fields: backgroundResult.used_fields || [],
+            uncertainty_used: Boolean(backgroundResult.uncertainty_used),
             ai_error: '',
             time_cost_seconds: metadata.cost_seconds
           });
@@ -5285,6 +6036,11 @@ export async function askStaticPatientQuestion(id, question) {
       used_ai: usedAi,
       cached: false,
       intent_key: intentKey,
+      validated: true,
+      fallback_reason: usedAi ? '' : fallbackReason,
+      addressed_intents: addressedIntents,
+      used_fields: usedFields,
+      uncertainty_used: uncertaintyUsed,
       ai_error: aiError,
       time_cost_seconds: metadata.cost_seconds
     };
@@ -5322,6 +6078,9 @@ export async function askStaticPatientQuestion(id, question) {
     category_label: metadata.label,
     covered_categories: coveredCategories,
     covered_domains: categoryLabels(coveredCategories),
+    validated: answerPayload.validated !== false,
+    fallback_reason: answerPayload.fallback_reason || '',
+    addressed_intents: answerPayload.addressed_intents || answerPlan.intents || [],
     coverage_confidence: coverageConfidence,
     teaching_note: interviewTurnTeachingNote(coveredCategories, progressAfterTurn.missed_categories),
     elapsed_at_seconds: recordElapsed(session, `interview_question_${session.interview_log.length + 1}`)
@@ -5364,6 +6123,23 @@ export function recordStaticVitalsReview(id) {
   return { vitals, physical_exam, missing_evidence, clock: clock(session) };
 }
 
+export function recordStaticFocusedExam(id, selectedSystemIds = []) {
+  const session = getSession(id);
+  const vitals = session.checked_vitals?.length ? session.checked_vitals : formatVitals(session.case);
+  if (!session.checked_vitals?.length) session.checked_vitals = vitals;
+  const physicalExamFacts = reviewedPhysicalExamFacts(session.case);
+  const result = buildFocusedExamSelection(session.case, selectedSystemIds, physicalExamFacts, vitals);
+  session.focused_exam_selection = clone(result.selected_systems || []);
+  session.focused_exam_results = clone(result);
+  recordElapsed(session, 'focused_exam');
+  return {
+    ...clone(result),
+    vitals,
+    physical_exam: physicalExamFacts,
+    clock: clock(session)
+  };
+}
+
 export function assignStaticTriage(id, level, rationale = '') {
   const session = getSession(id);
   if (![1, 2, 3, 4, 5].includes(level)) throw new Error('Invalid triage level.');
@@ -5373,20 +6149,77 @@ export function assignStaticTriage(id, level, rationale = '') {
   return { success: true, level, rationale, clock: clock(session) };
 }
 
+export function recordStaticDiagnosis(id, diagnosis = '', differential = [], evidence = '') {
+  const session = getSession(id);
+  const trimmedDiagnosis = String(diagnosis || '').trim();
+  const trimmedEvidence = String(evidence || '').trim();
+  const differentialItems = listFromValue(differential).slice(0, 5);
+  if (trimmedDiagnosis.length < 3) throw new Error('Working diagnosis is required.');
+  if (trimmedEvidence.length < 20) throw new Error('Diagnosis evidence is too short.');
+  session.working_diagnosis = trimmedDiagnosis;
+  session.differential = differentialItems;
+  session.diagnosis_evidence = trimmedEvidence;
+  recordElapsed(session, 'working_diagnosis');
+  return {
+    success: true,
+    working_diagnosis: session.working_diagnosis,
+    differential: clone(session.differential),
+    evidence: session.diagnosis_evidence,
+    clock: clock(session)
+  };
+}
+
+export function getStaticReferralOptions(id) {
+  const session = getSession(id);
+  const approved = session.case.ground_truth?.referral?.clinician_approved_specialty || [];
+  return uniqueSentences([...approved, ...COMMON_SPECIALTY_OPTIONS]).slice(0, 14);
+}
+
+export function submitStaticReferral(id, decision = {}) {
+  const session = getSession(id);
+  const needed = Boolean(decision.needed);
+  const specialty = String(decision.specialty || '').trim();
+  const rationale = String(decision.rationale || '').trim();
+  if (needed && !specialty) throw new Error('Select a specialty when referral is needed.');
+  if (rationale.length < 15) throw new Error('Referral rationale is too short.');
+  session.referral_needed = needed;
+  session.referral_specialty = needed ? specialty : '';
+  session.referral_rationale = rationale;
+  recordElapsed(session, 'referral');
+  return {
+    success: true,
+    referral_needed: session.referral_needed,
+    referral_specialty: session.referral_specialty,
+    rationale: session.referral_rationale,
+    clock: clock(session)
+  };
+}
+
 export function getStaticEscalationActions(id) {
   getSession(id);
   return clone(TRIAGE_ACTIONS);
 }
 
-export function selectStaticEscalationActions(id, actionIds = [], rationale = '') {
+export function selectStaticEscalationActions(id, actionIds = [], rationale = '', planDetails = {}) {
   const session = getSession(id);
   const trimmedRationale = String(rationale || '').trim() || 'Selected standard clinical interventions based on presentation.';
   const selected = actionIds.filter((actionId) => actionLookup[actionId]).map((actionId) => clone(actionLookup[actionId]));
+  session.initial_plan = {
+    diagnostics: String(planDetails.diagnostics || '').trim(),
+    treatments: String(planDetails.treatments || '').trim(),
+    medications: String(planDetails.medications || '').trim(),
+    disposition: String(planDetails.disposition || '').trim()
+  };
   session.escalation_actions = selected;
   session.interventions = selected;
   session.escalation_rationale = trimmedRationale;
   recordElapsed(session, 'escalation');
-  return { actions_performed: clone(selected), rationale: session.escalation_rationale, clock: clock(session) };
+  return {
+    actions_performed: clone(selected),
+    rationale: session.escalation_rationale,
+    initial_plan: clone(session.initial_plan),
+    clock: clock(session)
+  };
 }
 
 export function submitStaticReassessment(id, selectedRisks = [], rationale = '') {
@@ -5474,18 +6307,24 @@ export function getTutorSettings() {
   const storage = localKey ? 'local' : sessionKey ? 'session' : 'local';
   const tutorModel = localStorage.getItem(TUTOR_MODEL_KEY) || DEFAULT_TUTOR_MODEL;
   const patientModel = localStorage.getItem(PATIENT_DIALOGUE_MODEL_KEY) || DEFAULT_PATIENT_DIALOGUE_MODEL;
+  const restrictedAiEnabled = sessionStorage.getItem(RESTRICTED_AI_SESSION_KEY) === 'true';
   return {
     hasKey: Boolean(key),
     key,
     storage,
     model: tutorModel,
     tutorModel,
-    patientModel
+    patientModel,
+    restrictedAiEnabled
   };
 }
 
-export function saveTutorSettings({ key, model = DEFAULT_TUTOR_MODEL, patientModel = DEFAULT_PATIENT_DIALOGUE_MODEL }) {
+export function saveTutorSettings({ key, model = DEFAULT_TUTOR_MODEL, patientModel = DEFAULT_PATIENT_DIALOGUE_MODEL, restrictedAiEnabled = null }) {
+  if (restrictedAiEnabled !== null && restrictedAiEnabled !== undefined) {
+    sessionStorage.setItem(RESTRICTED_AI_SESSION_KEY, restrictedAiEnabled ? 'true' : 'false');
+  }
   const trimmedKey = String(key || '').trim();
+  if (!trimmedKey && restrictedAiEnabled !== null && restrictedAiEnabled !== undefined) return getTutorSettings();
   if (!trimmedKey) throw new Error('OpenRouter API key is required.');
   const provider = detectProvider(trimmedKey);
   const requestedModel = String(model || '').trim();
@@ -5505,6 +6344,7 @@ export function clearTutorSettings() {
   sessionStorage.removeItem(TUTOR_SESSION_KEY);
   localStorage.removeItem(TUTOR_LOCAL_KEY);
   localStorage.removeItem(TUTOR_STORAGE_KEY);
+  sessionStorage.removeItem(RESTRICTED_AI_SESSION_KEY);
   return getTutorSettings();
 }
 

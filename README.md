@@ -1,20 +1,23 @@
-# ED Triage Trainer
+# ED Clinical Workflow Simulator
 
-ED Triage Trainer is a static emergency department triage training application built with React and Vite. The default learning workflow runs entirely in the browser, so public deployment does not require a backend server, hosted API key, environment variables, or paid AI service.
+ED Clinical Workflow Simulator is a static emergency department simulation application built with React and Vite. The current public demo uses ED triage as a constrained, high-acuity entry point for practicing clinical workflow reasoning. The default learning workflow runs entirely in the browser, so public deployment does not require a backend server, hosted API key, environment variables, or paid AI service.
 
 ## What The App Does
 
-Learners work through an ED triage case using MIETIC-derived validation cases:
+Learners work through an ED case using the public demo bundle by default, or a credentialed local MIMIC-IV-Ext-CDS bundle when loaded in research mode:
 
 1. Focused patient interview
 2. Provisional ESI assignment
 3. Baseline vital-sign review
 4. Final ESI assignment with rationale
-5. Triage escalation priorities
-6. SBAR handoff
-7. Physician case review and debrief
+5. Working diagnosis and differential
+6. Specialty referral judgment
+7. Initial management priorities
+8. Reassessment check
+9. SBAR handoff
+10. Simulation debrief
 
-Scoring is deterministic and runs in the browser. The debrief compares learner decisions with case-grounded ESI, vital-sign, resource, outcome, intervention, and reviewed clinical-evidence signals. Free-text reasoning receives local rubric feedback by default, with optional OpenRouter critique when a learner saves a browser-local key.
+Scoring is deterministic and runs in the browser. The debrief compares learner decisions with case-grounded ESI, vital-sign, diagnosis, referral, resource, outcome, intervention, reassessment, and reviewed clinical-evidence signals when those signals exist. Diagnosis, referral, and management text is labeled as source record, reviewed teaching inference, or LLM draft awaiting validation. Free-text reasoning receives local rubric feedback by default, with optional OpenRouter critique when a learner saves a browser-local key.
 
 ## Public Runtime
 
@@ -36,6 +39,7 @@ The OpenRouter tutor is disabled until a learner enters a key. The key is stored
 |   |-- code/                   # Reproducible scoring audit
 |   `-- data/                   # Scoring audit output
 |-- data/raw/                   # Raw MIETIC validation CSV used to build the static bundle
+|-- data/restricted/            # Ignored local-only credentialed data derivatives
 |-- data/processed/             # Reviewed case-augmentation artifacts
 |-- docs/                       # Deployment and reproducibility notes
 |-- frontend/                   # Static React/Vite app
@@ -100,6 +104,23 @@ python scripts/augment_static_cases.py --case-id case_021
 
 The draft output is written to `data/processed/case_augmentations.draft.json`. Reviewed facts are promoted into `data/processed/case_augmentations.review.json`; draft and rejected augmentations do not ship in the learner bundle.
 
+## Restricted MIMIC-IV-Ext-CDS Workflow
+
+Credentialed MIMIC-IV-Ext-CDS source data and derived cases must remain local. The repository ignores the downloaded dataset folder, `data/restricted/`, restricted frontend JSON bundles, and `reports/restricted/`.
+
+```powershell
+python scripts/check_restricted_data_privacy.py
+python scripts/generate_mimic_restricted_cases.py --limit 50
+```
+
+The generated MIMIC-derived bundle is for local validation only and is not imported by the public Vite app. Use the grounding audit to check LLM-generated text before clinician or learner review:
+
+```powershell
+python scripts/audit_grounding.py --cases data/restricted/mimic_iv_ext_cases.restricted.json --outputs data/restricted/generated_outputs.restricted.json
+```
+
+For local research demos, open the app and use **Load Local MIMIC Bundle** in the case-source banner. The selected file stays in browser memory and is never statically imported into the public app.
+
 ## Documentation
 
 - [Public deployment](docs/deployment.md)
@@ -109,4 +130,4 @@ The draft output is written to `data/processed/case_augmentations.draft.json`. R
 
 ## Data Note
 
-The app uses MIETIC validation samples derived from emergency department records. Public-facing feedback is educational and should not be used for patient care decisions.
+The public app uses MIETIC validation samples derived from emergency department records. Restricted MIMIC-derived artifacts are local-only and are not suitable for public deployment. Public-facing feedback is educational and should not be used for patient care decisions.

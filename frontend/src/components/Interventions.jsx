@@ -44,6 +44,13 @@ function groupActionsByIntent(actions) {
 function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onClock }) {
   const [availableActions, setAvailableActions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [rationale, setRationale] = useState('');
+  const [planDetails, setPlanDetails] = useState({
+    diagnostics: '',
+    treatments: '',
+    medications: '',
+    disposition: ''
+  });
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -77,11 +84,16 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
   };
 
   const submitActions = async (ids) => {
+    const trimmedRationale = rationale.trim();
+    if (trimmedRationale.length < 15) {
+      setError('Add a brief rationale for the initial management priorities.');
+      return;
+    }
+
     try {
       setError('');
       setSubmitting(true);
-      const defaultRationale = 'Selected standard clinical interventions based on presentation.';
-      const data = await selectEscalationActions(sessionId, ids, defaultRationale);
+      const data = await selectEscalationActions(sessionId, ids, trimmedRationale, planDetails);
       const performedActions = data.actions_performed;
       setResults(performedActions);
       if (onClock && data.clock) onClock(data.clock);
@@ -89,7 +101,8 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
         onCapture({
           interventions: performedActions,
           escalationActions: performedActions,
-          escalationRationale: defaultRationale
+          escalationRationale: trimmedRationale,
+          initialPlan: data.initial_plan || planDetails
         });
       }
     } catch (err) {
@@ -115,17 +128,16 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
   }
 
   const groupedAvailable = groupActionsByIntent(availableActions);
+  const rationaleReady = rationale.trim().length >= 15;
 
   return (
     <section className="step-card interventions-card" aria-labelledby="interventions-heading">
       <div className="section-header">
         <div>
-          <span className="eyebrow">
-            Step 4 of 6 <span className="provenance-tag student-tag">Student Decision</span>
-          </span>
-          <h2 id="interventions-heading">Care Priorities & Orders</h2>
+          <span className="eyebrow">Initial Plan <span className="provenance-tag student-tag">Student Decision</span></span>
+          <h2 id="interventions-heading">Initial Management Priorities</h2>
           <p className="subtitle">
-            Initiate immediate life-stabilizing interventions, order diagnostics, or place the patient in monitored care.
+            Select the first placement, monitoring, and treatment priorities you would initiate or escalate now.
           </p>
         </div>
       </div>
@@ -135,7 +147,7 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
       {!results ? (
         <>
           <div className="interventions-selection-header">
-            <h3>Available Triage Actions</h3>
+            <h3>Available Initial Actions</h3>
             <button
               type="button"
               className="btn-link"
@@ -144,6 +156,54 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
             >
               Clear Selection
             </button>
+          </div>
+
+          <div className="premium-textarea-container" style={{ marginTop: '16px' }}>
+            <label htmlFor="management-rationale" className="premium-textarea-label">
+              <span>Initial Management Rationale</span>
+              <span className="input-badge">Required</span>
+            </label>
+            <p className="premium-textarea-hint">
+              Explain why these actions, or routine waiting, are appropriate from the information currently available.
+            </p>
+            <textarea
+              id="management-rationale"
+              className="premium-textarea"
+              value={rationale}
+              onChange={(event) => setRationale(event.target.value)}
+              placeholder="My immediate priorities are..."
+              rows="5"
+              disabled={submitting}
+            />
+            <div className="char-count" style={{ marginTop: '8px', textAlign: 'right', fontSize: '0.85rem', color: rationaleReady ? '#16a34a' : '#ef4444' }}>
+              {rationale.trim().length} / 15 minimum characters required
+            </div>
+          </div>
+
+          <div className="initial-plan-grid" aria-label="Initial plan categories">
+            {[
+              ['diagnostics', 'Diagnostic Tests', 'Labs, imaging, ECG, bedside testing, or observation you would prioritize.'],
+              ['treatments', 'Immediate Treatments', 'Stabilization, symptom control, procedures, monitoring, or safety actions.'],
+              ['medications', 'Medication Considerations', 'Analgesia, antibiotics, fluids, oxygen, home-medication issues, or contraindications.'],
+              ['disposition', 'Disposition Intent', 'Routine wait, monitored bed, admission, transfer, discharge pathway, or reassessment trigger.']
+            ].map(([key, label, hint]) => (
+              <div className="premium-textarea-container compact-plan-field" key={key}>
+                <label htmlFor={`plan-${key}`} className="premium-textarea-label">
+                  <span>{label}</span>
+                  <span className="input-badge optional-badge">Optional</span>
+                </label>
+                <p className="premium-textarea-hint">{hint}</p>
+                <textarea
+                  id={`plan-${key}`}
+                  className="premium-textarea"
+                  value={planDetails[key]}
+                  onChange={(event) => setPlanDetails((prev) => ({ ...prev, [key]: event.target.value }))}
+                  placeholder="I would..."
+                  rows="3"
+                  disabled={submitting}
+                />
+              </div>
+            ))}
           </div>
 
           <div className="interventions-categories-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', margin: '16px 0' }}>
@@ -185,7 +245,7 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
               type="button"
               className="btn-secondary"
               onClick={() => submitActions([])}
-              disabled={submitting || selectedIds.length > 0}
+              disabled={submitting || selectedIds.length > 0 || !rationaleReady}
             >
               Routine Waiting (Zero Immediate Actions)
             </button>
@@ -193,16 +253,16 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
               type="button"
               className="btn-primary"
               onClick={() => submitActions(selectedIds)}
-              disabled={submitting || selectedIds.length === 0}
+              disabled={submitting || selectedIds.length === 0 || !rationaleReady}
             >
-              {submitting ? 'Locking Care Priorities...' : 'Lock Care Priorities & Proceed to SBAR Handoff'}
+              {submitting ? 'Locking Initial Priorities...' : 'Lock initial management'}
             </button>
           </div>
         </>
       ) : (
         <>
           <div className="results-section">
-            <span className="eyebrow">Care Priorities Locked</span>
+            <span className="eyebrow">Initial Management Locked</span>
             {results.length > 0 ? (
               <div className="interventions-results-grid">
                 {results.map((action) => (
@@ -220,7 +280,7 @@ function Interventions({ sessionId, coachEnabled = false, onNext, onCapture, onC
 
           <div className="step-actions">
             <button type="button" className="btn-primary" onClick={onNext}>
-              Proceed to SBAR Handoff
+              Continue to reassessment
             </button>
           </div>
         </>

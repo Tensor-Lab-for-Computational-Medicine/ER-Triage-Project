@@ -1,6 +1,6 @@
-export const PATIENT_DIALOGUE_ENGINE_VERSION = 'patient_dialogue_engine_v2';
-export const PATIENT_DIALOGUE_PROMPT_VERSION = 'patient_dialogue_prompt_v4';
-export const PATIENT_DIALOGUE_CACHE_VERSION = 'patient_response_v6';
+export const PATIENT_DIALOGUE_ENGINE_VERSION = 'patient_dialogue_engine_v3';
+export const PATIENT_DIALOGUE_PROMPT_VERSION = 'patient_dialogue_prompt_v5';
+export const PATIENT_DIALOGUE_CACHE_VERSION = 'patient_response_v7';
 
 const CATEGORY_ORDER = [
   'general_status',
@@ -21,6 +21,7 @@ const INTENT_ORDER = [
   'general_status',
   'chief_concern',
   'timeline',
+  'trigger_activity',
   'progression',
   'severity',
   'associated_symptoms',
@@ -504,6 +505,33 @@ function buildTimeline(caseData, symptoms) {
   return "I'm not exactly sure when it started, but it was already going on before I came in.";
 }
 
+function buildTriggerActivity(caseData, symptoms) {
+  const text = sourceText(caseData);
+  const lower = text.toLowerCase();
+  if (hasAlteredLanguage(text)) return "I'm not really sure what I was doing right before. My wife said she found me confused.";
+  if (/\bafter experiencing a seizure\b/i.test(text)) return 'It happened after I had a seizure.';
+  if (/\bafter waking from a nap\b/i.test(text)) return 'It started after I woke up from a nap.';
+  if (/\bfall|fell|slipped|trip/i.test(text)) return 'It happened after I fell.';
+  if (/\bcar crash|motor vehicle|mvc|collision/i.test(text)) return 'It happened during a car crash.';
+  if (/\bcut|laceration|wound\b/i.test(text)) return 'I cut myself and came in because of the wound.';
+  if (/\bsuture removal|sutures?\b/i.test(text)) return 'I came in because the stitches were due to be checked or removed.';
+  if (/\bmedication refill|med refill|refill|ran out|out of (my )?medicine/i.test(text)) return 'I came in because I needed a medication refill.';
+  if (/\bswallow|dysphagia|hoarse|neck|incision|thyroid|surgery/i.test(text)) return 'It came up after my recent neck problem or procedure; I was not doing anything strenuous.';
+  if (symptoms.present_ids.includes('chest_pain')) {
+    if (/\bat rest\b/i.test(text)) return 'It happened while I was at rest.';
+    if (/\bexert|walking|stairs|activity\b/i.test(text)) return 'It happened with activity.';
+    return "I don't remember a specific activity that set off the chest pain.";
+  }
+  if (symptoms.present_ids.includes('abdominal_pain')) {
+    if (/\bafter (eating|meal)\b/i.test(lower)) return 'It started after eating.';
+    return "I don't know of a specific trigger for the belly pain.";
+  }
+  if (/\bfever|infection|gangrene|cellulitis|chills\b/i.test(text)) {
+    return "I don't know that I was doing anything specific; I had been feeling worse with the infection symptoms.";
+  }
+  return "I'm not sure anything specific triggered it.";
+}
+
 function buildPresentingConcern(caseData, symptoms) {
   const text = sourceText(caseData);
   const lower = text.toLowerCase();
@@ -641,6 +669,7 @@ function buildPatientViewInternal(caseData) {
   const reliability = hasAlteredLanguage(text) ? 'impaired' : 'reliable';
   const presenting = buildPresentingConcern(caseData, symptoms);
   const timeline = buildTimeline(caseData, symptoms);
+  const triggerActivity = buildTriggerActivity(caseData, symptoms);
   const progression = buildProgression(caseData);
   const severity = buildSeverity(caseData, symptoms);
 
@@ -653,6 +682,7 @@ function buildPatientViewInternal(caseData) {
     presenting_concern: presenting,
     symptom_summary: presenting,
     timeline,
+    trigger_activity: triggerActivity,
     progression,
     severity,
     associated_symptoms: buildAssociatedSymptoms(symptoms),
@@ -725,6 +755,7 @@ function sanitizePatientView(view) {
     presenting_concern: scrubString(view.presenting_concern),
     symptom_summary: scrubString(view.symptom_summary),
     timeline: scrubString(view.timeline),
+    trigger_activity: scrubString(view.trigger_activity),
     progression: scrubString(view.progression),
     severity: scrubString(view.severity),
     associated_symptoms: scrubString(view.associated_symptoms),
@@ -787,8 +818,9 @@ function detectIntents(question) {
   if (isGeneralStatusQuestion(question)) return ['general_status'];
 
   const intents = [];
+  if (/\b(what were you doing|what was happening|doing when|when this happened|right before|before (it|this) started|anything trigger|triggered|trigger|set (it|this) off|brought (it|this) on|at rest|exertion|exerting|activity|after eating|after a meal)\b/.test(q)) intents.push('trigger_activity');
   if (/\b(why|what)\b.*\b(came|come|brought|going on|wrong|happened|hospital|today)\b/.test(q) || /\btell me what'?s going on\b/.test(q)) intents.push('chief_concern');
-  if (/\b(when|start|started|began|begin|long|duration|course|how long)\b/.test(q)) intents.push('timeline');
+  if (!intents.includes('trigger_activity') && /\b(when|start|started|began|begin|long|duration|course|how long)\b/.test(q)) intents.push('timeline');
   if (/\b(better|worse|worsening|change|changed|changing|improving|progression|progressed|getting worse|getting better|constant|same|stable|coming and going)\b/.test(q)) intents.push('progression');
   if (/\b(how bad|pain|scale|severity|severe|distress|right now|rate|how is it|how are you|how is the|feeling now|feel now|better or worse|worse or better)\b/.test(q)) intents.push('severity');
   if (/\b(other symptoms|associated|also|anything else|red flags|scary symptoms)\b/.test(q)) intents.push('associated_symptoms');
@@ -802,7 +834,7 @@ function detectIntents(question) {
  
   if (!intents.length) {
     // If it has NO overlap with common medical triage topics, label it as irrelevant!
-    const isMedicalQuery = /\b(feel|feeling|sick|hurt|hurts|ache|pain|breath|cough|fever|vomit|nausea|weak|dizzy|bleed|blood|suture|wound|laceration|cut|refill|prescrip|pill|dose|med|history|stroke|seizure|fall|confusion|swallow|rectal|anal|crohn|pressure|tightness|sprain|fracture|swelling|allerg|pregnan|period|lmp|ill|onset|bad|scale|worse|worsening|happen|hospital|accident|injury|swelled|heart|failure|stenosis|copd|diabetes|cancer|kidney|liver|lung|asthma|cholesterol|hypertension)\b/i.test(q);
+    const isMedicalQuery = /\b(feel|feeling|sick|hurt|hurts|ache|pain|breath|cough|fever|vomit|nausea|weak|dizzy|bleed|blood|suture|wound|laceration|cut|refill|prescrip|pill|dose|med|history|stroke|seizure|fall|confusion|swallow|rectal|anal|crohn|pressure|tightness|sprain|fracture|swelling|allerg|pregnan|period|lmp|ill|onset|bad|scale|worse|worsening|happen|hospital|accident|injury|swelled|heart|failure|stenosis|copd|diabetes|cancer|kidney|liver|lung|asthma|cholesterol|hypertension|trigger|activity|doing)\b/i.test(q);
     if (!isMedicalQuery) {
       return ['irrelevant'];
     }
@@ -821,6 +853,7 @@ function intentToCategory(intent) {
   if (intent === 'cardiac_history') return 'medical_history';
   if (intent === 'associated_symptoms') return 'red_flags';
   if (intent === 'progression') return 'timeline';
+  if (intent === 'trigger_activity') return 'timeline';
   if (intent === 'diagnosis_clarification' || intent === 'answer_key' || intent === 'irrelevant' || intent === 'unknown') return 'chief_concern';
   return CATEGORY_ORDER.includes(intent) ? intent : 'chief_concern';
 }
@@ -1117,6 +1150,7 @@ function allergiesResponse(view, plan = {}) {
 
 function repeatedResponse(answer, intent) {
   if (intent === 'timeline') return "I don't have a more exact time than that.";
+  if (intent === 'trigger_activity') return "I don't remember a more specific trigger than that.";
   if (intent === 'progression') return "It's about the same as I already described.";
   if (intent === 'chief_concern') return "That's the main reason I came in.";
   if (intent === 'diagnosis_clarification') return "I'm still not sure what that term means.";
@@ -1124,7 +1158,7 @@ function repeatedResponse(answer, intent) {
 }
 
 function renderIntent(intent, plan, view) {
-  if (plan.is_repeat && ['timeline', 'progression', 'chief_concern', 'diagnosis_clarification'].includes(intent)) {
+  if (plan.is_repeat && ['timeline', 'trigger_activity', 'progression', 'chief_concern', 'diagnosis_clarification'].includes(intent)) {
     return repeatedResponse('', intent);
   }
   switch (intent) {
@@ -1142,6 +1176,8 @@ function renderIntent(intent, plan, view) {
       return view.presenting_concern;
     case 'timeline':
       return view.timeline;
+    case 'trigger_activity':
+      return view.trigger_activity || "I'm not sure anything specific triggered it.";
     case 'progression':
       if (view.progression) return view.progression;
       const rawText = view._raw_text || '';
@@ -1230,6 +1266,10 @@ function coversIntent(answer, plan, view) {
   if (plan.intents.includes('answer_key')) return /\b(don t know|history|feel|feeling)\b/.test(normalized);
   if (plan.intents.includes('diagnosis_clarification')) return /\b(not sure|don t know|brought|came|feel|feeling)\b/.test(normalized);
   if (plan.intents.includes('timeline')) return /\b(start|started|going on|ago|before|since|today|yesterday|week|weeks|month|months|year|years|sudden|gradual|exact time|more exact|came on|happened|course|how long|hour|hours|minute|minutes|day|days|time|date|onset|duration|when|past|last|few|couple|intermittent|comes|goes|coming|going)\b/.test(normalized);
+  if (plan.intents.includes('trigger_activity')) {
+    if (/\b(coming|going|worse|better|constant|same|progress)\b/.test(normalized) && !/\b(trigger|set off|doing|after|while|rest|activity|fall|fell|cut|refill|infection|surgery|specific|strenuous|woke|meal|eating)\b/.test(normalized)) return false;
+    return /\b(not sure|don t know|nothing specific|trigger|set off|doing|after|while|rest|activity|walking|exert|fall|fell|cut|wound|refill|infection|surgery|procedure|woke|nap|meal|eating|started)\b/.test(normalized);
+  }
   if (plan.intents.includes('progression')) return /\b(better|worse|worsening|worsened|improved|improving|same|getting|change|changing|constant|stable|coming|going|gradually|progression|progressed)\b/.test(normalized);
   if (plan.intents.includes('severity')) return /\b(pain|bad|severe|mild|uncomfortable|weak|breathe|serious)\b/.test(normalized);
   if (plan.intents.includes('medical_history') || plan.intents.includes('cardiac_history')) return /\b(have|history|don t know|don t|do not|no|never|none|heart|blood pressure|diabetes|cancer|stroke|copd|kidney|condition)\b/.test(normalized);
@@ -1264,6 +1304,7 @@ export function patientViewForModel(patientView) {
     collateral_source: patientView.collateral_source,
     presenting_concern: patientView.presenting_concern,
     timeline: patientView.timeline,
+    trigger_activity: patientView.trigger_activity,
     progression: patientView.progression,
     severity: patientView.severity,
     associated_symptoms: patientView.associated_symptoms,

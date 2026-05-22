@@ -23,6 +23,12 @@ Thumbs.db
 *.log
 logs/
 
+# Restricted credentialed datasets and derived local artifacts
+mimic-iv-ext-clinical-decision-support-for-referral-triage-and-diagnosis-*/
+data/restricted/
+frontend/src/data/*.restricted*.json
+reports/restricted/
+
 # Environment variables and local secrets
 .env
 .env.*

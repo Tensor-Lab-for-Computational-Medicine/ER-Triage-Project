@@ -6,18 +6,25 @@ import {
   askStaticPatientQuestion,
   assignStaticProvisionalTriage,
   assignStaticTriage,
+  clearStaticLocalCaseBundle,
   clearTutorSettings,
   detectProvider,
+  getStaticCaseSourceState,
   getStaticEscalationActions,
   getStaticFeedback,
   getStaticDecisionCoach,
+  getStaticReferralOptions,
   getTutorSettings,
   gradeStaticReasoningReview,
+  loadStaticLocalCaseBundle,
   prewarmStaticSemanticCache,
+  recordStaticDiagnosis,
+  recordStaticFocusedExam,
   recordStaticInterviewSupport,
   recordStaticVitalsReview,
   saveTutorSettings,
   selectStaticEscalationActions,
+  submitStaticReferral,
   startStaticSimulation,
   submitStaticReassessment,
   submitStaticSbar
@@ -50,8 +57,20 @@ export const assignProvisionalTriage = async (sessionId, level, rationale = '') 
 export const recordVitalsReview = async (sessionId) =>
   asyncReturn(() => recordStaticVitalsReview(sessionId));
 
+export const recordFocusedExam = async (sessionId, selectedSystemIds) =>
+  asyncReturn(() => recordStaticFocusedExam(sessionId, selectedSystemIds));
+
 export const assignTriage = async (sessionId, level, rationale = '') =>
   asyncReturn(() => assignStaticTriage(sessionId, level, rationale));
+
+export const recordDiagnosis = async (sessionId, diagnosis, differential = [], evidence = '') =>
+  asyncReturn(() => recordStaticDiagnosis(sessionId, diagnosis, differential, evidence));
+
+export const getReferralOptions = async (sessionId) =>
+  asyncReturn(() => getStaticReferralOptions(sessionId));
+
+export const submitReferral = async (sessionId, decision) =>
+  asyncReturn(() => submitStaticReferral(sessionId, decision));
 
 export const getEscalationActions = async (sessionId) =>
   asyncReturn(() => getStaticEscalationActions(sessionId));
@@ -62,8 +81,8 @@ export const getDecisionCoach = async (sessionId, stage) =>
 export const askInCaseCoach = async (sessionId, stage, learnerContext = '') =>
   askStaticInCaseCoach(sessionId, stage, learnerContext);
 
-export const selectEscalationActions = async (sessionId, actionIds, rationale = '') =>
-  asyncReturn(() => selectStaticEscalationActions(sessionId, actionIds, rationale));
+export const selectEscalationActions = async (sessionId, actionIds, rationale = '', planDetails = {}) =>
+  asyncReturn(() => selectStaticEscalationActions(sessionId, actionIds, rationale, planDetails));
 
 export const submitReassessment = async (sessionId, selectedRisks, rationale = '') =>
   asyncReturn(() => submitStaticReassessment(sessionId, selectedRisks, rationale));
@@ -85,6 +104,15 @@ export const gradeReasoningReview = async (sessionId) =>
 
 export const prewarmSemanticCache = async () =>
   prewarmStaticSemanticCache();
+
+export const loadLocalCaseBundle = async (payload, fileName = '') =>
+  asyncReturn(() => loadStaticLocalCaseBundle(payload, fileName));
+
+export const clearLocalCaseBundle = async () =>
+  asyncReturn(clearStaticLocalCaseBundle);
+
+export const getCaseSourceState = () =>
+  getStaticCaseSourceState();
 
 export { clearTutorSettings, detectProvider, getTutorSettings, saveTutorSettings };
 export { getCoachPreference, saveCoachPreference };

@@ -1,4 +1,4 @@
-# ED Triage Trainer
+# ED Clinical Workflow Simulator
 
 ## Minimal UX/UI Design Specification for Medical Student Education
 
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-The **ED Triage Trainer** is a browser-based educational simulation designed to help medical students practice emergency department triage, focused clinical interviewing, Emergency Severity Index assignment, care prioritization, reassessment, and SBAR handoff.
+The **ED Clinical Workflow Simulator** is a browser-based educational simulation designed to help medical students practice emergency department triage, focused clinical interviewing, Emergency Severity Index assignment, working diagnosis, specialty referral judgment, initial management, reassessment, and SBAR handoff.
 
 The application should feel like a **calm clinical reasoning workspace**, not a busy EHR, chatbot, or exam dashboard. Emergency medicine is chaotic; the learning interface should be the opposite: quiet, structured, and cognitively economical.
 
@@ -20,7 +20,7 @@ The application is grounded in a static case bundle derived from raw triage data
 
 ## 1.1 Design Goal
 
-The primary goal of the ED Triage Trainer is to teach medical students how to reason through triage decisions using incomplete, time-sensitive, and sometimes messy clinical information.
+The primary goal of the ED Clinical Workflow Simulator is to teach medical students how to reason through triage decisions using incomplete, time-sensitive, and sometimes messy clinical information.
 
 The interface should help students answer five questions:
 
@@ -41,7 +41,7 @@ The UI should not overwhelm learners with excessive panels, decorative graphics,
 Each step should isolate one clinical task:
 
 ```text
-Gather → Examine → Decide → Act → Reassess → Handoff → Learn
+Gather → Examine → Decide → Diagnose → Refer → Act → Reassess → Handoff → Learn
 ```
 
 The student should never be asked to interview, assign ESI, place orders, and read debrief feedback on the same screen.
@@ -120,10 +120,12 @@ By the end of a case, the learner should be able to:
 4. Recognize high-risk features and red flags.
 5. Assign a defensible ESI level.
 6. Connect ESI to anticipated resources and acuity.
-7. Select immediate care priorities.
-8. Identify what must be reassessed.
-9. Produce a concise SBAR handoff.
-10. Reflect on mistakes through structured debriefing.
+7. Formulate a working diagnosis and differential.
+8. Decide whether urgent specialty input is needed.
+9. Select immediate care priorities.
+10. Identify what must be reassessed.
+11. Produce a concise SBAR handoff.
+12. Reflect on mistakes through structured debriefing.
 
 ---
 
@@ -133,11 +135,11 @@ The application should use a linear, progressive structure.
 
 ```text
 +--------------------------------------------------------------------------------+
-| ED Triage Trainer                                      Coach On     Settings    |
+| ED Clinical Workflow Simulator                                      Coach On     Settings    |
 +--------------------------------------------------------------------------------+
 | 54 M | Chest pain, dyspnea | Walk-in | Vitals available | ESI pending           |
 +--------------------------------------------------------------------------------+
-| Gather → Examine → Decide → Act → Reassess → Handoff → Learn                    |
+| Gather → Examine → Decide → Diagnose → Refer → Act → Reassess → Handoff → Learn |
 +--------------------------------------------------------------------------------+
 |                                                                                |
 |                         Active clinical task                                    |
@@ -154,7 +156,7 @@ The application should use a linear, progressive structure.
 The topbar should contain only global controls.
 
 ```text
-ED Triage Trainer        Coach On/Off        Settings
+ED Clinical Workflow Simulator        Coach On/Off        Settings
 ```
 
 ### Include
@@ -223,7 +225,7 @@ Do **not** display “Working ESI” before the learner makes the definitive ESI
 Replace the longer workflow strip with a shorter reasoning spine:
 
 ```text
-Gather → Examine → Decide → Act → Reassess → Handoff → Learn
+Gather → Examine → Decide → Diagnose → Refer → Act → Reassess → Handoff → Learn
 ```
 
 Each step should have:
@@ -1915,7 +1917,7 @@ Move detailed scoring into collapsible sections.
 
 # 25. Final Design Thesis
 
-The ED Triage Trainer should not try to simulate a complete emergency department interface. It should simulate the **clinical reasoning path** of a safe triage clinician.
+The ED Clinical Workflow Simulator should not try to simulate a complete emergency department interface. It should simulate the **clinical reasoning path** of a safe triage clinician.
 
 The best version of the product is:
 

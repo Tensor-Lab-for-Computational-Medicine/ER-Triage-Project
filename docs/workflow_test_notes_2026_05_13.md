@@ -1,4 +1,4 @@
-# ED Triage Trainer Workflow Test Notes
+# ED Clinical Workflow Simulator Workflow Test Notes
 
 Date: 2026-05-13  
 Application URL: `http://127.0.0.1:5173/`  
