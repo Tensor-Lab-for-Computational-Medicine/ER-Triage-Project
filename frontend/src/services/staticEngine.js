@@ -2632,9 +2632,21 @@ function writeReasoningReviewCache(completed, model, review) {
   }
 }
 
+export function normalizeApiKeyInput(value = '') {
+  const cleaned = String(value || '')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .trim()
+    .replace(/^bearer\s+/i, '')
+    .replace(/^[`"'“”‘’]+|[`"'“”‘’]+$/g, '')
+    .trim();
+  const knownKey = cleaned.match(/\b(sk-proj-[A-Za-z0-9_-]+|sk-or-v1-[A-Za-z0-9_-]+|sk-ant-[A-Za-z0-9_-]+|sk-[A-Za-z0-9_-]+)\b/);
+  return knownKey ? knownKey[1] : cleaned;
+}
+
 export function detectProvider(key = '') {
-  if (key.startsWith('sk-ant-')) return 'anthropic';
-  if (key.startsWith('sk-') && !key.startsWith('sk-or-') && !key.startsWith('sk-ant-')) return 'openai';
+  const normalizedKey = normalizeApiKeyInput(key);
+  if (normalizedKey.startsWith('sk-ant-')) return 'anthropic';
+  if (normalizedKey.startsWith('sk-') && !normalizedKey.startsWith('sk-or-') && !normalizedKey.startsWith('sk-ant-')) return 'openai';
   return 'openrouter'; // sk-or-... or anything else
 }
 
@@ -8103,7 +8115,7 @@ function buildTutorSettings({
   restrictedAiEnabled = false,
   clinicalKnowledgeExternalAiEnabled = false
 } = {}) {
-  const trimmedKey = String(key || '').trim();
+  const trimmedKey = normalizeApiKeyInput(key);
   const provider = detectProvider(trimmedKey);
   const tutorModel = resolveModelForProvider(provider, model);
   const resolvedPatientModel = resolveModelForProvider(provider, patientModel);

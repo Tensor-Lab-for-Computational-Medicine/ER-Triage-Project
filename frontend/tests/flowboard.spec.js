@@ -554,6 +554,26 @@ test('patient chat uses OpenAI Responses API and current mini model when an Open
   expect(patientRequest.body.model).not.toBe('gpt-4o-mini');
 });
 
+test('pasted OpenAI keys with wrappers are detected as OpenAI before chat', async ({ page }) => {
+  const requests = [];
+  await installMockAi(page, { requests });
+  await page.addInitScript(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    localStorage.setItem('ed_triage_openrouter_key', 'Bearer "sk-proj-flowboard-openai-test"');
+    localStorage.setItem('ed_triage_openrouter_model', 'openrouter/free');
+    localStorage.setItem('ed_triage_openrouter_patient_model', 'openrouter/auto');
+  });
+  await page.goto('/');
+  await expect(page.getByLabel('AI status')).toContainText('AI on: OpenAI / gpt-5.4-mini');
+
+  await completeArrival(page);
+  await page.getByLabel('Ask the patient').fill('Hello?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByLabel('Patient chat log')).toContainText('The chest discomfort');
+  expect(requests.some((entry) => entry.url.includes('api.openai.com/v1/responses'))).toBeTruthy();
+});
+
 test('patient chat labels deterministic fallback only after saved-key AI failure', async ({ page }) => {
   await startUnlockedFlowboard(page, { failPatient: true });
   await page.setViewportSize({ width: 1440, height: 1024 });
