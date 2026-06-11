@@ -11,6 +11,7 @@ import {
   clearTutorSettings,
   detectProvider,
   formatAiErrorForLearner,
+  isAiAuthError,
   getStaticClinicalKnowledgeState,
   getStaticCaseSourceState,
   getStaticFlowboardCaseOptions,
@@ -163,7 +164,7 @@ export const getClinicalKnowledgeState = () =>
 export const testTutorConnection = async (settings) =>
   testStaticTutorConnection(settings);
 
-export { clearTutorSettings, detectProvider, formatAiErrorForLearner, getTutorSettings, saveTutorSettings };
+export { clearTutorSettings, detectProvider, formatAiErrorForLearner, getTutorSettings, isAiAuthError, saveTutorSettings };
 export { getCoachPreference, saveCoachPreference };
 
 export const healthCheck = async () => ({

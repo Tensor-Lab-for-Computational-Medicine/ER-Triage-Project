@@ -2705,7 +2705,7 @@ function extractAiErrorMessage(bodyText = '') {
 }
 
 function isAiAuthFailureText(value = '') {
-  return /\b(unauthorized|invalid api key|incorrect api key|user not found|forbidden|authentication|auth)\b/i.test(String(value || ''));
+  return /\b(unauthorized|invalid api key|incorrect api key|user not found|forbidden|authentication|auth|rejected the saved api key|saved api key|401|403)\b/i.test(String(value || ''));
 }
 
 function aiModelLabel(model = '') {
@@ -2738,7 +2738,7 @@ function createAiHttpError(status, bodyText = '', context = {}) {
   return error;
 }
 
-function isAiAuthError(error) {
+export function isAiAuthError(error) {
   return Boolean(error?.aiAuthFailure) || isAiAuthFailureText(error?.message) || isAiAuthFailureText(error?.aiProviderDetail);
 }
 
@@ -8229,8 +8229,23 @@ export async function testTutorConnection(options = {}) {
 }
 
 export function clearTutorSettings() {
+  const clearMatchingKeys = (storage, prefixes = []) => {
+    try {
+      Object.keys(storage || {}).forEach((key) => {
+        if (prefixes.some((prefix) => key === prefix || key.startsWith(prefix))) {
+          storage.removeItem(key);
+        }
+      });
+    } catch {
+      // Storage cleanup is best-effort; explicit key removals below cover the current schema.
+    }
+  };
+  clearMatchingKeys(sessionStorage, ['ed_triage_openrouter_', 'ed_triage_restricted_ai_enabled', 'ed_triage_clinical_knowledge_external_ai_enabled']);
+  clearMatchingKeys(localStorage, ['ed_triage_openrouter_']);
   sessionStorage.removeItem(TUTOR_SESSION_KEY);
   localStorage.removeItem(TUTOR_LOCAL_KEY);
+  localStorage.removeItem(TUTOR_MODEL_KEY);
+  localStorage.removeItem(PATIENT_DIALOGUE_MODEL_KEY);
   localStorage.removeItem(TUTOR_STORAGE_KEY);
   sessionStorage.removeItem(RESTRICTED_AI_SESSION_KEY);
   sessionStorage.removeItem(CLINICAL_KNOWLEDGE_EXTERNAL_AI_SESSION_KEY);

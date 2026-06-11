@@ -397,6 +397,15 @@ test('saving an API key unlocks Flowboard', async ({ page }) => {
   await expect(page.getByLabel('AI status')).toContainText('AI on');
 });
 
+test('clear key removes saved AI settings and returns to the gate', async ({ page }) => {
+  await startUnlockedFlowboard(page);
+
+  await expect(page.getByLabel('AI status')).toContainText('AI on');
+  await page.getByRole('button', { name: 'Clear key' }).click();
+  await expect(page.getByRole('heading', { name: 'AI key required for Flowboard' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Arrival Decision' })).toHaveCount(0);
+});
+
 test('saving a rejected OpenAI key stays gated with provider-specific feedback', async ({ page }) => {
   await installMockAi(page, { authConnection: true });
   await startLockedFlowboard(page);
@@ -595,9 +604,10 @@ test('patient chat blocks rejected API keys without raw provider JSON', async ({
   await completeArrival(page);
   await page.getByLabel('Ask the patient').fill('When did the symptoms start?');
   await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(page.getByRole('heading', { name: 'AI key required for Flowboard' })).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('rejected the saved API key');
-  await expect(page.getByLabel('Patient chat log')).not.toContainText('Fallback response');
-  await expect(page.getByLabel('Patient chat log')).not.toContainText('User not found');
+  await expect(page.getByRole('alert')).toContainText('saved key was cleared');
+  await expect(page.getByRole('heading', { name: 'Arrival Decision' })).toHaveCount(0);
   await expect(page.getByRole('alert')).not.toContainText('User not found');
 });
 

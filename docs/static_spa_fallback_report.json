@@ -1,6 +1,6 @@
 {
   "schema_version": "static_spa_fallback_report_v1",
-  "generated_at": "2026-06-11T11:29:24.237Z",
+  "generated_at": "2026-06-11T12:06:18.972Z",
   "fallback_path": "frontend/dist/404.html",
   "source_path": "frontend/dist/index.html",
   "fallback_present": true,

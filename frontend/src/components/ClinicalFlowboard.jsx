@@ -23,6 +23,7 @@ import {
   getFlowboardCaseOptions,
   getReassessmentScenario,
   getTutorSettings,
+  isAiAuthError,
   recordDiagnosis,
   recordFlowboardEvent,
   recordFocusedExam,
@@ -1486,6 +1487,15 @@ export default function ClinicalFlowboard() {
     setAiSettingsSaving(false);
   };
 
+  const handleAiAuthFailure = (error) => {
+    const message = formatAiErrorForLearner(error);
+    const next = clearTutorSettings();
+    setAiSettings(next);
+    setAiKeyDraft('');
+    setAiSettingsError(`${message} The saved key was cleared. Paste a working key to continue.`);
+    setAiSettingsSaving(false);
+  };
+
   const generateActionResult = async (item, stage, nextSelectedIds = []) => {
     if (!session?.session_id) return;
     const key = actionResultKey(stage, item.id);
@@ -1514,7 +1524,11 @@ export default function ClinicalFlowboard() {
       ]);
       logEvent({ type: 'action_result', stage, label: item.label, value: artifact.summary, payload: resultCard });
     } catch (error) {
-      setActionResultError(error.message || 'Action result could not be generated.');
+      if (isAiAuthError(error)) {
+        handleAiAuthFailure(error);
+      } else {
+        setActionResultError(error.message || 'Action result could not be generated.');
+      }
     } finally {
       setActionResultLoading((current) => {
         const next = { ...current };
@@ -1567,7 +1581,11 @@ export default function ClinicalFlowboard() {
       if (data.clock) setClock(data.clock);
       logEvent({ type: 'patient_question', stage: 'history-exam', label: question, value: response.answer || '' });
     } catch (error) {
-      setChatError(error.message || 'Patient answer could not be generated.');
+      if (isAiAuthError(error)) {
+        handleAiAuthFailure(error);
+      } else {
+        setChatError(error.message || 'Patient answer could not be generated.');
+      }
     } finally {
       setChatLoading(false);
     }
@@ -1585,7 +1603,11 @@ export default function ClinicalFlowboard() {
       if (result.clock) setClock(result.clock);
       logEvent({ type: 'focused_exam', stage: 'history-exam', label: system.name, value: system.id });
     } catch (error) {
-      setExamError(error.message || 'Focused exam could not be performed.');
+      if (isAiAuthError(error)) {
+        handleAiAuthFailure(error);
+      } else {
+        setExamError(error.message || 'Focused exam could not be performed.');
+      }
     } finally {
       setExamLoading(false);
     }
@@ -1678,7 +1700,11 @@ export default function ClinicalFlowboard() {
       if (scenarioData.clock) setClock(scenarioData.clock);
       logEvent({ type: 'nursing_update', stage: 'reassess', label: 'Requested nursing update', value: artifact.summary, payload: artifact });
     } catch (error) {
-      setReassessmentError(error.message || 'Nursing update could not be generated.');
+      if (isAiAuthError(error)) {
+        handleAiAuthFailure(error);
+      } else {
+        setReassessmentError(error.message || 'Nursing update could not be generated.');
+      }
     } finally {
       setReassessmentLoading(false);
     }
@@ -1718,7 +1744,11 @@ export default function ClinicalFlowboard() {
       setSoapSubmitted(true);
       logEvent({ type: 'soap_finalize', stage: 'soap', label: 'Finalized SOAP note', value: inputs.soapOneLiner });
     } catch (error) {
-      setSoapError(error.message || 'SOAP note could not be finalized.');
+      if (isAiAuthError(error)) {
+        handleAiAuthFailure(error);
+      } else {
+        setSoapError(error.message || 'SOAP note could not be finalized.');
+      }
     } finally {
       setSoapSubmitting(false);
     }
