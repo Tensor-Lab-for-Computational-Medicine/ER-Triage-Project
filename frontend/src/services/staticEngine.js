@@ -65,6 +65,8 @@ const TUTOR_MODEL_KEY = 'ed_triage_openrouter_model';
 const PATIENT_DIALOGUE_MODEL_KEY = 'ed_triage_openrouter_patient_model';
 const RESTRICTED_AI_SESSION_KEY = 'ed_triage_restricted_ai_enabled';
 const TUTOR_STORAGE_KEY = 'ed_triage_openrouter_storage';
+const TUTOR_VALIDATED_AT_KEY = 'ed_triage_ai_key_validated_at';
+const TUTOR_VALIDATED_PROVIDER_KEY = 'ed_triage_ai_key_validated_provider';
 const PATIENT_RESPONSE_CACHE_VERSION = PATIENT_DIALOGUE_CACHE_VERSION;
 const PATIENT_PERSONA_VERSION = PATIENT_DIALOGUE_ENGINE_VERSION;
 const PATIENT_PROMPT_VERSION = PATIENT_DIALOGUE_PROMPT_VERSION;
@@ -8113,14 +8115,16 @@ function buildTutorSettings({
   patientModel = DEFAULT_PATIENT_DIALOGUE_MODEL,
   storage = 'local',
   restrictedAiEnabled = false,
-  clinicalKnowledgeExternalAiEnabled = false
+  clinicalKnowledgeExternalAiEnabled = false,
+  validated = true
 } = {}) {
   const trimmedKey = normalizeApiKeyInput(key);
   const provider = detectProvider(trimmedKey);
   const tutorModel = resolveModelForProvider(provider, model);
   const resolvedPatientModel = resolveModelForProvider(provider, patientModel);
+  const keyIsValidated = Boolean(trimmedKey && validated);
   return {
-    hasKey: Boolean(trimmedKey),
+    hasKey: keyIsValidated,
     key: trimmedKey,
     provider,
     providerLabel: providerDisplayName(provider),
@@ -8129,7 +8133,9 @@ function buildTutorSettings({
     tutorModel,
     patientModel: resolvedPatientModel,
     restrictedAiEnabled,
-    clinicalKnowledgeExternalAiEnabled
+    clinicalKnowledgeExternalAiEnabled,
+    keyValidated: keyIsValidated,
+    keyNeedsValidation: Boolean(trimmedKey && !validated)
   };
 }
 
@@ -8144,13 +8150,21 @@ export function getTutorSettings() {
   const storage = localKey ? 'local' : sessionKey ? 'session' : 'local';
   const restrictedAiEnabled = sessionStorage.getItem(RESTRICTED_AI_SESSION_KEY) === 'true';
   const clinicalKnowledgeExternalAiEnabled = sessionStorage.getItem(CLINICAL_KNOWLEDGE_EXTERNAL_AI_SESSION_KEY) === 'true';
+  const normalizedKey = normalizeApiKeyInput(key);
+  const provider = detectProvider(normalizedKey);
+  const validated = Boolean(
+    normalizedKey &&
+    localStorage.getItem(TUTOR_VALIDATED_AT_KEY) &&
+    localStorage.getItem(TUTOR_VALIDATED_PROVIDER_KEY) === provider
+  );
   return buildTutorSettings({
     key,
     storage,
     model: localStorage.getItem(TUTOR_MODEL_KEY) || DEFAULT_TUTOR_MODEL,
     patientModel: localStorage.getItem(PATIENT_DIALOGUE_MODEL_KEY) || DEFAULT_PATIENT_DIALOGUE_MODEL,
     restrictedAiEnabled,
-    clinicalKnowledgeExternalAiEnabled
+    clinicalKnowledgeExternalAiEnabled,
+    validated
   });
 }
 
@@ -8186,6 +8200,8 @@ export function saveTutorSettings({
   localStorage.setItem(TUTOR_STORAGE_KEY, 'local');
   localStorage.setItem(TUTOR_MODEL_KEY, normalized.tutorModel);
   localStorage.setItem(PATIENT_DIALOGUE_MODEL_KEY, normalized.patientModel);
+  localStorage.setItem(TUTOR_VALIDATED_AT_KEY, new Date().toISOString());
+  localStorage.setItem(TUTOR_VALIDATED_PROVIDER_KEY, normalized.provider);
   return getTutorSettings();
 }
 
@@ -8247,6 +8263,8 @@ export function clearTutorSettings() {
   localStorage.removeItem(TUTOR_MODEL_KEY);
   localStorage.removeItem(PATIENT_DIALOGUE_MODEL_KEY);
   localStorage.removeItem(TUTOR_STORAGE_KEY);
+  localStorage.removeItem(TUTOR_VALIDATED_AT_KEY);
+  localStorage.removeItem(TUTOR_VALIDATED_PROVIDER_KEY);
   sessionStorage.removeItem(RESTRICTED_AI_SESSION_KEY);
   sessionStorage.removeItem(CLINICAL_KNOWLEDGE_EXTERNAL_AI_SESSION_KEY);
   return getTutorSettings();

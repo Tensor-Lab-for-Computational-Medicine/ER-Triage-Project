@@ -254,6 +254,8 @@ async function startUnlockedFlowboard(page, options = {}) {
     localStorage.setItem('ed_triage_openrouter_key', openAi ? 'sk-proj-flowboard-openai-test' : 'sk-or-v1-flowboard-test');
     localStorage.setItem('ed_triage_openrouter_model', openAi ? 'openrouter/free' : 'openrouter/free');
     localStorage.setItem('ed_triage_openrouter_patient_model', 'openrouter/auto');
+    localStorage.setItem('ed_triage_ai_key_validated_at', '2026-06-11T00:00:00.000Z');
+    localStorage.setItem('ed_triage_ai_key_validated_provider', openAi ? 'openai' : 'openrouter');
   }, { provider: options.provider || 'openrouter' });
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Arrival Decision' })).toBeVisible();
@@ -572,6 +574,8 @@ test('pasted OpenAI keys with wrappers are detected as OpenAI before chat', asyn
     localStorage.setItem('ed_triage_openrouter_key', 'Bearer "sk-proj-flowboard-openai-test"');
     localStorage.setItem('ed_triage_openrouter_model', 'openrouter/free');
     localStorage.setItem('ed_triage_openrouter_patient_model', 'openrouter/auto');
+    localStorage.setItem('ed_triage_ai_key_validated_at', '2026-06-11T00:00:00.000Z');
+    localStorage.setItem('ed_triage_ai_key_validated_provider', 'openai');
   });
   await page.goto('/');
   await expect(page.getByLabel('AI status')).toContainText('AI on: OpenAI / gpt-5.4-mini');

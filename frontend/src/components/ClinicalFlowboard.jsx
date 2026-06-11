@@ -1336,7 +1336,11 @@ export default function ClinicalFlowboard() {
   const [notice, setNotice] = useState('');
   const [aiSettings, setAiSettings] = useState(() => getTutorSettings());
   const [aiKeyDraft, setAiKeyDraft] = useState('');
-  const [aiSettingsError, setAiSettingsError] = useState('');
+  const [aiSettingsError, setAiSettingsError] = useState(() => (
+    getTutorSettings().keyNeedsValidation
+      ? 'Saved AI key needs to be verified again. Paste the key and save it to continue.'
+      : ''
+  ));
   const [aiSettingsSaving, setAiSettingsSaving] = useState(false);
   const [patientMessages, setPatientMessages] = useState([]);
   const [chatLoading, setChatLoading] = useState(false);

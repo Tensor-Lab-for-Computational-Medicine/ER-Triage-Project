@@ -2605,6 +2605,8 @@ test('uses local patient speech quickly when OpenRouter is slow or unsafe', asyn
     window.localStorage.setItem('ed_triage_openrouter_key', 'test-key');
     window.localStorage.setItem('ed_triage_openrouter_storage', 'local');
     window.localStorage.setItem('ed_triage_openrouter_patient_model', 'openrouter/auto');
+    window.localStorage.setItem('ed_triage_ai_key_validated_at', '2026-06-11T00:00:00.000Z');
+    window.localStorage.setItem('ed_triage_ai_key_validated_provider', 'openrouter');
   }, { randomValue: randomValueForCase(alteredCase) });
 
   let openRouterCalls = 0;
