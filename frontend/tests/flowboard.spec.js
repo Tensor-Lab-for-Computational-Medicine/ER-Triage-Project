@@ -149,19 +149,35 @@ async function installMockAi(page, options = {}) {
         return;
       }
       const question = String(payload.learner_question || '').toLowerCase();
-      content = question.includes('how are you answering')
-        ? {
-            answer: "I'm sitting here trying to answer what I can, but I feel unwell and a little short of breath.",
-            addressed_intents: ['irrelevant'],
-            used_fields: ['patient_view'],
-            uncertainty_used: false
-          }
-        : {
-            answer: 'The chest discomfort and breathing trouble started about three days ago and feel worse when I move around.',
-            addressed_intents: ['timeline', 'chief_concern'],
-            used_fields: ['patient_view'],
-            uncertainty_used: false
-          };
+      if (question.includes('how are you answering')) {
+        content = {
+          answer: "I'm sitting here trying to answer what I can, but I feel unwell and a little short of breath.",
+          addressed_intents: ['irrelevant'],
+          used_fields: ['patient_view'],
+          uncertainty_used: false
+        };
+      } else if (question.includes('pizza')) {
+        content = {
+          answer: 'Usually yes, but right now I feel too sick to think about food.',
+          addressed_intents: ['irrelevant'],
+          used_fields: ['patient_view'],
+          uncertainty_used: false
+        };
+      } else if (question.includes("what's your name") || question.includes('what is your name')) {
+        content = {
+          answer: "I don't think they gave you my name here; please just help me with this chest pain.",
+          addressed_intents: ['irrelevant'],
+          used_fields: ['patient_view'],
+          uncertainty_used: true
+        };
+      } else {
+        content = {
+          answer: 'The chest discomfort and breathing trouble started about three days ago and feel worse when I move around.',
+          addressed_intents: ['timeline', 'chief_concern'],
+          used_fields: ['patient_view'],
+          uncertainty_used: false
+        };
+      }
     } else if (payload?.kind === 'nursing_update') {
       content = {
         title: 'Nursing update',
@@ -493,6 +509,23 @@ test('patient chat uses mocked AI and handles meta questions without repeating g
   const chat = page.getByLabel('Patient chat log');
   await expect(chat).toContainText("I'm sitting here trying to answer");
   await expect(chat).not.toContainText('COPD, diabetes, cirrhosis');
+});
+
+test('patient chat uses AI for harmless small talk and name questions', async ({ page }) => {
+  await startUnlockedFlowboard(page);
+  await page.setViewportSize({ width: 1440, height: 1024 });
+
+  await completeArrival(page);
+  await page.getByLabel('Ask the patient').fill('Do you like pizza?');
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  const chat = page.getByLabel('Patient chat log');
+  await expect(chat).toContainText('Usually yes, but right now I feel too sick to think about food.');
+
+  await page.getByLabel('Ask the patient').fill("What's your name?");
+  await page.getByRole('button', { name: 'Ask patient' }).click();
+  await expect(chat).toContainText("I don't think they gave you my name here");
+  await expect(chat).not.toContainText("I'm sorry, I'm in too much pain and distress to focus on that right now.");
+  await expect(chat).not.toContainText('Fallback response');
 });
 
 test('patient chat uses OpenAI Responses API and current mini model when an OpenAI key is saved', async ({ page }) => {

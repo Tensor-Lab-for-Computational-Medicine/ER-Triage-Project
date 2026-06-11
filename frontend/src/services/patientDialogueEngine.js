@@ -1,6 +1,6 @@
 export const PATIENT_DIALOGUE_ENGINE_VERSION = 'patient_dialogue_engine_v3';
-export const PATIENT_DIALOGUE_PROMPT_VERSION = 'patient_dialogue_prompt_v5';
-export const PATIENT_DIALOGUE_CACHE_VERSION = 'patient_response_v7';
+export const PATIENT_DIALOGUE_PROMPT_VERSION = 'patient_dialogue_prompt_v6';
+export const PATIENT_DIALOGUE_CACHE_VERSION = 'patient_response_v8';
 
 const CATEGORY_ORDER = [
   'general_status',

@@ -70,7 +70,7 @@ const PATIENT_PERSONA_VERSION = PATIENT_DIALOGUE_ENGINE_VERSION;
 const PATIENT_PROMPT_VERSION = PATIENT_DIALOGUE_PROMPT_VERSION;
 const PATIENT_AI_FAST_TIMEOUT_MS = 12000;
 const PATIENT_AI_BACKGROUND_TIMEOUT_MS = 16000;
-const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v7';
+const PATIENT_RESPONSE_CACHE_KEY = 'ed_triage_patient_response_cache_v8';
 const PATIENT_RESPONSE_CACHE_LIMIT = 250;
 const REASONING_REVIEW_CACHE_KEY = 'ed_triage_reasoning_review_cache_v1';
 const REASONING_REVIEW_CACHE_LIMIT = 60;
@@ -2303,6 +2303,29 @@ function validatePatientAnswer({ caseData, answer, intentKey, category, question
   return cleaned;
 }
 
+function validateAiPatientAnswer({ caseData, answer, intentKey, session, patientView = null }) {
+  const cleaned = cleanPatientResponse(answer);
+  if (!cleaned) return null;
+  if (containsForbiddenPatientTerm(caseData, cleaned)) return null;
+  if (patientView?.forbidden_terms?.length) {
+    const normalized = normalizedAnswerText(cleaned);
+    const leaked = patientView.forbidden_terms.some((term) => {
+      const safeTerm = normalizedAnswerText(term);
+      return safeTerm && new RegExp(`\\b${safeTerm.replace(/\s+/g, '\\s+')}\\b`, 'i').test(normalized);
+    });
+    if (leaked) return null;
+  }
+  if (/\b(i s|my s|he s wife|she s husband|patient s wife|patient s husband|presents to the ed)\b/i.test(normalizedAnswerText(cleaned))) return null;
+  if (/\b\d+\s+year\s+old\s+(white|black|asian|hispanic)?\s*(male|female|man|woman)\b/i.test(cleaned)) return null;
+  if (/\b(patient view|local safe answer|source of truth|simulation|dataset|chart record|openrouter|openai|language model|chatbot)\b/i.test(cleaned)) return null;
+  if (session && repeatedAnswerFromDifferentIntent(session, cleaned, intentKey)) return null;
+  return cleaned;
+}
+
+function patientAiSourceLabel(settings) {
+  return `${settings?.providerLabel || providerDisplayName(settings?.provider)} patient response`;
+}
+
 function readPersistentPatientCache(caseData, intentKey, validationContext = {}) {
   const store = patientCacheStore();
   const payload = store[patientCacheId(caseData, intentKey)] || null;
@@ -2969,6 +2992,7 @@ async function askOpenRouterPatient(session, question, answerPlan, patientView, 
           'Do not mention raw chart abbreviations, MIETIC, datasets, records, ESI, acuity, disposition, admission, ICU transfer, expert opinions, resource use, or ED interventions.',
           'If asked for diagnosis, triage level, admission status, treatments, test results, or what clinicians did, say you do not know that as the patient.',
           'If asked how you are answering, whether you are real, or another meta question about the simulation, answer as the patient in the ED: you are trying to answer what you can while feeling unwell. Do not restate the full symptom list unless symptoms were asked for.',
+          'For harmless small talk, answer briefly in character as a sick ED patient instead of repeating the local safe fallback. If asked your name and no name is supplied, say you do not think they gave your name here and redirect briefly to needing help.',
           'Stay consistent with the supplied patient view. Do not invent unrelated positive symptoms.',
           'If the learner asks what a chart abbreviation means, do not define it. Say you are not sure and describe the symptoms that brought you in.',
           ...buildLearnerSafetySystemInstructions(),
@@ -3008,14 +3032,11 @@ async function askOpenRouterPatient(session, question, answerPlan, patientView, 
   }
 
   const parsed = normalizePatientAiObject(content);
-  const candidate = validatePatientAnswer({
+  const candidate = validateAiPatientAnswer({
     caseData: session.case,
     answer: parsed.answer,
     intentKey: answerPlan.signature,
-    category: answerPlan.primary_category,
-    question,
     session,
-    answerPlan,
     patientView
   });
   if (!candidate) return null;
@@ -7443,7 +7464,8 @@ export async function askStaticPatientQuestion(id, question) {
   const coveredCategories = answerPlan.covered_categories?.length ? answerPlan.covered_categories : classifyQuestionDomains(text);
   const metadata = questionMetadata(category);
   const intentKey = answerPlan.signature || questionIntentKey(text, category, coveredCategories);
-  const cacheKey = intentKey;
+  const settings = getTutorSettings();
+  const cacheKey = settings.hasKey ? `${intentKey}::${normalizedAnswerText(text).slice(0, 160)}` : intentKey;
   const fallbackAnswer = validatePatientAnswer({
     caseData: session.case,
     answer: renderPatientAnswer(answerPlan, patientView),
@@ -7482,19 +7504,34 @@ export async function askStaticPatientQuestion(id, question) {
       }
     : session.response_cache[cacheKey];
 
+  if (settings.hasKey && answerPayload && answerPayload.source !== 'Learner safety policy') {
+    const cachedSameQuestion = normalizedAnswerText(answerPayload.question) === normalizedAnswerText(text);
+    if (!answerPayload.used_ai || !cachedSameQuestion) {
+      answerPayload = null;
+    }
+  }
+
   if (answerPayload?.source === 'Learner safety policy') {
     // Preserve the local safety boundary answer without running normal cache validation.
   } else if (answerPayload) {
-    const cachedAnswer = validatePatientAnswer({
-      caseData: session.case,
-      answer: answerPayload.answer,
-      intentKey,
-      category,
-      question: text,
-      session,
-      answerPlan,
-      patientView
-    });
+    const cachedAnswer = answerPayload.used_ai
+      ? validateAiPatientAnswer({
+          caseData: session.case,
+          answer: answerPayload.answer,
+          intentKey,
+          session,
+          patientView
+        })
+      : validatePatientAnswer({
+          caseData: session.case,
+          answer: answerPayload.answer,
+          intentKey,
+          category,
+          question: text,
+          session,
+          answerPlan,
+          patientView
+        });
     if (cachedAnswer) {
       answerPayload = {
         ...clone(answerPayload),
@@ -7508,7 +7545,6 @@ export async function askStaticPatientQuestion(id, question) {
       answerPayload = null;
     }
   } else {
-    const settings = getTutorSettings();
     const persistentCached = readPersistentPatientCache(session.case, intentKey, {
       category,
       question: text,
@@ -7577,16 +7613,12 @@ export async function askStaticPatientQuestion(id, question) {
     if (aiAllowed) {
       const aiPromise = askOpenRouterPatient(session, text, answerPlan, patientView, fallbackAnswer)
         .then((aiResult) => {
-          const cleanedAiAnswer = validatePatientAnswer({
+          const cleanedAiAnswer = validateAiPatientAnswer({
             caseData: session.case,
             answer: aiResult?.answer,
             intentKey,
-            category,
-            question: text,
             session,
-            answerPlan,
-            patientView,
-            usedAi: true
+            patientView
           });
           if (!cleanedAiAnswer) {
             return null;
@@ -7602,7 +7634,7 @@ export async function askStaticPatientQuestion(id, question) {
       const fastAiResult = await promiseWithTimeout(aiPromise, PATIENT_AI_FAST_TIMEOUT_MS);
       if (fastAiResult?.answer) {
         answer = fastAiResult.answer;
-        source = 'OpenRouter patient response';
+        source = patientAiSourceLabel(settings);
         usedAi = true;
         addressedIntents = fastAiResult.addressed_intents || addressedIntents;
         usedFields = fastAiResult.used_fields || [];
@@ -7620,7 +7652,7 @@ export async function askStaticPatientQuestion(id, question) {
             category_label: metadata.label,
             covered_categories: coveredCategories,
             answer: backgroundResult.answer,
-            source: 'OpenRouter patient response',
+            source: patientAiSourceLabel(settings),
             used_ai: true,
             cached: false,
             intent_key: intentKey,
@@ -7658,16 +7690,24 @@ export async function askStaticPatientQuestion(id, question) {
   }
   const displayedAnswer = answerPayload.source === 'Learner safety policy'
     ? answerPayload.answer
-    : validatePatientAnswer({
-        caseData: session.case,
-        answer: answerPayload.answer,
-        intentKey,
-        category,
-        question: text,
-        session: null,
-        answerPlan,
-        patientView
-      }) || fallbackAnswer;
+    : answerPayload.used_ai
+      ? validateAiPatientAnswer({
+          caseData: session.case,
+          answer: answerPayload.answer,
+          intentKey,
+          session: null,
+          patientView
+        }) || fallbackAnswer
+      : validatePatientAnswer({
+          caseData: session.case,
+          answer: answerPayload.answer,
+          intentKey,
+          category,
+          question: text,
+          session: null,
+          answerPlan,
+          patientView
+        }) || fallbackAnswer;
   const progressAfterTurn = evaluateInterview(
     session.case,
     [
