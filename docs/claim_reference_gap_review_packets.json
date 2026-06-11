@@ -1,0 +1,1143 @@
+{
+  "schema_version": "claim_reference_gap_review_packets_v1",
+  "generated_at": "2026-06-09T22:33:34.559Z",
+  "review_status": "domain_specific_claim_reference_gaps_packeted_manual_review_required",
+  "warning": "These packets convert claim-reference alignment gaps into evidence acquisition and clinician-review work. They do not approve generated evidence, local standards, claim entailment, or national learner-facing feedback.",
+  "source_contract": {
+    "feedback_claim_reference_alignment_report_schema": "feedback_claim_reference_alignment_report_v1",
+    "feedback_claim_reference_alignment_report_path": "docs/feedback_claim_reference_alignment_report.json",
+    "feedback_claim_entailment_review_packets_schema": "feedback_claim_entailment_review_packets_v1",
+    "feedback_claim_entailment_review_packets_path": "docs/feedback_claim_entailment_review_packets.json",
+    "public_knowledge_bundle_schema": "clinical_knowledge_bundle_v2",
+    "generated_needs_review_evidence_allowed_for_learner_feedback": false,
+    "gap_packets_are_reviewer_workflow_only": true
+  },
+  "summary": {
+    "total_gap_packets": 1,
+    "domain_specific_gap_packets": 1,
+    "claim_sets_missing_domain_specific_quote_support": 1,
+    "all_domain_specific_gaps_packeted": true,
+    "generated_needs_review_candidate_chunks_packeted": 160,
+    "gap_packets_with_generated_candidates": 1,
+    "gap_packets_with_zero_quote_backed_domain_specific_refs": 1,
+    "reviewed_gap_packets": 0,
+    "pending_gap_packets": 1,
+    "ready_for_national_feedback_release_from_gap_review": false
+  },
+  "claim_reference_gap_packets": [
+    {
+      "id": "claim_reference_gap_domain_esi_claim_entailment",
+      "claim_packet_id": "domain_esi_claim_entailment",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "priority": "P0_named_standard_feedback_support_gap",
+      "review_status": "pending_clinical_evidence_acquisition_or_local_standard_review",
+      "current_alignment_status": "domain_specific_quote_support_gap_review_required",
+      "release_ready": false,
+      "blocker_summary": {
+        "blockers": [
+          "minimum_aligned_quote_backed_references_not_met",
+          "domain_specific_quote_support_gap",
+          "clinician_educator_claim_entailment_review_missing"
+        ],
+        "candidate_quote_backed_references": 12,
+        "aligned_quote_backed_references": 0,
+        "required_aligned_quote_backed_references": 2,
+        "domain_specific_quote_backed_references": 0,
+        "required_domain_specific_quote_backed_references": 2,
+        "domain_specific_quote_support_met": false,
+        "generated_needs_review_references_returned_to_learner_pipeline": 0
+      },
+      "affected_claim_review_packet": {
+        "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+        "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+        "feedback_basis": "source_record_esi_and_resource_signals",
+        "scoring_mode": "numeric",
+        "required_entailment_evidence": [
+          "Feedback traceability rows for every current public case in this domain.",
+          "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+          "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+          "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+          "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+        ],
+        "review_questions": [
+          "Are all Final ESI accuracy feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+          "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+          "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+          "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+        ]
+      },
+      "standard_support_requirement": {
+        "support_type": "domain_specific_quote_backed_public_evidence_or_clinician_approved_local_standard",
+        "required_quote_backed_reference_count": 2,
+        "expected_topic_tags": [
+          "esi"
+        ],
+        "expected_facets": [
+          "recognition",
+          "focused_assessment",
+          "diagnostic_strategy"
+        ],
+        "expected_task_tags": [
+          "triage"
+        ],
+        "expected_source_ids": [
+          "ena_esi_handbook_5e",
+          "ena_triage_curriculum",
+          "acep_ena_triage_policy_2025"
+        ],
+        "expected_sources": [
+          {
+            "source_id": "ena_esi_handbook_5e",
+            "title": "Emergency Severity Index Handbook",
+            "organization": "Emergency Nurses Association",
+            "publication_date": "2023",
+            "url": "https://www.ena.org/education/triage",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed"
+          },
+          {
+            "source_id": "ena_triage_curriculum",
+            "title": "ENA Triage Curriculum",
+            "organization": "Emergency Nurses Association",
+            "publication_date": "2025",
+            "url": "https://www.ena.org/education/triage",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed"
+          },
+          {
+            "source_id": "acep_ena_triage_policy_2025",
+            "title": "Emergency Department Triage",
+            "organization": "American College of Emergency Physicians and Emergency Nurses Association",
+            "publication_date": "2025",
+            "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed"
+          }
+        ],
+        "required_review_basis": [
+          "case_truth_adjudication",
+          "triage_standard"
+        ]
+      },
+      "current_evidence_state": {
+        "quote_backed_domain_specific_chunks_available": 0,
+        "generated_needs_review_domain_specific_chunks_available": 160,
+        "generated_needs_review_chunks_must_remain_quarantined": true,
+        "generated_needs_review_chunks_by_source": {
+          "acep_ena_triage_policy_2025": 32,
+          "ena_esi_handbook_5e": 32,
+          "ena_pediatric_triage": 32,
+          "ena_triage_curriculum": 32,
+          "saem_grace_series": 32
+        },
+        "generated_needs_review_chunks_by_facet": {
+          "diagnostic_strategy": 20,
+          "disposition_reassessment": 20,
+          "focused_assessment": 20,
+          "initial_management": 20,
+          "medication_procedure": 20,
+          "recognition": 20,
+          "red_flags": 20,
+          "teaching_handoff": 20
+        },
+        "generated_needs_review_topic_counts": {
+          "triage": 160,
+          "esi": 160,
+          "workflow": 160,
+          "chief_concern_clarification": 8,
+          "esi_3_resource_prediction": 8,
+          "geriatric_triage": 8,
+          "severe_pain_or_distress_at_triage": 8,
+          "danger_zone_vital_signs": 8,
+          "disaster_and_mass_casualty_triage": 8,
+          "esi_1_resuscitation": 8,
+          "pregnancy_triage": 8,
+          "escalation_triggers_from_triage": 8,
+          "esi_5_no_resources": 8,
+          "special_population_risk_screen": 8,
+          "triage_communication": 8,
+          "ems_handoff_at_arrival": 8,
+          "esi_2_high_risk": 8,
+          "pediatric_triage": 8,
+          "waiting_room_reassessment": 8,
+          "bias_aware_triage": 8,
+          "ed_resource_estimation": 8,
+          "esi_4_limited_resources": 8,
+          "new_confusion_or_lethargy": 8
+        },
+        "generated_source_rows": [
+          {
+            "source_id": "acep_ena_triage_policy_2025",
+            "title": "Emergency Department Triage",
+            "organization": "American College of Emergency Physicians and Emergency Nurses Association",
+            "publication_date": "2025",
+            "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed",
+            "generated_needs_review_chunks": 32,
+            "facets": [
+              "diagnostic_strategy",
+              "disposition_reassessment",
+              "focused_assessment",
+              "initial_management",
+              "medication_procedure",
+              "recognition",
+              "red_flags",
+              "teaching_handoff"
+            ],
+            "topic_tags": [
+              "chief_concern_clarification",
+              "esi",
+              "esi_3_resource_prediction",
+              "geriatric_triage",
+              "severe_pain_or_distress_at_triage",
+              "triage",
+              "workflow"
+            ]
+          },
+          {
+            "source_id": "ena_esi_handbook_5e",
+            "title": "Emergency Severity Index Handbook",
+            "organization": "Emergency Nurses Association",
+            "publication_date": "2023",
+            "url": "https://www.ena.org/education/triage",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed",
+            "generated_needs_review_chunks": 32,
+            "facets": [
+              "diagnostic_strategy",
+              "disposition_reassessment",
+              "focused_assessment",
+              "initial_management",
+              "medication_procedure",
+              "recognition",
+              "red_flags",
+              "teaching_handoff"
+            ],
+            "topic_tags": [
+              "danger_zone_vital_signs",
+              "disaster_and_mass_casualty_triage",
+              "esi",
+              "esi_1_resuscitation",
+              "pregnancy_triage",
+              "triage",
+              "workflow"
+            ]
+          },
+          {
+            "source_id": "ena_pediatric_triage",
+            "title": "ESI Pediatric Triage Resources",
+            "organization": "Emergency Nurses Association",
+            "publication_date": "2025",
+            "url": "https://www.ena.org/education/triage",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed",
+            "generated_needs_review_chunks": 32,
+            "facets": [
+              "diagnostic_strategy",
+              "disposition_reassessment",
+              "focused_assessment",
+              "initial_management",
+              "medication_procedure",
+              "recognition",
+              "red_flags",
+              "teaching_handoff"
+            ],
+            "topic_tags": [
+              "escalation_triggers_from_triage",
+              "esi",
+              "esi_5_no_resources",
+              "special_population_risk_screen",
+              "triage",
+              "triage_communication",
+              "workflow"
+            ]
+          },
+          {
+            "source_id": "ena_triage_curriculum",
+            "title": "ENA Triage Curriculum",
+            "organization": "Emergency Nurses Association",
+            "publication_date": "2025",
+            "url": "https://www.ena.org/education/triage",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed",
+            "generated_needs_review_chunks": 32,
+            "facets": [
+              "diagnostic_strategy",
+              "disposition_reassessment",
+              "focused_assessment",
+              "initial_management",
+              "medication_procedure",
+              "recognition",
+              "red_flags",
+              "teaching_handoff"
+            ],
+            "topic_tags": [
+              "ems_handoff_at_arrival",
+              "esi",
+              "esi_2_high_risk",
+              "pediatric_triage",
+              "triage",
+              "waiting_room_reassessment",
+              "workflow"
+            ]
+          },
+          {
+            "source_id": "saem_grace_series",
+            "title": "Guidelines for Reasonable and Appropriate Care in the Emergency Department",
+            "organization": "Society for Academic Emergency Medicine",
+            "publication_date": "2021",
+            "url": "https://www.saem.org/publications/grace",
+            "source_tier": "ed_specific_guideline",
+            "license_scope": "public_summary",
+            "review_status": "reviewed",
+            "generated_needs_review_chunks": 32,
+            "facets": [
+              "diagnostic_strategy",
+              "disposition_reassessment",
+              "focused_assessment",
+              "initial_management",
+              "medication_procedure",
+              "recognition",
+              "red_flags",
+              "teaching_handoff"
+            ],
+            "topic_tags": [
+              "bias_aware_triage",
+              "ed_resource_estimation",
+              "esi",
+              "esi_4_limited_resources",
+              "new_confusion_or_lethargy",
+              "triage",
+              "workflow"
+            ]
+          }
+        ],
+        "representative_generated_needs_review_chunks": [
+          {
+            "chunk_id": "triage_chief_concern_clarification_diagnostic_strategy_018",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "diagnostic_strategy",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "chief_concern_clarification"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Chief concern clarification diagnostic strategy: The source-grounded approach is to choose tests that answer the immediate emergency question raised by chief concern clarification with altered mental status. Prefer time-sensitive diagnostic",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Chief concern clarification",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_esi_3_resource_prediction_diagnostic_strategy_003",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "diagnostic_strategy",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "esi_3_resource_prediction"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "ESI 3 resource prediction diagnostic strategy: The source-grounded approach is to choose tests that answer the immediate emergency question raised by esi 3 resource prediction with rapid progression. Prefer time-sensitive diagnostics, bedsi",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - ESI 3 resource prediction",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_geriatric_triage_diagnostic_strategy_008",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "diagnostic_strategy",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "geriatric_triage"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Geriatric triage diagnostic strategy: The source-grounded approach is to choose tests that answer the immediate emergency question raised by geriatric triage with high-risk comorbidity. Prefer time-sensitive diagnostics, bedside reassessmen",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Geriatric triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_severe_pain_or_distress_at_triage_diagnostic_strategy_013",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "diagnostic_strategy",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "severe_pain_or_distress_at_triage"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Severe pain or distress at triage diagnostic strategy: The source-grounded approach is to choose tests that answer the immediate emergency question raised by severe pain or distress at triage with altered mental status. Prefer time-sensitiv",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Severe pain or distress at triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_chief_concern_clarification_disposition_reassessment_018",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "disposition_reassessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "chief_concern_clarification"
+            ],
+            "task_tags": [
+              "reassessment",
+              "sbar",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Chief concern clarification reassessment and disposition: Use Emergency Department Triage to decide whether observation, admission, transfer, specialty consultation, or discharge safety planning is needed after initial treatment. Reassess v",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Chief concern clarification",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_esi_3_resource_prediction_disposition_reassessment_003",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "disposition_reassessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "esi_3_resource_prediction"
+            ],
+            "task_tags": [
+              "reassessment",
+              "sbar",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "ESI 3 resource prediction reassessment and disposition: Use Emergency Department Triage to decide whether observation, admission, transfer, specialty consultation, or discharge safety planning is needed after initial treatment. Reassess vit",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - ESI 3 resource prediction",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_geriatric_triage_disposition_reassessment_008",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "disposition_reassessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "geriatric_triage"
+            ],
+            "task_tags": [
+              "reassessment",
+              "sbar",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Geriatric triage reassessment and disposition: Use Emergency Department Triage to decide whether observation, admission, transfer, specialty consultation, or discharge safety planning is needed after initial treatment. Reassess vital sign t",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Geriatric triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_severe_pain_or_distress_at_triage_disposition_reassessment_013",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "disposition_reassessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "severe_pain_or_distress_at_triage"
+            ],
+            "task_tags": [
+              "reassessment",
+              "sbar",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Severe pain or distress at triage reassessment and disposition: Use Emergency Department Triage to decide whether observation, admission, transfer, specialty consultation, or discharge safety planning is needed after initial treatment. Reas",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Severe pain or distress at triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_chief_concern_clarification_focused_assessment_018",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "chief_concern_clarification"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "tutor",
+              "triage",
+              "debrief"
+            ],
+            "text_preview": "Chief concern clarification focused assessment: Use the cited guidance from Emergency Department Triage to connect the complaint to exam and bedside data. Ask about timing, severity, modifiers, medications, comorbidities, and safety threats",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Chief concern clarification",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_esi_3_resource_prediction_focused_assessment_003",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "esi_3_resource_prediction"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "tutor",
+              "triage",
+              "debrief"
+            ],
+            "text_preview": "ESI 3 resource prediction focused assessment: Use the cited guidance from Emergency Department Triage to connect the complaint to exam and bedside data. Ask about timing, severity, modifiers, medications, comorbidities, and safety threats, ",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - ESI 3 resource prediction",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_geriatric_triage_focused_assessment_008",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "geriatric_triage"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "tutor",
+              "triage",
+              "debrief"
+            ],
+            "text_preview": "Geriatric triage focused assessment: Use the cited guidance from Emergency Department Triage to connect the complaint to exam and bedside data. Ask about timing, severity, modifiers, medications, comorbidities, and safety threats, then exam",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Geriatric triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_severe_pain_or_distress_at_triage_focused_assessment_013",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "severe_pain_or_distress_at_triage"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "tutor",
+              "triage",
+              "debrief"
+            ],
+            "text_preview": "Severe pain or distress at triage focused assessment: Use the cited guidance from Emergency Department Triage to connect the complaint to exam and bedside data. Ask about timing, severity, modifiers, medications, comorbidities, and safety t",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Severe pain or distress at triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_chief_concern_clarification_initial_management_018",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "initial_management",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "chief_concern_clarification"
+            ],
+            "task_tags": [
+              "management",
+              "reassessment",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Chief concern clarification initial management: When the case evidence fits chief concern clarification with altered mental status, ED planning should prioritize case-directed emergency evaluation and timely reassessment for chief concern c",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Chief concern clarification",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_esi_3_resource_prediction_initial_management_003",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "initial_management",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "esi_3_resource_prediction"
+            ],
+            "task_tags": [
+              "management",
+              "reassessment",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "ESI 3 resource prediction initial management: When the case evidence fits esi 3 resource prediction with rapid progression, ED planning should prioritize case-directed emergency evaluation and timely reassessment for esi 3 resource predicti",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - ESI 3 resource prediction",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_geriatric_triage_initial_management_008",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "initial_management",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "geriatric_triage"
+            ],
+            "task_tags": [
+              "management",
+              "reassessment",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Geriatric triage initial management: When the case evidence fits geriatric triage with high-risk comorbidity, ED planning should prioritize case-directed emergency evaluation and timely reassessment for geriatric triage. Management should n",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Geriatric triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_severe_pain_or_distress_at_triage_initial_management_013",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "initial_management",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "severe_pain_or_distress_at_triage"
+            ],
+            "task_tags": [
+              "management",
+              "reassessment",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Severe pain or distress at triage initial management: When the case evidence fits severe pain or distress at triage with altered mental status, ED planning should prioritize case-directed emergency evaluation and timely reassessment for sev",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Severe pain or distress at triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_chief_concern_clarification_medication_procedure_018",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "medication_procedure",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "chief_concern_clarification"
+            ],
+            "task_tags": [
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Chief concern clarification medication or procedure considerations: Emergency Department Triage supports matching interventions to severity, contraindications, and local capability. Before treatment, verify allergies, pregnancy or pediatric",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Chief concern clarification",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_esi_3_resource_prediction_medication_procedure_003",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "medication_procedure",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "esi_3_resource_prediction"
+            ],
+            "task_tags": [
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "ESI 3 resource prediction medication or procedure considerations: Emergency Department Triage supports matching interventions to severity, contraindications, and local capability. Before treatment, verify allergies, pregnancy or pediatric s",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - ESI 3 resource prediction",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_geriatric_triage_medication_procedure_008",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "medication_procedure",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "geriatric_triage"
+            ],
+            "task_tags": [
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Geriatric triage medication or procedure considerations: Emergency Department Triage supports matching interventions to severity, contraindications, and local capability. Before treatment, verify allergies, pregnancy or pediatric status whe",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Geriatric triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          },
+          {
+            "chunk_id": "triage_severe_pain_or_distress_at_triage_medication_procedure_013",
+            "source_id": "acep_ena_triage_policy_2025",
+            "source_title": "Emergency Department Triage",
+            "evidence_status": "generated_needs_review",
+            "facet_id": "medication_procedure",
+            "topic_tags": [
+              "triage",
+              "esi",
+              "workflow",
+              "severe_pain_or_distress_at_triage"
+            ],
+            "task_tags": [
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "text_preview": "Severe pain or distress at triage medication or procedure considerations: Emergency Department Triage supports matching interventions to severity, contraindications, and local capability. Before treatment, verify allergies, pregnancy or ped",
+            "locator": {
+              "url": "https://www.ena.org/sites/default/files/2025-08/Emergency%20Department%20Triage.pdf",
+              "section_heading": "Triage and ED workflow - Severe pain or distress at triage",
+              "locator_quality": "source_url_with_search_phrase_unquoted",
+              "verification_status": "needs_review"
+            }
+          }
+        ],
+        "insufficient_broad_quote_backed_candidates": [
+          {
+            "reference_chunk_id": "quote_restraint_safety_assessment_003",
+            "score": 0.1753,
+            "source_id": "acep_severe_agitation",
+            "citation_label": "QB-RESTRAINT-A03",
+            "source_title": "Severe Agitation",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "psychiatry",
+              "behavioral_health",
+              "safety",
+              "use_of_restraints"
+            ],
+            "task_tags": [
+              "diagnosis",
+              "management",
+              "reassessment",
+              "tutor",
+              "debrief"
+            ],
+            "evidence_status": "quote_backed",
+            "quote_backed": true,
+            "facet_match": true,
+            "task_match": false,
+            "topic_match": false,
+            "source_match": false,
+            "role_match": true,
+            "domain_specific_match": false,
+            "policy_match": false
+          },
+          {
+            "reference_chunk_id": "quote_troponin_biomarker_recognition_006",
+            "score": 0.1565,
+            "source_id": "aha_acc_chest_pain_slide_set_2021",
+            "citation_label": "QB-TROPONIN-R06",
+            "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+            "facet_id": "recognition",
+            "topic_tags": [
+              "cardiovascular",
+              "chest_pain",
+              "syncope",
+              "high_sensitivity_troponin_pathway"
+            ],
+            "task_tags": [
+              "triage",
+              "diagnosis",
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "evidence_status": "quote_backed",
+            "quote_backed": true,
+            "facet_match": true,
+            "task_match": true,
+            "topic_match": false,
+            "source_match": false,
+            "role_match": true,
+            "domain_specific_match": false,
+            "policy_match": false
+          },
+          {
+            "reference_chunk_id": "quote_thrombolytic_time_assessment_007",
+            "score": 0.1389,
+            "source_id": "asa_stroke_symptoms_2026",
+            "citation_label": "QB-STROKE-A07",
+            "source_title": "Stroke Symptoms and Warning Signs",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "neurology",
+              "stroke",
+              "seizure",
+              "thrombolytic_eligibility_discussion"
+            ],
+            "task_tags": [
+              "triage",
+              "diagnosis",
+              "management",
+              "reassessment",
+              "tutor",
+              "debrief"
+            ],
+            "evidence_status": "quote_backed",
+            "quote_backed": true,
+            "facet_match": true,
+            "task_match": true,
+            "topic_match": false,
+            "source_match": false,
+            "role_match": true,
+            "domain_specific_match": false,
+            "policy_match": false
+          },
+          {
+            "reference_chunk_id": "quote_restraint_danger_recognition_002",
+            "score": 0.1376,
+            "source_id": "acep_severe_agitation",
+            "citation_label": "QB-RESTRAINT-R02",
+            "source_title": "Severe Agitation",
+            "facet_id": "recognition",
+            "topic_tags": [
+              "psychiatry",
+              "behavioral_health",
+              "safety",
+              "use_of_restraints"
+            ],
+            "task_tags": [
+              "triage",
+              "diagnosis",
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "evidence_status": "quote_backed",
+            "quote_backed": true,
+            "facet_match": true,
+            "task_match": true,
+            "topic_match": false,
+            "source_match": false,
+            "role_match": true,
+            "domain_specific_match": false,
+            "policy_match": false
+          },
+          {
+            "reference_chunk_id": "quote_ectopic_risk_assessment_006",
+            "score": 0.1312,
+            "source_id": "acog_ectopic_pregnancy",
+            "citation_label": "QB-ECTOPIC-A06",
+            "source_title": "Ectopic Pregnancy",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "ob_gyn",
+              "pregnancy",
+              "pelvic_pain",
+              "ectopic_pregnancy_rupture_concern"
+            ],
+            "task_tags": [
+              "triage",
+              "diagnosis",
+              "tutor",
+              "debrief"
+            ],
+            "evidence_status": "quote_backed",
+            "quote_backed": true,
+            "facet_match": true,
+            "task_match": true,
+            "topic_match": false,
+            "source_match": false,
+            "role_match": true,
+            "domain_specific_match": false,
+            "policy_match": false
+          },
+          {
+            "reference_chunk_id": "quote_agitation_life_threat_recognition_006",
+            "score": 0.1303,
+            "source_id": "acep_severe_agitation",
+            "citation_label": "QB-AGITATION-R06",
+            "source_title": "Severe Agitation",
+            "facet_id": "recognition",
+            "topic_tags": [
+              "psychiatry",
+              "behavioral_health",
+              "safety",
+              "severe_agitation_medication_strategy"
+            ],
+            "task_tags": [
+              "triage",
+              "diagnosis",
+              "management",
+              "tutor",
+              "debrief"
+            ],
+            "evidence_status": "quote_backed",
+            "quote_backed": true,
+            "facet_match": true,
+            "task_match": true,
+            "topic_match": false,
+            "source_match": false,
+            "role_match": true,
+            "domain_specific_match": false,
+            "policy_match": false
+          },
+          {
+            "reference_chunk_id": "quote_peds_fever_age_band_003",
+            "score": 0.1273,
+            "source_id": "aap_febrile_infant",
+            "citation_label": "QB-FEVER-A03",
+            "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+            "facet_id": "focused_assessment",
+            "topic_tags": [
+              "pediatrics",
+              "fever",
+              "pals",
+              "febrile_infant_8_to_21_days"
+            ],
+            "task_tags": [
+              "triage",
+              "diagnosis",
+              "tutor",
+              "debrief"
+            ],
+            "evidence_status": "quote_backed",
+            "quote_backed": true,
+            "facet_match": true,
+            "task_match": true,
+            "topic_match": false,
+            "source_match": false,
+            "role_match": true,
+            "domain_specific_match": false,
+            "policy_match": false
+          }
+        ]
+      },
+      "required_reviewer_actions": [
+        "Find quote-backed public ESI or ED-triage-standard evidence that directly supports the feedback claim set, or document a clinician-approved local triage standard.",
+        "Replace generated-needs-review ESI summaries with extracted, source-linked quote-backed chunks before any learner-facing national use.",
+        "Verify that references support ESI acuity assignment, high-risk/danger-zone decision points, and resource-prediction language rather than only generic ED safety or diagnosis.",
+        "Record clinician and simulation-educator claim-entailment review after the evidence acquisition is complete.",
+        "Keep this claim set blocked for national learner-facing feedback until the alignment report shows the domain-specific threshold is met."
+      ],
+      "acceptance_criteria": [
+        {
+          "criterion": "At least two reviewed, active, quote-backed references match the ESI/triage-standard topic or source policy.",
+          "current_status": "fail"
+        },
+        {
+          "criterion": "No generated-needs-review chunk is counted as learner-facing support.",
+          "current_status": "pass"
+        },
+        {
+          "criterion": "Broad quote-backed references from unrelated topics are retained only as reviewer context, not as proof of ESI support.",
+          "current_status": "pass"
+        },
+        {
+          "criterion": "A clinician-approved local standard is named and versioned if public quote-backed evidence is unavailable or insufficient.",
+          "current_status": "pending"
+        },
+        {
+          "criterion": "Feedback claim-entailment review confirms the final wording is supported by case truth, ESI/triage evidence, and educational scope.",
+          "current_status": "pending"
+        }
+      ],
+      "review_submission_template": {
+        "gap_packet_id": "claim_reference_gap_domain_esi_claim_entailment",
+        "claim_packet_id": "domain_esi_claim_entailment",
+        "domain_key": "esi",
+        "reviewer_roles": [
+          {
+            "role": "emergency_clinician_or_triage_expert",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          },
+          {
+            "role": "medical_librarian_or_evidence_reviewer",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          },
+          {
+            "role": "simulation_educator",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "reviewed_at": "",
+        "evidence_resolution": "add_quote_backed_public_evidence | approve_local_standard | retire_or_reword_claim_set | keep_blocked",
+        "added_or_approved_source_ids": [],
+        "local_standard_name_and_version": "",
+        "generated_chunks_replaced_or_retired": [],
+        "claim_entailment_ready_for_review": false,
+        "national_feedback_release_decision": "blocked",
+        "reviewer_attestation": ""
+      }
+    }
+  ],
+  "release_blockers": [
+    {
+      "id": "domain_specific_claim_reference_gaps_unresolved",
+      "status": "blocked",
+      "evidence": {
+        "gap_packets": 1,
+        "claim_sets_missing_domain_specific_quote_support": 1
+      },
+      "required_to_clear": "Add quote-backed domain-specific evidence or document a clinician-approved local standard, then rerun claim-reference alignment until every named-standard claim set meets threshold."
+    },
+    {
+      "id": "generated_domain_specific_candidates_quarantined",
+      "status": "blocked",
+      "evidence": {
+        "generated_needs_review_candidate_chunks_packeted": 160
+      },
+      "required_to_clear": "Replace, remove, or formally adjudicate generated-needs-review domain-specific chunks before they can support learner-facing feedback."
+    }
+  ],
+  "next_actions": [
+    "Assign each gap packet to an emergency clinician or triage expert, medical librarian/evidence reviewer, and simulation educator.",
+    "Replace generated ESI/triage summaries with quote-backed public evidence or a named clinician-approved local standard.",
+    "Rerun scripts/build_feedback_claim_reference_alignment_report.mjs after evidence updates to verify the domain-specific threshold.",
+    "Only then complete claim-entailment review in docs/learner_facing_claim_entailment_reviews.json."
+  ]
+}

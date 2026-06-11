@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-The **ED Clinical Workflow Simulator** is a browser-based educational simulation designed to help medical students practice emergency department triage, focused clinical interviewing, Emergency Severity Index assignment, working diagnosis, specialty referral judgment, initial management, reassessment, and SBAR handoff.
+The **ED Clinical Workflow Simulator** is a browser-based educational simulation designed to help medical students practice emergency department triage, focused clinical interviewing, Emergency Severity Index assignment, working diagnosis, consult judgment, prioritized management, what-if reassessment, SOAP documentation, and SBAR handoff only when consult or escalation communication is selected.
 
 The application should feel like a **calm clinical reasoning workspace**, not a busy EHR, chatbot, or exam dashboard. Emergency medicine is chaotic; the learning interface should be the opposite: quiet, structured, and cognitively economical.
 
@@ -41,7 +41,7 @@ The UI should not overwhelm learners with excessive panels, decorative graphics,
 Each step should isolate one clinical task:
 
 ```text
-Gather → Examine → Decide → Diagnose → Refer → Act → Reassess → Handoff → Learn
+Gather -> Examine -> Decide -> Diagnose -> Plan/Consult -> Reassess -> SOAP/Handoff -> Learn
 ```
 
 The student should never be asked to interview, assign ESI, place orders, and read debrief feedback on the same screen.
@@ -139,7 +139,7 @@ The application should use a linear, progressive structure.
 +--------------------------------------------------------------------------------+
 | 54 M | Chest pain, dyspnea | Walk-in | Vitals available | ESI pending           |
 +--------------------------------------------------------------------------------+
-| Gather → Examine → Decide → Diagnose → Refer → Act → Reassess → Handoff → Learn |
+| Gather -> Examine -> Decide -> Diagnose -> Plan/Consult -> Reassess -> SOAP/Handoff -> Learn |
 +--------------------------------------------------------------------------------+
 |                                                                                |
 |                         Active clinical task                                    |
@@ -225,7 +225,7 @@ Do **not** display “Working ESI” before the learner makes the definitive ESI
 Replace the longer workflow strip with a shorter reasoning spine:
 
 ```text
-Gather → Examine → Decide → Diagnose → Refer → Act → Reassess → Handoff → Learn
+Gather -> Examine -> Decide -> Diagnose -> Plan/Consult -> Reassess -> SOAP/Handoff -> Learn
 ```
 
 Each step should have:
@@ -310,6 +310,23 @@ Pain should be reassessed when the patient can participate.
 ```
 
 This approach improves medical education because it teaches students not to over-trust structured data.
+
+---
+
+## 4.3 Restricted Optional Objective Data
+
+Local `clinical_case_v3` bundles may include linked MIMIC objective data, but those facts should appear only after an explicit learner action and only in the phase where they would plausibly be available.
+
+Recommended phase gates:
+
+| Phase        | Unlockable examples                                  |
+| ------------ | ---------------------------------------------------- |
+| Encounter    | Repeat vitals, home meds, POC glucose, ECG summary   |
+| Plan         | Labs, cultures, imaging, meds given, consult evidence |
+| Reassessment | Resulted trends, ED disposition, escalation signals   |
+| Debrief      | ICD diagnoses, procedures, service path, notes        |
+
+Unavailable linked facts should display `Not documented`, not a generated substitute. Debrief-only facts should never appear during active play.
 
 ---
 

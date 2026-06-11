@@ -103,6 +103,27 @@ def output_items(payload: Any) -> list[dict[str, str]]:
     raise SystemExit("Output input must be a list, an outputs list, or a case_id object map.")
 
 
+def knowledge_chunks(payload: Any) -> dict[str, dict[str, Any]]:
+    if not payload:
+        return {}
+    if isinstance(payload, dict) and payload.get("schema_version") in {
+        "clinical_knowledge_bundle_v1",
+        "clinical_knowledge_bundle_v2",
+    }:
+        sources = {source.get("id"): source for source in payload.get("sources", [])}
+        chunks = {}
+        for chunk in payload.get("chunks", []) or []:
+            source = sources.get(chunk.get("source_id"), {})
+            chunks[chunk.get("id")] = {
+                **chunk,
+                "source": source,
+            }
+        return {key: value for key, value in chunks.items() if key}
+    if isinstance(payload, dict) and isinstance(payload.get("chunks"), list):
+        return {chunk.get("id"): chunk for chunk in payload["chunks"] if chunk.get("id")}
+    return {}
+
+
 def sentence_split(text: str) -> list[str]:
     return [
         compact_text(part)
@@ -122,19 +143,24 @@ def tokens(text: str) -> set[str]:
 def evidence_atoms(case: dict[str, Any]) -> list[dict[str, str]]:
     atoms: list[dict[str, str]] = []
 
-    def add(domain: str, text: Any, provenance: str = "source_record") -> None:
+    def add(domain: str, text: Any, provenance: str = "source_record", atom_id: str = "") -> None:
         cleaned = compact_text(text)
         if cleaned:
-            atoms.append({"domain": domain, "text": cleaned, "provenance": provenance})
+            atoms.append({"id": atom_id, "domain": domain, "text": cleaned, "provenance": provenance})
 
-    add("complaint", case.get("complaint"))
-    add("history", case.get("history"))
-    add("disposition", case.get("disposition"))
+    add("complaint", case.get("complaint"), atom_id="case_chief_complaint")
+    add("history", case.get("history"), atom_id="case_triage_history")
+    add("disposition", case.get("disposition"), atom_id="case_disposition")
     if case.get("acuity"):
-        add("esi", f"ESI {case.get('acuity')}")
+        add("esi", f"ESI {case.get('acuity')}", atom_id="case_reference_esi")
 
     for item in case.get("documented_evidence", []) or []:
-        add(item.get("domain", "documented_evidence"), item.get("statement"), item.get("provenance", "source_record"))
+        add(
+            item.get("domain", "documented_evidence"),
+            item.get("statement"),
+            item.get("provenance", "source_record"),
+            item.get("id", ""),
+        )
 
     source = case.get("source", {}) or {}
     for key in ["triage_narrative", "chief_complaint", "disposition"]:
@@ -227,8 +253,119 @@ def audit_sentence(sentence: str, case: dict[str, Any], atoms: list[dict[str, st
     return {"status": "not_risky", "domains": [], "claim": sentence}
 
 
-def audit(cases: list[dict[str, Any]], outputs: list[dict[str, str]]) -> dict[str, Any]:
+def normalize_id_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [compact_text(item) for item in value if compact_text(item)]
+    cleaned = compact_text(value)
+    return [cleaned] if cleaned else []
+
+
+def case_atom_ids(atoms: list[dict[str, str]]) -> dict[str, dict[str, str]]:
+    indexed = {}
+    for index, atom in enumerate(atoms, start=1):
+        base = compact_text(atom.get("id") or atom.get("case_evidence_id") or "")
+        if base:
+            indexed[base] = atom
+        indexed[f"case_atom_{index}"] = atom
+    return indexed
+
+
+def audit_cited_claims(
+    output: dict[str, Any],
+    case: dict[str, Any],
+    atoms: list[dict[str, str]],
+    clinical_chunks: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    atom_ids = case_atom_ids(atoms)
+    reports = []
+    for index, claim in enumerate(output.get("claims", []) or [], start=1):
+        text = compact_text(claim.get("text") or claim.get("claim"))
+        case_refs = normalize_id_list(claim.get("case_evidence_ids") or claim.get("case_evidence_id"))
+        reference_refs = normalize_id_list(claim.get("reference_chunk_ids") or claim.get("reference_chunk_id"))
+        domains = risky_domains(text)
+        reason = contradiction(text, case)
+        if reason:
+            reports.append({
+                "status": "contradicted",
+                "domains": domains,
+                "claim": text,
+                "reason": reason,
+                "case_evidence_ids": case_refs,
+                "reference_chunk_ids": reference_refs,
+            })
+            continue
+
+        invalid_case_refs = [ref for ref in case_refs if ref not in atom_ids]
+        invalid_reference_refs = [ref for ref in reference_refs if ref not in clinical_chunks]
+        if invalid_case_refs or invalid_reference_refs:
+            reports.append({
+                "status": "unsupported",
+                "domains": domains,
+                "claim": text,
+                "reason": "claim cites evidence that was not available to the generation",
+                "invalid_case_evidence_ids": invalid_case_refs,
+                "invalid_reference_chunk_ids": invalid_reference_refs,
+            })
+            continue
+
+        stale_refs = [
+            ref for ref in reference_refs
+            if clinical_chunks.get(ref, {}).get("superseded_by") or clinical_chunks.get(ref, {}).get("active") is False
+        ]
+        if stale_refs:
+            reports.append({
+                "status": "stale_source",
+                "domains": domains,
+                "claim": text,
+                "reason": "claim cites superseded or inactive clinical source chunks",
+                "reference_chunk_ids": stale_refs,
+            })
+            continue
+
+        license_violations = [
+            ref for ref in reference_refs
+            if clinical_chunks.get(ref, {}).get("source", {}).get("external_ai_use_allowed") is False
+        ]
+        if license_violations:
+            reports.append({
+                "status": "license_violation",
+                "domains": domains,
+                "claim": text,
+                "reason": "claim cites a source that is not allowed for external AI use",
+                "reference_chunk_ids": license_violations,
+            })
+            continue
+
+        if case_refs:
+            reports.append({
+                "status": "case_supported",
+                "domains": domains,
+                "claim": text,
+                "case_evidence_ids": case_refs,
+                "reference_chunk_ids": reference_refs,
+            })
+        elif reference_refs:
+            reports.append({
+                "status": "clinical_supported",
+                "domains": domains,
+                "claim": text,
+                "reference_chunk_ids": reference_refs,
+            })
+        else:
+            reports.append({
+                "status": "unsupported",
+                "domains": domains,
+                "claim": text,
+                "reason": "claim has no case or clinical citation",
+            })
+    return reports
+
+
+def audit(cases: list[dict[str, Any]], outputs: list[dict[str, str]], clinical_chunks: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
     cases_by_id = {case["id"]: case for case in cases}
+    clinical_chunks = clinical_chunks or {}
     by_status: Counter[str] = Counter()
     by_domain: dict[str, Counter[str]] = defaultdict(Counter)
     by_task: dict[str, Counter[str]] = defaultdict(Counter)
@@ -247,7 +384,7 @@ def audit(cases: list[dict[str, Any]], outputs: list[dict[str, str]]) -> dict[st
             continue
 
         atoms = evidence_atoms(case)
-        claims = [
+        claims = audit_cited_claims(output, case, atoms, clinical_chunks) if output.get("claims") else [
             audit_sentence(sentence, case, atoms)
             for sentence in sentence_split(output.get("text", ""))
         ]
@@ -282,6 +419,7 @@ def audit(cases: list[dict[str, Any]], outputs: list[dict[str, str]]) -> dict[st
         ),
         "guardrails": [
             "Do not present unsupported diagnosis, medication, testing, treatment, disposition, or ESI claims as source truth.",
+            "Generated clinical claims should cite supplied case_evidence_id values for case facts and reference_chunk_id values for clinical literature or textbook rules.",
             "Label LLM-generated assessment and plan text as LLM draft until reviewed.",
             "Use MIMIC-derived retrospective tests, medications, diagnoses, and disposition only in local restricted validation or debrief grounding.",
         ],
@@ -293,12 +431,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Audit generated text against case evidence atoms.")
     parser.add_argument("--cases", required=True, help="Case bundle JSON: public v1 list or restricted v2 bundle.")
     parser.add_argument("--outputs", required=True, help="Generated output JSON to audit.")
+    parser.add_argument("--knowledge", help="Optional clinical_knowledge_bundle_v1/v2 JSON for validating reference_chunk_id citations.")
     parser.add_argument("--out", default=str(DEFAULT_OUTPUT), help="Ignored report path.")
     args = parser.parse_args()
 
     output = Path(args.out).expanduser().resolve()
     assert_restricted_output(output)
-    report = audit(case_list(read_json(Path(args.cases))), output_items(read_json(Path(args.outputs))))
+    knowledge = knowledge_chunks(read_json(Path(args.knowledge))) if args.knowledge else {}
+    report = audit(case_list(read_json(Path(args.cases))), output_items(read_json(Path(args.outputs))), knowledge)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Wrote grounding audit to {output}")

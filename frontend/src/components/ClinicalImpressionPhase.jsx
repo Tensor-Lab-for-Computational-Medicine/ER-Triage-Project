@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {
   assignTriage,
-  getReferralOptions,
-  recordDiagnosis,
-  submitReferral
+  recordDiagnosis
 } from '../services/api';
 
 const TRIAGE_LEVELS = [
-  { level: 1, label: 'ESI 1', name: 'Resuscitation' },
-  { level: 2, label: 'ESI 2', name: 'Emergent' },
-  { level: 3, label: 'ESI 3', name: 'Urgent' },
-  { level: 4, label: 'ESI 4', name: 'Less urgent' },
-  { level: 5, label: 'ESI 5', name: 'Non-urgent' }
+  { level: 1, label: 'ESI 1', name: 'Resuscitation', hint: 'Immediate lifesaving intervention' },
+  { level: 2, label: 'ESI 2', name: 'Emergent', hint: 'High risk or danger-zone instability' },
+  { level: 3, label: 'ESI 3', name: 'Urgent', hint: 'Multiple resources, stable enough to wait' },
+  { level: 4, label: 'ESI 4', name: 'Less urgent', hint: 'One expected ED resource' },
+  { level: 5, label: 'ESI 5', name: 'Non-urgent', hint: 'No ED resources expected' }
 ];
 
 function parseDifferential(text) {
@@ -28,30 +26,21 @@ function ClinicalImpressionPhase({
   onCapture,
   onClock
 }) {
-  const [referralOptions, setReferralOptions] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [triageRationale, setTriageRationale] = useState('');
   const [workingDiagnosis, setWorkingDiagnosis] = useState('');
   const [differentialText, setDifferentialText] = useState('');
   const [diagnosisEvidence, setDiagnosisEvidence] = useState('');
-  const [referralNeeded, setReferralNeeded] = useState(null);
-  const [referralSpecialty, setReferralSpecialty] = useState('');
-  const [referralRationale, setReferralRationale] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let mounted = true;
-    getReferralOptions(sessionId)
-      .then((items) => {
-        if (!mounted) return;
-        setReferralOptions(items || []);
-        setReferralSpecialty(items?.[0] || '');
-      })
-      .catch(() => {
-        if (mounted) setReferralOptions([]);
-      });
-    return () => { mounted = false; };
+    setSelectedLevel(null);
+    setTriageRationale('');
+    setWorkingDiagnosis('');
+    setDifferentialText('');
+    setDiagnosisEvidence('');
+    setError('');
   }, [sessionId]);
 
   const validate = () => {
@@ -61,10 +50,26 @@ function ClinicalImpressionPhase({
     if (workingDiagnosis.trim().length < 3) return 'Enter a working diagnosis.';
     if (!differential.length) return 'Enter at least one differential diagnosis.';
     if (diagnosisEvidence.trim().length < 20) return 'Add diagnosis evidence.';
-    if (referralNeeded === null) return 'Choose a referral decision.';
-    if (referralNeeded && !referralSpecialty) return 'Select a referral service.';
-    if (referralRationale.trim().length < 15) return 'Add a referral rationale.';
     return '';
+  };
+
+  const completionItems = [
+    { label: selectedLevel ? `ESI ${selectedLevel}` : 'Select ESI', complete: Boolean(selectedLevel) },
+    { label: `${triageRationale.trim().length}/20 rationale`, complete: triageRationale.trim().length >= 20 },
+    { label: workingDiagnosis.trim() ? 'Working diagnosis' : 'Diagnosis needed', complete: workingDiagnosis.trim().length >= 3 },
+    { label: `${parseDifferential(differentialText).length} differential`, complete: parseDifferential(differentialText).length > 0 },
+    { label: `${diagnosisEvidence.trim().length}/20 evidence`, complete: diagnosisEvidence.trim().length >= 20 }
+  ];
+
+  const jumpToNextRequired = () => {
+    if (!selectedLevel) {
+      document.querySelector('.triage-button-card')?.focus();
+      return;
+    }
+    if (triageRationale.trim().length < 20) document.getElementById('esi-rationale')?.focus();
+    else if (workingDiagnosis.trim().length < 3) document.getElementById('working-diagnosis')?.focus();
+    else if (!parseDifferential(differentialText).length) document.getElementById('differential-list')?.focus();
+    else if (diagnosisEvidence.trim().length < 20) document.getElementById('diagnosis-evidence')?.focus();
   };
 
   const handleSubmit = async (event) => {
@@ -72,6 +77,7 @@ function ClinicalImpressionPhase({
     const validationError = validate();
     if (validationError) {
       setError(validationError);
+      window.requestAnimationFrame(jumpToNextRequired);
       return;
     }
 
@@ -100,18 +106,6 @@ function ClinicalImpressionPhase({
         diagnosisEvidence: diagnosis.evidence
       });
 
-      const referral = await submitReferral(sessionId, {
-        needed: referralNeeded,
-        specialty: referralNeeded ? referralSpecialty : '',
-        rationale: referralRationale.trim()
-      });
-      onClock?.(referral.clock);
-      onCapture?.({
-        referralNeeded: referral.referral_needed,
-        referralSpecialty: referral.referral_specialty,
-        referralRationale: referral.rationale
-      });
-
       onNext();
     } catch (err) {
       setError(err.message || 'Clinical impression could not be recorded.');
@@ -125,11 +119,17 @@ function ClinicalImpressionPhase({
       <div className="section-header">
         <div>
           <span className="eyebrow">Impression</span>
-          <h2 id="impression-heading">Acuity, Diagnosis, Referral</h2>
+          <h2 id="impression-heading">Acuity and Diagnosis</h2>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="single-screen-form">
+      <div className="workflow-readiness-strip" aria-label="Impression completion">
+        {completionItems.map((item) => (
+          <span key={item.label} className={item.complete ? 'complete' : ''}>{item.label}</span>
+        ))}
+      </div>
+
+      <form id="impression-form" onSubmit={handleSubmit} className="single-screen-form">
         <fieldset className="form-block">
           <legend>ESI Acuity</legend>
           <div className="triage-levels-grid compact-triage-grid">
@@ -144,6 +144,7 @@ function ClinicalImpressionPhase({
               >
                 <div className="triage-level-badge">{level.label}</div>
                 <strong className="triage-level-name">{level.name}</strong>
+                <small className="triage-level-desc">{level.hint}</small>
               </button>
             ))}
           </div>
@@ -200,64 +201,15 @@ function ClinicalImpressionPhase({
           />
         </fieldset>
 
-        <fieldset className="form-block">
-          <legend>Referral Judgment</legend>
-          <div className="choice-row">
-            <button
-              type="button"
-              className={`choice-card ${referralNeeded === true ? 'selected' : ''}`}
-              onClick={() => setReferralNeeded(true)}
-              disabled={submitting}
-              aria-pressed={referralNeeded === true}
-              aria-label="Specialty Input Needed"
-            >
-              <strong>Specialty Input Needed</strong>
-            </button>
-            <button
-              type="button"
-              className={`choice-card ${referralNeeded === false ? 'selected' : ''}`}
-              onClick={() => setReferralNeeded(false)}
-              disabled={submitting}
-              aria-pressed={referralNeeded === false}
-              aria-label="No Immediate Referral"
-            >
-              <strong>No Immediate Referral</strong>
-            </button>
-          </div>
-          {referralNeeded === true && (
-            <>
-              <label htmlFor="referral-specialty" className="premium-textarea-label">
-                <span>Referral Service</span>
-              </label>
-              <select
-                id="referral-specialty"
-                className="premium-input"
-                value={referralSpecialty}
-                onChange={(event) => setReferralSpecialty(event.target.value)}
-                disabled={submitting}
-              >
-                {referralOptions.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
-            </>
-          )}
-          <label htmlFor="referral-rationale" className="premium-textarea-label">
-            <span>Referral Rationale</span>
-          </label>
-          <textarea
-            id="referral-rationale"
-            className="premium-textarea"
-            value={referralRationale}
-            onChange={(event) => setReferralRationale(event.target.value)}
-            placeholder="Why escalate now, or what would trigger escalation later?"
-            rows="3"
-            disabled={submitting}
-          />
-        </fieldset>
-
         {error && <div className="error-message" role="alert">{error}</div>}
         <div className="step-actions">
+          <div className="workflow-action-status">
+            <span>Status</span>
+            <strong>{completionItems.every((item) => item.complete) ? 'Ready to continue' : 'Complete required impression fields'}</strong>
+          </div>
+          <button type="button" className="btn-secondary workflow-jump-button" onClick={jumpToNextRequired}>
+            Next required field
+          </button>
           <button type="submit" className="btn-primary" disabled={submitting}>
             {submitting ? 'Recording impression...' : 'Continue to plan'}
           </button>

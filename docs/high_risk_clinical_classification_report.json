@@ -1,0 +1,1443 @@
+{
+  "schema_version": "high_risk_clinical_classification_report_v1",
+  "generated_at": "2026-06-09T22:33:53.988Z",
+  "review_status": "high_risk_classification_policy_ready_manual_review_required",
+  "warning": "This report verifies a structured high-risk classifier contract for local fail-closed evidence retrieval. It does not approve clinical accuracy, quote-depth sufficiency, claim entailment, or national release.",
+  "source_contract": {
+    "classifier_service_path": "frontend/src/services/highRiskClinicalClassificationService.js",
+    "classifier_service_present": true,
+    "classifier_service_imports_quality_report": true,
+    "classifier_service_imports_retrieval_matrix": true,
+    "public_source_quality_report_schema": "clinical_source_quality_report_v1",
+    "public_knowledge_bundle_schema": "clinical_knowledge_bundle_v2",
+    "high_risk_topic_source": "frontend/src/data/public_clinical_source_quality_report.json.high_risk_quote_core_topics",
+    "topic_allowlist_source": "frontend/src/data/clinical_source_topic_allowlist.json",
+    "retrieval_matrix_source": "frontend/src/data/clinical_retrieval_matrix.json",
+    "case_source": "frontend/src/data/cases.json",
+    "claim_reference_alignment_source": "docs/feedback_claim_reference_alignment_report.json",
+    "quote_depth_report_source": "docs/high_risk_quote_coverage_depth_report.json",
+    "generated_needs_review_approved_by_this_report": 0
+  },
+  "classification_policy": {
+    "core_high_risk_facets": [
+      "recognition",
+      "red_flags",
+      "focused_assessment",
+      "diagnostic_strategy",
+      "initial_management",
+      "medication_procedure",
+      "disposition_reassessment"
+    ],
+    "high_risk_claim_domains": [
+      "esi",
+      "safety",
+      "diagnosis",
+      "referral",
+      "escalation",
+      "reassessment"
+    ],
+    "formative_review_claim_domains": [
+      "interview",
+      "focused_exam",
+      "soap",
+      "sbar"
+    ],
+    "high_risk_action_signals": [
+      "critical_procedure",
+      "tier1_med_usage_1h",
+      "transfer_to_icu_in_1h",
+      "transfer_to_icu_beyond_1h",
+      "transfer2surgeryin1h",
+      "transfer_to_surgery_beyond_1h",
+      "expired_within_1h",
+      "expired_beyond_1h",
+      "invasive_ventilation",
+      "invasive_ventilation_beyond_1h",
+      "intraosseous_line_placed",
+      "transfusion_within_1h",
+      "red_cell_order_more_than_1"
+    ],
+    "safety_fallback_terms": [
+      "airway",
+      "intubation",
+      "shock",
+      "stemi",
+      "cardiac arrest",
+      "trauma",
+      "hemorrhage",
+      "suicide",
+      "anaphylaxis",
+      "respiratory failure",
+      "hypoxia",
+      "status epilepticus",
+      "meningitis",
+      "pulmonary embolism",
+      "icu",
+      "transfer"
+    ],
+    "fail_closed_effect": "High-risk classifications require quote-backed learner-facing references and disallow generated-needs-review evidence."
+  },
+  "summary": {
+    "classifier_version": "high_risk_clinical_classification_v1",
+    "high_risk_topics_from_quality_report": 15,
+    "structured_topic_policy_rows": 15,
+    "topics_with_alias_policy": 15,
+    "topics_with_allowlisted_source_policy": 15,
+    "topics_with_quote_depth_row": 15,
+    "topic_alias_probes": 15,
+    "topic_alias_probes_passed": 15,
+    "retrieval_matrix_rows": 9,
+    "retrieval_matrix_rows_passed": 9,
+    "case_rows_classified": 23,
+    "case_rows_high_risk": 15,
+    "case_rows_high_risk_by_acuity": 12,
+    "case_rows_high_risk_by_action_signal": 4,
+    "claim_sets_classified": 10,
+    "high_risk_claim_sets": 6,
+    "formative_review_claim_sets": 4,
+    "unsupported_claim_domains": 0,
+    "negative_control_probes": 2,
+    "negative_controls_classified_nonclinical": 2,
+    "regex_fallback_only_high_risk_probes": 0,
+    "generated_needs_review_approved_by_this_report": 0,
+    "high_risk_classification_policy_ready": true,
+    "high_risk_classification_release_ready": false
+  },
+  "topic_policy_rows": [
+    {
+      "topic": "septic_shock_concern",
+      "alias_count": 11,
+      "allowlisted_source_count": 2,
+      "bundle_chunk_count": 14,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 6,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "septic_shock_resuscitation",
+      "alias_count": 10,
+      "allowlisted_source_count": 3,
+      "bundle_chunk_count": 14,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 6,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "chest_pain_possible_acs",
+      "alias_count": 11,
+      "allowlisted_source_count": 5,
+      "bundle_chunk_count": 13,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 5,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "high_sensitivity_troponin_pathway",
+      "alias_count": 10,
+      "allowlisted_source_count": 4,
+      "bundle_chunk_count": 14,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 6,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "non_st_elevation_acs",
+      "alias_count": 9,
+      "allowlisted_source_count": 3,
+      "bundle_chunk_count": 13,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 5,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "opioid_overdose",
+      "alias_count": 9,
+      "allowlisted_source_count": 4,
+      "bundle_chunk_count": 15,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 7,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "naloxone_response_and_recurrence",
+      "alias_count": 10,
+      "allowlisted_source_count": 4,
+      "bundle_chunk_count": 13,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 5,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "febrile_infant_8_to_21_days",
+      "alias_count": 10,
+      "allowlisted_source_count": 1,
+      "bundle_chunk_count": 15,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 7,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "acute_stroke_symptoms",
+      "alias_count": 6,
+      "allowlisted_source_count": 5,
+      "bundle_chunk_count": 13,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 5,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "thrombolytic_eligibility_discussion",
+      "alias_count": 11,
+      "allowlisted_source_count": 4,
+      "bundle_chunk_count": 15,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 7,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "ectopic_pregnancy_rupture_concern",
+      "alias_count": 10,
+      "allowlisted_source_count": 2,
+      "bundle_chunk_count": 14,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 6,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "minor_head_injury_ct_decision",
+      "alias_count": 11,
+      "allowlisted_source_count": 4,
+      "bundle_chunk_count": 15,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 7,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "use_of_restraints",
+      "alias_count": 10,
+      "allowlisted_source_count": 3,
+      "bundle_chunk_count": 13,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 5,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "severe_agitation_medication_strategy",
+      "alias_count": 10,
+      "allowlisted_source_count": 2,
+      "bundle_chunk_count": 15,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 7,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    },
+    {
+      "topic": "dka_or_hhs",
+      "alias_count": 11,
+      "allowlisted_source_count": 2,
+      "bundle_chunk_count": 14,
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "facet_count": 8,
+      "core_high_risk_facets_present": [
+        "diagnostic_strategy",
+        "disposition_reassessment",
+        "focused_assessment",
+        "initial_management",
+        "medication_procedure",
+        "recognition",
+        "red_flags"
+      ],
+      "quote_depth_row_present": true,
+      "quote_backed_chunks": 6,
+      "generated_needs_review_chunks": 8,
+      "quote_depth_release_ready": false
+    }
+  ],
+  "topic_alias_probes": [
+    {
+      "id": "topic_alias_septic_shock_concern",
+      "topic": "septic_shock_concern",
+      "query": "septic shock concern emergency department sepsis",
+      "status": "pass",
+      "matched_topic_tags": [
+        "septic_shock_concern",
+        "septic_shock_resuscitation"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_septic_shock_resuscitation",
+      "topic": "septic_shock_resuscitation",
+      "query": "septic shock resuscitation emergency department sepsis resuscitation",
+      "status": "pass",
+      "matched_topic_tags": [
+        "septic_shock_concern",
+        "septic_shock_resuscitation"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_chest_pain_possible_acs",
+      "topic": "chest_pain_possible_acs",
+      "query": "chest pain possible acs emergency department chest pain",
+      "status": "pass",
+      "matched_topic_tags": [
+        "chest_pain_possible_acs",
+        "high_sensitivity_troponin_pathway",
+        "non_st_elevation_acs"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_high_sensitivity_troponin_pathway",
+      "topic": "high_sensitivity_troponin_pathway",
+      "query": "high sensitivity troponin pathway emergency department troponin",
+      "status": "pass",
+      "matched_topic_tags": [
+        "high_sensitivity_troponin_pathway"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_non_st_elevation_acs",
+      "topic": "non_st_elevation_acs",
+      "query": "non st elevation acs emergency department nstemi",
+      "status": "pass",
+      "matched_topic_tags": [
+        "chest_pain_possible_acs",
+        "non_st_elevation_acs"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_opioid_overdose",
+      "topic": "opioid_overdose",
+      "query": "opioid overdose emergency department opioid overdose",
+      "status": "pass",
+      "matched_topic_tags": [
+        "opioid_overdose",
+        "naloxone_response_and_recurrence"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_naloxone_response_and_recurrence",
+      "topic": "naloxone_response_and_recurrence",
+      "query": "naloxone response and recurrence emergency department naloxone",
+      "status": "pass",
+      "matched_topic_tags": [
+        "naloxone_response_and_recurrence"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_febrile_infant_8_to_21_days",
+      "topic": "febrile_infant_8_to_21_days",
+      "query": "febrile infant 8 to 21 days emergency department febrile infant",
+      "status": "pass",
+      "matched_topic_tags": [
+        "febrile_infant_8_to_21_days"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_acute_stroke_symptoms",
+      "topic": "acute_stroke_symptoms",
+      "query": "acute stroke symptoms emergency department stroke",
+      "status": "pass",
+      "matched_topic_tags": [
+        "acute_stroke_symptoms"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_thrombolytic_eligibility_discussion",
+      "topic": "thrombolytic_eligibility_discussion",
+      "query": "thrombolytic eligibility discussion emergency department thrombolytic",
+      "status": "pass",
+      "matched_topic_tags": [
+        "thrombolytic_eligibility_discussion"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_ectopic_pregnancy_rupture_concern",
+      "topic": "ectopic_pregnancy_rupture_concern",
+      "query": "ectopic pregnancy rupture concern emergency department ectopic pregnancy",
+      "status": "pass",
+      "matched_topic_tags": [
+        "ectopic_pregnancy_rupture_concern"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_minor_head_injury_ct_decision",
+      "topic": "minor_head_injury_ct_decision",
+      "query": "minor head injury ct decision emergency department head injury",
+      "status": "pass",
+      "matched_topic_tags": [
+        "minor_head_injury_ct_decision"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_use_of_restraints",
+      "topic": "use_of_restraints",
+      "query": "use of restraints emergency department restraints",
+      "status": "pass",
+      "matched_topic_tags": [
+        "use_of_restraints"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_severe_agitation_medication_strategy",
+      "topic": "severe_agitation_medication_strategy",
+      "query": "severe agitation medication strategy emergency department severe agitation",
+      "status": "pass",
+      "matched_topic_tags": [
+        "severe_agitation_medication_strategy"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    },
+    {
+      "id": "topic_alias_dka_or_hhs",
+      "topic": "dka_or_hhs",
+      "query": "dka or hhs emergency department dka",
+      "status": "pass",
+      "matched_topic_tags": [
+        "dka_or_hhs"
+      ],
+      "basis": [
+        "structured_topic_alias"
+      ],
+      "fallback_only": false
+    }
+  ],
+  "retrieval_matrix_rows": [
+    {
+      "label": "Sepsis Shock",
+      "task": "management",
+      "expected_high_risk_topic_tags": [
+        "septic_shock_concern",
+        "septic_shock_resuscitation"
+      ],
+      "expected_facets": [
+        "initial_management",
+        "medication_procedure",
+        "diagnostic_strategy"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "septic_shock_concern",
+        "septic_shock_resuscitation"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "Chest Pain ACS",
+      "task": "management",
+      "expected_high_risk_topic_tags": [
+        "chest_pain_possible_acs",
+        "non_st_elevation_acs",
+        "high_sensitivity_troponin_pathway"
+      ],
+      "expected_facets": [
+        "initial_management",
+        "medication_procedure",
+        "diagnostic_strategy"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "chest_pain_possible_acs",
+        "non_st_elevation_acs",
+        "high_sensitivity_troponin_pathway"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "Opioid Overdose",
+      "task": "management",
+      "expected_high_risk_topic_tags": [
+        "opioid_overdose",
+        "naloxone_response_and_recurrence"
+      ],
+      "expected_facets": [
+        "initial_management",
+        "medication_procedure",
+        "diagnostic_strategy"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "opioid_overdose",
+        "naloxone_response_and_recurrence"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "Pediatric Fever",
+      "task": "triage",
+      "expected_high_risk_topic_tags": [
+        "febrile_infant_8_to_21_days"
+      ],
+      "expected_facets": [
+        "recognition",
+        "red_flags",
+        "focused_assessment"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "febrile_infant_8_to_21_days"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "Stroke Thrombolysis",
+      "task": "management",
+      "expected_high_risk_topic_tags": [
+        "thrombolytic_eligibility_discussion"
+      ],
+      "expected_facets": [
+        "initial_management",
+        "medication_procedure",
+        "diagnostic_strategy"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "thrombolytic_eligibility_discussion",
+        "acute_stroke_symptoms"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "Ectopic Pregnancy",
+      "task": "diagnosis",
+      "expected_high_risk_topic_tags": [
+        "ectopic_pregnancy_rupture_concern"
+      ],
+      "expected_facets": [
+        "diagnostic_strategy",
+        "focused_assessment",
+        "recognition"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "ectopic_pregnancy_rupture_concern"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "Head Trauma CT",
+      "task": "diagnosis",
+      "expected_high_risk_topic_tags": [
+        "minor_head_injury_ct_decision"
+      ],
+      "expected_facets": [
+        "diagnostic_strategy",
+        "focused_assessment",
+        "recognition"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "minor_head_injury_ct_decision"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "Agitation Restraints",
+      "task": "management",
+      "expected_high_risk_topic_tags": [
+        "use_of_restraints",
+        "severe_agitation_medication_strategy"
+      ],
+      "expected_facets": [
+        "initial_management",
+        "medication_procedure",
+        "diagnostic_strategy"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "use_of_restraints",
+        "severe_agitation_medication_strategy"
+      ],
+      "fallback_only": false
+    },
+    {
+      "label": "DKA HHS",
+      "task": "management",
+      "expected_high_risk_topic_tags": [
+        "dka_or_hhs"
+      ],
+      "expected_facets": [
+        "initial_management",
+        "medication_procedure",
+        "diagnostic_strategy"
+      ],
+      "classified_high_risk": true,
+      "status": "pass",
+      "classification_basis": [
+        "structured_topic_tag",
+        "structured_topic_alias",
+        "topic_facet_pair"
+      ],
+      "matched_topic_tags": [
+        "dka_or_hhs"
+      ],
+      "fallback_only": false
+    }
+  ],
+  "case_classification_rows": [
+    {
+      "case_id": "case_002",
+      "acuity": 2,
+      "complaint": "Chest pain, Dyspnea",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [
+        "chest_pain_possible_acs",
+        "high_sensitivity_troponin_pathway",
+        "non_st_elevation_acs"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_004",
+      "acuity": 2,
+      "complaint": "Difficulty swallowing, Transfer",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [
+        "chest_pain_possible_acs"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_005",
+      "acuity": 2,
+      "complaint": "Fever / limb infection concern",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity",
+        "case_action_signal"
+      ],
+      "matched_topic_tags": [
+        "septic_shock_concern",
+        "chest_pain_possible_acs"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": [
+        "critical_procedure"
+      ]
+    },
+    {
+      "case_id": "case_006",
+      "acuity": 2,
+      "complaint": "Chest pain",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [
+        "chest_pain_possible_acs",
+        "high_sensitivity_troponin_pathway",
+        "non_st_elevation_acs"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_007",
+      "acuity": 1,
+      "complaint": "Fever, Pneumonia, Transfer",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity",
+        "case_action_signal"
+      ],
+      "matched_topic_tags": [
+        "septic_shock_concern"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": [
+        "transfer_to_icu_beyond_1h",
+        "red_cell_order_more_than_1"
+      ]
+    },
+    {
+      "case_id": "case_008",
+      "acuity": 3,
+      "complaint": "Dyspnea, Pedal edema",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias"
+      ],
+      "matched_topic_tags": [
+        "chest_pain_possible_acs",
+        "acute_stroke_symptoms",
+        "high_sensitivity_troponin_pathway",
+        "non_st_elevation_acs"
+      ],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_009",
+      "acuity": 3,
+      "complaint": "RECTAL ABSCESS",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_012",
+      "acuity": 3,
+      "complaint": "Lower abdominal pain",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "case_text_topic_alias"
+      ],
+      "matched_topic_tags": [
+        "septic_shock_concern",
+        "septic_shock_resuscitation",
+        "ectopic_pregnancy_rupture_concern"
+      ],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_013",
+      "acuity": 2,
+      "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [
+        "opioid_overdose",
+        "naloxone_response_and_recurrence",
+        "minor_head_injury_ct_decision",
+        "septic_shock_concern",
+        "acute_stroke_symptoms"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_014",
+      "acuity": 3,
+      "complaint": "Acute Pelvic pain",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_017",
+      "acuity": 2,
+      "complaint": "N/V, Weakness",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "case_text_topic_alias",
+        "case_esi_high_acuity",
+        "case_action_signal"
+      ],
+      "matched_topic_tags": [
+        "acute_stroke_symptoms"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": [
+        "critical_procedure",
+        "transfer_to_icu_beyond_1h"
+      ]
+    },
+    {
+      "case_id": "case_018",
+      "acuity": 4,
+      "complaint": "Finger laceration",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_019",
+      "acuity": 4,
+      "complaint": "Finger laceration",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_020",
+      "acuity": 4,
+      "complaint": "R Wrist pain",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_021",
+      "acuity": 3,
+      "complaint": "R Foot swelling",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_022",
+      "acuity": 2,
+      "complaint": "Abd pain, Abdominal distention",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_023",
+      "acuity": 2,
+      "complaint": "Abd pain, Vomiting, Nausea, Dyspnea",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [
+        "chest_pain_possible_acs"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_024",
+      "acuity": 5,
+      "complaint": "Suture removal",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_025",
+      "acuity": 1,
+      "complaint": "Abd pain, Transfer",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "case_text_topic_alias",
+        "case_esi_high_acuity",
+        "case_action_signal"
+      ],
+      "matched_topic_tags": [
+        "septic_shock_concern"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": [
+        "transfer_to_icu_beyond_1h",
+        "transfusion_within_1h"
+      ]
+    },
+    {
+      "case_id": "case_027",
+      "acuity": 5,
+      "complaint": "Med refill",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "case_text_topic_alias"
+      ],
+      "matched_topic_tags": [
+        "septic_shock_resuscitation"
+      ],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_029",
+      "acuity": 2,
+      "complaint": "L Leg injury, Transfer",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "case_text_topic_alias",
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [
+        "opioid_overdose"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_030",
+      "acuity": 4,
+      "complaint": "R Foot pain",
+      "risk_level": "standard",
+      "classified_high_risk": false,
+      "classification_basis": [],
+      "matched_topic_tags": [],
+      "high_risk_case_acuity": false,
+      "high_risk_action_signals": []
+    },
+    {
+      "case_id": "case_031",
+      "acuity": 2,
+      "complaint": "ABDOMINAL PAIN",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "classification_basis": [
+        "case_text_topic_alias",
+        "case_esi_high_acuity"
+      ],
+      "matched_topic_tags": [
+        "septic_shock_concern",
+        "septic_shock_resuscitation"
+      ],
+      "high_risk_case_acuity": true,
+      "high_risk_action_signals": []
+    }
+  ],
+  "claim_classification_rows": [
+    {
+      "packet_id": "domain_esi_claim_entailment",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "known_domain_policy": true,
+      "classification_basis": [
+        "claim_domain_policy"
+      ],
+      "aligned_quote_backed_references": 0,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_safety_claim_entailment",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "known_domain_policy": true,
+      "classification_basis": [
+        "claim_domain_policy"
+      ],
+      "aligned_quote_backed_references": 12,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_interview_claim_entailment",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "risk_level": "clinical_review_required",
+      "classified_high_risk": false,
+      "known_domain_policy": true,
+      "classification_basis": [],
+      "aligned_quote_backed_references": 12,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_focused_exam_claim_entailment",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "risk_level": "clinical_review_required",
+      "classified_high_risk": false,
+      "known_domain_policy": true,
+      "classification_basis": [],
+      "aligned_quote_backed_references": 12,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_diagnosis_claim_entailment",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "claim_set_type": "source_limited_formative_claim_set",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "known_domain_policy": true,
+      "classification_basis": [
+        "claim_domain_policy"
+      ],
+      "aligned_quote_backed_references": 10,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_referral_claim_entailment",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "claim_set_type": "source_limited_formative_claim_set",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "known_domain_policy": true,
+      "classification_basis": [
+        "claim_domain_policy"
+      ],
+      "aligned_quote_backed_references": 12,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_escalation_claim_entailment",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "known_domain_policy": true,
+      "classification_basis": [
+        "structured_topic_alias",
+        "claim_domain_policy"
+      ],
+      "aligned_quote_backed_references": 11,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_reassessment_claim_entailment",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "claim_set_type": "source_limited_formative_claim_set",
+      "risk_level": "high",
+      "classified_high_risk": true,
+      "known_domain_policy": true,
+      "classification_basis": [
+        "claim_domain_policy"
+      ],
+      "aligned_quote_backed_references": 12,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_soap_claim_entailment",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "claim_set_type": "rubric_grounded_documentation_claim_set",
+      "risk_level": "clinical_review_required",
+      "classified_high_risk": false,
+      "known_domain_policy": true,
+      "classification_basis": [],
+      "aligned_quote_backed_references": 12,
+      "release_ready": false
+    },
+    {
+      "packet_id": "domain_sbar_claim_entailment",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "claim_set_type": "rubric_grounded_documentation_claim_set",
+      "risk_level": "clinical_review_required",
+      "classified_high_risk": false,
+      "known_domain_policy": true,
+      "classification_basis": [],
+      "aligned_quote_backed_references": 10,
+      "release_ready": false
+    }
+  ],
+  "negative_control_rows": [
+    {
+      "id": "campus_parking",
+      "query": "campus parking permit cafeteria hours student housing maintenance request",
+      "nonclinical_scope_guardrail_expected": true,
+      "classified_high_risk": false,
+      "status": "pass",
+      "classification_basis": []
+    },
+    {
+      "id": "faculty_room_booking",
+      "query": "schedule a meeting with faculty about vacation dates and room booking",
+      "nonclinical_scope_guardrail_expected": true,
+      "classified_high_risk": false,
+      "status": "pass",
+      "classification_basis": []
+    }
+  ],
+  "next_actions": [
+    "Use this classifier contract in runtime retrieval before any learner-facing high-risk recommendation is shown.",
+    "Keep high-risk classification separate from release approval; quote-depth, claim-entailment, and clinician review gates still block national rollout.",
+    "Add clinician-authored topic tags to future cases and feedback claims so classification does not depend on free-text matching.",
+    "Expand retrieval matrix probes as the case bank grows across ESI levels, chief complaints, and common ED safety traps."
+  ]
+}

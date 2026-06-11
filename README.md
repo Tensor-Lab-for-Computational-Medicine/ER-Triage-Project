@@ -7,17 +7,15 @@ ED Clinical Workflow Simulator is a static emergency department simulation appli
 Learners work through an ED case using the public demo bundle by default, or a credentialed local MIMIC-IV-Ext-CDS bundle when loaded in research mode:
 
 1. Focused patient interview
-2. Provisional ESI assignment
-3. Baseline vital-sign review
-4. Final ESI assignment with rationale
-5. Working diagnosis and differential
-6. Specialty referral judgment
-7. Initial management priorities
-8. Reassessment check
-9. SBAR handoff
-10. Simulation debrief
+2. Neutral vital-sign review and focused exam unlocks
+3. Final ESI assignment with rationale
+4. Working diagnosis and differential
+5. Priority action plan and consult decision
+6. What-if reassessment
+7. SOAP note, with SBAR only when consult/escalation/handoff is selected
+8. Simulation debrief
 
-Scoring is deterministic and runs in the browser. The debrief compares learner decisions with case-grounded ESI, vital-sign, diagnosis, referral, resource, outcome, intervention, reassessment, and reviewed clinical-evidence signals when those signals exist. Diagnosis, referral, and management text is labeled as source record, reviewed teaching inference, or LLM draft awaiting validation. Free-text reasoning receives local rubric feedback by default, with optional OpenRouter critique when a learner saves a browser-local key.
+Scoring is deterministic and runs in the browser. The debrief compares learner decisions with case-grounded ESI, vital-sign, diagnosis, consult, resource, outcome, intervention, reassessment, SOAP, and reviewed clinical-evidence signals when those signals exist. Diagnosis, consult, and management text is labeled as source record, reviewed teaching inference, or LLM draft awaiting validation. Free-text reasoning receives local rubric feedback by default, with optional OpenRouter critique when a learner saves a browser-local key.
 
 ## Public Runtime
 
@@ -93,7 +91,7 @@ python scripts/generate_static_cases.py
 python scripts/validate_static_bundle.py
 ```
 
-The generator reads `data/raw/mietic_validate_samples.csv`, keeps retained validation cases, applies reviewed augmentation facts from `data/processed/case_augmentations.review.json`, and writes `frontend/src/data/cases.json`.
+The generator reads `data/raw/mietic_validate_samples.csv`, applies the MIETIC expert adjudication rule, strips MIMIC identifiers, emits sanitized `public_case_v2` records, applies reviewed augmentation facts from `data/processed/case_augmentations.review.json`, and writes `frontend/src/data/cases.json`.
 
 Draft AI augmentations are generated offline and reviewed before they become playable:
 
@@ -120,6 +118,26 @@ python scripts/audit_grounding.py --cases data/restricted/mimic_iv_ext_cases.res
 ```
 
 For local research demos, open the app and use **Load Local MIMIC Bundle** in the case-source banner. The selected file stays in browser memory and is never statically imported into the public app.
+
+To link MIETIC rows back to credentialed local MIMIC modules, use the ignored DuckDB linker. It emits app-loadable restricted `clinical_case_v3` cases with a module availability matrix, linked ED/hospital/ICU/note/CXR/ECG context when present, learner-unlockable objective data, and debrief-only retrospective ground truth:
+
+```powershell
+python scripts/link_mimic_restricted_context.py `
+  --mimiciv-dir D:\physionet\mimiciv `
+  --mimic-ed-dir D:\physionet\mimic-iv-ed `
+  --mimic-note-dir D:\physionet\mimic-iv-note `
+  --mimic-cxr-dir D:\physionet\mimic-cxr `
+  --mimic-ecg-dir D:\physionet\mimic-iv-ecg
+```
+
+The default output is `data/restricted/mietic_mimic_enriched_cases.restricted.json`. Keep it local only; it contains restricted identifiers and derived clinical facts for credentialed research use.
+
+For the large MIMIC-IV v3.1 download, use a real GNU `wget.exe` from a normal terminal so the PhysioNet password prompt remains local:
+
+```powershell
+New-Item -ItemType Directory -Force D:\physionet\mimiciv | Out-Null
+wget.exe -r -N -c -np -nH --cut-dirs=2 --directory-prefix=D:\physionet\mimiciv --user age1 --ask-password https://physionet.org/files/mimiciv/3.1/
+```
 
 ## Documentation
 

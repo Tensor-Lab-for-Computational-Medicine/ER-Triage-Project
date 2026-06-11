@@ -8,6 +8,7 @@ from typing import Any
 
 import pandas as pd
 
+from mietic_adjudication import adjudicate_mietic_row, retained_by_adjudication
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT_CSV = ROOT / "data" / "raw" / "mietic_validate_samples.csv"
@@ -15,7 +16,7 @@ PROCESSED_DIR = ROOT / "data" / "processed"
 REVIEW_JSON = PROCESSED_DIR / "case_augmentations.review.json"
 OUTPUT_JSON = ROOT / "frontend" / "src" / "data" / "cases.json"
 
-CASE_SCHEMA_VERSION = "clinical_case_v1"
+CASE_SCHEMA_VERSION = "public_case_v2"
 CASE_AUGMENTATION_VERSION = "case_augmentation_v1"
 
 INTERVENTION_FIELDS = [
@@ -70,6 +71,7 @@ PROTECTED_SOURCE_FIELDS = [
     "sex",
     "age",
     "triage_narrative",
+    "adjudication",
 ]
 
 
@@ -204,7 +206,7 @@ def is_valid(case: dict[str, Any]) -> bool:
 
 
 def retained(row: pd.Series) -> bool:
-    return text_field(row, "Final Decision").upper() == "RETAIN"
+    return retained_by_adjudication(row)
 
 
 def vital_sentence(vitals: dict[str, Any]) -> str:
@@ -291,13 +293,14 @@ def build_documented_evidence(case: dict[str, Any], row: pd.Series) -> list[dict
     if outcomes:
         evidence.append(evidence_item("documented_outcomes", "outcomes", "; ".join(outcomes), ",".join(OUTCOME_BOOL_FIELDS)))
 
-    expert_count = sum(1 for field in ["Expert 1 Opinion", "Expert 2 Opinion", "Expert 3 Opinion"] if text_field(row, field))
+    adjudication = adjudicate_mietic_row(row)
+    expert_count = adjudication["expert_review_count"]
     if expert_count:
         evidence.append(
             evidence_item(
                 "documented_expert_review",
                 "adjudication",
-                f"{expert_count} expert validation opinions were recorded; final decision {text_field(row, 'Final Decision')}.",
+                f"{expert_count} expert validation opinions were recorded; the published adjudication rule retained this case for teaching use.",
                 "Expert 1 Opinion, Expert 2 Opinion, Expert 3 Opinion, Final Decision",
             )
         )
@@ -330,13 +333,15 @@ def build_missing_evidence(case: dict[str, Any]) -> list[dict[str, str]]:
     return missing
 
 
-def expert_opinions(row: pd.Series) -> list[dict[str, str]]:
-    opinions = []
-    for index, field in enumerate(["Expert 1 Opinion", "Expert 2 Opinion", "Expert 3 Opinion"], start=1):
-        value = text_field(row, field)
-        if value:
-            opinions.append({"reviewer": f"Expert {index}", "opinion": value})
-    return opinions
+def public_adjudication(row: pd.Series) -> dict[str, Any]:
+    adjudication = adjudicate_mietic_row(row)
+    return {
+        "final_decision": adjudication["final_decision"],
+        "definitive_opinion": adjudication["definitive_opinion"],
+        "rule": adjudication["rule"],
+        "expert_review_count": adjudication["expert_review_count"],
+        "primary_reviewer_disagreement": adjudication["primary_reviewer_disagreement"],
+    }
 
 
 def load_review(path: Path = REVIEW_JSON) -> dict[str, Any]:
@@ -357,11 +362,11 @@ def reviewed_fact(fact: dict[str, Any], case_review_status: str) -> dict[str, An
     if fact.get("review_status") != "reviewed":
         return None
     use_in = valid_use_in(fact.get("use_in"))
-    if "grading_reference" in use_in and fact.get("review_status") != "reviewed":
-        use_in.remove("grading_reference")
     required = ["id", "domain", "statement", "rationale", "source_anchors", "confidence"]
     if any(not fact.get(field) for field in required):
         return None
+    if "grading_reference" in use_in and fact.get("grading_review_status") != "clinician_adjudicated":
+        use_in.remove("grading_reference")
     return {
         **fact,
         "statement": compact_text(fact["statement"]),
@@ -396,6 +401,112 @@ def build_augmentation(case_id: str, review: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def simulation_reveal_item(
+    case_id: str,
+    domain: str,
+    label: str,
+    value: str,
+    *,
+    display_policy: str = "encounter_unlock",
+    covers_domains: list[str] | None = None,
+    source_basis: str = "reviewed_teaching_inference",
+    unlock_action_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "id": f"{case_id}_{domain}_scaffold",
+        "domain": domain,
+        "covers_domains": covers_domains or [domain],
+        "label": label,
+        "category": "Simulation reveal scaffold",
+        "availability": "scaffold_available",
+        "value": compact_text(value),
+        "source": "Public case simulation scaffold",
+        "source_basis": source_basis,
+        "display_policy": display_policy,
+        "unlock_action_ids": unlock_action_ids or [],
+        "review_status": "engineering_scaffold_needs_clinician_adjudication",
+        "source_restriction": "public_simulation_scaffold",
+        "limitation": "Use for draft formative simulation only. This is not source-record truth, clinician adjudication, or summative assessment evidence.",
+    }
+
+
+def build_simulation_reveal_data(case: dict[str, Any]) -> list[dict[str, Any]]:
+    missing_domains = {item.get("domain") for item in case.get("missing_evidence", [])}
+    facts = case.get("augmentation", {}).get("inferred_facts", [])
+    physical_exam_fact = next(
+        (
+            fact for fact in facts
+            if fact.get("domain") == "physical_exam" or "physical_exam" in set(fact.get("use_in", []))
+        ),
+        None,
+    )
+    items: list[dict[str, Any]] = []
+
+    if "focused_physical_exam" in missing_domains and physical_exam_fact:
+        items.append(
+            simulation_reveal_item(
+                case["id"],
+                "focused_physical_exam",
+                "Focused physical exam target",
+                physical_exam_fact.get("statement", ""),
+                covers_domains=["focused_physical_exam", "physical_exam"],
+                source_basis="reviewed_teaching_inference",
+            )
+        )
+
+    if "relevant_negatives" in missing_domains:
+        items.append(
+            simulation_reveal_item(
+                case["id"],
+                "relevant_negatives",
+                "Relevant negatives prompt",
+                "Ask and document pertinent negatives before narrowing the differential; do not infer absent symptoms unless they are present in the source narrative or reviewed faculty script.",
+                covers_domains=["relevant_negatives"],
+                source_basis="source_limitation_scaffold",
+            )
+        )
+
+    if "neurovascular_status" in missing_domains:
+        items.append(
+            simulation_reveal_item(
+                case["id"],
+                "neurovascular_status",
+                "Distal neurovascular screen",
+                "Assess distal pulse, capillary refill, motor function, sensation, skin integrity, and pain with movement before treating an extremity complaint as low risk.",
+                covers_domains=["neurovascular_status"],
+                source_basis="source_limitation_scaffold",
+            )
+        )
+
+    if "mechanism" in missing_domains:
+        items.append(
+            simulation_reveal_item(
+                case["id"],
+                "mechanism",
+                "Mechanism clarification",
+                "Clarify mechanism, timing, force, wound contamination, anticoagulant use, and functional status; if unavailable, document mechanism as not provided rather than inventing one.",
+                covers_domains=["mechanism"],
+                source_basis="source_limitation_scaffold",
+            )
+        )
+
+    if "imaging_or_exam_result" in missing_domains:
+        items.append(
+            simulation_reveal_item(
+                case["id"],
+                "imaging_or_exam_result",
+                "Result reveal placeholder",
+                "The public source records exam or imaging resource use but not the result. Keep the result pending until a faculty author supplies case-specific findings for the simulation script.",
+                display_policy="plan_unlock",
+                covers_domains=["imaging_or_exam_result"],
+                source_basis="source_limitation_scaffold",
+                unlock_action_ids=["imaging_or_exam_result", "diagnostic_testing", "focused_exam"],
+            )
+        )
+
+    return items
+
+
 def row_to_case(row: pd.Series, case_id: str, raw_row_index: int, review: dict[str, Any]) -> dict[str, Any]:
     history = text_field(row, "tiragecase", "No medical history available")
     complaint, complaint_source = derived_complaint(text_field(row, "chiefcomplaint", ""), history)
@@ -423,7 +534,6 @@ def row_to_case(row: pd.Series, case_id: str, raw_row_index: int, review: dict[s
         "disposition": text_field(row, "disposition", "Unknown"),
         "outcome": history,
         "interventions": interventions,
-        "outtime": text_field(row, "outtime") or None,
     }
 
     for field in OUTCOME_BOOL_FIELDS:
@@ -434,12 +544,7 @@ def row_to_case(row: pd.Series, case_id: str, raw_row_index: int, review: dict[s
     case["source"] = {
         "dataset": "MIETIC validation sample",
         "schema_version": CASE_SCHEMA_VERSION,
-        "raw_row_index": raw_row_index,
-        "subject_id": json_value(row.get("subject_id")),
-        "stay_id": json_value(row.get("stay_id")),
-        "hadm_id": json_value(row.get("hadm_id")),
-        "intime": text_field(row, "intime"),
-        "outtime": text_field(row, "outtime"),
+        "public_case_uid": f"mietic_validate_public_{raw_row_index + 1:03d}",
         "age": case["demographics"]["age"],
         "sex": case["demographics"]["sex"],
         "arrival_transport": case["demographics"]["transport"],
@@ -452,14 +557,12 @@ def row_to_case(row: pd.Series, case_id: str, raw_row_index: int, review: dict[s
         "resource_signals": resource_signals(case),
         "interventions": interventions,
         "outcomes": {field: case[field] for field in OUTCOME_BOOL_FIELDS},
-        "adjudication": {
-            "final_decision": text_field(row, "Final Decision"),
-            "expert_opinions": expert_opinions(row),
-        },
+        "adjudication": public_adjudication(row),
     }
     case["documented_evidence"] = build_documented_evidence(case, row)
     case["missing_evidence"] = build_missing_evidence(case)
     case["augmentation"] = build_augmentation(case_id, review)
+    case["simulation_reveal_data"] = build_simulation_reveal_data(case)
     return case
 
 

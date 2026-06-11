@@ -1,0 +1,5360 @@
+{
+  "schema_version": "feedback_case_domain_calibration_review_status_v1",
+  "generated_at": "2026-06-09T22:33:37.761Z",
+  "review_status": "feedback_case_domain_calibration_review_inputs_pending",
+  "warning": "This status validates submitted case-domain feedback calibration reviews. It does not itself provide clinical approval, national release approval, or evidence that feedback improves learner outcomes.",
+  "source_contract": {
+    "feedback_case_domain_review_packets_schema": "feedback_case_domain_review_packets_v1",
+    "feedback_case_domain_review_packets_path": "docs/feedback_case_domain_review_packets.json",
+    "feedback_claim_entailment_adjudication_status_schema": "feedback_claim_entailment_adjudication_status_v1",
+    "feedback_integrity_runtime_report_schema": "feedback_integrity_runtime_report_v1",
+    "completed_review_file_present": false,
+    "completed_review_file_path": "docs/feedback_case_domain_calibration_reviews.json",
+    "required_completed_review_schema_version": "feedback_case_domain_calibration_reviews_v1",
+    "allowed_review_statuses": [
+      "approved_for_national_release",
+      "approved_for_summative_feedback",
+      "approved_formative_only",
+      "blocked_safety_or_equity_gap",
+      "blocked_truth_or_evidence_gap",
+      "changes_required",
+      "pilot_only",
+      "rejected"
+    ],
+    "restricted_keys_blocked": [
+      "ai_draft_text",
+      "csn",
+      "encounter_id",
+      "free_text",
+      "hadm_id",
+      "learner_email",
+      "learner_name",
+      "message_text",
+      "mrn",
+      "patient_id",
+      "patient_name",
+      "raw_case_text",
+      "raw_learner_text",
+      "raw_rationale",
+      "soap_text",
+      "stay_id",
+      "student_email",
+      "student_id",
+      "student_name",
+      "subject_id",
+      "transcript"
+    ]
+  },
+  "summary": {
+    "total_review_packets": 230,
+    "review_file_present": false,
+    "submitted_case_domain_reviews": 0,
+    "valid_case_domain_reviews": 0,
+    "nationally_approved_case_domain_reviews": 0,
+    "summative_approved_case_domain_reviews": 0,
+    "formative_only_approved_case_domain_reviews": 0,
+    "pilot_only_approved_case_domain_reviews": 0,
+    "source_limited_packets": 69,
+    "source_limited_valid_reviews": 0,
+    "pending_case_domain_reviews": 230,
+    "missing_case_domain_reviews": 230,
+    "invalid_review_input_count": 0,
+    "unmatched_submitted_reviews": 0,
+    "runtime_integrity_probe_passed": true,
+    "claim_entailment_ready_for_national_release": false,
+    "ready_for_national_feedback_release": false,
+    "review_status_counts": {
+      "not_submitted": 230
+    },
+    "current_release_status_counts": {
+      "case_grounded_pending_case_domain_calibration": 115,
+      "blocked_truth_unavailable_formative_only": 69,
+      "rubric_grounded_pending_faculty_calibration": 46
+    },
+    "required_reviewer_role_counts": {
+      "emergency_medicine_clinician": 230,
+      "simulation_educator": 230,
+      "medical_librarian_or_evidence_reviewer": 115,
+      "clinical_skills_faculty": 92
+    }
+  },
+  "case_domain_review_status": [
+    {
+      "packet_id": "feedback_case_domain_case_002_esi",
+      "case_id": "case_002",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_safety",
+      "case_id": "case_002",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_interview",
+      "case_id": "case_002",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_focused_exam",
+      "case_id": "case_002",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_diagnosis",
+      "case_id": "case_002",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_referral",
+      "case_id": "case_002",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_escalation",
+      "case_id": "case_002",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_reassessment",
+      "case_id": "case_002",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_soap",
+      "case_id": "case_002",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_002_sbar",
+      "case_id": "case_002",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_esi",
+      "case_id": "case_004",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_safety",
+      "case_id": "case_004",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_interview",
+      "case_id": "case_004",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_focused_exam",
+      "case_id": "case_004",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_diagnosis",
+      "case_id": "case_004",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_referral",
+      "case_id": "case_004",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_escalation",
+      "case_id": "case_004",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_reassessment",
+      "case_id": "case_004",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_soap",
+      "case_id": "case_004",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_004_sbar",
+      "case_id": "case_004",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_esi",
+      "case_id": "case_005",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_safety",
+      "case_id": "case_005",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_interview",
+      "case_id": "case_005",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_focused_exam",
+      "case_id": "case_005",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_diagnosis",
+      "case_id": "case_005",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_referral",
+      "case_id": "case_005",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_escalation",
+      "case_id": "case_005",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_reassessment",
+      "case_id": "case_005",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_soap",
+      "case_id": "case_005",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_005_sbar",
+      "case_id": "case_005",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_esi",
+      "case_id": "case_006",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_safety",
+      "case_id": "case_006",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_interview",
+      "case_id": "case_006",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_focused_exam",
+      "case_id": "case_006",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_diagnosis",
+      "case_id": "case_006",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_referral",
+      "case_id": "case_006",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_escalation",
+      "case_id": "case_006",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_reassessment",
+      "case_id": "case_006",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_soap",
+      "case_id": "case_006",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_006_sbar",
+      "case_id": "case_006",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_esi",
+      "case_id": "case_007",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_safety",
+      "case_id": "case_007",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_interview",
+      "case_id": "case_007",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_focused_exam",
+      "case_id": "case_007",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_diagnosis",
+      "case_id": "case_007",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_referral",
+      "case_id": "case_007",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_escalation",
+      "case_id": "case_007",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_reassessment",
+      "case_id": "case_007",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_soap",
+      "case_id": "case_007",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_007_sbar",
+      "case_id": "case_007",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_esi",
+      "case_id": "case_008",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_safety",
+      "case_id": "case_008",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_interview",
+      "case_id": "case_008",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_focused_exam",
+      "case_id": "case_008",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_diagnosis",
+      "case_id": "case_008",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_referral",
+      "case_id": "case_008",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_escalation",
+      "case_id": "case_008",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_reassessment",
+      "case_id": "case_008",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_soap",
+      "case_id": "case_008",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_008_sbar",
+      "case_id": "case_008",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_esi",
+      "case_id": "case_009",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_safety",
+      "case_id": "case_009",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_interview",
+      "case_id": "case_009",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_focused_exam",
+      "case_id": "case_009",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_diagnosis",
+      "case_id": "case_009",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_referral",
+      "case_id": "case_009",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_escalation",
+      "case_id": "case_009",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_reassessment",
+      "case_id": "case_009",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_soap",
+      "case_id": "case_009",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_009_sbar",
+      "case_id": "case_009",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_esi",
+      "case_id": "case_012",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_safety",
+      "case_id": "case_012",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_interview",
+      "case_id": "case_012",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_focused_exam",
+      "case_id": "case_012",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_diagnosis",
+      "case_id": "case_012",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_referral",
+      "case_id": "case_012",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_escalation",
+      "case_id": "case_012",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_reassessment",
+      "case_id": "case_012",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_soap",
+      "case_id": "case_012",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_012_sbar",
+      "case_id": "case_012",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_esi",
+      "case_id": "case_013",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_safety",
+      "case_id": "case_013",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_interview",
+      "case_id": "case_013",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_focused_exam",
+      "case_id": "case_013",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_diagnosis",
+      "case_id": "case_013",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_referral",
+      "case_id": "case_013",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_escalation",
+      "case_id": "case_013",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_reassessment",
+      "case_id": "case_013",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_soap",
+      "case_id": "case_013",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_013_sbar",
+      "case_id": "case_013",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_esi",
+      "case_id": "case_014",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_safety",
+      "case_id": "case_014",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_interview",
+      "case_id": "case_014",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_focused_exam",
+      "case_id": "case_014",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_diagnosis",
+      "case_id": "case_014",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_referral",
+      "case_id": "case_014",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_escalation",
+      "case_id": "case_014",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_reassessment",
+      "case_id": "case_014",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_soap",
+      "case_id": "case_014",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_014_sbar",
+      "case_id": "case_014",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_esi",
+      "case_id": "case_017",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_safety",
+      "case_id": "case_017",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_interview",
+      "case_id": "case_017",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_focused_exam",
+      "case_id": "case_017",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_diagnosis",
+      "case_id": "case_017",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_referral",
+      "case_id": "case_017",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_escalation",
+      "case_id": "case_017",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_reassessment",
+      "case_id": "case_017",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_soap",
+      "case_id": "case_017",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_017_sbar",
+      "case_id": "case_017",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_esi",
+      "case_id": "case_018",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_safety",
+      "case_id": "case_018",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_interview",
+      "case_id": "case_018",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_focused_exam",
+      "case_id": "case_018",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_diagnosis",
+      "case_id": "case_018",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_referral",
+      "case_id": "case_018",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_escalation",
+      "case_id": "case_018",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_reassessment",
+      "case_id": "case_018",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_soap",
+      "case_id": "case_018",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_018_sbar",
+      "case_id": "case_018",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_esi",
+      "case_id": "case_019",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_safety",
+      "case_id": "case_019",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_interview",
+      "case_id": "case_019",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_focused_exam",
+      "case_id": "case_019",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_diagnosis",
+      "case_id": "case_019",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_referral",
+      "case_id": "case_019",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_escalation",
+      "case_id": "case_019",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_reassessment",
+      "case_id": "case_019",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_soap",
+      "case_id": "case_019",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_019_sbar",
+      "case_id": "case_019",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_esi",
+      "case_id": "case_020",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_safety",
+      "case_id": "case_020",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_interview",
+      "case_id": "case_020",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_focused_exam",
+      "case_id": "case_020",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_diagnosis",
+      "case_id": "case_020",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_referral",
+      "case_id": "case_020",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_escalation",
+      "case_id": "case_020",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_reassessment",
+      "case_id": "case_020",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_soap",
+      "case_id": "case_020",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_020_sbar",
+      "case_id": "case_020",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_esi",
+      "case_id": "case_021",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_safety",
+      "case_id": "case_021",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_interview",
+      "case_id": "case_021",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_focused_exam",
+      "case_id": "case_021",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_diagnosis",
+      "case_id": "case_021",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_referral",
+      "case_id": "case_021",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_escalation",
+      "case_id": "case_021",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_reassessment",
+      "case_id": "case_021",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_soap",
+      "case_id": "case_021",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_021_sbar",
+      "case_id": "case_021",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_esi",
+      "case_id": "case_022",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_safety",
+      "case_id": "case_022",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_interview",
+      "case_id": "case_022",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_focused_exam",
+      "case_id": "case_022",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_diagnosis",
+      "case_id": "case_022",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_referral",
+      "case_id": "case_022",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_escalation",
+      "case_id": "case_022",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_reassessment",
+      "case_id": "case_022",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_soap",
+      "case_id": "case_022",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_022_sbar",
+      "case_id": "case_022",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_esi",
+      "case_id": "case_023",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_safety",
+      "case_id": "case_023",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_interview",
+      "case_id": "case_023",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_focused_exam",
+      "case_id": "case_023",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_diagnosis",
+      "case_id": "case_023",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_referral",
+      "case_id": "case_023",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_escalation",
+      "case_id": "case_023",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_reassessment",
+      "case_id": "case_023",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_soap",
+      "case_id": "case_023",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_023_sbar",
+      "case_id": "case_023",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_esi",
+      "case_id": "case_024",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_safety",
+      "case_id": "case_024",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_interview",
+      "case_id": "case_024",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_focused_exam",
+      "case_id": "case_024",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_diagnosis",
+      "case_id": "case_024",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_referral",
+      "case_id": "case_024",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_escalation",
+      "case_id": "case_024",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_reassessment",
+      "case_id": "case_024",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_soap",
+      "case_id": "case_024",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_024_sbar",
+      "case_id": "case_024",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_esi",
+      "case_id": "case_025",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_safety",
+      "case_id": "case_025",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_interview",
+      "case_id": "case_025",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_focused_exam",
+      "case_id": "case_025",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_diagnosis",
+      "case_id": "case_025",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_referral",
+      "case_id": "case_025",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_escalation",
+      "case_id": "case_025",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_reassessment",
+      "case_id": "case_025",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_soap",
+      "case_id": "case_025",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_025_sbar",
+      "case_id": "case_025",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_esi",
+      "case_id": "case_027",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_safety",
+      "case_id": "case_027",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_interview",
+      "case_id": "case_027",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_focused_exam",
+      "case_id": "case_027",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_diagnosis",
+      "case_id": "case_027",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_referral",
+      "case_id": "case_027",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_escalation",
+      "case_id": "case_027",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_reassessment",
+      "case_id": "case_027",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_soap",
+      "case_id": "case_027",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_027_sbar",
+      "case_id": "case_027",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_esi",
+      "case_id": "case_029",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_safety",
+      "case_id": "case_029",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_interview",
+      "case_id": "case_029",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_focused_exam",
+      "case_id": "case_029",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_diagnosis",
+      "case_id": "case_029",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_referral",
+      "case_id": "case_029",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_escalation",
+      "case_id": "case_029",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_reassessment",
+      "case_id": "case_029",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_soap",
+      "case_id": "case_029",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_029_sbar",
+      "case_id": "case_029",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_esi",
+      "case_id": "case_030",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_safety",
+      "case_id": "case_030",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_interview",
+      "case_id": "case_030",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_focused_exam",
+      "case_id": "case_030",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_diagnosis",
+      "case_id": "case_030",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_referral",
+      "case_id": "case_030",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_escalation",
+      "case_id": "case_030",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_reassessment",
+      "case_id": "case_030",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P1",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_soap",
+      "case_id": "case_030",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_030_sbar",
+      "case_id": "case_030",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_esi",
+      "case_id": "case_031",
+      "domain_key": "esi",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_safety",
+      "case_id": "case_031",
+      "domain_key": "safety",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_interview",
+      "case_id": "case_031",
+      "domain_key": "interview",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_focused_exam",
+      "case_id": "case_031",
+      "domain_key": "focused_exam",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_diagnosis",
+      "case_id": "case_031",
+      "domain_key": "diagnosis",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_referral",
+      "case_id": "case_031",
+      "domain_key": "referral",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_escalation",
+      "case_id": "case_031",
+      "domain_key": "escalation",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "case_grounded_pending_case_domain_calibration",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_reassessment",
+      "case_id": "case_031",
+      "domain_key": "reassessment",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": true,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "priority": "P0",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_soap",
+      "case_id": "case_031",
+      "domain_key": "soap",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    },
+    {
+      "packet_id": "feedback_case_domain_case_031_sbar",
+      "case_id": "case_031",
+      "domain_key": "sbar",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "summative_approved": false,
+      "formative_only_approved": false,
+      "pilot_only_approved": false,
+      "source_limited": false,
+      "issues": [
+        "No completed feedback case-domain calibration review submitted."
+      ],
+      "required_reviewer_roles": [
+        "emergency_medicine_clinician",
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "priority": "P2",
+      "issue_count": 1
+    }
+  ],
+  "unmatched_submitted_reviews": [],
+  "readiness_effect": {
+    "feedback_integrity_gate_can_pass_from_current_reviews": false,
+    "invalid_review_input_count": 0,
+    "source_limited_national_or_summative_approval_block_enforced": true,
+    "optional_ai_deterministic_feedback_block_enforced": true,
+    "generated_or_restricted_data_leakage_block_enforced": true,
+    "required_reviewer_role_coverage_enforced": true
+  },
+  "issues": []
+}

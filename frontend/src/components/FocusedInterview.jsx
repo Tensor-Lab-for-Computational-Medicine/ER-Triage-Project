@@ -92,7 +92,7 @@ function FocusedInterview({
   const [conversationActive, setConversationActive] = useState(false);
   const [conversationStatus, setConversationStatus] = useState('');
   const [interviewProgress, setInterviewProgress] = useState(() => normalizeProgress(initialProgress));
-  const [objectiveOpen, setObjectiveOpen] = useState(false);
+  const [activeEncounterStep, setActiveEncounterStep] = useState('gather');
   const [objectiveStatus, setObjectiveStatus] = useState({ loaded: false, examConducted: false, selectedSystemIds: [] });
   const [error, setError] = useState('');
   const [voiceHelpUrl, setVoiceHelpUrl] = useState('');
@@ -104,6 +104,7 @@ function FocusedInterview({
   const conversationWaitingRef = useRef(false);
   const conversationRestartRef = useRef(null);
   const pendingConversationQuestionRef = useRef('');
+  const manualFinalTranscriptRef = useRef('');
   const loadingRef = useRef(false);
   const logRef = useRef([]);
   const patientVoiceEnabledRef = useRef(patientVoiceEnabled);
@@ -111,6 +112,10 @@ function FocusedInterview({
   useEffect(() => {
     logRef.current = log;
   }, [log]);
+
+  useEffect(() => {
+    document.querySelector('.interview-entry:last-child')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [log.length]);
 
   useEffect(() => {
     patientVoiceEnabledRef.current = patientVoiceEnabled;
@@ -127,11 +132,12 @@ function FocusedInterview({
     setSpeakingIndex(null);
     setConversationActive(false);
     setConversationStatus('');
-    setObjectiveOpen(false);
+    setActiveEncounterStep('gather');
     setObjectiveStatus({ loaded: false, examConducted: false, selectedSystemIds: [] });
     conversationActiveRef.current = false;
     conversationWaitingRef.current = false;
     pendingConversationQuestionRef.current = '';
+    manualFinalTranscriptRef.current = '';
     loadingRef.current = false;
     logRef.current = [];
     patientVoiceEnabledRef.current = getStoredPatientVoiceEnabled();
@@ -192,6 +198,18 @@ function FocusedInterview({
   const objectiveReady = !objectiveReview || (objectiveStatus.loaded && objectiveStatus.examConducted);
   const continueDisabled = loading || !canContinue || !objectiveReady;
   const continueWithGapsDisabled = loading || !objectiveReady;
+  const readinessItems = [
+    { label: `${log.length} / ${MINIMUM_QUESTIONS} questions`, complete: log.length >= MINIMUM_QUESTIONS },
+    { label: progressComplete ? 'Interview covered' : `${stillNeededDomains.length} interview gaps`, complete: progressComplete },
+    { label: objectiveStatus.loaded ? 'Vitals reviewed' : 'Review vitals', complete: objectiveStatus.loaded },
+    { label: objectiveStatus.examConducted ? 'Exam complete' : 'Focused exam needed', complete: objectiveStatus.examConducted }
+  ];
+  const actionStatus = objectiveReady
+    ? (canContinue ? 'Ready to continue' : canContinueWithGaps ? 'Continue with acknowledged gaps' : 'Ask required interview questions')
+    : 'Review objective data to continue';
+  const objectiveActive = activeEncounterStep === 'examine';
+  const totalInterviewDomains = coveredDomains.length + stillNeededDomains.length;
+  const interviewProgressPercent = (coveredDomains.length / Math.max(totalInterviewDomains, 1)) * 100;
 
   const supportCostLabel = (support) => {
     const used = supportUses.find((item) => item.id === support.id);
@@ -331,8 +349,15 @@ function FocusedInterview({
             // The browser may have already stopped recognition.
           }
         }
-      } else if (transcript) {
-        setQuestion((current) => [current.trim(), transcript].filter(Boolean).join(' '));
+      } else if (finalParts) {
+        const priorFinal = manualFinalTranscriptRef.current;
+        const newFinal = finalParts.startsWith(priorFinal)
+          ? finalParts.slice(priorFinal.length).trim()
+          : finalParts;
+        manualFinalTranscriptRef.current = finalParts;
+        if (newFinal) {
+          setQuestion((current) => [current.trim(), newFinal].filter(Boolean).join(' '));
+        }
       }
     };
     recognition.onnomatch = () => {
@@ -373,7 +398,7 @@ function FocusedInterview({
       suppressRecognitionEndRef.current = false;
       if (mode === 'conversation' && pendingQuestion && conversationActiveRef.current) {
         pendingConversationQuestionRef.current = '';
-        void submitQuestion(pendingQuestion, { resumeConversation: true, awaitPatientVoice: true });
+        void submitQuestion(pendingQuestion, { resumeConversation: true, awaitPatientVoice: false });
         return;
       }
       if (shouldRestart) scheduleConversationRestart('Listening');
@@ -570,6 +595,27 @@ function FocusedInterview({
     }
   };
 
+  const handleQuestionKeyDown = (event) => {
+    if (event.key !== 'Enter' || event.shiftKey) return;
+    event.preventDefault();
+    void submitQuestion();
+  };
+
+  const jumpToNextRequired = () => {
+    if (log.length < MINIMUM_QUESTIONS) {
+      document.getElementById('focused-question')?.focus();
+      return;
+    }
+    if (!objectiveStatus.loaded || !objectiveStatus.examConducted) {
+      setActiveEncounterStep('examine');
+      window.requestAnimationFrame(() => {
+        document.querySelector('.encounter-examine-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      return;
+    }
+    document.querySelector('.encounter-card .btn-primary')?.focus();
+  };
+
   const voiceTools = (
     <div className="composer-options-row voice-tools-control">
       <label className="voice-tools-checkbox">
@@ -600,7 +646,7 @@ function FocusedInterview({
   return (
     <>
     {voiceToolsRoot && createPortal(voiceTools, voiceToolsRoot)}
-    <section className="step-card">
+    <section className="step-card encounter-card">
       <div className="section-header">
         <div>
           <h2>Focused Triage Interview</h2>
@@ -609,7 +655,64 @@ function FocusedInterview({
         <span className="clinical-badge">{log.length} questions asked</span>
       </div>
 
-      <details className="interview-support-drawer learner-help-drawer">
+      <div className="workflow-readiness-strip" aria-label="Encounter readiness">
+        {readinessItems.map((item) => (
+          <span key={item.label} className={item.complete ? 'complete' : ''}>{item.label}</span>
+        ))}
+      </div>
+
+      <div className="encounter-mode-tabs" role="tablist" aria-label="Encounter tasks">
+        <button
+          type="button"
+          id="encounter-tab-gather"
+          className={`encounter-mode-tab ${activeEncounterStep === 'gather' ? 'active' : ''}`}
+          role="tab"
+          aria-selected={activeEncounterStep === 'gather'}
+          aria-controls="encounter-panel-gather"
+          onClick={() => setActiveEncounterStep('gather')}
+        >
+          <span>Gather history</span>
+          <small>{log.length} questions</small>
+        </button>
+        <button
+          type="button"
+          id="encounter-tab-examine"
+          className={`encounter-mode-tab ${objectiveActive ? 'active' : ''}`}
+          role="tab"
+          aria-selected={objectiveActive}
+          aria-controls="encounter-panel-examine"
+          onClick={() => setActiveEncounterStep('examine')}
+        >
+          <span>Examine data</span>
+          <small>{objectiveStatus.examConducted ? 'Exam documented' : objectiveStatus.loaded ? 'Vitals reviewed' : 'Review vitals'}</small>
+        </button>
+      </div>
+
+      <section
+        id="encounter-panel-gather"
+        className="encounter-workspace encounter-gather-panel"
+        role="tabpanel"
+        aria-labelledby="encounter-tab-gather"
+        hidden={activeEncounterStep !== 'gather'}
+      >
+        <div className="encounter-progress-card" aria-label="Interview goals">
+          <div className="encounter-progress-meta">
+            <span>Interview goals</span>
+            <strong>{coveredDomains.length} / {totalInterviewDomains} covered</strong>
+          </div>
+          <div className="progress-track">
+            <div className="progress-fill" style={{ width: `${interviewProgressPercent}%` }} />
+          </div>
+          {!progressComplete && (
+            <p>
+              {canContinueWithGaps
+                ? 'Required domains remain open; you may proceed by acknowledging gaps.'
+                : `Ask at least ${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} to enable gap progression.`}
+            </p>
+          )}
+        </div>
+
+        <details className="interview-support-drawer learner-help-drawer">
         <summary>Help</summary>
         {supportsEnabled && interviewSupports.length > 0 && (
           <div className="suggestions-pills help-suggestions">
@@ -631,30 +734,6 @@ function FocusedInterview({
             })}
           </div>
         )}
-        <div className="interview-progress-bar-container help-progress" style={{ margin: '10px 0 0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', color: 'var(--muted)', marginBottom: '6px' }}>
-            <span>Interview goals</span>
-            <span>{coveredDomains.length} / {coveredDomains.length + stillNeededDomains.length} covered</span>
-          </div>
-          <div className="progress-track" style={{ height: '6px', background: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div
-              className="progress-fill"
-              style={{
-                height: '100%',
-                background: 'var(--teal)',
-                width: `${((coveredDomains.length) / Math.max(coveredDomains.length + stillNeededDomains.length, 1)) * 100}%`,
-                transition: 'width 0.4s ease'
-              }}
-            />
-          </div>
-          {!progressComplete && (
-            <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: 'var(--muted)' }}>
-              {canContinueWithGaps
-                ? 'Required domains remain open; you may proceed by acknowledging gaps.'
-                : `Ask at least ${Math.max(MINIMUM_QUESTIONS - log.length, 0)} more question${MINIMUM_QUESTIONS - log.length === 1 ? '' : 's'} to enable gap progression.`}
-            </p>
-          )}
-        </div>
       </details>
 
       {/* Chat Thread Rendered Above the Composer */}
@@ -691,13 +770,14 @@ function FocusedInterview({
       )}
 
       {/* Composer Input Area */}
-      <div className="question-input" style={{ marginBottom: '10px' }}>
-        <label htmlFor="focused-question" style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--muted)' }}>Question to patient</label>
-        <div className="conversation-composer" style={{ marginTop: '4px' }}>
+      <div className="question-input">
+        <label htmlFor="focused-question">Question to patient</label>
+        <div className="conversation-composer">
           <textarea
             id="focused-question"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
+            onKeyDown={handleQuestionKeyDown}
             placeholder="Ask a focused question..."
             rows="2"
             disabled={loading}
@@ -715,18 +795,25 @@ function FocusedInterview({
           </button>
         </div>
       </div>
+      </section>
 
       {objectiveReview && (
-        <details
-          className="encounter-objective-drawer"
-          open={objectiveOpen}
-          onToggle={(event) => setObjectiveOpen(event.currentTarget.open)}
+        <section
+          id="encounter-panel-examine"
+          className="encounter-workspace encounter-examine-panel"
+          role="tabpanel"
+          aria-labelledby="encounter-tab-examine"
+          hidden={!objectiveActive}
         >
-          <summary>Review objective data</summary>
+          <div className="encounter-substep-header">
+            <span className="eyebrow">Examine</span>
+            <h3>Review objective data</h3>
+            <p>Review source vitals, request bedside data when available, and conduct the focused exam.</p>
+          </div>
           {React.isValidElement(objectiveReview)
-            ? React.cloneElement(objectiveReview, { active: objectiveOpen, onObjectiveStatusChange: setObjectiveStatus })
+            ? React.cloneElement(objectiveReview, { active: objectiveActive, onObjectiveStatusChange: setObjectiveStatus })
             : objectiveReview}
-        </details>
+        </section>
       )}
 
       {!objectiveReady && (canContinue || canContinueWithGaps) && (
@@ -748,7 +835,14 @@ function FocusedInterview({
       {loadingMessage && <div className="loading compact-loading" style={{ marginBottom: '16px' }}>{loadingMessage}</div>}
 
       {/* Navigation / Action Buttons */}
-      <div className="button-group" style={{ borderTop: '1px solid var(--line)', paddingTop: '12px', marginTop: '8px' }}>
+      <div className="button-group">
+        <div className="workflow-action-status">
+          <span>Status</span>
+          <strong>{actionStatus}</strong>
+        </div>
+        <button className="btn-secondary workflow-jump-button" type="button" onClick={jumpToNextRequired}>
+          Next required field
+        </button>
         <button className="btn-primary" onClick={() => submitQuestion()} disabled={loading || conversationActive}>
           {loading ? 'Asking patient...' : 'Ask patient'}
         </button>

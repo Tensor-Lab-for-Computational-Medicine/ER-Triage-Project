@@ -36,7 +36,7 @@ python scripts/generate_static_cases.py
 python scripts/validate_static_bundle.py
 ```
 
-The generator keeps only retained MIETIC validation rows, emits `clinical_case_v1` records, preserves source provenance under `source`, attaches documented and missing evidence lists, and includes reviewed inferred facts when available. Draft and rejected augmentations are excluded from the browser bundle.
+The generator keeps only retained MIETIC validation rows, applies the MIETIC adjudication rule, emits sanitized `public_case_v2` records, preserves source provenance under `source`, attaches documented and missing evidence lists, and includes reviewed inferred facts when available. Public records must not contain `subject_id`, `stay_id`, `hadm_id`, ICD fields, linked lab/microbiology context, raw row indexes, or source arrival/departure timestamps. Draft and rejected augmentations are excluded from the browser bundle.
 
 ## Generate Draft Case Augmentations
 
@@ -106,4 +106,26 @@ Use the grounding audit to classify generated diagnosis, medication, testing, tr
 python scripts/audit_grounding.py --cases data/restricted/mimic_iv_ext_cases.restricted.json --outputs data/restricted/generated_outputs.restricted.json
 ```
 
-The same ignored bundle can be loaded through the app's case-source banner for local research demos. The browser loader validates `clinical_case_v2`, `MIMIC-IV-Ext-CDS`, and `credentialed_local_only` before starting a restricted local case.
+The same ignored bundle can be loaded through the app's case-source banner for local research demos. The browser loader validates `clinical_case_v2` or `clinical_case_v3`, `MIMIC-IV-Ext-CDS`, and `credentialed_local_only` before starting a restricted local case.
+
+## Restricted MIETIC-MIMIC Linkage
+
+MIMIC-IV v3.1, MIMIC-IV-ED v2.2, and any optional Note/CXR/ECG modules should be downloaded outside the repository, preferably on the larger `D:` drive. This Windows environment needs a real GNU `wget.exe`; PowerShell `wget` is an alias and will not provide the same recursive behavior.
+
+```powershell
+New-Item -ItemType Directory -Force D:\physionet\mimiciv | Out-Null
+wget.exe -r -N -c -np -nH --cut-dirs=2 --directory-prefix=D:\physionet\mimiciv --user age1 --ask-password https://physionet.org/files/mimiciv/3.1/
+```
+
+After credentialed data is present locally, build ignored linkage context with DuckDB:
+
+```powershell
+python scripts/link_mimic_restricted_context.py `
+  --mimiciv-dir D:\physionet\mimiciv `
+  --mimic-ed-dir D:\physionet\mimic-iv-ed `
+  --mimic-note-dir D:\physionet\mimic-iv-note `
+  --mimic-cxr-dir D:\physionet\mimic-cxr `
+  --mimic-ecg-dir D:\physionet\mimic-iv-ecg
+```
+
+The linker emits `data/restricted/mietic_mimic_enriched_cases.restricted.json`. It is meant for local validation of `clinical_case_v3` enriched cases, including a per-case module availability matrix, linked ED/hospital/ICU/note/CXR/ECG context, time-gated optional objective data, and debrief-only retrospective ground truth. Missing modules are skipped with explicit availability notes. The output must not be imported by the public app.

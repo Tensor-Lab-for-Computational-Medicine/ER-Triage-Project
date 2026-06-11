@@ -1,0 +1,1436 @@
+{
+  "schema_version": "case_objective_matrix_v1",
+  "generated_at": "2026-06-09T22:33:15.880Z",
+  "review_status": "draft_needs_clinician_educator_review",
+  "warning": "This matrix is a draft curriculum scaffold generated from public case metadata and reviewed augmentation. It is not clinical educator validation evidence.",
+  "clinical_reasoning_framework": {
+    "name": "Noticing, Interpreting, Responding, Reflecting",
+    "domains": [
+      "noticing",
+      "interpreting",
+      "responding",
+      "reflecting"
+    ]
+  },
+  "summary": {
+    "total_cases": 23,
+    "mapped_cases": 23,
+    "reviewed_objective_cases": 0,
+    "draft_objective_cases": 23,
+    "objective_counts_by_domain": {
+      "noticing": 23,
+      "interpreting": 23,
+      "responding": 23,
+      "reflecting": 23
+    },
+    "acuity_distribution": {
+      "ESI_2": 10,
+      "ESI_1": 2,
+      "ESI_3": 5,
+      "ESI_4": 4,
+      "ESI_5": 2
+    }
+  },
+  "cases": [
+    {
+      "case_id": "case_002",
+      "public_case_uid": "mietic_validate_public_006",
+      "complaint": "Chest pain, Dyspnea",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "abdominal_pelvic"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 53-year-old patient with Chest pain, Dyspnea, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Pneumonia exacerbating COPD vs. acute coronary syndrome or pulmonary embolism without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 5 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_004",
+      "public_case_uid": "mietic_validate_public_009",
+      "complaint": "Difficulty swallowing, Transfer",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 64-year-old patient with Difficulty swallowing, Transfer, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Post-surgical neck hematoma or abscess concern vs. cocaine-induced hypertensive urgency without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 2 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_005",
+      "public_case_uid": "mietic_validate_public_010",
+      "complaint": "Fever / limb infection concern",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 55-year-old patient with Fever / limb infection concern, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Sepsis secondary to osteomyelitis or wet gangrene in a medically complex patient without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 4 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_006",
+      "public_case_uid": "mietic_validate_public_011",
+      "complaint": "Chest pain",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 55-year-old patient with Chest pain, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Acute coronary syndrome vs. decompensated heart failure or endocarditis without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 3 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_007",
+      "public_case_uid": "mietic_validate_public_012",
+      "complaint": "Fever, Pneumonia, Transfer",
+      "reference_esi": 1,
+      "acuity_band": "critical_resuscitation",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 78-year-old patient with Fever, Pneumonia, Transfer, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 1 reasoning and maintain a provisional differential around Septic shock secondary to severe pneumonia vs. postoperative central nervous system infection without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for immediate stabilization, resuscitation-area placement, and early reassessment; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 5 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_008",
+      "public_case_uid": "mietic_validate_public_015",
+      "complaint": "Dyspnea, Pedal edema",
+      "reference_esi": 3,
+      "acuity_band": "resource_intensive_stable",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "neurologic",
+        "abdominal_pelvic",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 83-year-old patient with Dyspnea, Pedal edema, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 3 reasoning and maintain a provisional differential around Decompensated heart failure with aortic stenosis vs. acute coronary syndrome or chronic catheter-associated UTI without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for resource prediction, diagnostic prioritization, and reassessment before disposition; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 2 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_009",
+      "public_case_uid": "mietic_validate_public_016",
+      "complaint": "RECTAL ABSCESS",
+      "reference_esi": 3,
+      "acuity_band": "resource_intensive_stable",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "abdominal_pelvic"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 46-year-old patient with RECTAL ABSCESS, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 3 reasoning and maintain a provisional differential around Perianal abscess in an immunocompromised patient without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for resource prediction, diagnostic prioritization, and reassessment before disposition; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 3 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_012",
+      "public_case_uid": "mietic_validate_public_022",
+      "complaint": "Lower abdominal pain",
+      "reference_esi": 3,
+      "acuity_band": "resource_intensive_stable",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "abdominal_pelvic"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 50-year-old patient with Lower abdominal pain, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 3 reasoning and maintain a provisional differential around Acute pelvic inflammatory disease, tubo-ovarian abscess, or acute appendicitis without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for resource prediction, diagnostic prioritization, and reassessment before disposition; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 2 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_013",
+      "public_case_uid": "mietic_validate_public_023",
+      "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "neurologic",
+        "injury_wound_musculoskeletal",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 67-year-old patient with ALTERED LEVEL OF CONSCIOUSNESS, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Opioid-induced encephalopathy vs. acute post-fall intracranial injury or post-esophagectomy anastomosis leak without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 4 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_014",
+      "public_case_uid": "mietic_validate_public_024",
+      "complaint": "Acute Pelvic pain",
+      "reference_esi": 3,
+      "acuity_band": "resource_intensive_stable",
+      "tags": [
+        "cardiopulmonary",
+        "abdominal_pelvic",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 68-year-old patient with Acute Pelvic pain, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 3 reasoning and maintain a provisional differential around Acute pelvic inflammatory disease vs. nephrolithiasis or ovarian torsion without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for resource prediction, diagnostic prioritization, and reassessment before disposition; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 2 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_017",
+      "public_case_uid": "mietic_validate_public_029",
+      "complaint": "N/V, Weakness",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "neurologic",
+        "abdominal_pelvic",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 59-year-old patient with N/V, Weakness, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Acute ischemic or hemorrhagic stroke vs. adrenal crisis or uremic encephalopathy without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 7 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_018",
+      "public_case_uid": "mietic_validate_public_030",
+      "complaint": "Finger laceration",
+      "reference_esi": 4,
+      "acuity_band": "single_resource_lower_acuity",
+      "tags": [
+        "cardiopulmonary",
+        "injury_wound_musculoskeletal"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 26-year-old patient with Finger laceration, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 4 reasoning and maintain a provisional differential around Finger laceration requiring closure without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for focused injury assessment, procedure/resource prediction, and discharge safety planning; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 2 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_019",
+      "public_case_uid": "mietic_validate_public_032",
+      "complaint": "Finger laceration",
+      "reference_esi": 4,
+      "acuity_band": "single_resource_lower_acuity",
+      "tags": [
+        "cardiopulmonary",
+        "injury_wound_musculoskeletal"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 59-year-old patient with Finger laceration, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 4 reasoning and maintain a provisional differential around Finger laceration requiring closure without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for focused injury assessment, procedure/resource prediction, and discharge safety planning; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 1 recorded resource signal without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_020",
+      "public_case_uid": "mietic_validate_public_035",
+      "complaint": "R Wrist pain",
+      "reference_esi": 4,
+      "acuity_band": "single_resource_lower_acuity",
+      "tags": [
+        "cardiopulmonary",
+        "injury_wound_musculoskeletal"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 24-year-old patient with R Wrist pain, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 4 reasoning and maintain a provisional differential around Right wrist pain, likely sprain or contusion pending radiograph without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for focused injury assessment, procedure/resource prediction, and discharge safety planning; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 1 recorded resource signal without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_021",
+      "public_case_uid": "mietic_validate_public_036",
+      "complaint": "R Foot swelling",
+      "reference_esi": 3,
+      "acuity_band": "resource_intensive_stable",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "injury_wound_musculoskeletal"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 59-year-old patient with R Foot swelling, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 3 reasoning and maintain a provisional differential around Right foot swelling and pain requiring evaluation for injury, infection, crystal arthritis, or vascular cause without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for resource prediction, diagnostic prioritization, and reassessment before disposition; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 3 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_022",
+      "public_case_uid": "mietic_validate_public_039",
+      "complaint": "Abd pain, Abdominal distention",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "abdominal_pelvic"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 80-year-old patient with Abd pain, Abdominal distention, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Acute mesenteric ischemia vs. gastrointestinal perforation or anticoagulation-related retroperitoneal hemorrhage without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 6 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_023",
+      "public_case_uid": "mietic_validate_public_040",
+      "complaint": "Abd pain, Vomiting, Nausea, Dyspnea",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "abdominal_pelvic"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 71-year-old patient with Abd pain, Vomiting, Nausea, Dyspnea, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Recurrent pulmonary embolism or surgical site complication (e.g. retroperitoneal hematoma/abscess) vs. metastatic progression without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 5 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_024",
+      "public_case_uid": "mietic_validate_public_041",
+      "complaint": "Suture removal",
+      "reference_esi": 5,
+      "acuity_band": "minimal_resource_lower_acuity",
+      "tags": [
+        "cardiopulmonary",
+        "injury_wound_musculoskeletal"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 40-year-old patient with Suture removal, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 5 reasoning and maintain a provisional differential around Routine post-procedural suture removal without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for focused injury assessment, procedure/resource prediction, and discharge safety planning; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 0 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_025",
+      "public_case_uid": "mietic_validate_public_043",
+      "complaint": "Abd pain, Transfer",
+      "reference_esi": 1,
+      "acuity_band": "critical_resuscitation",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "neurologic",
+        "abdominal_pelvic",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 68-year-old patient with Abd pain, Transfer, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 1 reasoning and maintain a provisional differential around Septic shock secondary to intra-abdominal infection (e.g. ischemic bowel, peritonitis) vs. ruptured abdominal aortic aneurysm without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for immediate stabilization, resuscitation-area placement, and early reassessment; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 5 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_027",
+      "public_case_uid": "mietic_validate_public_046",
+      "complaint": "Med refill",
+      "reference_esi": 5,
+      "acuity_band": "minimal_resource_lower_acuity",
+      "tags": [
+        "cardiopulmonary",
+        "medication_access",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 41-year-old patient with Med refill, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 5 reasoning and maintain a provisional differential around Routine medication refill request without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for screening for occult acute illness, medication safety, and outpatient access planning; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 0 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_029",
+      "public_case_uid": "mietic_validate_public_048",
+      "complaint": "L Leg injury, Transfer",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "injury_wound_musculoskeletal",
+        "transfer_or_ambulance_arrival"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 40-year-old patient with L Leg injury, Transfer, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Open left tibia/fibula fracture with associated ankle and foot fractures after fall without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 5 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_030",
+      "public_case_uid": "mietic_validate_public_049",
+      "complaint": "R Foot pain",
+      "reference_esi": 4,
+      "acuity_band": "single_resource_lower_acuity",
+      "tags": [
+        "cardiopulmonary",
+        "injury_wound_musculoskeletal"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 25-year-old patient with R Foot pain, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 4 reasoning and maintain a provisional differential around Right foot pain, likely minor musculoskeletal injury pending focused exam without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for focused injury assessment, procedure/resource prediction, and discharge safety planning; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 1 recorded resource signal without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "case_031",
+      "public_case_uid": "mietic_validate_public_050",
+      "complaint": "ABDOMINAL PAIN",
+      "reference_esi": 2,
+      "acuity_band": "high_risk_emergent",
+      "tags": [
+        "cardiopulmonary",
+        "infection_sepsis",
+        "abdominal_pelvic"
+      ],
+      "review_status": "draft_needs_clinician_educator_review",
+      "source_basis": {
+        "case_augmentation_status": "reviewed",
+        "diagnosis_truth_status": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth_status": "clinician_approved_consult_unavailable_in_public_case",
+        "objective_data_status": "optional_objective_data_unavailable_in_public_case"
+      },
+      "objectives": [
+        {
+          "domain": "noticing",
+          "construct": "cue_recognition",
+          "objective": "Identify triage cues for a 38-year-old patient with ABDOMINAL PAIN, including vital-sign risk, arrival mode, pain/severity, and complaint-specific red flags.",
+          "observable_actions": [
+            "asks focused history questions across chief concern, timeline, severity, red flags, medications/allergies, and relevant history",
+            "reviews objective vitals before committing to acuity",
+            "selects focused exam systems aligned with complaint and risk"
+          ]
+        },
+        {
+          "domain": "interpreting",
+          "construct": "diagnostic_and_acuity_reasoning",
+          "objective": "Assign ESI 2 reasoning and maintain a provisional differential around Perianal Crohn's flare with fistulizing abscess without treating draft teaching inference as source-record diagnostic truth.",
+          "observable_actions": [
+            "links ESI choice to danger-zone vitals, expected resources, and high-risk features",
+            "states a working diagnosis and at least one alternative",
+            "documents evidence that supports and limits the working diagnosis"
+          ]
+        },
+        {
+          "domain": "responding",
+          "construct": "initial_management_and_consult_judgment",
+          "objective": "Choose initial ED actions for high-risk recognition, monitored placement, and early clinician evaluation; explain whether immediate consult input is needed while recognizing public demo consult truth is source-limited.",
+          "observable_actions": [
+            "selects placement and escalation actions appropriate to acuity",
+            "anticipates approximately 2 recorded resource signals without revealing hidden outcomes during active play",
+            "documents rationale for consult/no-consult and what change would trigger escalation"
+          ]
+        },
+        {
+          "domain": "reflecting",
+          "construct": "reassessment_and_documentation",
+          "objective": "Close the loop with reassessment targets and a SOAP note that distinguishes observed case evidence, formative inference, and uncertainty.",
+          "observable_actions": [
+            "selects reassessment targets connected to case risk",
+            "writes SOAP assessment and plan with case-specific evidence",
+            "reviews debrief provenance, safety notes, and next-case focus"
+          ]
+        }
+      ]
+    }
+  ]
+}

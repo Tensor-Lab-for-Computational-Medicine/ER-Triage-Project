@@ -1,0 +1,115 @@
+{
+  "schema_version": "claim_reference_gap_review_status_v1",
+  "generated_at": "2026-06-09T22:33:34.811Z",
+  "review_status": "claim_reference_gap_review_inputs_pending",
+  "warning": "This status validates completed claim-reference gap review submissions. It does not add quote-backed evidence, approve generated evidence, update claim entailment, or authorize national learner-facing feedback.",
+  "source_contract": {
+    "claim_reference_gap_review_packets_schema": "claim_reference_gap_review_packets_v1",
+    "claim_reference_gap_review_packets_path": "docs/claim_reference_gap_review_packets.json",
+    "feedback_claim_reference_alignment_report_schema": "feedback_claim_reference_alignment_report_v1",
+    "feedback_claim_entailment_adjudication_status_schema": "feedback_claim_entailment_adjudication_status_v1",
+    "completed_review_file_present": false,
+    "completed_review_file_path": "docs/claim_reference_gap_reviews.json",
+    "required_completed_review_schema": "claim_reference_gap_reviews_v1",
+    "allowed_evidence_resolutions": [
+      "add_quote_backed_public_evidence",
+      "approve_clinician_local_standard",
+      "keep_blocked",
+      "rejected",
+      "retire_or_reword_claim_set"
+    ],
+    "allowed_release_decisions": [
+      "approved_for_local_formative",
+      "approved_for_national_feedback",
+      "approved_for_supervised_pilot",
+      "blocked"
+    ],
+    "restricted_keys_blocked": [
+      "ai_draft_text",
+      "csn",
+      "encounter_id",
+      "free_text",
+      "hadm_id",
+      "learner_email",
+      "learner_name",
+      "message_text",
+      "mrn",
+      "patient_id",
+      "patient_name",
+      "raw_case_text",
+      "raw_learner_text",
+      "raw_patient_text",
+      "raw_rationale",
+      "soap_text",
+      "stay_id",
+      "student_email",
+      "student_id",
+      "student_name",
+      "subject_id",
+      "transcript"
+    ]
+  },
+  "summary": {
+    "review_file_present": false,
+    "total_gap_packets": 1,
+    "submitted_gap_reviews": 0,
+    "valid_gap_reviews": 0,
+    "cleared_gap_packets": 0,
+    "national_feedback_approved_gap_packets": 0,
+    "pending_gap_reviews": 1,
+    "invalid_review_input_count": 0,
+    "unmatched_submitted_reviews": 0,
+    "generated_needs_review_candidate_chunks": 160,
+    "alignment_domain_specific_release_ready": false,
+    "claim_reference_alignment_release_ready": false,
+    "claim_entailment_ready_for_national_release": false,
+    "ready_for_national_feedback_release_from_reviews": false,
+    "evidence_resolution_counts": {
+      "not_submitted": 1
+    },
+    "domain_counts": {
+      "esi": 1
+    },
+    "required_reviewer_role_counts": {
+      "emergency_clinician_or_triage_expert": 1,
+      "medical_librarian_or_evidence_reviewer": 1,
+      "simulation_educator": 1
+    }
+  },
+  "claim_reference_gap_review_status": [
+    {
+      "gap_packet_id": "claim_reference_gap_domain_esi_claim_entailment",
+      "claim_packet_id": "domain_esi_claim_entailment",
+      "domain_key": "esi",
+      "evidence_resolution": "not_submitted",
+      "national_feedback_release_decision": "blocked",
+      "valid": false,
+      "gap_cleared": false,
+      "national_feedback_approved": false,
+      "issues": [
+        "No completed claim-reference gap review submitted."
+      ],
+      "priority": "P0_named_standard_feedback_support_gap",
+      "required_reviewer_roles": [
+        "emergency_clinician_or_triage_expert",
+        "medical_librarian_or_evidence_reviewer",
+        "simulation_educator"
+      ],
+      "generated_needs_review_candidate_chunks": 160,
+      "domain_specific_quote_backed_references": 0,
+      "required_domain_specific_quote_backed_references": 2,
+      "issue_count": 1
+    }
+  ],
+  "unmatched_submitted_reviews": [],
+  "readiness_effect": {
+    "open_evidence_grounding_gate_can_pass_from_current_gap_reviews": false,
+    "named_standard_feedback_remains_blocked_without_domain_specific_support": true,
+    "generated_candidates_remain_quarantined_without_valid_review": true,
+    "national_feedback_requires_claim_entailment_readiness": true,
+    "required_reviewer_role_coverage_enforced": true,
+    "restricted_data_leakage_block_enforced": true,
+    "invalid_review_input_count": 0
+  },
+  "issues": []
+}

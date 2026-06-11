@@ -1,0 +1,2826 @@
+{
+  "schema_version": "feedback_claim_entailment_review_packets_v1",
+  "generated_at": "2026-06-09T22:33:33.675Z",
+  "review_status": "draft_claim_entailment_packets_need_clinician_educator_review",
+  "warning": "These packets organize claim-review work. They do not constitute clinical approval, national release approval, or proof that feedback improves learner performance.",
+  "source_contract": {
+    "feedback_traceability_matrix_schema": "feedback_traceability_matrix_v1",
+    "feedback_traceability_matrix_path": "docs/feedback_traceability_matrix.json",
+    "completed_review_file_present": false,
+    "completed_review_file_path": "docs/learner_facing_claim_entailment_reviews.json",
+    "generated_needs_review_evidence_allowed_for_learner_feedback": false
+  },
+  "summary": {
+    "total_claim_sets": 10,
+    "total_case_domain_rows": 230,
+    "case_count": 23,
+    "source_limited_claim_sets": 3,
+    "source_limited_case_domain_rows": 69,
+    "case_grounded_numeric_claim_sets": 5,
+    "rubric_grounded_claim_sets": 2,
+    "claim_sets_requiring_clinician_review": 7,
+    "claim_sets_requiring_educator_review": 10,
+    "claim_sets_requiring_evidence_review": 4,
+    "completed_review_file_present": false,
+    "reviewed_claim_sets": 0,
+    "nationally_approved_claim_sets": 0,
+    "claim_sets_ready_for_national_release": 0,
+    "case_truth_adjudication_ready_cases": 0,
+    "evidence_adjudication_approved_chunks": 0,
+    "generated_needs_review_chunks": 2400,
+    "quote_backed_chunks_available": 89,
+    "national_release_eligible_cases": 0,
+    "ready_for_national_feedback_release": false
+  },
+  "review_submission_template": {
+    "schema_version": "learner_facing_claim_entailment_reviews_v1",
+    "claim_reviews": [
+      {
+        "packet_id": "domain_esi_claim_entailment",
+        "domain_key": "esi",
+        "review_status": "approved_for_national_release | approved_formative_only | revisions_required | rejected",
+        "reviewer_roles": [
+          "emergency_clinician",
+          "simulation_educator"
+        ],
+        "reviewed_by": [
+          {
+            "name": "",
+            "role": "",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "reviewed_at": "",
+        "case_ids_reviewed": [],
+        "claim_scope_reviewed": [
+          "scoring behavior",
+          "feedback messages",
+          "clinical safety language",
+          "evidence citations"
+        ],
+        "evidence_basis": [
+          "case_truth_adjudication",
+          "feedback_traceability_matrix",
+          "quote_backed_open_evidence_or_clinician_approved_standard"
+        ],
+        "approval_limitations": "",
+        "required_changes": [],
+        "signature_attestation": ""
+      }
+    ]
+  },
+  "claim_review_packets": [
+    {
+      "id": "domain_esi_claim_entailment",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "case_grounded_pending_clinician_adjudication": 23
+        },
+        "cases_missing_required_evidence": 0,
+        "source_limited_formative_cases": 0,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "reference_esi",
+          "resource_signals",
+          "vitals"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "score thresholds and partial-credit logic",
+        "case truth and objective signal alignment"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Final ESI accuracy feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_safety_claim_entailment",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "case_grounded_pending_clinician_adjudication": 23
+        },
+        "cases_missing_required_evidence": 0,
+        "source_limited_formative_cases": 0,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "vitals"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "score thresholds and partial-credit logic",
+        "case truth and objective signal alignment"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Objective safety reasoning feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_interview_claim_entailment",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "case_grounded_pending_clinician_adjudication": 23
+        },
+        "cases_missing_required_evidence": 0,
+        "source_limited_formative_cases": 0,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "chief_complaint",
+          "triage_history"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "score thresholds and partial-credit logic",
+        "case truth and objective signal alignment"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Interview coverage feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_focused_exam_claim_entailment",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "case_grounded_pending_clinician_adjudication": 23
+        },
+        "cases_missing_required_evidence": 0,
+        "source_limited_formative_cases": 0,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "chief_complaint",
+          "vitals"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "score thresholds and partial-credit logic",
+        "case truth and objective signal alignment"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Focused exam selection feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_diagnosis_claim_entailment",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "claim_set_type": "source_limited_formative_claim_set",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "source_limited_formative_only": 23
+        },
+        "cases_missing_required_evidence": 23,
+        "source_limited_formative_cases": 23,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "source_record_diagnosis"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "source_record_diagnosis"
+            ]
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "formative-only limitation text",
+        "criteria for promotion to numeric scoring after truth adjudication"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Case truth adjudication resolving missing source-record diagnosis, referral, or reassessment fields before numeric use.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Working diagnosis feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        },
+        {
+          "id": "truth_gap_preserved",
+          "criterion": "The domain remains formative-only until missing source-record or clinician-adjudicated truth fields are completed."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_referral_claim_entailment",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "claim_set_type": "source_limited_formative_claim_set",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "source_limited_formative_only": 23
+        },
+        "cases_missing_required_evidence": 23,
+        "source_limited_formative_cases": 23,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "clinician_approved_referral"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "clinician_approved_referral"
+            ]
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "formative-only limitation text",
+        "criteria for promotion to numeric scoring after truth adjudication"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Case truth adjudication resolving missing source-record diagnosis, referral, or reassessment fields before numeric use.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Consult judgment feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        },
+        {
+          "id": "truth_gap_preserved",
+          "criterion": "The domain remains formative-only until missing source-record or clinician-adjudicated truth fields are completed."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_escalation_claim_entailment",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "claim_set_type": "case_grounded_numeric_feedback_claim_set",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "case_grounded_pending_clinician_adjudication": 23
+        },
+        "cases_missing_required_evidence": 0,
+        "source_limited_formative_cases": 0,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "vitals",
+          "interventions",
+          "outcomes",
+          "reference_esi"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "case_grounded_pending_clinician_adjudication",
+            "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+            "missing_required_case_evidence": []
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "score thresholds and partial-credit logic",
+        "case truth and objective signal alignment"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Initial management priorities feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_reassessment_claim_entailment",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "claim_set_type": "source_limited_formative_claim_set",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "source_limited_formative_only": 23
+        },
+        "cases_missing_required_evidence": 23,
+        "source_limited_formative_cases": 23,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "vitals",
+          "disposition",
+          "reassessment_triggers"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "source_limited_formative_only",
+            "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+            "missing_required_case_evidence": [
+              "reassessment_triggers"
+            ]
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "formative-only limitation text",
+        "criteria for promotion to numeric scoring after truth adjudication"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Case truth adjudication resolving missing source-record diagnosis, referral, or reassessment fields before numeric use.",
+        "Emergency clinician calibration record for scoring thresholds and unsafe omission handling.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all Reassessment targets feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        },
+        {
+          "id": "truth_gap_preserved",
+          "criterion": "The domain remains formative-only until missing source-record or clinician-adjudicated truth fields are completed."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_soap_claim_entailment",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "claim_set_type": "rubric_grounded_documentation_claim_set",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "rubric_grounded_requires_faculty_calibration": 23
+        },
+        "cases_missing_required_evidence": 0,
+        "source_limited_formative_cases": 0,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "chief_complaint",
+          "vitals",
+          "learner_actions"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "documentation rubric anchors",
+        "minimum evidence-use expectations",
+        "faculty calibration plan"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Faculty calibration record for the rubric anchors before summative assessment use.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all SOAP note feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        },
+        {
+          "id": "faculty_rubric_calibrated",
+          "criterion": "At least two faculty reviewers calibrate rubric anchors against representative learner artifacts before summative use."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    },
+    {
+      "id": "domain_sbar_claim_entailment",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "claim_set_type": "rubric_grounded_documentation_claim_set",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "review_status": "not_reviewed",
+      "reviewed_by": [],
+      "reviewed_at": "",
+      "cases": 23,
+      "case_ids": [
+        "case_002",
+        "case_004",
+        "case_005",
+        "case_006",
+        "case_007",
+        "case_008",
+        "case_009",
+        "case_012",
+        "case_013",
+        "case_014",
+        "case_017",
+        "case_018",
+        "case_019",
+        "case_020",
+        "case_021",
+        "case_022",
+        "case_023",
+        "case_024",
+        "case_025",
+        "case_027",
+        "case_029",
+        "case_030",
+        "case_031"
+      ],
+      "representative_case_summaries": [
+        {
+          "case_id": "case_002",
+          "acuity": 2,
+          "complaint": "Chest pain, Dyspnea",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_004",
+          "acuity": 2,
+          "complaint": "Difficulty swallowing, Transfer",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_005",
+          "acuity": 2,
+          "complaint": "Fever / limb infection concern",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_006",
+          "acuity": 2,
+          "complaint": "Chest pain",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_007",
+          "acuity": 1,
+          "complaint": "Fever, Pneumonia, Transfer",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_008",
+          "acuity": 3,
+          "complaint": "Dyspnea, Pedal edema",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_009",
+          "acuity": 3,
+          "complaint": "RECTAL ABSCESS",
+          "age_band": "adult_40_64",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_012",
+          "acuity": 3,
+          "complaint": "Lower abdominal pain",
+          "age_band": "adult_40_64",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_013",
+          "acuity": 2,
+          "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+          "age_band": "older_adult_65_plus",
+          "sex": "M",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        },
+        {
+          "case_id": "case_014",
+          "acuity": 3,
+          "complaint": "Acute Pelvic pain",
+          "age_band": "older_adult_65_plus",
+          "sex": "F",
+          "vitals_present": true,
+          "source_basis": "",
+          "review_status": "reviewed"
+        }
+      ],
+      "traceability": {
+        "status_counts": {
+          "rubric_grounded_requires_faculty_calibration": 23
+        },
+        "cases_missing_required_evidence": 0,
+        "source_limited_formative_cases": 0,
+        "numeric_cases_missing_required_evidence": 0,
+        "required_case_evidence": [
+          "handoff_trigger",
+          "learner_actions",
+          "disposition"
+        ],
+        "representative_rows": [
+          {
+            "case_id": "case_002",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_004",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_005",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_006",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_007",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_008",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_009",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_012",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_013",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          },
+          {
+            "case_id": "case_014",
+            "traceability_status": "rubric_grounded_requires_faculty_calibration",
+            "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+            "missing_required_case_evidence": []
+          }
+        ]
+      },
+      "review_scope": [
+        "learner-facing feedback messages",
+        "numeric or formative scoring behavior",
+        "unsafe omission and escalation language",
+        "case-source traceability rows",
+        "documentation rubric anchors",
+        "minimum evidence-use expectations",
+        "faculty calibration plan"
+      ],
+      "required_entailment_evidence": [
+        "Feedback traceability rows for every current public case in this domain.",
+        "Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard.",
+        "Equity and learner-safety check for stereotype-sensitive or overconfident wording.",
+        "Faculty calibration record for the rubric anchors before summative assessment use.",
+        "Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts."
+      ],
+      "review_questions": [
+        "Are all SBAR handoff feedback claims supported by the case facts, quote-backed open evidence, or a clinician-approved local standard?",
+        "Could the current wording overstate certainty, imply a diagnosis that is not source-record truth, or recommend unsafe action?",
+        "Is the scoring behavior appropriate for formative practice, summative assessment, or neither at national scale?",
+        "What exact changes are required before this domain can be released to medical students outside a supervised pilot?"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "case_fact_entailment",
+          "criterion": "Every feedback claim can be traced to case-source facts, adjudicated case truth, quote-backed evidence, or a named local standard."
+        },
+        {
+          "id": "no_unreviewed_generated_evidence",
+          "criterion": "No generated-needs-review evidence chunk is used as learner-facing support."
+        },
+        {
+          "id": "safety_language_calibrated",
+          "criterion": "High-risk escalation, stabilization, and unsafe omission feedback is clinically calibrated and does not overstate certainty."
+        },
+        {
+          "id": "equity_language_reviewed",
+          "criterion": "Feedback avoids stereotype-driven reasoning and flags access, communication, and demographic limitations when relevant."
+        },
+        {
+          "id": "faculty_rubric_calibrated",
+          "criterion": "At least two faculty reviewers calibrate rubric anchors against representative learner artifacts before summative use."
+        }
+      ],
+      "prohibited_approval_conditions": [
+        "Do not approve national release if generated-needs-review evidence is used as learner-facing support.",
+        "Do not approve numeric diagnosis, consult, or reassessment scoring while source truth remains unavailable.",
+        "Do not approve if the domain relies on hidden local assumptions that are not documented for participating schools.",
+        "Do not approve if reviewer identity, role, review date, reviewed case scope, or required changes are missing."
+      ]
+    }
+  ],
+  "release_blockers": [
+    {
+      "id": "claim_entailment_reviews_missing",
+      "status": "blocked",
+      "evidence": {
+        "reviewed_claim_sets": 0,
+        "total_claim_sets": 10
+      },
+      "required_to_clear": "Complete every packet in docs/learner_facing_claim_entailment_reviews.json with clinician and educator reviewer attestations."
+    },
+    {
+      "id": "source_limited_domains_not_truth_adjudicated",
+      "status": "blocked",
+      "evidence": {
+        "source_limited_claim_sets": 3,
+        "source_limited_case_domain_rows": 69
+      },
+      "required_to_clear": "Resolve diagnosis, consult/referral, and reassessment truth gaps before promoting those domains from formative to numeric scoring."
+    },
+    {
+      "id": "evidence_backlog_blocks_national_release",
+      "status": "blocked",
+      "evidence": {
+        "generated_needs_review_chunks": 2400,
+        "evidence_adjudication_approved_chunks": 0
+      },
+      "required_to_clear": "Replace, remove, or adjudicate generated-needs-review evidence before using it as learner-facing support."
+    }
+  ]
+}

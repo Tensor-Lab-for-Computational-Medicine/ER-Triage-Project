@@ -1,0 +1,108 @@
+{
+  "schema_version": "feedback_integrity_runtime_report_v1",
+  "generated_at": "2026-06-09T22:33:37.202Z",
+  "review_status": "feedback_integrity_runtime_passed_manual_review_required",
+  "warning": "This runtime report exercises the production build in Chromium. It verifies deterministic feedback isolation and source-limited labels, but it does not replace clinician review of the feedback content.",
+  "route_contract": {
+    "exercised_route": "/?legacy=1",
+    "production_build_dist": "frontend/dist",
+    "optional_ai_external_request_expected_before_button_click": false
+  },
+  "summary": {
+    "total_runtime_probes": 7,
+    "passed_runtime_probes": 7,
+    "failed_runtime_probes": 0,
+    "all_runtime_probes_passed": true,
+    "openrouter_calls_before_optional_ai": 0,
+    "source_limited_diagnosis_label_present": true,
+    "source_limited_consult_label_present": true,
+    "source_limited_domains_rendered_formative_only": true,
+    "deterministic_score_ledger_present": true,
+    "optional_ai_draft_separate_surface": true
+  },
+  "probes": [
+    {
+      "id": "no_ai_debrief_auto_request",
+      "status": "pass",
+      "evidence": {
+        "openrouter_calls_before_optional_ai": 0
+      }
+    },
+    {
+      "id": "source_limited_diagnosis_runtime_label",
+      "status": "pass",
+      "evidence": {
+        "diagnosis_review": "DIAGNOSIS Working Diagnosis Review Your diagnosis: Undifferentiated ED presentation Your differential: Serious time-sensitive diagnosis, Benign self-limited cause Reference context: Acute pelvic inflammatory disease vs. nephrolithiasis or ovarian torsion Evidence status: Source-record diagnosis unav"
+      }
+    },
+    {
+      "id": "source_limited_consult_runtime_label",
+      "status": "pass",
+      "evidence": {
+        "consult_review": "CONSULT Consult Judgment Review Your decision: No immediate consult. Reference context: No clinician-approved specialty reference for this case. Evidence status: Clinician-approved consult reference unavailable; formative consult review Scoring basis: Unscored formative consult reasoning Safety note"
+      }
+    },
+    {
+      "id": "source_limited_domains_marked_formative",
+      "status": "pass",
+      "evidence": {
+        "formative_label_present": true,
+        "formative_score_rows": [
+          "Working diagnosis\nDiagnosis reasoning is formative only because public demo cases do not contain a source-record diagnosis.\nFormative only; excluded from numeric score until case truth is reviewed.\nFormative 10 / 10",
+          "Reassessment targets\nReassessment reasoning is formative only because this case lacks clinician-adjudicated reassessment triggers or optional objective follow-up data.\nFormative only; excluded from numeric score until case truth is reviewed.\nFormative 3 / 10"
+        ]
+      }
+    },
+    {
+      "id": "deterministic_score_ledger_present",
+      "status": "pass",
+      "evidence": {
+        "score_domain_count": 8,
+        "score_domain_sample": [
+          "Final ESI accuracy\nFinal ESI matched the reference acuity.\n30 / 30",
+          "Objective safety reasoning\nFinal rationale incorporated the vital-sign review or no danger-zone vital signs were present.\n15 / 15",
+          "Interview coverage\nFocused question set covered the major triage domains.\n11 / 15",
+          "Focused exam selection\nFocused exam covered some priorities but missed case-specific systems.\n4 / 10",
+          "Working diagnosis\nDiagnosis reasoning is formative only because public demo cases do not contain a source-record diagnosis.\nFormative only; excluded from numeric score until case truth is reviewed.\nFormative 10 / 10",
+          "Initial management priorities\nOne or more immediate safety or placement priorities were not selected.\n0 / 20"
+        ]
+      }
+    },
+    {
+      "id": "optional_ai_draft_separate_surface",
+      "status": "pass",
+      "evidence": {
+        "ai_debrief_draft_label_present": true,
+        "ai_scoring_separation_label_present": true,
+        "ai_only_draft_absent_before_optional_request": true
+      }
+    },
+    {
+      "id": "source_limited_reassessment_runtime_label",
+      "status": "pass",
+      "evidence": {
+        "reassessment_review_present": true,
+        "source_limited_formative_label_present": true
+      }
+    }
+  ],
+  "rendered_evidence": {
+    "body_text_sample": "ED Clinical Workflow Simulator Data: Public demo Tools 68yo F AMBULANCE Acute pelvic pain Debrief Student ESI: 3 Heart Rate: 65 bpm Blood Pressure: 143/72 mmHg Respiratory Rate: 16 breaths/min Oxygen Saturation: 94% 00:01 ✓ Encounter ✓ Impression ✓ Plan / Consults ✓ Reassessment ● Debrief DEBRIEF Clinical Judgment Debrief Correct triage WHAT HAPPENED Matched Reference Acuity: ESI 3 Critical missed action: Flag severe pain for reassessment. Consult judgment is recorded but unscored because this case has no clinician-approved specialty reference. WHAT TO IMPROVE Practice matching safety actions to case evidence. Treat severe pain as an ED resource and reassess response after intervention. For severe pelvic pain, stable blood pressure does not replace assessment for peritoneal, pregnancy-rela",
+    "score_domain_count": 8,
+    "score_domain_samples": [
+      "Final ESI accuracy\nFinal ESI matched the reference acuity.\n30 / 30",
+      "Objective safety reasoning\nFinal rationale incorporated the vital-sign review or no danger-zone vital signs were present.\n15 / 15",
+      "Interview coverage\nFocused question set covered the major triage domains.\n11 / 15",
+      "Focused exam selection\nFocused exam covered some priorities but missed case-specific systems.\n4 / 10",
+      "Working diagnosis\nDiagnosis reasoning is formative only because public demo cases do not contain a source-record diagnosis.\nFormative only; excluded from numeric score until case truth is reviewed.\nFormative 10 / 10",
+      "Initial management priorities\nOne or more immediate safety or placement priorities were not selected.\n0 / 20",
+      "Reassessment targets\nReassessment reasoning is formative only because this case lacks clinician-adjudicated reassessment triggers or optional objective follow-up data.\nFormative only; excluded from numeric score until case truth is reviewed.\nFormative 3 / 10",
+      "SOAP note\nSOAP note includes the main structure but needs tighter source use or prioritization.\n16 / 20"
+    ]
+  },
+  "next_actions": [
+    "Keep optional AI debrief requests user-triggered and separate from deterministic scoring.",
+    "Keep source-limited diagnosis, consult, and reassessment labels visible until case truth adjudication is complete.",
+    "Repeat this runtime probe after any feedback UI, scoring, or AI draft workflow change."
+  ]
+}

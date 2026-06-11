@@ -1,0 +1,388 @@
+{
+  "schema_version": "source_freshness_adjudication_status_v1",
+  "generated_at": "2026-06-09T22:33:53.367Z",
+  "review_status": "source_freshness_review_inputs_pending",
+  "warning": "This status validates completed source-freshness review submissions. It does not replace source metadata updates, evidence chunk adjudication, or clinician approval of case-specific feedback.",
+  "source_contract": {
+    "source_freshness_report_schema": "source_freshness_report_v1",
+    "source_freshness_review_packets_schema": "source_freshness_review_packets_v1",
+    "completed_review_file_present": false,
+    "completed_review_file_path": "docs/source_freshness_reviews.json",
+    "required_completed_review_schema": "source_freshness_reviews_v1",
+    "local_review_date_may_be_added_only_after_valid_completed_review": true
+  },
+  "summary": {
+    "review_file_present": false,
+    "total_packets": 16,
+    "submitted_source_reviews": 0,
+    "valid_source_reviews": 0,
+    "nationally_approved_source_reviews": 0,
+    "invalid_review_input_count": 0,
+    "packets_missing_review": 16,
+    "source_freshness_report_release_ready": false,
+    "learner_facing_quote_backed_sources_release_blocked": 16,
+    "stale_learner_facing_quote_backed_sources": 0,
+    "ready_for_national_source_freshness_release": false,
+    "review_outcome_counts": {
+      "not_reviewed": 16
+    },
+    "source_status_counts": {
+      "refresh_due_now": 2,
+      "local_review_date_missing": 14
+    }
+  },
+  "review_submission_template": {
+    "schema_version": "source_freshness_reviews_v1",
+    "source_reviews": [
+      {
+        "source_id": "aap_febrile_infant",
+        "review_outcome": "current_source_confirmed_for_national_feedback | current_source_confirmed_for_formative_feedback | replace_with_newer_public_source | retire_or_quarantine_affected_chunks | revise_claims_or_chunk_topic_mapping | escalate_for_specialty_adjudication | rejected",
+        "reviewed_by": [
+          {
+            "name": "",
+            "role": "",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "reviewed_at": "",
+        "source_version_or_access_date_reviewed": "",
+        "newest_source_confirmed": false,
+        "replacement_source_id_or_url": "",
+        "affected_chunk_action": "keep | revise | replace | retire | escalate",
+        "learner_facing_use": "blocked | formative_only | approved_for_national_feedback",
+        "required_changes": [],
+        "signature_attestation": ""
+      }
+    ]
+  },
+  "source_review_status": [
+    {
+      "packet_id": "source_freshness_aap_febrile_infant",
+      "source_id": "aap_febrile_infant",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P1_refresh_due_now",
+      "source_status": "refresh_due_now",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_aha_acc_chest_pain_slide_set_2021",
+      "source_id": "aha_acc_chest_pain_slide_set_2021",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P1_refresh_due_now",
+      "source_status": "refresh_due_now",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_acep_severe_agitation",
+      "source_id": "acep_severe_agitation",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_asa_stroke_diagnosis_2023",
+      "source_id": "asa_stroke_diagnosis_2023",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_ada_hyperglycemic_crises_2024",
+      "source_id": "ada_hyperglycemic_crises_2024",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_cdc_overdose_response_2024",
+      "source_id": "cdc_overdose_response_2024",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_ccjm_hyperglycemic_crises_2025",
+      "source_id": "ccjm_hyperglycemic_crises_2025",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_cdc_mtbi_return_activities_2025",
+      "source_id": "cdc_mtbi_return_activities_2025",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_cdc_mtbi_symptoms_2025",
+      "source_id": "cdc_mtbi_symptoms_2025",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_samhsa_opioid_overdose_reversal_2025",
+      "source_id": "samhsa_opioid_overdose_reversal_2025",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_acog_ectopic_pregnancy",
+      "source_id": "acog_ectopic_pregnancy",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_acr_head_trauma",
+      "source_id": "acr_head_trauma",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_asa_quick_stroke_treatment_2026",
+      "source_id": "asa_quick_stroke_treatment_2026",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_asa_stroke_symptoms_2026",
+      "source_id": "asa_stroke_symptoms_2026",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_sccm_ssc_adult_2026",
+      "source_id": "sccm_ssc_adult_2026",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "source_freshness_sccm_ssc_recommendations_2026",
+      "source_id": "sccm_ssc_recommendations_2026",
+      "review_outcome": "not_reviewed",
+      "learner_facing_use": "blocked",
+      "affected_chunk_action": "missing",
+      "valid": false,
+      "issues": [
+        "No completed source freshness review submitted."
+      ],
+      "packet_priority": "P2_local_review_required",
+      "source_status": "local_review_date_missing",
+      "release_blocker_from_freshness_report": true,
+      "required_roles": [
+        "medical_librarian_or_evidence_reviewer",
+        "emergency_clinician",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    }
+  ],
+  "issues": [],
+  "readiness_effect": {
+    "source_freshness_gate_can_pass_from_current_reviews": false,
+    "missing_source_reviews_block_release": true,
+    "invalid_review_inputs_block_release": false,
+    "freshness_metadata_or_replacement_updates_still_required": true
+  }
+}

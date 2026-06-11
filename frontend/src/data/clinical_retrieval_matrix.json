@@ -1,0 +1,110 @@
+[
+  {
+    "label": "Sepsis Shock",
+    "query": "septic shock management abnormal vital signs lactate fluids vasopressors source control",
+    "task": "management",
+    "expected_tags": ["septic_shock_concern", "septic_shock_resuscitation"],
+    "expected_facets": ["initial_management", "medication_procedure", "diagnostic_strategy"],
+    "allowed_source_ids": ["sccm_ssc_adult_2026", "sccm_ssc_recommendations_2026", "aha_adult_acls_2025"],
+    "forbidden_topic_tags": ["hemorrhagic_shock"],
+    "forbidden_terms": ["Hemorrhagic shock"],
+    "min_unique_sources": 2,
+    "max_per_source": 5
+  },
+  {
+    "label": "Chest Pain ACS",
+    "query": "chest pain possible ACS management ECG troponin antiplatelet monitoring disposition",
+    "task": "management",
+    "expected_tags": ["chest_pain_possible_acs", "non_st_elevation_acs", "initial_ecg_for_chest_pain", "high_sensitivity_troponin_pathway"],
+    "expected_facets": ["initial_management", "medication_procedure", "diagnostic_strategy"],
+    "allowed_source_ids": ["aha_acc_chest_pain_2021", "aha_acc_chest_pain_slide_set_2021", "acep_nste_acs", "acep_stemi_reperfusion", "saem_grace_recurrent_chest_pain"],
+    "forbidden_topic_tags": ["pulmonary_embolism_concern", "deep_vein_thrombosis_concern", "acute_heart_failure", "heart_failure_admission_risk"],
+    "forbidden_terms": ["red flags:", "neurovascular or wound assessment"],
+    "min_unique_sources": 1,
+    "max_per_source": 5
+  },
+  {
+    "label": "Opioid Overdose",
+    "query": "opioid overdose respiratory depression naloxone recurrence observation",
+    "task": "management",
+    "expected_tags": ["opioid_overdose", "naloxone_response_and_recurrence"],
+    "expected_facets": ["initial_management", "medication_procedure", "diagnostic_strategy"],
+    "allowed_source_ids": ["cdc_lifesaving_naloxone_2025", "cdc_overdose_response_2024", "samhsa_overdose_response_toolkit_2025", "acmt_aact_opioid_exposure"],
+    "forbidden_topic_tags": ["opioid_prescribing_at_discharge"],
+    "forbidden_terms": ["prescribing of opioids for adult patients"],
+    "min_unique_sources": 1,
+    "max_per_source": 5
+  },
+  {
+    "label": "Pediatric Fever",
+    "query": "febrile infant 8 to 21 days serious bacterial infection risk management",
+    "task": "triage",
+    "expected_tags": ["febrile_infant_8_to_21_days"],
+    "expected_facets": ["recognition", "red_flags", "focused_assessment"],
+    "allowed_source_ids": ["aap_febrile_infant"],
+    "forbidden_topic_tags": ["pediatric_fever_older_than_60_days"],
+    "forbidden_terms": ["older than 60 days"],
+    "min_unique_sources": 1,
+    "max_per_source": 5
+  },
+  {
+    "label": "Stroke Thrombolysis",
+    "query": "acute stroke thrombolytic eligibility discussion time window contraindications",
+    "task": "management",
+    "expected_tags": ["thrombolytic_eligibility_discussion"],
+    "expected_facets": ["initial_management", "medication_procedure", "diagnostic_strategy"],
+    "allowed_source_ids": ["american_stroke_acute_toolkit", "asa_quick_stroke_treatment_2026", "asa_stroke_diagnosis_2023", "asa_stroke_symptoms_2026", "acep_acute_ischemic_stroke"],
+    "forbidden_topic_tags": [],
+    "forbidden_terms": ["discharge safety"],
+    "min_unique_sources": 1,
+    "max_per_source": 5
+  },
+  {
+    "label": "Ectopic Pregnancy",
+    "query": "ectopic pregnancy rupture concern pelvic pain bleeding unstable emergency management",
+    "task": "diagnosis",
+    "expected_tags": ["ectopic_pregnancy_rupture_concern"],
+    "expected_facets": ["diagnostic_strategy", "focused_assessment", "recognition"],
+    "allowed_source_ids": ["acep_early_pregnancy_2016", "acog_ectopic_pregnancy"],
+    "forbidden_topic_tags": ["emergency_contraception"],
+    "forbidden_terms": ["emergency contraception"],
+    "min_unique_sources": 1,
+    "max_per_source": 5
+  },
+  {
+    "label": "Head Trauma CT",
+    "query": "minor head injury CT decision anticoagulated vomiting neurologic symptoms",
+    "task": "diagnosis",
+    "expected_tags": ["minor_head_injury_ct_decision"],
+    "expected_facets": ["diagnostic_strategy", "focused_assessment", "recognition"],
+    "allowed_source_ids": ["acr_head_trauma", "acep_mtbi_2023"],
+    "forbidden_topic_tags": ["abdominal_pain_imaging"],
+    "forbidden_terms": ["abdominal pain"],
+    "min_unique_sources": 1,
+    "max_per_source": 5
+  },
+  {
+    "label": "Agitation Restraints",
+    "query": "severe agitation restraints safety medication strategy emergency department",
+    "task": "management",
+    "expected_tags": ["use_of_restraints", "severe_agitation_medication_strategy"],
+    "expected_facets": ["initial_management", "medication_procedure", "diagnostic_strategy"],
+    "allowed_source_ids": ["acep_restraints", "acep_severe_agitation", "acep_adult_psych"],
+    "forbidden_topic_tags": ["opioid_prescribing_at_discharge"],
+    "forbidden_terms": ["opioid prescribing"],
+    "min_unique_sources": 2,
+    "max_per_source": 5
+  },
+  {
+    "label": "DKA HHS",
+    "query": "DKA or HHS electrolyte emergency fluids insulin potassium reassessment",
+    "task": "management",
+    "expected_tags": ["dka_or_hhs"],
+    "expected_facets": ["initial_management", "medication_procedure", "diagnostic_strategy"],
+    "allowed_source_ids": ["ada_hyperglycemic_crises_2024"],
+    "forbidden_topic_tags": ["renal_colic", "abdominal_pain_imaging"],
+    "forbidden_terms": ["renal colic"],
+    "min_unique_sources": 1,
+    "max_per_source": 5
+  }
+]

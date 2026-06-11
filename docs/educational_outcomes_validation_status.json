@@ -1,0 +1,76 @@
+{
+  "schema_version": "educational_outcomes_validation_status_v1",
+  "generated_at": "2026-06-09T22:33:59.166Z",
+  "review_status": "educational_outcome_study_inputs_pending",
+  "warning": "This status validates study-evidence submissions for educational outcomes. It does not replace IRB/QI review, curriculum committee approval, clinician-educator review, or publication-quality peer review.",
+  "source_contract": {
+    "educational_outcomes_framework_schema": "educational_outcomes_measurement_framework_v1",
+    "educational_outcomes_runtime_report_schema": "educational_outcomes_runtime_report_v1",
+    "outcomes_protocol_present": true,
+    "completed_study_file_present": false,
+    "completed_study_file_path": "docs/educational_outcome_studies.json",
+    "required_completed_study_schema": "educational_outcome_studies_v1"
+  },
+  "summary": {
+    "study_file_present": false,
+    "submitted_studies": 0,
+    "valid_studies": 0,
+    "completed_response_process_studies": 0,
+    "completed_pilot_studies": 0,
+    "completed_multi_site_studies": 0,
+    "studies_supporting_national_readiness_claims": 0,
+    "invalid_study_input_count": 0,
+    "ready_for_educational_validity_claims": false,
+    "phase_counts": {},
+    "status_counts": {}
+  },
+  "study_submission_template": {
+    "schema_version": "educational_outcome_studies_v1",
+    "studies": [
+      {
+        "study_id": "single_site_pilot_001",
+        "phase": "response_process_usability | single_site_pilot | multi_site_controlled | multi_site_stepped_wedge | external_transfer_validation",
+        "status": "planned | approved_not_started | data_collection_active | analysis_complete | completed_positive_or_mixed | completed_no_effect_or_harm | rejected_or_invalid",
+        "title": "",
+        "institution_or_sites": [],
+        "design": "",
+        "sample_size": 0,
+        "primary_outcomes": [
+          "esi_accuracy",
+          "undertriage_rate",
+          "rationale_quality"
+        ],
+        "safety_outcomes": [
+          "dangerous_undertriage",
+          "unsafe_disposition_reasoning",
+          "unsupported_diagnostic_certainty"
+        ],
+        "analysis_plan": "",
+        "results_summary": "",
+        "limitations": "",
+        "governance_approval": "",
+        "privacy_review": "",
+        "irb_or_qi_status": "",
+        "effect_interpretation": "",
+        "safety_interpretation": "",
+        "reviewed_by": [
+          {
+            "name": "",
+            "role": "",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "signature_attestation": ""
+      }
+    ]
+  },
+  "study_status": [],
+  "issues": [],
+  "readiness_effect": {
+    "educational_validity_gate_can_pass_from_current_studies": false,
+    "missing_study_file_blocks_release": true,
+    "invalid_study_inputs_block_release": false,
+    "pilot_or_multisite_evidence_missing": true
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": "clinical_review_adjudication_status_v1",
+  "generated_at": "2026-06-09T22:33:31.577Z",
+  "review_status": "contract_ready_review_inputs_pending",
+  "warning": "This status validates the review contract only. It does not turn draft case augmentations or generated evidence into medical truth without completed reviewer attestations.",
+  "contract": {
+    "contract_document_present": true,
+    "contract_document_path": "docs/clinical_review_adjudication_contract.md",
+    "required_case_schema_version": "case_truth_adjudications_v1",
+    "required_evidence_schema_version": "evidence_chunk_adjudications_v1",
+    "minimum_case_reviewers_per_case": 2,
+    "minimum_evidence_reviewers_per_chunk": 2,
+    "restricted_keys_blocked": [
+      "csn",
+      "encounter_id",
+      "hadm_id",
+      "mrn",
+      "patient_id",
+      "raw_row_index",
+      "stay_id",
+      "subject_id"
+    ]
+  },
+  "case_truth": {
+    "file_present": false,
+    "schema_version": "missing",
+    "total_adjudications": 0,
+    "ready_case_truth_adjudications": 0,
+    "status_counts": {},
+    "issues": [],
+    "can_claim_reviewed_case_truth": false,
+    "current_public_cases": 23,
+    "review_packets_available": 23,
+    "required_clinician_fields": [
+      "reference_esi_confirmation",
+      "source_record_or_best_adjudicated_diagnosis",
+      "acceptable_differential_diagnoses",
+      "consult_or_referral_truth",
+      "immediate_stabilization_priorities",
+      "expected_resource_profile",
+      "objective_data_to_reveal_if_requested",
+      "reassessment_and_escalation_triggers",
+      "disposition_truth_and_rationale",
+      "unsafe_or_misleading_feedback_to_block",
+      "equity_bias_and_language_notes"
+    ],
+    "required_educator_fields": [
+      "intended_learner_level",
+      "clinical_reasoning_objectives_supported",
+      "common_error_patterns_to_teach",
+      "debrief_feedback_points",
+      "assessment_rubric_alignment"
+    ]
+  },
+  "evidence": {
+    "file_present": false,
+    "schema_version": "missing",
+    "total_adjudications": 0,
+    "approved_chunks": 0,
+    "learner_feedback_approved_chunks": 0,
+    "high_risk_learner_feedback_approved_chunks": 0,
+    "status_counts": {},
+    "issues": [],
+    "can_release_generated_chunks": false,
+    "current_public_chunks": 2489,
+    "pending_generated_or_unverified_chunks": 2400,
+    "required_approval_statuses": [
+      "approved_case_specific_only",
+      "approved_for_background_teaching",
+      "approved_for_learner_feedback"
+    ]
+  },
+  "readiness_effect": {
+    "case_truth_gate_can_pass_from_current_adjudications": false,
+    "open_evidence_gate_can_release_generated_chunks_from_current_adjudications": false,
+    "invalid_review_input_count": 0
+  },
+  "issues": []
+}

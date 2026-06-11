@@ -2,7 +2,7 @@ const KOKORO_MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
 const KOKORO_DEVICE = 'wasm';
 const KOKORO_DTYPE = 'q8';
 const PATIENT_VOICE_ID = 'af_heart';
-const PATIENT_VOICE_SPEED = 0.98;
+const PATIENT_VOICE_SPEED = 1.08;
 const VOICE_CACHE_VERSION = 'kokoro_wasm_q8_af_heart_v3';
 const VOICE_STORAGE_KEY = 'ed_triage_patient_voice_enabled';
 const audioCache = new Map();
@@ -43,7 +43,7 @@ function speechSafeText(text) {
     .replace(/([,.;:!?])(?=\S)/g, '$1 ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 420);
+    .slice(0, 260);
 }
 
 function splitSpeechChunks(text) {
@@ -57,7 +57,7 @@ function splitSpeechChunks(text) {
 
   const chunks = [];
   sentences.forEach((sentence) => {
-    if (sentence.length <= 80) {
+    if (sentence.length <= 90) {
       chunks.push(sentence);
       return;
     }
@@ -68,7 +68,7 @@ function splitSpeechChunks(text) {
       .forEach((part) => chunks.push(part));
   });
 
-  return chunks.slice(0, 4);
+  return chunks.slice(0, 2);
 }
 
 function hashVoiceText(text, voice) {

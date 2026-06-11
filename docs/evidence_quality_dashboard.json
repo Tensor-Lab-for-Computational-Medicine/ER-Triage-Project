@@ -1,0 +1,203 @@
+{
+  "schema_version": "evidence_quality_dashboard_v1",
+  "generated_at": "2026-06-09T22:33:54.996Z",
+  "review_status": "evidence_quality_dashboard_open_backlog_review_required",
+  "warning": "This dashboard is a maintainer-facing triage view. It summarizes source coverage and review work but does not replace clinician, librarian, or institutional approval.",
+  "source_contract": {
+    "public_knowledge_bundle_schema": "clinical_knowledge_bundle_v2",
+    "public_source_quality_report_schema": "clinical_source_quality_report_v1",
+    "public_source_quality_report_path": "frontend/src/data/public_clinical_source_quality_report.json",
+    "learner_facing_coverage_report_present": true,
+    "learner_facing_coverage_report_path": "docs/learner_facing_evidence_coverage_report.json",
+    "high_risk_quote_depth_report_present": true,
+    "high_risk_quote_depth_report_path": "docs/high_risk_quote_coverage_depth_report.json",
+    "source_freshness_report_present": true,
+    "source_freshness_report_path": "docs/source_freshness_report.json",
+    "retrieval_runtime_report_present": true,
+    "retrieval_runtime_report_path": "docs/open_evidence_retrieval_runtime_report.json",
+    "source_link_quote_verification_report_present": true,
+    "source_link_quote_verification_report_path": "docs/source_link_quote_verification_report.json",
+    "evidence_backlog_report_present": true,
+    "evidence_backlog_report_path": "docs/evidence_review_backlog.json",
+    "claim_reference_gap_review_packets_present": true,
+    "claim_reference_gap_review_packets_path": "docs/claim_reference_gap_review_packets.json"
+  },
+  "summary": {
+    "total_sources": 109,
+    "total_chunks": 2489,
+    "quote_backed_chunks": 89,
+    "quote_backed_percentage": 3.58,
+    "auditable_chunks": 89,
+    "auditable_percentage": 3.58,
+    "generated_needs_review_chunks": 2400,
+    "generated_needs_review_percentage": 96.42,
+    "missing_locator_chunks": 2400,
+    "learner_facing_eligible_quote_backed_chunks": 89,
+    "learner_facing_evidence_release_ready": false,
+    "generated_chunks_quarantined_by_default": true,
+    "runtime_retrieval_all_probes_passed": true,
+    "runtime_retrieval_quality_badge_visible": true,
+    "source_link_quote_records": 89,
+    "source_link_quote_source_urls_fetch_failed": 0,
+    "source_link_quote_hash_mismatches": 0,
+    "source_link_quote_records_matched_in_fetched_source": 89,
+    "source_link_quote_records_unmatched_in_fetched_source": 0,
+    "source_link_quote_records_pdf_fetch_only": 0,
+    "source_link_quote_records_without_machine_text_match": 0,
+    "source_link_quote_records_requiring_repair": 0,
+    "source_link_quote_verification_release_ready": true,
+    "learner_facing_quote_backed_sources_release_blocked": 16,
+    "stale_learner_facing_quote_backed_sources": 0,
+    "missing_local_review_date_sources": 109,
+    "high_risk_topic_count": 15,
+    "high_risk_topics_meeting_core_facet_depth": 15,
+    "high_risk_missing_topic_facet_pairs": 0,
+    "source_limited_formative_feedback_rows": 69,
+    "claim_reference_alignment_release_ready": false,
+    "claim_reference_alignment_domain_specific_release_ready": false,
+    "claim_reference_alignment_claim_sets_missing_domain_specific_support": 1,
+    "claim_reference_alignment_claim_sets_requiring_domain_specific_support": 1,
+    "claim_reference_gap_packets_present": true,
+    "claim_reference_gap_packets_total": 1,
+    "claim_reference_gap_packets_pending": 1,
+    "claim_reference_gap_packets_generated_candidates": 160,
+    "claim_reference_gap_packets_all_domain_specific_gaps_packeted": true,
+    "claim_entailment_valid_reviews": 0,
+    "claim_entailment_required_claim_sets": 10,
+    "evidence_adjudication_approved_chunks": 0,
+    "dashboard_release_ready": false,
+    "alignment_checks_passed": true,
+    "open_release_blockers": 7
+  },
+  "alignment_checks": {
+    "bundle_source_count_matches_quality_report": true,
+    "bundle_chunk_count_matches_quality_report": true,
+    "active_quote_backed_count_matches_quality_report": true,
+    "active_generated_count_matches_quality_report": true,
+    "learner_facing_quote_count_matches_quality_report": true,
+    "high_risk_topic_count_matches_quality_report": true,
+    "generated_backlog_matches_quality_report": true
+  },
+  "evidence_status_counts": {
+    "quote_backed": 89,
+    "generated_needs_review": 2400
+  },
+  "quote_backed_by_facet": {
+    "initial_management": 17,
+    "medication_procedure": 6,
+    "diagnostic_strategy": 19,
+    "disposition_reassessment": 15,
+    "recognition": 15,
+    "focused_assessment": 15,
+    "teaching_handoff": 2
+  },
+  "generated_needs_review_by_facet": {
+    "recognition": 300,
+    "red_flags": 300,
+    "focused_assessment": 300,
+    "diagnostic_strategy": 300,
+    "initial_management": 300,
+    "medication_procedure": 300,
+    "disposition_reassessment": 300,
+    "teaching_handoff": 300
+  },
+  "high_risk_quote_depth": {
+    "required_core_facets": [
+      "recognition",
+      "focused_assessment",
+      "diagnostic_strategy",
+      "initial_management",
+      "disposition_reassessment"
+    ],
+    "topics_meeting_core_facet_depth": 15,
+    "missing_required_topic_facet_pairs": 0,
+    "missing_topic_facet_rows": []
+  },
+  "release_blockers": [
+    {
+      "id": "generated_backlog_unreviewed",
+      "status": "blocked",
+      "current_value": 2400,
+      "required_value": 0,
+      "owner": "clinical evidence reviewer",
+      "action": "Review, replace, remove, or formally adjudicate generated-needs-review chunks before learner-facing use."
+    },
+    {
+      "id": "source_link_quote_verification_not_ready",
+      "status": "cleared",
+      "current_value": 0,
+      "required_value": 0,
+      "owner": "medical librarian and evidence engineer",
+      "action": "Repair failed source URLs, update quote/search phrases, or record manual PDF/source-location verification for every learner-facing quote."
+    },
+    {
+      "id": "source_freshness_not_ready",
+      "status": "blocked",
+      "current_value": 16,
+      "required_value": 0,
+      "owner": "medical librarian or evidence lead",
+      "action": "Record local review dates and replace stale learner-facing quote-backed sources."
+    },
+    {
+      "id": "high_risk_quote_depth_not_ready",
+      "status": "blocked",
+      "current_value": 0,
+      "required_value": 0,
+      "owner": "clinical evidence reviewer",
+      "action": "Fill missing high-risk topic/facet quote-backed evidence for recognition, assessment, diagnostics, management, and reassessment."
+    },
+    {
+      "id": "claim_entailment_not_reviewed",
+      "status": "blocked",
+      "current_value": 0,
+      "required_value": 10,
+      "owner": "emergency clinician and simulation educator",
+      "action": "Complete claim-entailment reviews for every learner-facing feedback domain."
+    },
+    {
+      "id": "domain_specific_claim_reference_support_not_ready",
+      "status": "blocked",
+      "current_value": 1,
+      "required_value": 0,
+      "owner": "clinical evidence reviewer",
+      "action": "Add quote-backed ESI/triage-standard references or record a clinician-approved local standard before named-standard feedback is learner-facing."
+    },
+    {
+      "id": "claim_reference_gap_packets_not_clear",
+      "status": "blocked",
+      "current_value": 1,
+      "required_value": 0,
+      "owner": "clinical evidence reviewer",
+      "action": "Use claim-reference gap packets to close named-standard evidence gaps and rerun alignment before national feedback release."
+    },
+    {
+      "id": "evidence_adjudication_not_complete",
+      "status": "blocked",
+      "current_value": 0,
+      "required_value": 2489,
+      "owner": "clinical evidence adjudication lead",
+      "action": "Record approved evidence chunks in the adjudication file before national release."
+    }
+  ],
+  "reviewer_queue": {
+    "pending_generated_or_unverified_chunks": 2400,
+    "pending_source_count": 94,
+    "pending_review_batch_count": 944,
+    "evidence_adjudication_approved_chunks": 0,
+    "claim_reference_alignment_claim_sets": 10,
+    "claim_reference_alignment_missing_domain_specific_support": 1,
+    "claim_reference_gap_packets_total": 1,
+    "claim_reference_gap_packets_generated_candidates": 160,
+    "claim_entailment_valid_reviews": 0
+  },
+  "next_actions": [
+    "Use docs/evidence_review_backlog.json to prioritize generated-needs-review chunks for replacement or formal review.",
+    "Use docs/source_link_quote_verification_report.json to repair failed URLs, unmatched quote/search phrases, and PDF-only quote verification gaps.",
+    "Use docs/high_risk_quote_coverage_depth_report.json to fill missing core facets for high-risk ED topics.",
+    "Use docs/feedback_claim_reference_alignment_report.json to close named-standard quote support gaps such as ESI before learner-facing release.",
+    "Use docs/claim_reference_gap_review_packets.json to assign evidence acquisition work for named-standard feedback gaps.",
+    "Use docs/source_freshness_report.json to record local review dates and replace stale learner-facing sources.",
+    "Use docs/feedback_claim_entailment_review_packets.json to assign clinical and simulation educator claim review.",
+    "Keep docs/open_evidence_retrieval_runtime_report.json passing so learner-facing retrieval remains quote-backed and visibly quality-badged."
+  ]
+}

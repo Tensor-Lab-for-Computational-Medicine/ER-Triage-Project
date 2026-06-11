@@ -7,27 +7,40 @@ import {
   assignStaticProvisionalTriage,
   assignStaticTriage,
   clearStaticLocalCaseBundle,
+  clearStaticLocalClinicalKnowledgeBundle,
   clearTutorSettings,
   detectProvider,
+  formatAiErrorForLearner,
+  getStaticClinicalKnowledgeState,
   getStaticCaseSourceState,
+  getStaticFlowboardCaseOptions,
+  generateStaticFlowboardArtifact,
   getStaticEscalationActions,
   getStaticFeedback,
   getStaticDecisionCoach,
   getStaticReferralOptions,
   getTutorSettings,
   gradeStaticReasoningReview,
+  loadStaticLocalClinicalKnowledgeBundle,
   loadStaticLocalCaseBundle,
   prewarmStaticSemanticCache,
+  queryStaticClinicalReferences,
+  restoreStaticLocalClinicalKnowledgeBundle,
   recordStaticDiagnosis,
+  recordStaticFlowboardEvent,
   recordStaticFocusedExam,
   recordStaticInterviewSupport,
   recordStaticVitalsReview,
+  getStaticOptionalObjectiveData,
+  requestStaticOptionalObjectiveData,
   saveTutorSettings,
   selectStaticEscalationActions,
   submitStaticReferral,
   startStaticSimulation,
+  getStaticReassessmentScenario,
+  testTutorConnection as testStaticTutorConnection,
   submitStaticReassessment,
-  submitStaticSbar
+  submitStaticSoap
 } from './staticEngine';
 import { getCoachPreference, saveCoachPreference } from './uiPreferenceService';
 
@@ -40,7 +53,16 @@ const asyncReturn = (factory) =>
     }
   });
 
-export const startSimulation = async () => asyncReturn(startStaticSimulation);
+export const startSimulation = async (options = {}) => asyncReturn(() => startStaticSimulation(options));
+
+export const getFlowboardCaseOptions = () =>
+  getStaticFlowboardCaseOptions();
+
+export const recordFlowboardEvent = async (sessionId, event) =>
+  asyncReturn(() => recordStaticFlowboardEvent(sessionId, event));
+
+export const generateFlowboardArtifact = async (sessionId, kind, context = {}) =>
+  generateStaticFlowboardArtifact(sessionId, kind, context);
 
 export const recordInterviewSupport = async (sessionId, supportId) =>
   asyncReturn(() => recordStaticInterviewSupport(sessionId, supportId));
@@ -56,6 +78,12 @@ export const assignProvisionalTriage = async (sessionId, level, rationale = '') 
 
 export const recordVitalsReview = async (sessionId) =>
   asyncReturn(() => recordStaticVitalsReview(sessionId));
+
+export const getOptionalObjectiveData = async (sessionId, phase = 'encounter') =>
+  asyncReturn(() => getStaticOptionalObjectiveData(sessionId, phase));
+
+export const requestOptionalObjectiveData = async (sessionId, dataId, phase = 'encounter', context = {}) =>
+  asyncReturn(() => requestStaticOptionalObjectiveData(sessionId, dataId, phase, context));
 
 export const recordFocusedExam = async (sessionId, selectedSystemIds) =>
   asyncReturn(() => recordStaticFocusedExam(sessionId, selectedSystemIds));
@@ -84,11 +112,14 @@ export const askInCaseCoach = async (sessionId, stage, learnerContext = '') =>
 export const selectEscalationActions = async (sessionId, actionIds, rationale = '', planDetails = {}) =>
   asyncReturn(() => selectStaticEscalationActions(sessionId, actionIds, rationale, planDetails));
 
+export const getReassessmentScenario = async (sessionId) =>
+  asyncReturn(() => getStaticReassessmentScenario(sessionId));
+
 export const submitReassessment = async (sessionId, selectedRisks, rationale = '') =>
   asyncReturn(() => submitStaticReassessment(sessionId, selectedRisks, rationale));
 
-export const submitSbar = async (sessionId, handoff) =>
-  asyncReturn(() => submitStaticSbar(sessionId, handoff));
+export const submitSoap = async (sessionId, soapNote, handoffNote = '') =>
+  asyncReturn(() => submitStaticSoap(sessionId, soapNote, handoffNote));
 
 export const getFeedback = async (sessionId) =>
   asyncReturn(() => getStaticFeedback(sessionId));
@@ -105,16 +136,34 @@ export const gradeReasoningReview = async (sessionId) =>
 export const prewarmSemanticCache = async () =>
   prewarmStaticSemanticCache();
 
+export const queryClinicalReferences = async (options = {}) =>
+  queryStaticClinicalReferences(options);
+
 export const loadLocalCaseBundle = async (payload, fileName = '') =>
   asyncReturn(() => loadStaticLocalCaseBundle(payload, fileName));
 
 export const clearLocalCaseBundle = async () =>
   asyncReturn(clearStaticLocalCaseBundle);
 
+export const loadLocalClinicalKnowledgeBundle = async (payload, fileName = '') =>
+  asyncReturn(() => loadStaticLocalClinicalKnowledgeBundle(payload, fileName));
+
+export const clearLocalClinicalKnowledgeBundle = async () =>
+  asyncReturn(clearStaticLocalClinicalKnowledgeBundle);
+
+export const restoreLocalClinicalKnowledgeBundle = async () =>
+  restoreStaticLocalClinicalKnowledgeBundle();
+
 export const getCaseSourceState = () =>
   getStaticCaseSourceState();
 
-export { clearTutorSettings, detectProvider, getTutorSettings, saveTutorSettings };
+export const getClinicalKnowledgeState = () =>
+  getStaticClinicalKnowledgeState();
+
+export const testTutorConnection = async (settings) =>
+  testStaticTutorConnection(settings);
+
+export { clearTutorSettings, detectProvider, formatAiErrorForLearner, getTutorSettings, saveTutorSettings };
 export { getCoachPreference, saveCoachPreference };
 
 export const healthCheck = async () => ({

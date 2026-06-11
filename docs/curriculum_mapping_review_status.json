@@ -1,0 +1,854 @@
+{
+  "schema_version": "curriculum_mapping_review_status_v1",
+  "generated_at": "2026-06-09T22:33:56.921Z",
+  "review_status": "curriculum_mapping_review_inputs_pending",
+  "warning": "This status validates completed curriculum mapping review submissions. It does not replace clinician case-truth review, entrustment decisions, curriculum committee approval, or learner outcome validation.",
+  "source_contract": {
+    "objective_matrix_schema": "case_objective_matrix_v1",
+    "core_epa_curriculum_map_schema": "core_epa_curriculum_map_v1",
+    "completed_review_file_present": false,
+    "completed_review_file_path": "docs/curriculum_mapping_reviews.json",
+    "required_completed_review_schema": "curriculum_mapping_reviews_v1"
+  },
+  "summary": {
+    "review_file_present": false,
+    "case_mappings": 23,
+    "submitted_case_reviews": 0,
+    "valid_case_reviews": 0,
+    "nationally_approved_case_mappings": 0,
+    "case_mappings_missing_review": 23,
+    "workflow_phases": 5,
+    "submitted_workflow_reviews": 0,
+    "valid_workflow_reviews": 0,
+    "nationally_approved_workflow_phases": 0,
+    "workflow_phases_missing_review": 5,
+    "unsupported_epas": 2,
+    "submitted_unsupported_epa_decisions": 0,
+    "valid_unsupported_epa_decisions": 0,
+    "nationally_resolved_unsupported_epas": 0,
+    "unsupported_epa_decisions_missing": 2,
+    "invalid_review_input_count": 0,
+    "ready_for_national_curriculum_release": false,
+    "case_review_decision_counts": {
+      "not_reviewed": 23
+    },
+    "workflow_review_decision_counts": {
+      "not_reviewed": 5
+    },
+    "unsupported_epa_decision_counts": {
+      "not_reviewed": 2
+    }
+  },
+  "review_submission_template": {
+    "schema_version": "curriculum_mapping_reviews_v1",
+    "case_mapping_reviews": [
+      {
+        "case_id": "case_002",
+        "review_id": "curriculum_case_review_001",
+        "review_decision": "approved_for_national_release | approved_for_supervised_pilot_only | revisions_required | rejected",
+        "reviewed_by": [
+          {
+            "name": "",
+            "role": "clinical_educator | simulation_educator | curriculum_or_clerkship_director",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "reviewed_at": "",
+        "objective_domains_reviewed": [
+          "noticing",
+          "interpreting",
+          "responding",
+          "reflecting"
+        ],
+        "epas_reviewed": [
+          "EPA_1",
+          "EPA_10",
+          "EPA_13",
+          "EPA_2",
+          "EPA_3",
+          "EPA_4",
+          "EPA_5",
+          "EPA_6",
+          "EPA_7",
+          "EPA_8",
+          "EPA_9"
+        ],
+        "learner_level_and_supervision_rationale": "",
+        "assessment_use": "formative_only | supervised_pilot | summative_assessment",
+        "objective_alignment_rationale": "",
+        "case_truth_limitations_reviewed": "",
+        "required_changes": [],
+        "restrictions_or_required_changes": [],
+        "signature_attestation": ""
+      }
+    ],
+    "workflow_phase_reviews": [
+      {
+        "workflow_phase_id": "encounter",
+        "review_id": "curriculum_workflow_review_001",
+        "review_decision": "approved_for_national_release | approved_for_supervised_pilot_only | revisions_required | rejected",
+        "reviewed_by": [
+          {
+            "name": "",
+            "role": "clinical_educator | assessment_or_curriculum_reviewer",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "reviewed_at": "",
+        "epas_reviewed": [
+          "EPA_1",
+          "EPA_10"
+        ],
+        "workflow_alignment_rationale": "",
+        "assessment_boundary": "",
+        "supervision_or_scope_notes": "",
+        "required_changes": [],
+        "restrictions_or_required_changes": [],
+        "signature_attestation": ""
+      }
+    ],
+    "unsupported_epa_decisions": [
+      {
+        "epa_id": "EPA_11",
+        "review_id": "unsupported_epa_decision_001",
+        "decision": "approved_out_of_scope | feature_required_before_release | pilot_only_exclusion | rejected",
+        "reviewed_by": [
+          {
+            "name": "",
+            "role": "clinical_educator | assessment_or_curriculum_reviewer",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "reviewed_at": "",
+        "exclusion_or_feature_rationale": "",
+        "required_changes": [],
+        "restrictions_or_required_changes": [],
+        "signature_attestation": ""
+      }
+    ]
+  },
+  "case_mapping_review_status": [
+    {
+      "case_id": "case_002",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_004",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_005",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_006",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_007",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_008",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_009",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_012",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_013",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_014",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_017",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_018",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_019",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_020",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_021",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_022",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_023",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_024",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_025",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_027",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_029",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_030",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    },
+    {
+      "case_id": "case_031",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum case-mapping review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "mapped_epa_count": 11,
+      "issue_count": 1
+    }
+  ],
+  "workflow_phase_review_status": [
+    {
+      "workflow_phase_id": "encounter",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum workflow-phase review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10"
+      ],
+      "issue_count": 1
+    },
+    {
+      "workflow_phase_id": "impression",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum workflow-phase review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_2",
+        "EPA_10"
+      ],
+      "issue_count": 1
+    },
+    {
+      "workflow_phase_id": "plan",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum workflow-phase review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_3",
+        "EPA_4",
+        "EPA_9",
+        "EPA_10"
+      ],
+      "issue_count": 1
+    },
+    {
+      "workflow_phase_id": "reassessment",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum workflow-phase review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_5",
+        "EPA_6",
+        "EPA_8",
+        "EPA_10"
+      ],
+      "issue_count": 1
+    },
+    {
+      "workflow_phase_id": "debrief",
+      "review_id": "not_submitted",
+      "review_decision": "not_reviewed",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "issues": [
+        "No completed curriculum workflow-phase review submitted."
+      ],
+      "mapped_epas": [
+        "EPA_2",
+        "EPA_7",
+        "EPA_13"
+      ],
+      "issue_count": 1
+    }
+  ],
+  "unsupported_epa_decision_status": [
+    {
+      "epa_id": "EPA_11",
+      "review_id": "not_submitted",
+      "decision": "not_reviewed",
+      "valid": false,
+      "nationally_resolved": false,
+      "issues": [
+        "No completed unsupported-EPA scope decision submitted."
+      ],
+      "epa_title": "Obtain informed consent for tests and procedures",
+      "issue_count": 1
+    },
+    {
+      "epa_id": "EPA_12",
+      "review_id": "not_submitted",
+      "decision": "not_reviewed",
+      "valid": false,
+      "nationally_resolved": false,
+      "issues": [
+        "No completed unsupported-EPA scope decision submitted."
+      ],
+      "epa_title": "Perform general procedures of a physician",
+      "issue_count": 1
+    }
+  ],
+  "issues": [],
+  "readiness_effect": {
+    "educational_validity_gate_can_pass_from_current_curriculum_reviews": false,
+    "missing_case_mapping_reviews_block_release": true,
+    "missing_workflow_phase_reviews_block_release": true,
+    "missing_unsupported_epa_decisions_block_release": true,
+    "invalid_curriculum_review_inputs_block_release": false
+  }
+}

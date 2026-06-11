@@ -1,0 +1,163 @@
+{
+  "schema_version": "scale_operations_runtime_report_v1",
+  "generated_at": "2026-06-09T22:33:27.637Z",
+  "review_status": "runtime_scale_smoke_passed_load_monitoring_required",
+  "warning": "This is a bounded local static-serving smoke test. It does not replace a 300-concurrent-user load test, browser memory profile, CDN validation, production monitoring, incident drill, or institutional security review.",
+  "static_server_model": {
+    "deployment_target": "GitHub Pages static app",
+    "backend_required_for_default_workflow": false,
+    "local_probe_server": "http://127.0.0.1:63893",
+    "concurrent_smoke_request_target": 40,
+    "response_time_budget_ms": 1200
+  },
+  "summary": {
+    "total_probes": 6,
+    "passed_probes": 6,
+    "failed_probes": 0,
+    "all_probes_passed": true,
+    "initial_assets_fetched": 2,
+    "concurrent_smoke_requests": 40,
+    "concurrent_smoke_p50_ms": 28.58,
+    "concurrent_smoke_p95_ms": 30.03,
+    "concurrent_smoke_max_ms": 31.05,
+    "spa_fallback_present": true,
+    "legacy_route_bootstrap_ok": true,
+    "production_load_test_completed": false,
+    "production_monitoring_dashboard_operational": false,
+    "incident_response_drill_completed": false
+  },
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 702,
+      "duration_ms": 16.22
+    },
+    {
+      "path": "/index.html",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 702,
+      "duration_ms": 15.07
+    },
+    {
+      "path": "/legacy",
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 702,
+      "duration_ms": 14.37
+    },
+    {
+      "path": "/index.html?legacy=1",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 702,
+      "duration_ms": 14.44
+    }
+  ],
+  "initial_assets": [
+    {
+      "path": "/assets/index-1309e3d2.css",
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "bytes": 48097,
+      "duration_ms": 2.61
+    },
+    {
+      "path": "/assets/index-7bae5285.js",
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "bytes": 407362,
+      "duration_ms": 5.6
+    }
+  ],
+  "probes": [
+    {
+      "id": "dist_index_present",
+      "passed": true,
+      "failure": "",
+      "evidence": {
+        "index_path": "frontend/dist/index.html",
+        "bytes": 702
+      }
+    },
+    {
+      "id": "github_pages_spa_fallback_present",
+      "passed": true,
+      "failure": "",
+      "evidence": {
+        "fallback_path": "frontend/dist/404.html",
+        "fallback_bytes": 702
+      }
+    },
+    {
+      "id": "default_route_bootstraps_app_shell",
+      "passed": true,
+      "failure": "",
+      "evidence": {
+        "url": "http://127.0.0.1:63893/",
+        "status": 200,
+        "ok": true,
+        "content_type": "text/html; charset=utf-8",
+        "bytes": 702,
+        "duration_ms": 16.22,
+        "body_preview": "<!doctype html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <meta name=\"viewport\" content=\"width=devi"
+      }
+    },
+    {
+      "id": "legacy_direct_route_uses_spa_fallback",
+      "passed": true,
+      "failure": "",
+      "evidence": {
+        "url": "http://127.0.0.1:63893/legacy",
+        "status": 404,
+        "ok": true,
+        "content_type": "text/html; charset=utf-8",
+        "bytes": 702,
+        "duration_ms": 14.37,
+        "body_preview": "<!doctype html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta charset=\"UTF-8\" />\r\n    <meta name=\"viewport\" content=\"width=devi"
+      }
+    },
+    {
+      "id": "initial_assets_fetch_successfully",
+      "passed": true,
+      "failure": "",
+      "evidence": {
+        "assets": [
+          {
+            "url": "http://127.0.0.1:63893/assets/index-1309e3d2.css",
+            "status": 200,
+            "bytes": 48097,
+            "duration_ms": 2.61
+          },
+          {
+            "url": "http://127.0.0.1:63893/assets/index-7bae5285.js",
+            "status": 200,
+            "bytes": 407362,
+            "duration_ms": 5.6
+          }
+        ]
+      }
+    },
+    {
+      "id": "concurrent_static_smoke_under_budget",
+      "passed": true,
+      "failure": "",
+      "evidence": {
+        "requests": 40,
+        "p50_ms": 28.58,
+        "p95_ms": 30.03,
+        "max_ms": 31.05,
+        "response_time_budget_ms": 1200
+      }
+    }
+  ],
+  "remaining_evidence_needed": [
+    "Run a representative 300-concurrent-learner browser load test on the intended hosting/CDN path.",
+    "Complete a browser memory profile for a full case, debrief, repeated-case session, and optional legacy route.",
+    "Operate a production monitoring dashboard for errors, route availability, completion rate, source-limited feedback exposure, accessibility reports, and optional AI failures.",
+    "Complete an incident-response and rollback drill for unsafe case content, source-bundle defects, and optional AI disablement.",
+    "Complete institutional security review for the static deployment, browser storage, optional AI provider policy, and data-retention plan."
+  ]
+}

@@ -1,0 +1,2013 @@
+{
+  "schema_version": "case_bank_expansion_review_status_v1",
+  "generated_at": "2026-06-09T22:33:32.845Z",
+  "review_status": "case_bank_expansion_review_inputs_pending",
+  "warning": "This status validates completed case-bank expansion blueprint reviews. It does not create cases, approve generated cases, or replace case truth, evidence, equity, curriculum, feedback, governance, or outcomes review.",
+  "source_contract": {
+    "case_bank_expansion_status_schema": "case_bank_expansion_status_v1",
+    "case_bank_expansion_status_path": "docs/case_bank_expansion_status.json",
+    "case_bank_expansion_packets_schema": "case_bank_expansion_packets_v1",
+    "case_bank_expansion_packets_path": "docs/case_bank_expansion_packets.json",
+    "case_generation_quality_report_schema": "case_generation_quality_report_v1",
+    "completed_review_file_present": false,
+    "completed_review_file_path": "docs/case_bank_expansion_reviews.json",
+    "required_completed_review_schema_version": "case_bank_expansion_reviews_v1",
+    "allowed_counting_decisions": [
+      "approved_for_supervised_pilot_only",
+      "approved_to_count_toward_national_case_bank",
+      "blocked",
+      "equity_or_curriculum_revisions_required",
+      "rejected",
+      "source_or_truth_revisions_required"
+    ],
+    "restricted_keys_blocked": [
+      "csn",
+      "encounter_id",
+      "free_text",
+      "hadm_id",
+      "learner_email",
+      "learner_name",
+      "mrn",
+      "patient_id",
+      "patient_name",
+      "raw_case_text",
+      "raw_source_note",
+      "stay_id",
+      "student_email",
+      "student_id",
+      "student_name",
+      "subject_id",
+      "transcript"
+    ],
+    "generated_or_synthetic_cases_count_for_national_release_without_review": false
+  },
+  "summary": {
+    "review_file_present": false,
+    "current_cases": 23,
+    "national_case_count_minimum": 100,
+    "case_count_shortfall": 77,
+    "target_gap_packets": 18,
+    "blueprint_slots": 77,
+    "submitted_blueprint_reviews": 0,
+    "valid_blueprint_reviews": 0,
+    "national_countable_blueprint_reviews": 0,
+    "supervised_pilot_blueprint_reviews": 0,
+    "pending_blueprint_reviews": 77,
+    "missing_blueprint_reviews": 77,
+    "invalid_review_input_count": 0,
+    "unmatched_submitted_reviews": 0,
+    "all_target_shortfalls_have_blueprint_coverage": true,
+    "national_release_eligible_cases": 0,
+    "case_generation_quality_national_release_ready": false,
+    "case_bank_status_ready_for_national_release": false,
+    "ready_for_national_case_bank_release_from_reviews": false,
+    "review_decision_counts": {
+      "not_submitted": 77
+    },
+    "required_reviewer_role_counts": {
+      "emergency_clinician_case_truth_reviewer": 77,
+      "simulation_educator": 77,
+      "medical_librarian_or_evidence_reviewer": 77,
+      "equity_and_accessibility_reviewer": 77,
+      "curriculum_or_core_epa_reviewer": 77
+    }
+  },
+  "blueprint_review_status": [
+    {
+      "blueprint_id": "case_bank_blueprint_001",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_002",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_003",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_004",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_005",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_006",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_007",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_008",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_009",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_010",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_011",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_012",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_013",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_014",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_015",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_016",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_017",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_018",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_019",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_020",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_021",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_022",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_023",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_024",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_025",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_026",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_027",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_028",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_029",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_030",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_031",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_032",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_033",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_034",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_035",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_036",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_037",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_038",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_039",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_040",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_041",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_042",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_043",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_044",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_045",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_046",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_047",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_048",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_049",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_050",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_051",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_052",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_053",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_054",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_055",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_056",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_057",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_058",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_059",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_060",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "pediatric",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_061",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "pediatric",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_062",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "pediatric",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_063",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_064",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_065",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_066",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_067",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_068",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_069",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_070",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_071",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_072",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_073",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_074",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_075",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_076",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "blueprint_id": "case_bank_blueprint_077",
+      "created_case_id": "",
+      "review_decision": "not_submitted",
+      "valid": false,
+      "approved_to_count_toward_national_case_bank": false,
+      "supervised_pilot_approved": false,
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "issues": [
+        "No completed case-bank expansion blueprint review submitted."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "issue_count": 1
+    }
+  ],
+  "unmatched_submitted_reviews": [],
+  "readiness_effect": {
+    "case_generation_quality_gate_can_pass_from_current_reviews": false,
+    "invalid_review_input_count": 0,
+    "generated_or_synthetic_case_counting_block_enforced": true,
+    "created_public_case_id_required_for_counting": true,
+    "downstream_review_linkage_required_for_counting": true,
+    "restricted_data_leakage_block_enforced": true,
+    "required_reviewer_role_coverage_enforced": true
+  },
+  "issues": []
+}

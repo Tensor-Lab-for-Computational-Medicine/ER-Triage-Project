@@ -1,18 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { recordFocusedExam, recordVitalsReview } from '../services/api';
+import { recordFocusedExam, recordVitalsReview, requestOptionalObjectiveData } from '../services/api';
 import { EXAM_SYSTEMS } from '../services/examEngine';
-
-function getVitalTone(vital) {
-  const value = Number(String(vital.value).match(/-?\d+(\.\d+)?/)?.[0]);
-  if (!Number.isFinite(value)) return 'neutral';
-  if (vital.name === 'Heart Rate' && (value >= 110 || value < 60)) return 'attention';
-  if (vital.name === 'Respiratory Rate' && (value >= 22 || value < 12)) return 'attention';
-  if (vital.name === 'Oxygen Saturation' && value < 94) return 'attention';
-  if (vital.name === 'Pain Level' && value >= 7) return 'attention';
-  if (vital.name === 'Blood Pressure' && (value < 100 || value >= 160)) return 'attention';
-  if (vital.name === 'Temperature' && (value >= 100.4 || value < 96.8)) return 'attention';
-  return 'stable';
-}
 
 function ObjectiveReview({
   sessionId,
@@ -23,7 +11,10 @@ function ObjectiveReview({
 }) {
   const [vitals, setVitals] = useState([]);
   const [examFacts, setExamFacts] = useState([]);
+  const [optionalData, setOptionalData] = useState([]);
+  const [optionalResults, setOptionalResults] = useState([]);
   const [selectedSystems, setSelectedSystems] = useState([]);
+  const [examSearch, setExamSearch] = useState('');
   const [examResult, setExamResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [conducting, setConducting] = useState(false);
@@ -50,7 +41,10 @@ function ObjectiveReview({
   useEffect(() => {
     setVitals([]);
     setExamFacts([]);
+    setOptionalData([]);
+    setOptionalResults([]);
     setSelectedSystems([]);
+    setExamSearch('');
     setExamResult(null);
     setLoading(false);
     setConducting(false);
@@ -74,6 +68,7 @@ function ObjectiveReview({
         const nextExamFacts = data.physical_exam || [];
         setVitals(nextVitals);
         setExamFacts(nextExamFacts);
+        setOptionalData(data.optional_objective_data || []);
         setLoaded(true);
         onClock?.(data.clock);
         onCapture?.({ vitals: nextVitals });
@@ -96,6 +91,21 @@ function ObjectiveReview({
       publishStatus({ selectedSystemIds: next });
       return next;
     });
+  };
+
+  const requestOptional = async (dataId) => {
+    setError('');
+    try {
+      const data = await requestOptionalObjectiveData(sessionId, dataId, 'encounter');
+      setOptionalResults((current) => [
+        ...current.filter((item) => item.id !== data.result.id),
+        data.result
+      ]);
+      onClock?.(data.clock);
+      onCapture?.({ optionalObjectiveData: data.requests || [] });
+    } catch (err) {
+      setError(err.message || 'Optional objective data could not be requested.');
+    }
   };
 
   const conductExam = async () => {
@@ -121,6 +131,18 @@ function ObjectiveReview({
       setConducting(false);
     }
   };
+  const filteredExamSystems = EXAM_SYSTEMS.filter((system) => {
+    const query = examSearch.trim().toLowerCase();
+    if (!query) return true;
+    return `${system.name} ${system.keywords.join(' ')}`.toLowerCase().includes(query);
+  });
+  const examFindings = examResult?.findings || [];
+  const previewFindings = examFindings.slice(0, 3);
+  const selectedSystemNames = examResult?.selected_systems?.length
+    ? examResult.selected_systems.map((system) => system.name)
+    : selectedSystems
+      .map((systemId) => EXAM_SYSTEMS.find((system) => system.id === systemId)?.name)
+      .filter(Boolean);
 
   if (loading) return <div className="loading compact-loading">Loading objective data...</div>;
   if (error && !loaded) return <div className="error-message compact-message">{error}</div>;
@@ -128,17 +150,56 @@ function ObjectiveReview({
 
   return (
     <div className="objective-review-panel">
-      <div className="monitor-grid compact-monitor-grid">
-        {vitals.map((vital) => {
-          const tone = getVitalTone(vital);
-          return (
-            <div key={`${vital.name}-${vital.value}`} className={`monitor-card ${tone}`}>
+      <section className="objective-vitals-section" aria-label="Source vitals">
+        <div className="objective-section-heading">
+          <span className="eyebrow">Source vitals</span>
+          <h3>Vitals</h3>
+        </div>
+        <div className="monitor-grid compact-monitor-grid">
+          {vitals.map((vital) => (
+            <div key={`${vital.name}-${vital.value}`} className="monitor-card neutral">
               <span>{vital.name}</span>
               <strong>{vital.value}</strong>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      </section>
+
+      {optionalData.length > 0 && (
+        <section className="optional-objective-panel" aria-label="Optional objective data">
+          <div className="section-header compact">
+            <div>
+              <span className="eyebrow">Optional Objective Data</span>
+              <h3>Ask for additional bedside data</h3>
+            </div>
+          </div>
+          <div className="compact-checkbox-grid">
+            {optionalData.map((item) => {
+              const result = optionalResults.find((existing) => existing.id === item.id);
+              const scaffoldLimited = item.source_restriction === 'public_simulation_scaffold';
+              return (
+                <article key={item.id} className="optional-data-card">
+                  <div>
+                    <strong>{item.label}</strong>
+                    <small>{result ? (result.value || 'No result available') : item.category}</small>
+                  </div>
+                  {scaffoldLimited && (
+                    <p className="optional-data-limitation">
+                      Draft simulation scaffold; not source-record truth or clinician-adjudicated evidence.
+                    </p>
+                  )}
+                  <button type="button" className="btn-secondary compact-insert-button" onClick={() => requestOptional(item.id)}>
+                    Request
+                  </button>
+                  {result && (
+                    <p>{result.availability === 'available' ? result.note : 'No result available for this case.'}</p>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section className="focused-exam-picker" aria-label="Choose focused exams">
         <div className="section-header compact">
@@ -146,17 +207,33 @@ function ObjectiveReview({
             <span className="eyebrow">Physical Exam</span>
             <h3>Choose focused exams</h3>
           </div>
-          {examResult?.score !== undefined && (
-            <span className="clinical-badge">{examResult.score} / 10</span>
-          )}
+          <span className="clinical-badge">{selectedSystems.length} selected</span>
         </div>
         {!examFacts.length && (
           <div className="error-message compact-message" role="alert">
             Focused exam coverage is missing for this case. Regenerate or review the case bundle before learner use.
           </div>
         )}
+        <div className="exam-picker-tools">
+          <label htmlFor="exam-system-search" className="sr-only">Filter focused exam systems</label>
+          <input
+            id="exam-system-search"
+            className="premium-input compact-filter-input"
+            value={examSearch}
+            onChange={(event) => setExamSearch(event.target.value)}
+            placeholder="Filter exam systems"
+          />
+          <button
+            type="button"
+            className="btn-secondary compact-insert-button"
+            onClick={() => setSelectedSystems([])}
+            disabled={!selectedSystems.length || conducting}
+          >
+            Clear exams
+          </button>
+        </div>
         <div className="exam-system-grid" role="group" aria-label="Focused exam systems">
-          {EXAM_SYSTEMS.map((system) => {
+          {filteredExamSystems.map((system) => {
             const selected = selectedSystems.includes(system.id);
             return (
               <button
@@ -182,22 +259,46 @@ function ObjectiveReview({
         {error && <div className="error-message compact-message">{error}</div>}
       </section>
 
-      {examResult?.findings?.length > 0 && (
-        <section className="objective-finding-list" aria-label="Simulated focused exam findings">
-          <strong>Simulated focused exam findings</strong>
-          {examResult.findings.map((finding) => (
-            <article key={finding.system_id} className="exam-finding-card">
-              <div className="finding-card-header">
-                <span>{finding.system}</span>
-                <small>{finding.provenance}</small>
+      {examFindings.length > 0 && (
+        <section className="objective-finding-list" aria-label="Focused exam findings">
+          <div className="finding-summary-header">
+            <div>
+              <span className="eyebrow">Focused exam documented</span>
+              <h3>Focused exam documented</h3>
+            </div>
+            <span className="clinical-badge">{examFindings.length} finding{examFindings.length === 1 ? '' : 's'}</span>
+          </div>
+          {selectedSystemNames.length > 0 && (
+            <div className="selected-exam-summary" aria-label="Selected focused exam systems">
+              {selectedSystemNames.map((name) => (
+                <span key={name}>{name}</span>
+              ))}
+            </div>
+          )}
+          <div className="exam-finding-preview-grid">
+            {previewFindings.map((finding) => (
+              <article key={finding.system_id} className="exam-finding-card">
+                <div className="finding-card-header">
+                  <span>{finding.system}</span>
+                </div>
+                <p>{finding.finding}</p>
+              </article>
+            ))}
+          </div>
+          {examFindings.length > previewFindings.length && (
+            <details className="exam-findings-details">
+              <summary>Show all focused exam findings</summary>
+              <div className="exam-finding-detail-list">
+                {examFindings.map((finding) => (
+                  <article key={finding.system_id} className="exam-finding-card">
+                    <div className="finding-card-header">
+                      <span>{finding.system}</span>
+                    </div>
+                    <p>{finding.finding}</p>
+                  </article>
+                ))}
               </div>
-              <p>{finding.finding}</p>
-            </article>
-          ))}
-          {examResult.missed_systems?.length > 0 && (
-            <p className="compact-guidance">
-              Missed systems to consider next: {examResult.missed_systems.map((item) => item.name).join(', ')}.
-            </p>
+            </details>
           )}
         </section>
       )}

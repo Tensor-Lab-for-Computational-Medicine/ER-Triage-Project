@@ -187,6 +187,13 @@
           "against_or_missing": "No mechanism, swelling, deformity, focal tenderness, or weight-bearing status is documented.",
           "next_discriminator": "Ottawa foot criteria, focal bony tenderness, swelling, weight-bearing ability, and radiograph if indicated.",
           "acuity_implication": "ESI 4 is consistent with one expected resource when neurovascular status is intact."
+        },
+        {
+          "diagnosis": "Early soft-tissue infection, inflammatory arthritis, or vascular/neurovascular complication requiring screen",
+          "support": "Foot pain can represent non-fracture pathology, and the source lacks structured skin, joint, and distal neurovascular exam findings.",
+          "against_or_missing": "No fever, open wound, erythema, swelling, neurologic deficit, vascular compromise, or inability to bear weight is documented.",
+          "next_discriminator": "Focused skin and joint exam, distal pulses, sensation, capillary refill, and weight-bearing assessment.",
+          "acuity_implication": "If these screens are reassuring, the case remains a low-acuity ESI 4 scaffold; abnormal findings would require escalation."
         }
       ],
       "teaching_points": [
@@ -889,6 +896,13 @@
           "against_or_missing": "No documented motor deficit, sensory loss, or active arterial bleeding.",
           "next_discriminator": "Focused neurovascular exam of the finger, tendon function testing, and exploration.",
           "acuity_implication": "ESI 4 is consistent with a single resource (procedure) and stable vital signs."
+        },
+        {
+          "diagnosis": "Simple superficial laceration versus contaminated wound or retained foreign body",
+          "support": "The chief complaint and home disposition support a stable wound-care encounter, but the source does not describe mechanism, contamination, depth, or foreign body risk.",
+          "against_or_missing": "No high-risk mechanism, gross contamination, crush injury, bite wound, retained foreign body, or infection is documented.",
+          "next_discriminator": "Mechanism history, wound exploration, irrigation findings, and decision about imaging for foreign body.",
+          "acuity_implication": "A simple laceration remains ESI 4 when repair is the main resource; contamination or foreign body concern may add resources or specialty input."
         }
       ],
       "teaching_points": [
@@ -937,6 +951,13 @@
           "against_or_missing": "No tendon exposure, neurovascular compromise, or uncontrolled hemorrhage documented.",
           "next_discriminator": "Focused digital block, wound irrigation, tendon range check, and suture closure.",
           "acuity_implication": "ESI 4 is appropriate when only wound repair is expected."
+        },
+        {
+          "diagnosis": "Superficial wound appropriate for simple repair versus occult foreign body or infection risk",
+          "support": "Stable presentation and home disposition support simple wound care, while the source does not specify depth, contamination, delayed presentation, or foreign body risk.",
+          "against_or_missing": "No fever, spreading cellulitis, bite exposure, crush mechanism, sensory deficit, or active bleeding is documented.",
+          "next_discriminator": "Mechanism, time since injury, wound exploration, irrigation response, and distal sensory and motor exam.",
+          "acuity_implication": "Routine wound care fits ESI 4; infection, foreign body, or functional deficit would require additional evaluation."
         }
       ],
       "teaching_points": [
@@ -1109,6 +1130,13 @@
           "against_or_missing": "No signs of wound dehiscence, erythema, warmth, or purulent drainage.",
           "next_discriminator": "Focused skin inspection to verify wound healing.",
           "acuity_implication": "ESI 5 is consistent with zero expected resources."
+        },
+        {
+          "diagnosis": "Wound complication screen before routine suture removal",
+          "support": "Any suture-removal visit still requires inspection for infection, retained suture issue, or dehiscence before discharge.",
+          "against_or_missing": "The source documents no pain and stable vitals, but does not provide wound appearance, drainage, erythema, or approximation.",
+          "next_discriminator": "Focused wound exam for approximation, tenderness, erythema, warmth, drainage, and dehiscence.",
+          "acuity_implication": "Normal wound inspection supports ESI 5; infection or dehiscence would make the encounter no longer a zero-resource visit."
         }
       ],
       "teaching_points": [
@@ -1212,6 +1240,13 @@
           "against_or_missing": "No acute clinical instability, withdrawal symptoms, or medication adverse effects documented.",
           "next_discriminator": "Confirm medication history, dose, compliance, and outpatient clinic follow-up plan.",
           "acuity_implication": "ESI 5 is consistent with zero expected ED resources."
+        },
+        {
+          "diagnosis": "Missed-medication complication, withdrawal risk, or unsafe refill request requiring screen",
+          "support": "A refill visit can be low acuity only after confirming there are no symptoms from missed therapy, medication toxicity, or a high-risk controlled medication scenario.",
+          "against_or_missing": "The source documents stable vitals and no pain, but does not identify the medication, missed-dose duration, withdrawal symptoms, or underlying disease stability.",
+          "next_discriminator": "Medication name, indication, last dose, withdrawal or decompensation symptoms, adverse-effect screen, and follow-up access.",
+          "acuity_implication": "If the safety screen is negative, ESI 5 remains appropriate; concerning medication or disease findings require escalation."
         }
       ],
       "teaching_points": [

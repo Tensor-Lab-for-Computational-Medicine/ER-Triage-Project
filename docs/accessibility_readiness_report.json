@@ -1,0 +1,164 @@
+{
+  "schema_version": "accessibility_readiness_report_v1",
+  "generated_at": "2026-06-09T22:33:30.478Z",
+  "review_status": "automated_static_audit_complete_manual_wcag_required",
+  "warning": "This is an automated static accessibility readiness check for the default route. It does not replace manual WCAG 2.2 AA review, screen-reader testing, keyboard walkthroughs, low-vision review, or student accommodation review.",
+  "scope": {
+    "default_national_route": "ClinicalFlowboard",
+    "optional_legacy_route": "LegacySimulatorApp is lazy-loaded and must receive separate full accessibility review before required curricular use.",
+    "scanned_files": [
+      {
+        "id": "app_router",
+        "route_scope": "default_and_optional_routes",
+        "path": "frontend/src/App.jsx"
+      },
+      {
+        "id": "default_flowboard",
+        "route_scope": "default_national_route",
+        "path": "frontend/src/components/ClinicalFlowboard.jsx"
+      },
+      {
+        "id": "default_feedback_surface",
+        "route_scope": "default_feedback_surface",
+        "path": "frontend/src/components/Feedback.jsx"
+      },
+      {
+        "id": "default_flowboard_styles",
+        "route_scope": "default_national_route",
+        "path": "frontend/src/styles/Flowboard.css"
+      }
+    ],
+    "keyboard_smoke_test": "frontend/tests/flowboard.spec.js"
+  },
+  "summary": {
+    "files_scanned": 4,
+    "button_count": 51,
+    "form_control_count": 24,
+    "unnamed_button_count": 0,
+    "unnamed_form_control_count": 0,
+    "positive_tabindex_count": 0,
+    "aria_hidden_focusable_count": 0,
+    "focus_visible_present": true,
+    "automated_keyboard_smoke_present": true,
+    "default_landmarks_present": true,
+    "critical_static_issue_count": 0,
+    "default_route_static_accessibility_ready": true,
+    "manual_wcag_required": true
+  },
+  "checks": [
+    {
+      "id": "interactive_control_names",
+      "status": "pass",
+      "evidence": {
+        "unnamed_button_count": 0,
+        "unnamed_form_control_count": 0
+      }
+    },
+    {
+      "id": "keyboard_order_static_hazards",
+      "status": "pass",
+      "evidence": {
+        "positive_tabindex_count": 0,
+        "aria_hidden_focusable_count": 0
+      }
+    },
+    {
+      "id": "visible_keyboard_focus",
+      "status": "pass",
+      "evidence": {
+        "flowboard_css_path": "frontend/src/styles/Flowboard.css",
+        "focus_visible_present": true
+      }
+    },
+    {
+      "id": "automated_keyboard_smoke",
+      "status": "pass",
+      "evidence": {
+        "flowboard_test_path": "frontend/tests/flowboard.spec.js",
+        "coverage": "Topbar controls, chart drawer, panel navigation, action chip activation, text entry, chart tabs, and handoff entry."
+      }
+    },
+    {
+      "id": "named_default_route_landmarks",
+      "status": "pass",
+      "evidence": {
+        "checks": [
+          {
+            "id": "named_main_workspace",
+            "passed": true
+          },
+          {
+            "id": "named_learner_rail",
+            "passed": true
+          },
+          {
+            "id": "named_decision_readiness",
+            "passed": true
+          },
+          {
+            "id": "named_chart_results_drawer",
+            "passed": true
+          },
+          {
+            "id": "named_chart_tabs_nav",
+            "passed": true
+          }
+        ],
+        "all_present": true,
+        "missing": []
+      }
+    }
+  ],
+  "control_scans": [
+    {
+      "file": "frontend/src/App.jsx",
+      "route_scope": "default_and_optional_routes",
+      "button_count": 0,
+      "form_control_count": 0,
+      "unnamed_button_count": 0,
+      "unnamed_form_control_count": 0,
+      "positive_tabindex_count": 0,
+      "aria_hidden_focusable_count": 0,
+      "unnamed_buttons": [],
+      "unnamed_form_controls": []
+    },
+    {
+      "file": "frontend/src/components/ClinicalFlowboard.jsx",
+      "route_scope": "default_national_route",
+      "button_count": 42,
+      "form_control_count": 23,
+      "unnamed_button_count": 0,
+      "unnamed_form_control_count": 0,
+      "positive_tabindex_count": 0,
+      "aria_hidden_focusable_count": 0,
+      "unnamed_buttons": [],
+      "unnamed_form_controls": []
+    },
+    {
+      "file": "frontend/src/components/Feedback.jsx",
+      "route_scope": "default_feedback_surface",
+      "button_count": 9,
+      "form_control_count": 1,
+      "unnamed_button_count": 0,
+      "unnamed_form_control_count": 0,
+      "positive_tabindex_count": 0,
+      "aria_hidden_focusable_count": 0,
+      "unnamed_buttons": [],
+      "unnamed_form_controls": []
+    }
+  ],
+  "issues": [],
+  "manual_review_required": [
+    "Run a full WCAG 2.2 AA audit on the default flowboard and any required legacy route.",
+    "Complete formal keyboard-only walkthroughs beyond the automated smoke for panel navigation, chart drawer use, handoff entry, and feedback review.",
+    "Test with NVDA, JAWS, VoiceOver, and browser zoom/reflow across common student devices.",
+    "Verify color contrast, target size, reading order, motion tolerance, and error recovery with representative learners.",
+    "Document accommodation workflows before required curricular or assessment use."
+  ],
+  "next_actions": [
+    "Extend the existing Flowboard keyboard smoke with axe or equivalent browser accessibility checks once a stable dependency is selected.",
+    "Create a faculty/student accessibility sign-off checklist tied to institutional disability-services review.",
+    "Repeat this report after every default-route UI change and before each cohort release.",
+    "Do not treat this report as completed WCAG approval; it only clears static release-blocker checks."
+  ]
+}

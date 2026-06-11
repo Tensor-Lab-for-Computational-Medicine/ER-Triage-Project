@@ -1,0 +1,215 @@
+{
+  "schema_version": "open_evidence_runtime_policy_report_v1",
+  "generated_at": "2026-06-09T22:33:40.688Z",
+  "review_status": "runtime_policy_probe_complete_needs_source_review",
+  "evidence_policy_version": "learner_facing_open_evidence_policy_v1",
+  "warning": "Runtime retrieval policy probes prove generated-needs-review chunks are quarantined by default. They do not replace clinician/librarian review of the evidence backlog or claim-level source entailment.",
+  "summary": {
+    "total_probes": 10,
+    "passed_policy_probes": 10,
+    "failed_policy_probes": 0,
+    "all_policy_probes_passed": true,
+    "public_bundle_chunks": 2489,
+    "quote_backed_chunks": 89,
+    "generated_needs_review_chunks": 2400,
+    "generated_chunks_quarantined_by_default": true,
+    "generated_references_returned": 0,
+    "clinician_librarian_reviewed_generated_chunks": 0
+  },
+  "probes": [
+    {
+      "id": "sepsis_shock",
+      "label": "Sepsis Shock",
+      "task": "management",
+      "query": "septic shock management abnormal vital signs lactate fluids vasopressors source control",
+      "status": "pass",
+      "expected_tags": [
+        "septic_shock_concern",
+        "septic_shock_resuscitation"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 16,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "chest_pain_acs",
+      "label": "Chest Pain ACS",
+      "task": "management",
+      "query": "chest pain possible ACS management ECG troponin antiplatelet monitoring disposition",
+      "status": "pass",
+      "expected_tags": [
+        "chest_pain_possible_acs",
+        "non_st_elevation_acs",
+        "initial_ecg_for_chest_pain",
+        "high_sensitivity_troponin_pathway"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 32,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "opioid_overdose",
+      "label": "Opioid Overdose",
+      "task": "management",
+      "query": "opioid overdose respiratory depression naloxone recurrence observation",
+      "status": "pass",
+      "expected_tags": [
+        "opioid_overdose",
+        "naloxone_response_and_recurrence"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 16,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "pediatric_fever",
+      "label": "Pediatric Fever",
+      "task": "triage",
+      "query": "febrile infant 8 to 21 days serious bacterial infection risk management",
+      "status": "pass",
+      "expected_tags": [
+        "febrile_infant_8_to_21_days"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 8,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "stroke_thrombolysis",
+      "label": "Stroke Thrombolysis",
+      "task": "management",
+      "query": "acute stroke thrombolytic eligibility discussion time window contraindications",
+      "status": "pass",
+      "expected_tags": [
+        "thrombolytic_eligibility_discussion"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 8,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "ectopic_pregnancy",
+      "label": "Ectopic Pregnancy",
+      "task": "diagnosis",
+      "query": "ectopic pregnancy rupture concern pelvic pain bleeding unstable emergency management",
+      "status": "pass",
+      "expected_tags": [
+        "ectopic_pregnancy_rupture_concern"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 8,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "head_trauma_ct",
+      "label": "Head Trauma CT",
+      "task": "diagnosis",
+      "query": "minor head injury CT decision anticoagulated vomiting neurologic symptoms",
+      "status": "pass",
+      "expected_tags": [
+        "minor_head_injury_ct_decision"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 8,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "agitation_restraints",
+      "label": "Agitation Restraints",
+      "task": "management",
+      "query": "severe agitation restraints safety medication strategy emergency department",
+      "status": "pass",
+      "expected_tags": [
+        "use_of_restraints",
+        "severe_agitation_medication_strategy"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 16,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "dka_hhs",
+      "label": "DKA HHS",
+      "task": "management",
+      "query": "DKA or HHS electrolyte emergency fluids insulin potassium reassessment",
+      "status": "pass",
+      "expected_tags": [
+        "dka_or_hhs"
+      ],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 8,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    },
+    {
+      "id": "default_generated_backlog_quarantine",
+      "label": "Default generated backlog quarantine",
+      "task": "diagnosis",
+      "query": "default learner-facing retrieval policy",
+      "status": "pass",
+      "expected_tags": [],
+      "expected_topic_matched": true,
+      "references_returned": 5,
+      "quote_backed_references": 5,
+      "generated_needs_review_references": 0,
+      "generated_candidates_quarantined": 2400,
+      "fail_closed": false,
+      "warnings": [
+        "Generated-needs-review chunks were quarantined and not used for learner-facing retrieval."
+      ]
+    }
+  ]
+}

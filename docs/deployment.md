@@ -7,10 +7,11 @@ Do not deploy credentialed MIMIC-IV-Ext-CDS source files or generated restricted
 ## Runtime Model
 
 - MIETIC validation cases are bundled as static JSON at `frontend/src/data/cases.json`.
+- Public cases use `public_case_v2`; the validator rejects MIMIC identifiers, ICD fields, restricted linkage context, and raw source row indexes.
 - The app displays a case-source banner so public demo mode is not confused with local restricted MIMIC validation mode.
-- Local MIMIC-IV-Ext-CDS bundles can be selected in the browser for research demos, but they are held only in browser memory and are not part of the deployable artifact.
+- Local restricted MIMIC bundles, including enriched `clinical_case_v3` files with optional objective data, can be selected in the browser for research demos, but they are held only in browser memory and are not part of the deployable artifact.
 - Reviewed case augmentations are compiled into the static bundle before deployment; no augmentation model runs in the learner browser.
-- Case simulation, patient responses, ESI scoring, diagnosis/referral capture, escalation scoring, reassessment scoring, SBAR scoring, and debrief generation run in the browser.
+- Case simulation, patient responses, ESI scoring, diagnosis/consult capture, escalation scoring, reassessment scoring, SOAP scoring, conditional SBAR scoring, and debrief generation run in the browser.
 - The default workflow makes no network request.
 - No OpenRouter key is required for the default workflow.
 - No application-owned AI cost is possible.
@@ -39,3 +40,16 @@ npm run build
 ```
 
 For project pages, `frontend/vite.config.js` infers the repository name from `GITHUB_REPOSITORY` during GitHub Actions and sets the correct base path automatically. `VITE_BASE_PATH` can override the base path when needed.
+
+The production build also creates `frontend/dist/404.html` from `index.html`. GitHub Pages serves this fallback for direct client routes such as `/legacy`, allowing the React app shell to bootstrap on refresh or shared links.
+
+Before a cohort release, run:
+
+```powershell
+cd frontend
+npm run build
+npm run readiness:bundle
+npm run readiness:scale-run
+```
+
+`readiness:scale-run` serves the built static artifact locally and checks the default route, direct legacy route fallback, initial assets, and bounded concurrent static requests. It is a smoke check only; it does not replace representative campus-network load testing, production monitoring, or an incident-response drill.

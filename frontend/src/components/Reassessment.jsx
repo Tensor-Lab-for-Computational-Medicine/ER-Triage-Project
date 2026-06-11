@@ -47,7 +47,7 @@ const REASSESSMENT_TARGETS = [
   {
     id: 'disposition_safety',
     label: 'Confirm disposition safety',
-    category: 'Flow and handoff',
+    category: 'Flow and disposition',
     description: 'Whether the patient is safe for routine wait, monitored placement, admission, transfer, or discharge planning.'
   }
 ];
@@ -70,7 +70,7 @@ function Reassessment({ sessionId, onNext, onCapture, onClock }) {
   const handleSubmit = async () => {
     const trimmed = rationale.trim();
     if (trimmed.length < 15) {
-      setError('Add a brief reassessment rationale before handoff.');
+      setError('Add a brief reassessment rationale before continuing.');
       return;
     }
 
@@ -101,7 +101,7 @@ function Reassessment({ sessionId, onNext, onCapture, onClock }) {
           <span className="eyebrow">Initial Plan <span className="provenance-tag student-tag">Student Decision</span></span>
           <h2 id="reassessment-heading">Reassessment Check</h2>
           <p className="subtitle">
-            Identify what must be rechecked before handoff, disposition, or routine waiting.
+            Identify what must be rechecked before disposition or routine waiting.
           </p>
         </div>
         <span className="clinical-badge">{submitted ? 'Recorded' : 'Required'}</span>
@@ -167,7 +167,7 @@ function Reassessment({ sessionId, onNext, onCapture, onClock }) {
           </button>
         ) : (
           <button type="button" className="btn-primary" onClick={onNext}>
-            Continue to SBAR
+            Continue to debrief
           </button>
         )}
       </div>

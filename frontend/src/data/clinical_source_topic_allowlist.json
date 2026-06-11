@@ -1,0 +1,23 @@
+{
+  "septic_shock_concern": ["sccm_ssc_adult_2026", "sccm_ssc_recommendations_2026"],
+  "septic_shock_resuscitation": ["sccm_ssc_adult_2026", "sccm_ssc_recommendations_2026", "aha_adult_acls_2025"],
+  "hemorrhagic_shock": ["acs_tqp_best_practices", "western_trauma_algorithms", "aha_adult_acls_2025"],
+  "chest_pain_possible_acs": ["aha_acc_chest_pain_2021", "aha_acc_chest_pain_slide_set_2021", "acep_nste_acs", "acep_stemi_reperfusion", "saem_grace_recurrent_chest_pain"],
+  "non_st_elevation_acs": ["acep_nste_acs", "aha_acc_chest_pain_2021", "aha_acc_chest_pain_slide_set_2021"],
+  "stemi_reperfusion": ["acep_stemi_reperfusion", "aha_acc_chest_pain_2021"],
+  "initial_ecg_for_chest_pain": ["aha_acc_chest_pain_2021", "acep_nste_acs", "acep_stemi_reperfusion"],
+  "high_sensitivity_troponin_pathway": ["aha_acc_chest_pain_2021", "aha_acc_chest_pain_slide_set_2021", "acep_nste_acs", "saem_grace_recurrent_chest_pain"],
+  "low_risk_recurrent_chest_pain": ["saem_grace_recurrent_chest_pain", "aha_acc_chest_pain_2021"],
+  "chest_pain_discharge_safety": ["saem_grace_recurrent_chest_pain", "aha_acc_chest_pain_2021"],
+  "opioid_overdose": ["cdc_lifesaving_naloxone_2025", "cdc_overdose_response_2024", "samhsa_overdose_response_toolkit_2025", "samhsa_opioid_overdose_reversal_2025"],
+  "naloxone_response_and_recurrence": ["cdc_lifesaving_naloxone_2025", "cdc_overdose_response_2024", "samhsa_overdose_response_toolkit_2025", "samhsa_opioid_overdose_reversal_2025"],
+  "opioid_prescribing_at_discharge": ["acep_opioids_2020", "cdc_opioid_2022"],
+  "dka_or_hhs": ["ada_hyperglycemic_crises_2024", "ccjm_hyperglycemic_crises_2025"],
+  "acute_stroke_symptoms": ["acep_acute_ischemic_stroke", "american_stroke_acute_toolkit", "asa_stroke_symptoms_2026", "asa_stroke_diagnosis_2023", "asa_quick_stroke_treatment_2026"],
+  "thrombolytic_eligibility_discussion": ["american_stroke_acute_toolkit", "acep_acute_ischemic_stroke", "asa_stroke_symptoms_2026", "asa_stroke_diagnosis_2023", "asa_quick_stroke_treatment_2026"],
+  "febrile_infant_8_to_21_days": ["aap_febrile_infant"],
+  "minor_head_injury_ct_decision": ["acr_head_trauma", "acep_mtbi_2023", "cdc_mtbi_symptoms_2025", "cdc_mtbi_return_activities_2025"],
+  "ectopic_pregnancy_rupture_concern": ["acep_early_pregnancy_2016", "acog_ectopic_pregnancy"],
+  "use_of_restraints": ["acep_restraints", "acep_severe_agitation", "acep_adult_psych"],
+  "severe_agitation_medication_strategy": ["acep_severe_agitation", "acep_restraints"]
+}

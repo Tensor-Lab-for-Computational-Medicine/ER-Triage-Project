@@ -1,10 +1,13 @@
-const EMBEDDING_DB = 'ed_triage_embedding_cache_v1';
+const EMBEDDING_DB = 'ed_triage_embedding_cache_v2';
 const EMBEDDING_STORE = 'embeddings';
-const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
-const EMBEDDING_VERSION = 'minilm_l6_v2_mean_normalized_v1';
-const MAX_CANDIDATES = 80;
+const EMBEDDING_MODEL = 'Xenova/bge-small-en-v1.5';
+const LEGACY_EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
+const EMBEDDING_DIMENSIONS = 384;
+const EMBEDDING_VERSION = 'bge_small_en_v1_5_mean_normalized_v1';
+const DEFAULT_MAX_CANDIDATES = 512;
 
 let extractorPromise = null;
+let extractorReady = false;
 const memoryVectors = new Map();
 
 function normalizeText(text) {
@@ -56,7 +59,12 @@ async function readEmbedding(id) {
       const request = tx.objectStore(EMBEDDING_STORE).get(id);
       request.onsuccess = () => {
         const record = request.result;
-        if (record?.version === EMBEDDING_VERSION && Array.isArray(record.vector)) {
+        if (
+          record?.version === EMBEDDING_VERSION &&
+          record?.model === EMBEDDING_MODEL &&
+          Array.isArray(record.vector) &&
+          record.vector.length === EMBEDDING_DIMENSIONS
+        ) {
           memoryVectors.set(id, record.vector);
           resolve(record.vector);
         } else {
@@ -90,14 +98,16 @@ async function loadExtractor() {
   const { pipeline } = await import('@huggingface/transformers');
   const attempts = [];
 
-  if (navigator.gpu) attempts.push({ device: 'webgpu', dtype: 'q8' });
+  if (typeof navigator !== 'undefined' && navigator.gpu) attempts.push({ device: 'webgpu', dtype: 'q8' });
   attempts.push({ dtype: 'q8' });
   attempts.push({});
 
   let lastError = null;
   for (const options of attempts) {
     try {
-      return await pipeline('feature-extraction', EMBEDDING_MODEL, options);
+      const loaded = await pipeline('feature-extraction', EMBEDDING_MODEL, options);
+      extractorReady = true;
+      return loaded;
     } catch (error) {
       lastError = error;
     }
@@ -111,9 +121,17 @@ async function extractor() {
   return extractorPromise;
 }
 
-async function embedText(text) {
+function textForEmbedding(text, metadata = {}) {
+  const normalized = normalizeText(text);
+  if (metadata.role === 'query') {
+    return `Represent this sentence for searching relevant emergency medicine passages: ${normalized}`;
+  }
+  return normalized;
+}
+
+async function embedText(text, metadata = {}) {
   const model = await extractor();
-  const output = await model(normalizeText(text), { pooling: 'mean', normalize: true });
+  const output = await model(textForEmbedding(text, metadata), { pooling: 'mean', normalize: true });
   return Array.from(output.data);
 }
 
@@ -125,7 +143,7 @@ async function getStoredEmbedding(namespace, text, metadata = {}) {
   const cached = await readEmbedding(id);
   if (cached) return cached;
 
-  const vector = await embedText(normalized);
+  const vector = await embedText(normalized, metadata);
   await writeEmbedding({
     id,
     namespace,
@@ -157,11 +175,21 @@ function cosineSimilarity(a, b) {
 }
 
 export function semanticEmbeddingMetadata() {
+  const hasNavigator = typeof navigator !== 'undefined';
+  const hasWebGpu = hasNavigator && Boolean(navigator.gpu);
   return {
     model: EMBEDDING_MODEL,
+    dimensions: EMBEDDING_DIMENSIONS,
+    distance: 'cosine',
+    legacy_fallback_model: LEGACY_EMBEDDING_MODEL,
+    ready: extractorReady,
     storage: 'IndexedDB',
-    runtime: navigator.gpu ? 'WebGPU when available, WASM fallback' : 'WASM fallback'
+    runtime: hasWebGpu ? 'WebGPU when available, WASM fallback' : 'WASM fallback'
   };
+}
+
+export function semanticEmbeddingsReady() {
+  return extractorReady;
 }
 
 export async function prewarmSemanticEmbeddings() {
@@ -184,32 +212,52 @@ export async function findSemanticMatch({
   candidateText = (item) => item.text,
   candidateId = (item) => item.id
 }) {
+  const ranked = await rankSemanticMatches({
+    namespace,
+    queryText,
+    candidates,
+    threshold,
+    candidateText,
+    candidateId,
+    topK: 1
+  });
+  return ranked[0] || null;
+}
+
+export async function rankSemanticMatches({
+  namespace,
+  queryText,
+  candidates,
+  threshold = 0,
+  candidateText = (item) => item.text,
+  candidateId = (item) => item.id,
+  candidateVector = null,
+  topK = 10,
+  maxCandidates = DEFAULT_MAX_CANDIDATES
+}) {
   const filtered = (candidates || [])
     .filter((item) => normalizeText(candidateText(item)))
-    .slice(0, MAX_CANDIDATES);
+    .slice(0, Math.max(1, maxCandidates));
 
-  if (!normalizeText(queryText) || !filtered.length) return null;
+  if (!normalizeText(queryText) || !filtered.length) return [];
 
   const queryVector = await getStoredEmbedding(`${namespace}:query`, queryText, { role: 'query' });
-  if (!queryVector) return null;
+  if (!queryVector) return [];
 
-  let best = null;
+  const ranked = [];
 
   for (const candidate of filtered) {
     const text = candidateText(candidate);
-    const vector = await getStoredEmbedding(`${namespace}:candidate`, text, {
+    const existingVector = candidateVector?.(candidate);
+    const vector = existingVector || await getStoredEmbedding(`${namespace}:candidate`, text, {
       role: 'candidate',
       candidate_id: candidateId(candidate)
     });
     const score = cosineSimilarity(queryVector, vector);
-    if (!best || score > best.score) {
-      best = {
-        candidate,
-        score
-      };
-    }
+    if (score >= threshold) ranked.push({ candidate, score });
   }
 
-  if (!best || best.score < threshold) return null;
-  return best;
+  return ranked
+    .sort((left, right) => right.score - left.score)
+    .slice(0, Math.max(1, topK));
 }

@@ -1,0 +1,879 @@
+{
+  "schema_version": "case_generation_quality_report_v1",
+  "generated_at": "2026-06-09T22:33:32.084Z",
+  "review_status": "source_scaffold_complete_national_truth_review_required",
+  "warning": "This report is an engineering and source-structure audit. It does not replace emergency clinician adjudication, curriculum committee review, or learner outcome validation.",
+  "quality_policy": {
+    "national_case_count_minimum": 100,
+    "release_rule": "A public case is national-release eligible only when source scaffolding is complete, teaching augmentation is reviewed, case truth fields are clinician adjudicated, simulation reveal gaps are closed, and augmented grading-reference facts are removed or adjudicated.",
+    "allowed_current_use": "Draft formative practice and engineering validation only; not national summative assessment.",
+    "blocked_current_use": "National medical-student deployment as reliable clinically adjudicated simulation case bank."
+  },
+  "summary": {
+    "total_cases": 23,
+    "national_case_count_minimum": 100,
+    "case_count_shortfall_for_national_bank": 77,
+    "schema_version_counts": {
+      "public_case_v2": 23
+    },
+    "esi_distribution": {
+      "ESI_2": 10,
+      "ESI_1": 2,
+      "ESI_3": 5,
+      "ESI_4": 4,
+      "ESI_5": 2
+    },
+    "esi_levels_present": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "source_adjudication_final_decision_counts": {
+      "RETAIN": 23
+    },
+    "source_adjudication_expert_review_count_distribution": {
+      "2": 16,
+      "3": 7
+    },
+    "reviewed_augmentation_cases": 23,
+    "inferred_teaching_fact_count": 23,
+    "reviewed_inferred_teaching_fact_count": 23,
+    "inferred_teaching_facts_without_source_anchors": 0,
+    "augmented_grading_reference_fact_count": 0,
+    "cases_with_augmented_grading_reference_facts": 0,
+    "cases_with_source_scaffold_issues": 0,
+    "cases_with_augmentation_issues": 0,
+    "cases_with_missing_source_evidence": 23,
+    "missing_source_evidence_counts": {
+      "focused_physical_exam": 23,
+      "relevant_negatives": 19,
+      "neurovascular_status": 7,
+      "mechanism": 6,
+      "imaging_or_exam_result": 9
+    },
+    "cases_missing_any_truth_field": 23,
+    "missing_truth_field_counts": {
+      "source_record_diagnosis": 23,
+      "clinician_approved_referral_or_consult_truth": 23,
+      "retrospective_ground_truth": 23,
+      "optional_objective_data_truth": 23
+    },
+    "cases_with_simulation_structuring_gaps": 0,
+    "simulation_structuring_gap_counts": {},
+    "truth_review_packets_present": true,
+    "truth_review_packets": 23,
+    "case_truth_adjudication_ready_cases": 0,
+    "draft_practice_scaffold_eligible_cases": 23,
+    "national_release_eligible_cases": 0,
+    "national_release_ready": false
+  },
+  "criteria": [
+    {
+      "id": "source_record_provenance_complete",
+      "status": "pass",
+      "evidence": {
+        "cases_with_source_scaffold_issues": 0,
+        "required_schema_version": "public_case_v2"
+      }
+    },
+    {
+      "id": "reviewed_teaching_augmentation_scaffold",
+      "status": "pass",
+      "evidence": {
+        "cases_with_augmentation_issues": 0,
+        "reviewed_augmentation_cases": 23,
+        "inferred_teaching_fact_count": 23
+      }
+    },
+    {
+      "id": "truth_fields_adjudicated_for_national_release",
+      "status": "fail",
+      "evidence": {
+        "cases_missing_any_truth_field": 23,
+        "missing_truth_field_counts": {
+          "source_record_diagnosis": 23,
+          "clinician_approved_referral_or_consult_truth": 23,
+          "retrospective_ground_truth": 23,
+          "optional_objective_data_truth": 23
+        },
+        "case_truth_adjudication_ready_cases": 0
+      }
+    },
+    {
+      "id": "simulation_reveal_data_complete",
+      "status": "pass",
+      "evidence": {
+        "cases_with_simulation_structuring_gaps": 0,
+        "simulation_structuring_gap_counts": {}
+      }
+    },
+    {
+      "id": "national_case_bank_size_and_acuity_coverage",
+      "status": "fail",
+      "evidence": {
+        "total_cases": 23,
+        "national_case_count_minimum": 100,
+        "esi_distribution": {
+          "ESI_2": 10,
+          "ESI_1": 2,
+          "ESI_3": 5,
+          "ESI_4": 4,
+          "ESI_5": 2
+        },
+        "esi_levels_present": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "id": "augmented_grading_references_adjudicated",
+      "status": "pass",
+      "evidence": {
+        "augmented_grading_reference_fact_count": 0,
+        "cases_with_augmented_grading_reference_facts": 0
+      }
+    }
+  ],
+  "case_audits": [
+    {
+      "case_id": "case_002",
+      "public_case_uid": "mietic_validate_public_006",
+      "acuity": 2,
+      "complaint": "Chest pain, Dyspnea",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_004",
+      "public_case_uid": "mietic_validate_public_009",
+      "acuity": 2,
+      "complaint": "Difficulty swallowing, Transfer",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "neurovascular_status",
+        "mechanism",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "neurovascular_status",
+        "mechanism"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_005",
+      "public_case_uid": "mietic_validate_public_010",
+      "acuity": 2,
+      "complaint": "Fever / limb infection concern",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_006",
+      "public_case_uid": "mietic_validate_public_011",
+      "acuity": 2,
+      "complaint": "Chest pain",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_007",
+      "public_case_uid": "mietic_validate_public_012",
+      "acuity": 1,
+      "complaint": "Fever, Pneumonia, Transfer",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_008",
+      "public_case_uid": "mietic_validate_public_015",
+      "acuity": 3,
+      "complaint": "Dyspnea, Pedal edema",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_009",
+      "public_case_uid": "mietic_validate_public_016",
+      "acuity": 3,
+      "complaint": "RECTAL ABSCESS",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_012",
+      "public_case_uid": "mietic_validate_public_022",
+      "acuity": 3,
+      "complaint": "Lower abdominal pain",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_013",
+      "public_case_uid": "mietic_validate_public_023",
+      "acuity": 2,
+      "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_014",
+      "public_case_uid": "mietic_validate_public_024",
+      "acuity": 3,
+      "complaint": "Acute Pelvic pain",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_017",
+      "public_case_uid": "mietic_validate_public_029",
+      "acuity": 2,
+      "complaint": "N/V, Weakness",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_018",
+      "public_case_uid": "mietic_validate_public_030",
+      "acuity": 4,
+      "complaint": "Finger laceration",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "neurovascular_status",
+        "mechanism",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "neurovascular_status",
+        "mechanism",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_019",
+      "public_case_uid": "mietic_validate_public_032",
+      "acuity": 4,
+      "complaint": "Finger laceration",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "neurovascular_status",
+        "mechanism",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "neurovascular_status",
+        "mechanism"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_020",
+      "public_case_uid": "mietic_validate_public_035",
+      "acuity": 4,
+      "complaint": "R Wrist pain",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "neurovascular_status",
+        "mechanism",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "neurovascular_status",
+        "mechanism",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_021",
+      "public_case_uid": "mietic_validate_public_036",
+      "acuity": 3,
+      "complaint": "R Foot swelling",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "neurovascular_status",
+        "mechanism",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "neurovascular_status",
+        "mechanism",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_022",
+      "public_case_uid": "mietic_validate_public_039",
+      "acuity": 2,
+      "complaint": "Abd pain, Abdominal distention",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_023",
+      "public_case_uid": "mietic_validate_public_040",
+      "acuity": 2,
+      "complaint": "Abd pain, Vomiting, Nausea, Dyspnea",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_024",
+      "public_case_uid": "mietic_validate_public_041",
+      "acuity": 5,
+      "complaint": "Suture removal",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_025",
+      "public_case_uid": "mietic_validate_public_043",
+      "acuity": 1,
+      "complaint": "Abd pain, Transfer",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_027",
+      "public_case_uid": "mietic_validate_public_046",
+      "acuity": 5,
+      "complaint": "Med refill",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_029",
+      "public_case_uid": "mietic_validate_public_048",
+      "acuity": 2,
+      "complaint": "L Leg injury, Transfer",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "neurovascular_status",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives",
+        "neurovascular_status"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_030",
+      "public_case_uid": "mietic_validate_public_049",
+      "acuity": 4,
+      "complaint": "R Foot pain",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "neurovascular_status",
+        "mechanism",
+        "imaging_or_exam_result"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "neurovascular_status",
+        "mechanism",
+        "imaging_or_exam_result"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    },
+    {
+      "case_id": "case_031",
+      "public_case_uid": "mietic_validate_public_050",
+      "acuity": 2,
+      "complaint": "ABDOMINAL PAIN",
+      "source_scaffold_complete": true,
+      "augmentation_scaffold_complete": true,
+      "source_scaffold_issues": [],
+      "augmentation_issues": [],
+      "missing_source_evidence_domains": [
+        "focused_physical_exam",
+        "relevant_negatives"
+      ],
+      "simulation_reveal_domains": [
+        "focused_physical_exam",
+        "physical_exam",
+        "relevant_negatives"
+      ],
+      "missing_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth",
+        "optional_objective_data_truth"
+      ],
+      "simulation_structuring_gaps": [],
+      "inferred_grading_reference_facts": [],
+      "draft_practice_scaffold_eligible": true,
+      "national_release_eligible": false,
+      "release_status": "draft_practice_scaffold_only_clinician_truth_pending"
+    }
+  ],
+  "augmented_grading_reference_facts": [],
+  "next_actions": [
+    "Complete clinician case-truth adjudication for diagnosis, consult/referral, reassessment triggers, disposition rationale, and optional objective reveal data.",
+    "Close simulation structuring gaps such as focused physical exam, relevant negatives, mechanism, neurovascular status, and imaging/exam-result reveal data before national case release.",
+    "Remove augmented grading-reference facts from scoring or record clinician adjudication before using them as assessment anchors.",
+    "Expand the case bank from 23 to at least 100 clinically reviewed cases with balanced acuity, demographics, and presenting complaints.",
+    "Keep source-record scaffolding and reviewed teaching augmentation separate from medical truth in learner-facing feedback."
+  ]
+}

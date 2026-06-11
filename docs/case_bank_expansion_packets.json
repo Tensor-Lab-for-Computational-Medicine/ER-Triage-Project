@@ -1,0 +1,3198 @@
+{
+  "schema_version": "case_bank_expansion_packets_v1",
+  "generated_at": "2026-06-09T22:33:32.595Z",
+  "review_status": "case_bank_expansion_packets_open_acquisition_and_review_required",
+  "warning": "These packets operationalize national case-bank expansion targets. They do not create cases, approve generated cases, or replace source, clinician, equity, curriculum, or outcomes review.",
+  "source_contract": {
+    "case_bank_expansion_status_schema": "case_bank_expansion_status_v1",
+    "case_bank_expansion_status_path": "docs/case_bank_expansion_status.json",
+    "case_generation_quality_report_schema": "case_generation_quality_report_v1",
+    "equity_bias_readiness_audit_schema": "equity_bias_readiness_audit_v1",
+    "generated_or_synthetic_cases_count_for_national_release_without_review": false,
+    "blueprint_slots_are_not_case_approvals": true
+  },
+  "summary": {
+    "current_cases": 23,
+    "national_case_count_minimum": 100,
+    "case_count_shortfall": 77,
+    "target_gap_packets": 18,
+    "recommended_minimum_new_cases": 77,
+    "blueprint_slots": 77,
+    "blueprint_slots_match_recommended_minimum_new_cases": true,
+    "all_target_shortfalls_have_blueprint_coverage": true,
+    "reviewed_blueprint_slots": 0,
+    "pending_blueprint_slots": 77,
+    "national_release_eligible_cases": 0,
+    "ready_for_national_case_bank_release_from_expansion_packets": false
+  },
+  "target_gap_packets": [
+    {
+      "id": "case_bank_gap_acuity_ESI_1",
+      "dimension": "acuity",
+      "label": "ESI acuity",
+      "target_id": "ESI_1",
+      "priority": "P1_coverage_gap",
+      "current_cases": 2,
+      "minimum_cases": 10,
+      "shortfall": 8,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward ESI_1.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_acuity_ESI_2",
+      "dimension": "acuity",
+      "label": "ESI acuity",
+      "target_id": "ESI_2",
+      "priority": "P0_acuity_distribution_gap",
+      "current_cases": 10,
+      "minimum_cases": 25,
+      "shortfall": 15,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward ESI_2.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_acuity_ESI_3",
+      "dimension": "acuity",
+      "label": "ESI acuity",
+      "target_id": "ESI_3",
+      "priority": "P0_acuity_distribution_gap",
+      "current_cases": 5,
+      "minimum_cases": 25,
+      "shortfall": 20,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward ESI_3.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_acuity_ESI_4",
+      "dimension": "acuity",
+      "label": "ESI acuity",
+      "target_id": "ESI_4",
+      "priority": "P0_acuity_distribution_gap",
+      "current_cases": 4,
+      "minimum_cases": 20,
+      "shortfall": 16,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward ESI_4.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_acuity_ESI_5",
+      "dimension": "acuity",
+      "label": "ESI acuity",
+      "target_id": "ESI_5",
+      "priority": "P1_coverage_gap",
+      "current_cases": 2,
+      "minimum_cases": 10,
+      "shortfall": 8,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward ESI_5.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_age_band_pediatric",
+      "dimension": "age_band",
+      "label": "Age band",
+      "target_id": "pediatric",
+      "priority": "P0_age_distribution_gap",
+      "current_cases": 0,
+      "minimum_cases": 10,
+      "shortfall": 10,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward pediatric.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_age_band_adult_18_39",
+      "dimension": "age_band",
+      "label": "Age band",
+      "target_id": "adult_18_39",
+      "priority": "P0_age_distribution_gap",
+      "current_cases": 5,
+      "minimum_cases": 20,
+      "shortfall": 15,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward adult_18_39.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_age_band_adult_40_64",
+      "dimension": "age_band",
+      "label": "Age band",
+      "target_id": "adult_40_64",
+      "priority": "P0_age_distribution_gap",
+      "current_cases": 11,
+      "minimum_cases": 25,
+      "shortfall": 14,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward adult_40_64.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_age_band_older_adult_65_plus",
+      "dimension": "age_band",
+      "label": "Age band",
+      "target_id": "older_adult_65_plus",
+      "priority": "P0_age_distribution_gap",
+      "current_cases": 7,
+      "minimum_cases": 20,
+      "shortfall": 13,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward older_adult_65_plus.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_special_population_language_access_or_interpreter_need",
+      "dimension": "special_population",
+      "label": "Special population",
+      "target_id": "language_access_or_interpreter_need",
+      "priority": "P0_equity_population_gap",
+      "current_cases": 0,
+      "minimum_cases": 10,
+      "shortfall": 10,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward language_access_or_interpreter_need.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_special_population_disability_or_communication_accommodation",
+      "dimension": "special_population",
+      "label": "Special population",
+      "target_id": "disability_or_communication_accommodation",
+      "priority": "P0_equity_population_gap",
+      "current_cases": 0,
+      "minimum_cases": 10,
+      "shortfall": 10,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward disability_or_communication_accommodation.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_special_population_pregnancy_or_reproductive_health",
+      "dimension": "special_population",
+      "label": "Special population",
+      "target_id": "pregnancy_or_reproductive_health",
+      "priority": "P2_target_gap",
+      "current_cases": 7,
+      "minimum_cases": 10,
+      "shortfall": 3,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward pregnancy_or_reproductive_health.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_special_population_mental_health_substance_use_or_capacity",
+      "dimension": "special_population",
+      "label": "Special population",
+      "target_id": "mental_health_substance_use_or_capacity",
+      "priority": "P1_coverage_gap",
+      "current_cases": 4,
+      "minimum_cases": 10,
+      "shortfall": 6,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward mental_health_substance_use_or_capacity.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_special_population_social_context_or_access_to_care",
+      "dimension": "special_population",
+      "label": "Special population",
+      "target_id": "social_context_or_access_to_care",
+      "priority": "P0_equity_population_gap",
+      "current_cases": 2,
+      "minimum_cases": 10,
+      "shortfall": 8,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward social_context_or_access_to_care.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_presentation_abdominal_gi_or_pelvic",
+      "dimension": "presentation",
+      "label": "Presentation family",
+      "target_id": "abdominal_gi_or_pelvic",
+      "priority": "P2_target_gap",
+      "current_cases": 10,
+      "minimum_cases": 12,
+      "shortfall": 2,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward abdominal_gi_or_pelvic.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_presentation_neurologic_or_altered_mental_status",
+      "dimension": "presentation",
+      "label": "Presentation family",
+      "target_id": "neurologic_or_altered_mental_status",
+      "priority": "P1_coverage_gap",
+      "current_cases": 3,
+      "minimum_cases": 8,
+      "shortfall": 5,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward neurologic_or_altered_mental_status.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_presentation_procedure_followup_or_low_acuity",
+      "dimension": "presentation",
+      "label": "Presentation family",
+      "target_id": "procedure_followup_or_low_acuity",
+      "priority": "P2_target_gap",
+      "current_cases": 5,
+      "minimum_cases": 8,
+      "shortfall": 3,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward procedure_followup_or_low_acuity.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    },
+    {
+      "id": "case_bank_gap_presentation_airway_ent_or_transfer",
+      "dimension": "presentation",
+      "label": "Presentation family",
+      "target_id": "airway_ent_or_transfer",
+      "priority": "P2_target_gap",
+      "current_cases": 4,
+      "minimum_cases": 6,
+      "shortfall": 2,
+      "review_status": "case_acquisition_and_review_required",
+      "required_actions": [
+        "Acquire or author source-grounded cases that count toward airway_ent_or_transfer.",
+        "Require deidentified source provenance, explicit case truth fields, simulation reveal scaffolds, and review signatures before counting toward national release.",
+        "Prefer cases that also close other open acuity, age, equity, or presentation gaps."
+      ],
+      "must_not_count_until": [
+        "case truth adjudication is complete",
+        "source/evidence review is complete",
+        "equity and accessibility review is complete",
+        "curriculum/Core EPA mapping review is complete",
+        "learner-facing feedback claim support is reviewed"
+      ]
+    }
+  ],
+  "blueprint_gap_coverage": [
+    {
+      "dimension": "acuity",
+      "target_id": "ESI_1",
+      "shortfall": 8,
+      "assigned_blueprints": 16,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "acuity",
+      "target_id": "ESI_2",
+      "shortfall": 15,
+      "assigned_blueprints": 17,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "acuity",
+      "target_id": "ESI_3",
+      "shortfall": 20,
+      "assigned_blueprints": 20,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "acuity",
+      "target_id": "ESI_4",
+      "shortfall": 16,
+      "assigned_blueprints": 16,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "acuity",
+      "target_id": "ESI_5",
+      "shortfall": 8,
+      "assigned_blueprints": 8,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "age_band",
+      "target_id": "pediatric",
+      "shortfall": 10,
+      "assigned_blueprints": 20,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "age_band",
+      "target_id": "adult_18_39",
+      "shortfall": 15,
+      "assigned_blueprints": 30,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "age_band",
+      "target_id": "adult_40_64",
+      "shortfall": 14,
+      "assigned_blueprints": 14,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "age_band",
+      "target_id": "older_adult_65_plus",
+      "shortfall": 13,
+      "assigned_blueprints": 13,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "special_population",
+      "target_id": "language_access_or_interpreter_need",
+      "shortfall": 10,
+      "assigned_blueprints": 23,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "special_population",
+      "target_id": "disability_or_communication_accommodation",
+      "shortfall": 10,
+      "assigned_blueprints": 20,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "special_population",
+      "target_id": "pregnancy_or_reproductive_health",
+      "shortfall": 3,
+      "assigned_blueprints": 6,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "special_population",
+      "target_id": "mental_health_substance_use_or_capacity",
+      "shortfall": 6,
+      "assigned_blueprints": 12,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "special_population",
+      "target_id": "social_context_or_access_to_care",
+      "shortfall": 8,
+      "assigned_blueprints": 16,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "presentation",
+      "target_id": "abdominal_gi_or_pelvic",
+      "shortfall": 2,
+      "assigned_blueprints": 14,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "presentation",
+      "target_id": "neurologic_or_altered_mental_status",
+      "shortfall": 5,
+      "assigned_blueprints": 33,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "presentation",
+      "target_id": "procedure_followup_or_low_acuity",
+      "shortfall": 3,
+      "assigned_blueprints": 18,
+      "blueprint_coverage_met": true
+    },
+    {
+      "dimension": "presentation",
+      "target_id": "airway_ent_or_transfer",
+      "shortfall": 2,
+      "assigned_blueprints": 12,
+      "blueprint_coverage_met": true
+    }
+  ],
+  "case_blueprint_slots": [
+    {
+      "id": "case_bank_blueprint_001",
+      "sequence": 1,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_002",
+      "sequence": 2,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_003",
+      "sequence": 3,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_004",
+      "sequence": 4,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_005",
+      "sequence": 5,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_006",
+      "sequence": 6,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_007",
+      "sequence": 7,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_008",
+      "sequence": 8,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_009",
+      "sequence": 9,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_010",
+      "sequence": 10,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "pediatric",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_011",
+      "sequence": 11,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_012",
+      "sequence": 12,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_013",
+      "sequence": 13,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_014",
+      "sequence": 14,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_015",
+      "sequence": 15,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_016",
+      "sequence": 16,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_017",
+      "sequence": 17,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_018",
+      "sequence": 18,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_019",
+      "sequence": 19,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_020",
+      "sequence": 20,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_021",
+      "sequence": 21,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_022",
+      "sequence": 22,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_023",
+      "sequence": 23,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_024",
+      "sequence": 24,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_025",
+      "sequence": 25,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_026",
+      "sequence": 26,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_027",
+      "sequence": 27,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_028",
+      "sequence": 28,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_029",
+      "sequence": 29,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_030",
+      "sequence": 30,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_031",
+      "sequence": 31,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_032",
+      "sequence": 32,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_033",
+      "sequence": 33,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_034",
+      "sequence": 34,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_035",
+      "sequence": 35,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_036",
+      "sequence": 36,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_037",
+      "sequence": 37,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_038",
+      "sequence": 38,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_039",
+      "sequence": 39,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "adult_40_64",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_040",
+      "sequence": 40,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_041",
+      "sequence": 41,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_042",
+      "sequence": 42,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_043",
+      "sequence": 43,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_3",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_044",
+      "sequence": 44,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_045",
+      "sequence": 45,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_046",
+      "sequence": 46,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_047",
+      "sequence": 47,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_048",
+      "sequence": 48,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_049",
+      "sequence": 49,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_050",
+      "sequence": 50,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_051",
+      "sequence": 51,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_052",
+      "sequence": 52,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "older_adult_65_plus",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_053",
+      "sequence": 53,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_054",
+      "sequence": 54,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_055",
+      "sequence": 55,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_056",
+      "sequence": 56,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_057",
+      "sequence": 57,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "disability_or_communication_accommodation",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_058",
+      "sequence": 58,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_059",
+      "sequence": 59,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_4",
+        "age_band": "pediatric",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_060",
+      "sequence": 60,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "pediatric",
+        "special_population": "pregnancy_or_reproductive_health",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_061",
+      "sequence": 61,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "pediatric",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_062",
+      "sequence": 62,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "pediatric",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_063",
+      "sequence": 63,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_064",
+      "sequence": 64,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_065",
+      "sequence": 65,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_066",
+      "sequence": 66,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "mental_health_substance_use_or_capacity",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_067",
+      "sequence": 67,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_5",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_068",
+      "sequence": 68,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_069",
+      "sequence": 69,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_070",
+      "sequence": 70,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "procedure_followup_or_low_acuity"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_071",
+      "sequence": 71,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_072",
+      "sequence": 72,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "airway_ent_or_transfer"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_073",
+      "sequence": 73,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_074",
+      "sequence": 74,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "social_context_or_access_to_care",
+        "presentation": "abdominal_gi_or_pelvic"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_075",
+      "sequence": 75,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_1",
+        "age_band": "adult_18_39",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_076",
+      "sequence": 76,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    },
+    {
+      "id": "case_bank_blueprint_077",
+      "sequence": 77,
+      "review_status": "draft_case_acquisition_blueprint_review_required",
+      "target_profile": {
+        "acuity": "ESI_2",
+        "age_band": "adult_18_39",
+        "special_population": "language_access_or_interpreter_need",
+        "presentation": "neurologic_or_altered_mental_status"
+      },
+      "case_source_requirements": [
+        "Use deidentified real-world source records, published open cases, or institutionally approved teaching cases with documented provenance.",
+        "Do not use generated patient facts as release-counting case truth.",
+        "Record source-record diagnosis, referral/consult truth, disposition/outcome, objective data, and missing-data limitations.",
+        "Attach quote-backed open evidence or clinician-approved local standards for feedback claims that go beyond case facts."
+      ],
+      "required_reviews_before_counting": [
+        "emergency_clinician_case_truth_reviewer",
+        "simulation_educator",
+        "medical_librarian_or_evidence_reviewer",
+        "equity_and_accessibility_reviewer",
+        "curriculum_or_core_epa_reviewer"
+      ],
+      "required_case_truth_fields": [
+        "source_record_diagnosis",
+        "clinician_approved_referral_or_consult_truth",
+        "retrospective_ground_truth_or_disposition_outcome",
+        "optional_objective_data_truth",
+        "unsafe_omission_or_escalation_triggers",
+        "source_limitations_and_simulation_reveal_notes"
+      ],
+      "release_counting_rule": "This blueprint can count toward the national case-bank target only after source scaffolding, case truth adjudication, equity review, curriculum mapping, and feedback traceability review are complete."
+    }
+  ],
+  "review_submission_template": {
+    "schema_version": "case_bank_expansion_reviews_v1",
+    "blueprint_reviews": [
+      {
+        "blueprint_id": "case_bank_blueprint_001",
+        "created_case_id": "",
+        "target_profile_confirmed": {
+          "acuity": "ESI_1",
+          "age_band": "pediatric",
+          "special_population": "language_access_or_interpreter_need",
+          "presentation": "abdominal_gi_or_pelvic"
+        },
+        "reviewed_by": [
+          {
+            "role": "emergency_clinician_case_truth_reviewer",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          },
+          {
+            "role": "simulation_educator",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          },
+          {
+            "role": "medical_librarian_or_evidence_reviewer",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          },
+          {
+            "role": "equity_and_accessibility_reviewer",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          },
+          {
+            "role": "curriculum_or_core_epa_reviewer",
+            "name": "",
+            "institution": "",
+            "credential_or_position": ""
+          }
+        ],
+        "reviewed_at": "",
+        "source_record_or_teaching_case_provenance": "",
+        "source_deidentification_attestation": "",
+        "case_truth_adjudication_id": "",
+        "equity_review_id": "",
+        "curriculum_mapping_review_id": "",
+        "feedback_traceability_review_id": "",
+        "national_case_bank_counting_decision": "approved_to_count_toward_national_case_bank | approved_for_supervised_pilot_only | source_or_truth_revisions_required | equity_or_curriculum_revisions_required | rejected | blocked",
+        "required_changes": [],
+        "reviewer_attestation": ""
+      }
+    ]
+  },
+  "release_blockers": [
+    {
+      "id": "case_bank_expansion_target_gaps_open",
+      "status": "blocked",
+      "evidence": {
+        "target_gap_packets": 18,
+        "case_count_shortfall": 77
+      },
+      "required_to_clear": "Add reviewed cases until every acuity, age, special-population, and presentation target is met."
+    },
+    {
+      "id": "case_bank_blueprint_reviews_pending",
+      "status": "blocked",
+      "evidence": {
+        "blueprint_slots": 77,
+        "reviewed_blueprint_slots": 0
+      },
+      "required_to_clear": "Record completed source, clinician, equity, curriculum, and feedback reviews before blueprint cases count toward national release."
+    }
+  ],
+  "next_actions": [
+    "Use the blueprint slots to source a balanced batch of deidentified, provenance-backed ED cases.",
+    "Assign each blueprint to emergency clinician, simulation educator, medical librarian/evidence reviewer, equity/accessibility, and curriculum reviewers.",
+    "Do not count generated or draft cases toward national release until all required reviews are complete.",
+    "Regenerate case bank status and readiness artifacts after approved cases are added."
+  ]
+}

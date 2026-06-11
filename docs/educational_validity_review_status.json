@@ -1,0 +1,1569 @@
+{
+  "schema_version": "educational_validity_review_status_v1",
+  "generated_at": "2026-06-09T22:33:59.649Z",
+  "review_status": "educational_validity_review_inputs_pending",
+  "warning": "This status validates completed educational-validity review submissions. It does not itself prove improved clinical judgment, authorize hospital-performance claims, or replace curriculum committee, IRB/QI, or multi-site outcome evidence.",
+  "source_contract": {
+    "educational_validity_review_packets_schema": "educational_validity_review_packets_v1",
+    "educational_validity_review_packets_path": "docs/educational_validity_review_packets.json",
+    "curriculum_mapping_review_status_schema": "curriculum_mapping_review_status_v1",
+    "educational_outcomes_validation_status_schema": "educational_outcomes_validation_status_v1",
+    "educational_outcomes_runtime_report_schema": "educational_outcomes_runtime_report_v1",
+    "completed_review_file_present": false,
+    "completed_review_file_path": "docs/educational_validity_reviews.json",
+    "required_completed_review_schema": "educational_validity_reviews_v1",
+    "allowed_review_statuses": [
+      "approved_for_national_educational_release",
+      "approved_for_supervised_pilot_only",
+      "approved_formative_only",
+      "blocked_pending_curriculum_or_outcome_evidence",
+      "rejected",
+      "revisions_required"
+    ],
+    "restricted_keys_blocked": [
+      "ai_draft_text",
+      "csn",
+      "encounter_id",
+      "free_text",
+      "hadm_id",
+      "learner_email",
+      "learner_name",
+      "message_text",
+      "mrn",
+      "patient_id",
+      "patient_name",
+      "raw_case_text",
+      "raw_learner_text",
+      "raw_patient_text",
+      "raw_rationale",
+      "soap_text",
+      "stay_id",
+      "student_email",
+      "student_id",
+      "student_name",
+      "subject_id",
+      "transcript"
+    ]
+  },
+  "summary": {
+    "review_file_present": false,
+    "total_review_packets": 77,
+    "case_curriculum_mapping_packets": 23,
+    "workflow_phase_review_packets": 5,
+    "unsupported_epa_decision_packets": 2,
+    "case_outcome_measurement_packets": 23,
+    "outcome_metric_review_packets": 20,
+    "outcome_study_packets": 4,
+    "submitted_educational_validity_reviews": 0,
+    "valid_educational_validity_reviews": 0,
+    "nationally_approved_review_packets": 0,
+    "supervised_pilot_approved_review_packets": 0,
+    "formative_only_approved_review_packets": 0,
+    "pending_review_packets": 77,
+    "invalid_review_input_count": 0,
+    "unmatched_submitted_reviews": 0,
+    "curriculum_ready_for_national_release": false,
+    "educational_outcome_claims_ready": false,
+    "educational_outcome_runtime_ready": true,
+    "ready_for_national_educational_release_from_reviews": false,
+    "review_status_counts": {
+      "not_submitted": 77
+    },
+    "packet_type_counts": {
+      "case_curriculum_mapping_review": 23,
+      "workflow_phase_curriculum_review": 5,
+      "unsupported_epa_scope_decision": 2,
+      "case_outcome_measurement_review": 23,
+      "educational_outcome_metric_review": 20,
+      "educational_outcome_study_evidence_packet": 4
+    },
+    "required_reviewer_role_counts": {
+      "clinical_educator": 77,
+      "simulation_educator": 30,
+      "curriculum_or_clerkship_director": 23,
+      "assessment_or_curriculum_reviewer": 50,
+      "measurement_or_biostatistics_reviewer": 47,
+      "privacy_or_irb_governance_reviewer": 4,
+      "simulation_or_clerkship_director": 4
+    }
+  },
+  "educational_validity_review_status": [
+    {
+      "packet_id": "curriculum_case_mapping_case_002",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_004",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_005",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_006",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_007",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_008",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_009",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_012",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_013",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_014",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_017",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_018",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_019",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_020",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_021",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_022",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_023",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_024",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_025",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_027",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_029",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_030",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_urgent_care_epa_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_case_mapping_case_031",
+      "packet_type": "case_curriculum_mapping_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_curriculum_mapping_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "simulation_educator",
+        "curriculum_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_workflow_phase_encounter",
+      "packet_type": "workflow_phase_curriculum_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_urgent_care_workflow_scope_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_workflow_phase_impression",
+      "packet_type": "workflow_phase_curriculum_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_urgent_care_workflow_scope_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_workflow_phase_plan",
+      "packet_type": "workflow_phase_curriculum_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_urgent_care_workflow_scope_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_workflow_phase_reassessment",
+      "packet_type": "workflow_phase_curriculum_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_urgent_care_workflow_scope_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "curriculum_workflow_phase_debrief",
+      "packet_type": "workflow_phase_curriculum_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_workflow_scope_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "unsupported_epa_scope_EPA_11",
+      "packet_type": "unsupported_epa_scope_decision",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_scope_or_feature_decision_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "unsupported_epa_scope_EPA_12",
+      "packet_type": "unsupported_epa_scope_decision",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_scope_or_feature_decision_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "simulation_educator"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_002",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_004",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_005",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_006",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_007",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_008",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_009",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_012",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_013",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_014",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_017",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_018",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_019",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_020",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_021",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_022",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_023",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_024",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_025",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_027",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_029",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_030",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_case_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_case_measurement_case_031",
+      "packet_type": "case_outcome_measurement_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_high_acuity_outcome_measurement_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_esi_accuracy",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_esi_error_direction",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_high_risk_undertriage",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_patient_safety_outcome_metric",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_lower_acuity_overtriage",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_score_percent",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_score_domain_percentages",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_interview_domain_coverage",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_focused_exam_selection",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_diagnostic_reasoning_score",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_source_limited_metric_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_consult_judgment_score",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_source_limited_metric_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_escalation_action_alignment",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_safety_or_transfer_metric_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_reassessment_target_score",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_source_limited_metric_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_soap_note_score",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_sbar_handoff_score",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_source_limited_feedback_exposure",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_learner_profile_gap_delta",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P2_metric_calibration_review",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_optional_ai_draft_use",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_external_validation_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_delayed_retention_case_performance",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_external_validation_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_osce_or_sim_lab_transfer",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_external_validation_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_metric_workplace_supervisor_rating",
+      "packet_type": "educational_outcome_metric_review",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_external_validation_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "assessment_or_curriculum_reviewer",
+        "measurement_or_biostatistics_reviewer"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_study_response_process_usability",
+      "packet_type": "educational_outcome_study_evidence_packet",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_outcome_study_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "measurement_or_biostatistics_reviewer",
+        "privacy_or_irb_governance_reviewer",
+        "simulation_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_study_single_site_pre_post_pilot",
+      "packet_type": "educational_outcome_study_evidence_packet",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_outcome_study_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "measurement_or_biostatistics_reviewer",
+        "privacy_or_irb_governance_reviewer",
+        "simulation_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_study_multi_site_effectiveness_study",
+      "packet_type": "educational_outcome_study_evidence_packet",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P0_national_effectiveness_evidence_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "measurement_or_biostatistics_reviewer",
+        "privacy_or_irb_governance_reviewer",
+        "simulation_or_clerkship_director"
+      ],
+      "issue_count": 1
+    },
+    {
+      "packet_id": "outcome_study_external_transfer_validation",
+      "packet_type": "educational_outcome_study_evidence_packet",
+      "review_status": "not_submitted",
+      "valid": false,
+      "nationally_approved": false,
+      "supervised_pilot_approved": false,
+      "formative_only_approved": false,
+      "issues": [
+        "No completed educational-validity packet review submitted."
+      ],
+      "priority": "P1_outcome_study_required",
+      "required_reviewer_roles": [
+        "clinical_educator",
+        "measurement_or_biostatistics_reviewer",
+        "privacy_or_irb_governance_reviewer",
+        "simulation_or_clerkship_director"
+      ],
+      "issue_count": 1
+    }
+  ],
+  "unmatched_submitted_reviews": [],
+  "readiness_effect": {
+    "educational_validity_gate_can_pass_from_current_reviews": false,
+    "improved_clinical_judgment_claims_blocked_without_outcome_evidence": true,
+    "national_release_requires_curriculum_and_outcome_readiness": true,
+    "required_reviewer_role_coverage_enforced": true,
+    "restricted_data_leakage_block_enforced": true,
+    "invalid_review_input_count": 0
+  },
+  "issues": []
+}

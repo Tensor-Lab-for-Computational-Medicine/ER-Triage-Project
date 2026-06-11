@@ -1,0 +1,3944 @@
+{
+  "schema_version": "feedback_traceability_matrix_v1",
+  "generated_at": "2026-06-09T22:33:33.410Z",
+  "review_status": "draft_feedback_traceability_requires_clinician_educator_review",
+  "warning": "This matrix audits traceability; it does not prove national readiness until source-limited domains are adjudicated and faculty/clinician review is complete.",
+  "summary": {
+    "total_cases": 23,
+    "total_case_domain_rows": 230,
+    "domains_tracked": 10,
+    "objective_matrix_cases_mapped": 23,
+    "cases_missing_objective_mapping": [],
+    "source_limited_formative_rows": 69,
+    "cases_with_source_limited_diagnosis": 23,
+    "cases_with_source_limited_referral": 23,
+    "cases_with_source_limited_reassessment": 23,
+    "numeric_rows_missing_required_case_evidence": 0,
+    "case_truth_adjudication_ready_cases": 0,
+    "evidence_adjudication_approved_chunks": 0,
+    "ready_for_national_feedback_release": false
+  },
+  "domain_contracts": [
+    {
+      "key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    }
+  ],
+  "domain_summary": [
+    {
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "cases": 23,
+      "status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "cases_missing_required_evidence": 0,
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "cases": 23,
+      "status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "cases_missing_required_evidence": 0,
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "cases": 23,
+      "status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "cases_missing_required_evidence": 0,
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "cases": 23,
+      "status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "cases_missing_required_evidence": 0,
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "cases": 23,
+      "status_counts": {
+        "source_limited_formative_only": 23
+      },
+      "cases_missing_required_evidence": 23,
+      "source_limited_formative_cases": 23,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "cases": 23,
+      "status_counts": {
+        "source_limited_formative_only": 23
+      },
+      "cases_missing_required_evidence": 23,
+      "source_limited_formative_cases": 23,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "cases": 23,
+      "status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "cases_missing_required_evidence": 0,
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "cases": 23,
+      "status_counts": {
+        "source_limited_formative_only": 23
+      },
+      "cases_missing_required_evidence": 23,
+      "source_limited_formative_cases": 23,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "cases": 23,
+      "status_counts": {
+        "rubric_grounded_requires_faculty_calibration": 23
+      },
+      "cases_missing_required_evidence": 0,
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "cases": 23,
+      "status_counts": {
+        "rubric_grounded_requires_faculty_calibration": 23
+      },
+      "cases_missing_required_evidence": 0,
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    }
+  ],
+  "case_domain_traceability": [
+    {
+      "case_id": "case_002",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_002",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_004",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_005",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_006",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_007",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_008",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_009",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_012",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_013",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_014",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_017",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_018",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_019",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_020",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_021",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_022",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_023",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_024",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_025",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_027",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_029",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_030",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "required_case_evidence": [
+        "reference_esi",
+        "resource_signals",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician confirmation that the retained reference ESI and source-derived resource signals remain appropriate for learner scoring."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "required_case_evidence": [
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Clinician calibration of vital-sign threshold messaging, pain/distress interpretation, and risk escalation language."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "required_case_evidence": [
+        "chief_complaint",
+        "triage_history"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Educator review of expected question domains for each complaint and learner level."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Case-level exam truth and faculty calibration of expected focused exam systems."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "missing_required_case_evidence": [
+        "source_record_diagnosis"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-adjudicated diagnosis and acceptable differential diagnoses before any numeric diagnosis score."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "missing_required_case_evidence": [
+        "clinician_approved_referral"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician-approved consult/referral truth and urgency criteria before any numeric consult score."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "required_case_evidence": [
+        "vitals",
+        "interventions",
+        "outcomes",
+        "reference_esi"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "case_grounded_pending_clinician_adjudication",
+      "expected_score_behavior": "numeric_case_grounded_pending_external_validation",
+      "national_review_need": "Emergency clinician review of immediate stabilization priorities, unsafe omissions, and local-practice variation."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "required_case_evidence": [
+        "vitals",
+        "disposition",
+        "reassessment_triggers"
+      ],
+      "missing_required_case_evidence": [
+        "reassessment_triggers"
+      ],
+      "traceability_status": "source_limited_formative_only",
+      "expected_score_behavior": "formative_only_excluded_from_numeric_score",
+      "national_review_need": "Clinician validation of required reassessment triggers and course-correction thresholds."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "required_case_evidence": [
+        "chief_complaint",
+        "vitals",
+        "learner_actions"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Faculty calibration of note-quality anchors, minimum evidence use, and documentation expectations."
+    },
+    {
+      "case_id": "case_031",
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "required_case_evidence": [
+        "handoff_trigger",
+        "learner_actions",
+        "disposition"
+      ],
+      "missing_required_case_evidence": [],
+      "traceability_status": "rubric_grounded_requires_faculty_calibration",
+      "expected_score_behavior": "numeric_structure_score_requires_faculty_calibration",
+      "national_review_need": "Simulation educator review of handoff triggers, expected receiver, and handoff quality anchors."
+    }
+  ],
+  "national_readiness_blockers": [
+    "Diagnosis remains formative-only for public cases until source-record or clinician-adjudicated diagnoses are available.",
+    "Consult/referral judgment remains formative-only until clinician-approved referral references are available.",
+    "Reassessment remains formative-only until clinician-adjudicated triggers or optional objective follow-up data are available.",
+    "Numeric case-grounded domains still require clinician or faculty calibration before national summative use.",
+    "Generated clinical evidence chunks remain quarantined until source/evidence adjudication is complete."
+  ]
+}

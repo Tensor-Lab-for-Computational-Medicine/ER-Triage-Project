@@ -11,6 +11,7 @@ function CaseSummaryBanner({ patientData, caseRecord, activeStep, elapsedSeconds
   const rawConcern = intake.reported_concern || patientData?.complaint || 'Concern pending';
   const isDirtyData = rawConcern.includes('#NAME?') || rawConcern.includes('uta');
   const concernDisplay = isDirtyData ? 'Intake slip unreadable or corrupted (#NAME?)' : rawConcern;
+  const vitalChips = (caseRecord?.vitals || []).slice(0, 4);
 
   const triageStatus = caseRecord?.triageLevel
     ? `Student ESI: ${caseRecord.triageLevel}`
@@ -18,28 +19,27 @@ function CaseSummaryBanner({ patientData, caseRecord, activeStep, elapsedSeconds
 
   return (
     <section className="case-summary-banner" aria-label="Case summary">
-      <div className="case-summary-primary" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        <strong style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--ink)' }}>
-          {patientData ? `${patientData.age}yo ${patientData.sex}` : 'Loading case'}
-        </strong>
-        <span style={{ color: 'var(--muted)' }}>•</span>
-        <span style={{ color: 'var(--muted)', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          {patientData?.transport || 'Arrival pending'}
-        </span>
-        <span style={{ color: 'var(--muted)' }}>•</span>
-        <span style={{ fontSize: '0.95rem', color: 'var(--ink)', fontWeight: '500' }} className={isDirtyData ? 'corrupted-data-text' : ''}>
-          {concernDisplay}
-        </span>
+      <div className="case-summary-primary">
+        <div className="case-summary-line">
+          <strong>{patientData ? `${patientData.age}yo ${patientData.sex}` : 'Loading case'}</strong>
+          <span>{patientData?.transport || 'Arrival pending'}</span>
+          <span className={isDirtyData ? 'corrupted-data-text' : ''}>{concernDisplay}</span>
+        </div>
+        <div className="case-summary-chips" aria-label="Compact case context">
+          <span>{activeStep?.label || 'Encounter'}</span>
+          <span>{triageStatus}</span>
+          {vitalChips.map((vital) => (
+            <span key={`${vital.name}-${vital.value}`}>{vital.name}: {vital.value}</span>
+          ))}
+        </div>
         {isDirtyData && (
-          <span className="provenance-tag warning-tag" style={{ fontSize: '0.75rem', padding: '2px 6px' }}>
+          <span className="provenance-tag warning-tag case-summary-warning">
             Verify during interview
           </span>
         )}
       </div>
-      <div className="case-summary-meta" aria-label="Case status" style={{ display: 'flex', alignItems: 'center' }}>
-        <span className="case-summary-clock" style={{ fontSize: '1.05rem', fontFamily: 'monospace', fontWeight: '700', padding: '4px 8px', background: '#f1f5f9', borderRadius: '6px' }}>
-          {formatClock(elapsedSeconds)}
-        </span>
+      <div className="case-summary-meta" aria-label="Case status">
+        <span className="case-summary-clock">{formatClock(elapsedSeconds)}</span>
       </div>
     </section>
   );

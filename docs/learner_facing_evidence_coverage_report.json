@@ -1,0 +1,2183 @@
+{
+  "schema_version": "learner_facing_evidence_coverage_report_v1",
+  "generated_at": "2026-06-09T22:33:54.662Z",
+  "review_status": "learner_facing_quote_backed_subset_available_claim_review_required",
+  "evidence_policy_version": "learner_facing_open_evidence_policy_v1",
+  "warning": "This report measures quote-backed coverage and runtime quarantine policy. It does not prove clinical truth, guideline currency, claim-level entailment, or faculty acceptance for national learner feedback.",
+  "source_contract": {
+    "public_knowledge_bundle_schema": "clinical_knowledge_bundle_v2",
+    "public_source_quality_report_schema": "clinical_source_quality_report_v1",
+    "learner_facing_generated_needs_review_allowed": false,
+    "learner_facing_minimum_source_standard": "reviewed_active_quote_backed_chunk_with_human_or_local_extracted_verification",
+    "open_evidence_retrieval_runtime_report_present": true,
+    "open_evidence_retrieval_runtime_report_path": "docs/open_evidence_retrieval_runtime_report.json",
+    "source_freshness_report_present": true,
+    "source_freshness_report_path": "docs/source_freshness_report.json",
+    "high_risk_quote_coverage_depth_report_present": true,
+    "high_risk_quote_coverage_depth_report_path": "docs/high_risk_quote_coverage_depth_report.json",
+    "high_risk_clinical_classification_report_present": true,
+    "high_risk_clinical_classification_report_path": "docs/high_risk_clinical_classification_report.json",
+    "claim_reference_alignment_report_present": true,
+    "claim_reference_alignment_report_path": "docs/feedback_claim_reference_alignment_report.json",
+    "claim_reference_gap_review_packets_present": true,
+    "claim_reference_gap_review_packets_path": "docs/claim_reference_gap_review_packets.json",
+    "claim_entailment_review_packet_file_present": true,
+    "claim_entailment_review_packet_file_path": "docs/feedback_claim_entailment_review_packets.json",
+    "claim_entailment_adjudication_status_file_present": true,
+    "claim_entailment_adjudication_status_file_path": "docs/feedback_claim_entailment_adjudication_status.json",
+    "claim_entailment_review_file_present": false,
+    "claim_entailment_review_file_path": "docs/learner_facing_claim_entailment_reviews.json"
+  },
+  "summary": {
+    "total_sources": 109,
+    "total_chunks": 2489,
+    "active_reviewed_chunks": 2489,
+    "quote_backed_chunks": 89,
+    "learner_facing_eligible_quote_backed_chunks": 89,
+    "learner_facing_eligible_percentage": 3.58,
+    "generated_needs_review_chunks": 2400,
+    "generated_chunks_quarantined_by_default": true,
+    "generated_references_returned_by_policy_probes": 0,
+    "runtime_retrieval_all_probes_passed": true,
+    "runtime_retrieval_quote_backed_only_default": true,
+    "runtime_retrieval_reference_count": 5,
+    "runtime_retrieval_generated_needs_review_badges": 0,
+    "runtime_retrieval_needs_review_badges": 0,
+    "runtime_retrieval_smoke_review_items": 0,
+    "runtime_retrieval_quarantine_warning_visible": true,
+    "runtime_retrieval_quality_badge_visible": true,
+    "runtime_high_risk_retrieval_quality_threshold_passed": true,
+    "runtime_high_risk_retrieval_quality_top_base_score": 0.629,
+    "runtime_high_risk_retrieval_quality_minimum_base_score": 0.08,
+    "runtime_bm25_fallback_badge_visible": true,
+    "runtime_retrieval_nonclinical_scope_guardrail_warning_visible": true,
+    "runtime_retrieval_nonclinical_scope_guardrail_reference_count": 0,
+    "source_freshness_report_present": true,
+    "learner_facing_source_freshness_release_ready": false,
+    "learner_facing_quote_backed_sources_release_blocked": 16,
+    "stale_learner_facing_quote_backed_sources": 0,
+    "missing_local_review_date_sources": 109,
+    "high_risk_quote_coverage_depth_report_present": true,
+    "high_risk_quote_coverage_depth_release_ready": false,
+    "high_risk_quote_coverage_depth_topics_meeting_core_facet_depth": 15,
+    "high_risk_quote_coverage_depth_missing_topic_facet_pairs": 0,
+    "high_risk_quote_coverage_depth_generated_needs_review_chunks": 120,
+    "high_risk_clinical_classification_report_present": true,
+    "high_risk_clinical_classification_policy_ready": true,
+    "high_risk_clinical_classification_topic_count": 15,
+    "high_risk_clinical_classification_topics_with_alias_policy": 15,
+    "high_risk_clinical_classification_topic_alias_probes": 15,
+    "high_risk_clinical_classification_topic_alias_probes_passed": 15,
+    "high_risk_clinical_classification_retrieval_matrix_rows": 9,
+    "high_risk_clinical_classification_retrieval_matrix_rows_passed": 9,
+    "high_risk_clinical_classification_case_rows_classified": 23,
+    "high_risk_clinical_classification_current_case_count": 23,
+    "high_risk_clinical_classification_claim_sets_classified": 10,
+    "high_risk_clinical_classification_negative_controls_classified_nonclinical": 2,
+    "high_risk_clinical_classification_negative_control_probes": 2,
+    "high_risk_clinical_classification_regex_fallback_only_high_risk_probes": 0,
+    "high_risk_clinical_classification_generated_needs_review_approved": 0,
+    "claim_reference_alignment_report_present": true,
+    "claim_reference_alignment_claim_sets": 10,
+    "claim_reference_alignment_claim_sets_meeting_threshold": 9,
+    "claim_reference_alignment_claim_sets_requiring_domain_specific_support": 1,
+    "claim_reference_alignment_claim_sets_with_domain_specific_support": 0,
+    "claim_reference_alignment_claim_sets_missing_domain_specific_support": 1,
+    "claim_reference_alignment_domain_specific_release_ready": false,
+    "claim_reference_gap_packets_present": true,
+    "claim_reference_gap_packets_total": 1,
+    "claim_reference_gap_packets_pending": 1,
+    "claim_reference_gap_packets_generated_candidates": 160,
+    "claim_reference_gap_packets_all_domain_specific_gaps_packeted": true,
+    "claim_reference_alignment_generated_needs_review_references": 0,
+    "claim_reference_alignment_source_limited_claim_sets_blocked": 3,
+    "claim_reference_alignment_release_ready": false,
+    "high_risk_topic_count": 15,
+    "high_risk_topics_with_quote_backed_coverage": 15,
+    "high_risk_topics_without_quote_backed_coverage": 0,
+    "feedback_domains_total": 10,
+    "feedback_case_domain_rows": 230,
+    "source_limited_formative_feedback_rows": 69,
+    "numeric_feedback_rows_missing_required_case_evidence": 0,
+    "claim_entailment_packet_report_present": true,
+    "claim_entailment_packet_status": "draft_claim_entailment_packets_need_clinician_educator_review",
+    "claim_entailment_packet_count": 10,
+    "claim_entailment_packet_ready_for_national_release": false,
+    "claim_entailment_adjudication_status_present": true,
+    "claim_entailment_adjudication_status": "claim_entailment_review_inputs_pending",
+    "claim_entailment_validated_reviews": 0,
+    "claim_entailment_invalid_review_input_count": 0,
+    "claim_entailment_adjudication_ready_for_national_release": false,
+    "claim_entailment_required_claim_sets": 10,
+    "claim_entailment_reviewed_claims": 0,
+    "clinician_librarian_reviewed_generated_chunks": 0,
+    "evidence_adjudication_approved_chunks": 0,
+    "learner_facing_evidence_release_ready": false
+  },
+  "high_risk_topic_coverage": [
+    {
+      "topic": "septic_shock_concern",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 6,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_sepsis_antimicrobial_timing_001",
+        "quote_sepsis_fluid_resuscitation_002",
+        "quote_sepsis_deescalation_005",
+        "quote_sepsis_early_recognition_006",
+        "quote_sepsis_screening_assessment_007"
+      ],
+      "representative_generated_chunk_ids": [
+        "sepsis_infection_septic_shock_concern_recognition_002",
+        "sepsis_infection_septic_shock_concern_red_flags_002",
+        "sepsis_infection_septic_shock_concern_focused_assessment_002",
+        "sepsis_infection_septic_shock_concern_diagnostic_strategy_002",
+        "sepsis_infection_septic_shock_concern_initial_management_002"
+      ]
+    },
+    {
+      "topic": "septic_shock_resuscitation",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 6,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_sepsis_vasopressor_norepinephrine_003",
+        "quote_sepsis_begin_resuscitation_004",
+        "quote_sepsis_early_recognition_006",
+        "quote_sepsis_unstable_shock_assessment_009",
+        "quote_sepsis_fluid_vasopressor_sequence_010"
+      ],
+      "representative_generated_chunk_ids": [
+        "resuscitation_septic_shock_resuscitation_recognition_012",
+        "resuscitation_septic_shock_resuscitation_red_flags_012",
+        "resuscitation_septic_shock_resuscitation_focused_assessment_012",
+        "resuscitation_septic_shock_resuscitation_diagnostic_strategy_012",
+        "resuscitation_septic_shock_resuscitation_initial_management_012"
+      ]
+    },
+    {
+      "topic": "chest_pain_possible_acs",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 5,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_acs_ecg_001",
+        "quote_acs_decision_pathway_004",
+        "quote_acs_anginal_equivalents_006",
+        "quote_acs_structured_risk_assessment_007",
+        "quote_acs_disposition_cdp_008"
+      ],
+      "representative_generated_chunk_ids": [
+        "cardiovascular_chest_pain_possible_acs_recognition_001",
+        "cardiovascular_chest_pain_possible_acs_red_flags_001",
+        "cardiovascular_chest_pain_possible_acs_focused_assessment_001",
+        "cardiovascular_chest_pain_possible_acs_diagnostic_strategy_001",
+        "cardiovascular_chest_pain_possible_acs_initial_management_001"
+      ]
+    },
+    {
+      "topic": "high_sensitivity_troponin_pathway",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 6,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_acs_serial_troponin_002",
+        "quote_acs_high_sensitivity_troponin_003",
+        "quote_troponin_biomarker_recognition_006",
+        "quote_troponin_interval_assessment_007",
+        "quote_troponin_protocol_management_008"
+      ],
+      "representative_generated_chunk_ids": [
+        "cardiovascular_high_sensitivity_troponin_pathway_recognition_005",
+        "cardiovascular_high_sensitivity_troponin_pathway_red_flags_005",
+        "cardiovascular_high_sensitivity_troponin_pathway_focused_assessment_005",
+        "cardiovascular_high_sensitivity_troponin_pathway_diagnostic_strategy_005",
+        "cardiovascular_high_sensitivity_troponin_pathway_initial_management_005"
+      ]
+    },
+    {
+      "topic": "non_st_elevation_acs",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 5,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_acs_guideline_pathway_005",
+        "quote_nste_high_risk_recognition_006",
+        "quote_nste_risk_strata_assessment_007",
+        "quote_nste_serial_ecg_diagnostics_008",
+        "quote_nste_high_risk_disposition_009"
+      ],
+      "representative_generated_chunk_ids": [
+        "cardiovascular_non_st_elevation_acs_recognition_003",
+        "cardiovascular_non_st_elevation_acs_red_flags_003",
+        "cardiovascular_non_st_elevation_acs_focused_assessment_003",
+        "cardiovascular_non_st_elevation_acs_diagnostic_strategy_003",
+        "cardiovascular_non_st_elevation_acs_initial_management_003"
+      ]
+    },
+    {
+      "topic": "opioid_overdose",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 7,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_opioid_naloxone_reversal_001",
+        "quote_opioid_administer_reversal_002",
+        "quote_opioid_breathing_support_004",
+        "quote_opioid_positioning_005",
+        "quote_opioid_signs_recognition_006"
+      ],
+      "representative_generated_chunk_ids": [
+        "toxicology_opioid_overdose_recognition_001",
+        "toxicology_opioid_overdose_red_flags_001",
+        "toxicology_opioid_overdose_focused_assessment_001",
+        "toxicology_opioid_overdose_diagnostic_strategy_001",
+        "toxicology_opioid_overdose_initial_management_001"
+      ]
+    },
+    {
+      "topic": "naloxone_response_and_recurrence",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 5,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_opioid_call_ems_003",
+        "quote_naloxone_temporary_recognition_006",
+        "quote_naloxone_breathing_assessment_007",
+        "quote_naloxone_wakefulness_strategy_008",
+        "quote_naloxone_medical_help_009"
+      ],
+      "representative_generated_chunk_ids": [
+        "toxicology_naloxone_response_and_recurrence_recognition_002",
+        "toxicology_naloxone_response_and_recurrence_red_flags_002",
+        "toxicology_naloxone_response_and_recurrence_focused_assessment_002",
+        "toxicology_naloxone_response_and_recurrence_diagnostic_strategy_002",
+        "toxicology_naloxone_response_and_recurrence_initial_management_002"
+      ]
+    },
+    {
+      "topic": "febrile_infant_8_to_21_days",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 7,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_peds_fever_population_001",
+        "quote_peds_fever_age_groups_002",
+        "quote_peds_fever_age_band_003",
+        "quote_peds_fever_presenting_fever_004",
+        "quote_peds_fever_standardize_005"
+      ],
+      "representative_generated_chunk_ids": [
+        "pediatrics_febrile_infant_8_to_21_days_recognition_001",
+        "pediatrics_febrile_infant_8_to_21_days_red_flags_001",
+        "pediatrics_febrile_infant_8_to_21_days_focused_assessment_001",
+        "pediatrics_febrile_infant_8_to_21_days_diagnostic_strategy_001",
+        "pediatrics_febrile_infant_8_to_21_days_initial_management_001"
+      ]
+    },
+    {
+      "topic": "acute_stroke_symptoms",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 5,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_stroke_diagnosis_003",
+        "quote_stroke_symptom_time_assessment_006",
+        "quote_stroke_ct_mri_diagnostic_007",
+        "quote_stroke_immediate_treatment_008",
+        "quote_stroke_resolved_symptoms_009"
+      ],
+      "representative_generated_chunk_ids": [
+        "neurology_acute_stroke_symptoms_recognition_001",
+        "neurology_acute_stroke_symptoms_red_flags_001",
+        "neurology_acute_stroke_symptoms_focused_assessment_001",
+        "neurology_acute_stroke_symptoms_diagnostic_strategy_001",
+        "neurology_acute_stroke_symptoms_initial_management_001"
+      ]
+    },
+    {
+      "topic": "thrombolytic_eligibility_discussion",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 7,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_stroke_alteplase_timing_001",
+        "quote_stroke_imaging_002",
+        "quote_stroke_treatment_options_004",
+        "quote_stroke_eligible_alteplase_005",
+        "quote_thrombolytic_befast_recognition_006"
+      ],
+      "representative_generated_chunk_ids": [
+        "neurology_thrombolytic_eligibility_discussion_recognition_003",
+        "neurology_thrombolytic_eligibility_discussion_red_flags_003",
+        "neurology_thrombolytic_eligibility_discussion_focused_assessment_003",
+        "neurology_thrombolytic_eligibility_discussion_diagnostic_strategy_003",
+        "neurology_thrombolytic_eligibility_discussion_initial_management_003"
+      ]
+    },
+    {
+      "topic": "ectopic_pregnancy_rupture_concern",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 6,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_ectopic_rupture_bleeding_001",
+        "quote_ectopic_surgery_002",
+        "quote_ectopic_ultrasound_003",
+        "quote_ectopic_hcg_004",
+        "quote_ectopic_treatment_options_005"
+      ],
+      "representative_generated_chunk_ids": [
+        "ob_gyn_ectopic_pregnancy_rupture_concern_recognition_002",
+        "ob_gyn_ectopic_pregnancy_rupture_concern_red_flags_002",
+        "ob_gyn_ectopic_pregnancy_rupture_concern_focused_assessment_002",
+        "ob_gyn_ectopic_pregnancy_rupture_concern_diagnostic_strategy_002",
+        "ob_gyn_ectopic_pregnancy_rupture_concern_initial_management_002"
+      ]
+    },
+    {
+      "topic": "minor_head_injury_ct_decision",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 7,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_head_ct_decision_rule_001",
+        "quote_head_ct_decision_support_002",
+        "quote_head_noncontrast_ct_003",
+        "quote_head_ct_without_contrast_004",
+        "quote_head_ct_usually_appropriate_005"
+      ],
+      "representative_generated_chunk_ids": [
+        "imaging_procedures_minor_head_injury_ct_decision_recognition_002",
+        "imaging_procedures_minor_head_injury_ct_decision_red_flags_002",
+        "imaging_procedures_minor_head_injury_ct_decision_focused_assessment_002",
+        "imaging_procedures_minor_head_injury_ct_decision_diagnostic_strategy_002",
+        "imaging_procedures_minor_head_injury_ct_decision_initial_management_002"
+      ]
+    },
+    {
+      "topic": "use_of_restraints",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 5,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_agitation_deescalation_001",
+        "quote_restraint_danger_recognition_002",
+        "quote_restraint_safety_assessment_003",
+        "quote_restraint_medical_evaluation_004",
+        "quote_restraint_reassessment_005"
+      ],
+      "representative_generated_chunk_ids": [
+        "psych_use_of_restraints_recognition_003",
+        "psych_use_of_restraints_red_flags_003",
+        "psych_use_of_restraints_focused_assessment_003",
+        "psych_use_of_restraints_diagnostic_strategy_003",
+        "psych_use_of_restraints_initial_management_003"
+      ]
+    },
+    {
+      "topic": "severe_agitation_medication_strategy",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 7,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_agitation_combo_medication_002",
+        "quote_agitation_droperidol_single_003",
+        "quote_agitation_ketamine_004",
+        "quote_agitation_safety_context_005",
+        "quote_agitation_life_threat_recognition_006"
+      ],
+      "representative_generated_chunk_ids": [
+        "psych_severe_agitation_medication_strategy_recognition_004",
+        "psych_severe_agitation_medication_strategy_red_flags_004",
+        "psych_severe_agitation_medication_strategy_focused_assessment_004",
+        "psych_severe_agitation_medication_strategy_diagnostic_strategy_004",
+        "psych_severe_agitation_medication_strategy_initial_management_004"
+      ]
+    },
+    {
+      "topic": "dka_or_hhs",
+      "learner_facing_status": "quote_backed_subset_available",
+      "quote_backed_chunk_count": 6,
+      "generated_needs_review_chunk_count": 8,
+      "representative_quote_backed_chunk_ids": [
+        "quote_dka_mainstays_001",
+        "quote_dka_diagnostic_criteria_006",
+        "quote_dka_precipitating_events_002",
+        "quote_dka_frequent_monitoring_003",
+        "quote_dka_glucose_monitoring_004"
+      ],
+      "representative_generated_chunk_ids": [
+        "gi_gu_renal_endocrine_dka_or_hhs_recognition_008",
+        "gi_gu_renal_endocrine_dka_or_hhs_red_flags_008",
+        "gi_gu_renal_endocrine_dka_or_hhs_focused_assessment_008",
+        "gi_gu_renal_endocrine_dka_or_hhs_diagnostic_strategy_008",
+        "gi_gu_renal_endocrine_dka_or_hhs_initial_management_008"
+      ]
+    }
+  ],
+  "eligible_quote_backed_chunk_summary": {
+    "by_facet": {
+      "initial_management": 17,
+      "medication_procedure": 6,
+      "diagnostic_strategy": 19,
+      "disposition_reassessment": 15,
+      "recognition": 15,
+      "focused_assessment": 15,
+      "teaching_handoff": 2
+    },
+    "by_source_tier": {
+      "society_guideline": 76,
+      "ed_specific_guideline": 12,
+      "systematic_review": 1
+    },
+    "by_source_id": {
+      "sccm_ssc_recommendations_2026": 2,
+      "sccm_ssc_adult_2026": 9,
+      "aha_acc_chest_pain_slide_set_2021": 16,
+      "cdc_overdose_response_2024": 8,
+      "samhsa_opioid_overdose_reversal_2025": 4,
+      "aap_febrile_infant": 7,
+      "asa_quick_stroke_treatment_2026": 5,
+      "asa_stroke_diagnosis_2023": 2,
+      "asa_stroke_symptoms_2026": 5,
+      "acog_ectopic_pregnancy": 6,
+      "acr_head_trauma": 5,
+      "cdc_mtbi_symptoms_2025": 1,
+      "cdc_mtbi_return_activities_2025": 1,
+      "acep_severe_agitation": 12,
+      "ada_hyperglycemic_crises_2024": 5,
+      "ccjm_hyperglycemic_crises_2025": 1
+    },
+    "representative_chunks": [
+      {
+        "chunk_id": "quote_sepsis_antimicrobial_timing_001",
+        "source_id": "sccm_ssc_recommendations_2026",
+        "citation_label": "QB-SEPSIS-M01",
+        "source_title": "Surviving Sepsis Campaign Adult Recommendations",
+        "organization": "Society of Critical Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "sepsis",
+          "infection",
+          "antibiotics",
+          "septic_shock_concern"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/SurvivingSepsisCampaign/Guidelines/Adult-Patients",
+          "section_heading": "Initial resuscitation and infection management",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "450d589184ea32d4aa0e3c4288d357b8ea7ffee558dc5391383c2e7262626186"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_fluid_resuscitation_002",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-M02",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "sepsis",
+          "infection",
+          "antibiotics",
+          "septic_shock_concern"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Hemodynamic management",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "6d621f8c6b4dc4b0d1ae14c7b7bb42d5e6e51dcf18be03e09889eeab5d2e424b"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_vasopressor_norepinephrine_003",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-P03",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "medication_procedure",
+        "topic_tags": [
+          "resuscitation",
+          "critical_care",
+          "shock",
+          "septic_shock_resuscitation"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Vasoactive medications",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "83471a681240c2f27020385d8e2fcac364bcc1f6565dfca9394a3f0cf519d788"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_begin_resuscitation_004",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-D04",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "resuscitation",
+          "critical_care",
+          "shock",
+          "septic_shock_resuscitation"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Initial resuscitation",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "dfb5490bfe4b7ab72105dfda597c73277557470913044a483dde13c79b52572d"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_deescalation_005",
+        "source_id": "sccm_ssc_recommendations_2026",
+        "citation_label": "QB-SEPSIS-S05",
+        "source_title": "Surviving Sepsis Campaign Adult Recommendations",
+        "organization": "Society of Critical Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "sepsis",
+          "infection",
+          "antibiotics",
+          "septic_shock_concern"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/SurvivingSepsisCampaign/Guidelines/Adult-Patients",
+          "section_heading": "Antimicrobial stewardship",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "583403f27e809cabafc337ba74e62170a2b2ed942b049b6dd7c8c3c8558d4caf"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_early_recognition_006",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-R06",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "sepsis",
+          "infection",
+          "antibiotics",
+          "septic_shock_concern",
+          "septic_shock_resuscitation"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Surviving Sepsis Campaign Adult Guidelines",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "879882fc635d57f63b32d1c4d9627215744540482d7823013ff701d2209dbbc8"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_screening_assessment_007",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-A07",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "sepsis",
+          "infection",
+          "antibiotics",
+          "septic_shock_concern"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Screening",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "e2c7b86bc4c59fc8878ef59a7a57192b9fe2d5108a7b6c41bda9ae198780d998"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_blood_culture_diagnostics_008",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-D08",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "sepsis",
+          "infection",
+          "antibiotics",
+          "septic_shock_concern"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Blood culture",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "0bed24207682c80f0f52201e4b42120c6a800dd6a4158fa77e169341d189f775"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_unstable_shock_assessment_009",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-A09",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "resuscitation",
+          "critical_care",
+          "shock",
+          "septic_shock_resuscitation"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Fluid resuscitation",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "826fa1279a5cb400a855509d854c077f58e9d29fa2074f0dea5478cee897dccd"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_fluid_vasopressor_sequence_010",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-M10",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "resuscitation",
+          "critical_care",
+          "shock",
+          "septic_shock_resuscitation"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Fluid resuscitation",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "a50c77f20e94211c57c48a2a2c2934c4ca46006133b31dd400545a250f4d469c"
+        ]
+      },
+      {
+        "chunk_id": "quote_sepsis_resuscitation_reassessment_011",
+        "source_id": "sccm_ssc_adult_2026",
+        "citation_label": "QB-SEPSIS-S11",
+        "source_title": "Surviving Sepsis Campaign Adult Guidelines",
+        "organization": "Society of Critical Care Medicine and European Society of Intensive Care Medicine",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "resuscitation",
+          "critical_care",
+          "shock",
+          "septic_shock_resuscitation"
+        ],
+        "locator": {
+          "url": "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-adult-guidelines",
+          "section_heading": "Fluid resuscitation",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "efa86c6a5a90c4ae5effe205cca66b9147884bfb13014d2e45cf4b895200e804"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_ecg_001",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-D01",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "chest_pain_possible_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Initial evaluation of acute chest pain",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "a1e6ee2aff471364fd3d1960cffeb38ab3e35f6315e57c744c1e8529d9aa214e"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_serial_troponin_002",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-D02",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "high_sensitivity_troponin_pathway"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "High-sensitivity cardiac troponins",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "9663a7e1625018a063b631b16679870f577ec2cc6688634b92a899ff1d376138"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_high_sensitivity_troponin_003",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-D03",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "high_sensitivity_troponin_pathway"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "High-sensitivity cardiac troponins",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "8e1109780525e1998b8b229f3fb065e5cca9986bc0a443274676d86d0964193f"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_decision_pathway_004",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-M04",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "chest_pain_possible_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Clinical decision pathways",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "15fde66fbf9997fce8e27cb9e8cedc5a956f9fd165a8965b054f8565c036e03c"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_guideline_pathway_005",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-M05",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "non_st_elevation_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Initial ECG and ACS pathways",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "dce43046eac3e3848e81cebad88e67386a01ed041894a9b43e975378a38f6a90"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_anginal_equivalents_006",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-R06",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "chest_pain_possible_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Top 10 Take Home Messages - Chest Pain Means More Than Pain in the Chest",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "08ed44e4d02f0476ae149ac836d26bb1dc84971a9d3915f01a4f804bb0be2658"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_structured_risk_assessment_007",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-A07",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "chest_pain_possible_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Top 10 Take Home Messages - Structured Risk Assessment Should Be Used",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "24116fda581934c73ee62a4b85f228febb1bdd8caf8e653797b816df53aa1ee8"
+        ]
+      },
+      {
+        "chunk_id": "quote_acs_disposition_cdp_008",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-ACS-S08",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "chest_pain_possible_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Patients With Acute Chest Pain and Suspected ACS",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "07f35a5161b52bd824f68f5803c68e5c5ecebe64651c7f540b453b434b2d3707"
+        ]
+      },
+      {
+        "chunk_id": "quote_troponin_biomarker_recognition_006",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-TROPONIN-R06",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "high_sensitivity_troponin_pathway"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Top 10 Take Home Messages - High-Sensitivity Troponins Preferred",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "fdfdf852d1537fe05b5fcf2933c97a39103ed82fba3b1846fa4d82e1aee596a0"
+        ]
+      },
+      {
+        "chunk_id": "quote_troponin_interval_assessment_007",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-TROPONIN-A07",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "high_sensitivity_troponin_pathway"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Patients With Acute Chest Pain and Suspected ACS",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "c9bb96621acae960f0d25f9890040bf9a66fb7753c0ab5bcba5297cc7d280994"
+        ]
+      },
+      {
+        "chunk_id": "quote_troponin_protocol_management_008",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-TROPONIN-M08",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "high_sensitivity_troponin_pathway"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Patients With Acute Chest Pain and Suspected ACS",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "d7e2226144beb952cf2bffe80a2f4fb37645045878ac2be1326a0764fa4e0e79"
+        ]
+      },
+      {
+        "chunk_id": "quote_troponin_low_risk_disposition_009",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-TROPONIN-S09",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "high_sensitivity_troponin_pathway"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Definition Used for Low-Risk Patients With Chest Pain",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "d76345d63fc977ffef23d098a4fe9f3ded68cda3b03857875a05cfa28c852349"
+        ]
+      },
+      {
+        "chunk_id": "quote_nste_high_risk_recognition_006",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-NSTE-R06",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "non_st_elevation_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "High-Risk Patients With Acute Chest Pain",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "c087a002255f35bb88d1efc14767dc41d2aced34baef0dc158a987c52a9e9d9c"
+        ]
+      },
+      {
+        "chunk_id": "quote_nste_risk_strata_assessment_007",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-NSTE-A07",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "non_st_elevation_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Patients With Acute Chest Pain and Suspected ACS",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "c7412bc358e1f95ab03138301454ee2b73eea0bb7f8fb0b2129e663d088945b5"
+        ]
+      },
+      {
+        "chunk_id": "quote_nste_serial_ecg_diagnostics_008",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-NSTE-D08",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "non_st_elevation_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "Recommendations for Electrocardiogram",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "098314e347cc3baf9cb8ef52cee1211a40748a68807746af0d366036b0073c7f"
+        ]
+      },
+      {
+        "chunk_id": "quote_nste_high_risk_disposition_009",
+        "source_id": "aha_acc_chest_pain_slide_set_2021",
+        "citation_label": "QB-NSTE-S09",
+        "source_title": "2021 AHA/ACC Chest Pain Guideline Slide Set",
+        "organization": "American Heart Association and American College of Cardiology",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "cardiovascular",
+          "chest_pain",
+          "syncope",
+          "non_st_elevation_acs"
+        ],
+        "locator": {
+          "url": "https://professional.heart.org/en/-/media/PHD-Files-2/Science-News/2/2021/2021-Chest-Pain-Guideline-Slide-Set-PDF-102821.pdf?sc_lang=en",
+          "section_heading": "High-Risk Patients With Acute Chest Pain",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "f6ca07429c1953d327a334ce7a4ef2cbeb5d587eaa6135c3989fcc4e62d16cec"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_naloxone_reversal_001",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-P01",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "medication_procedure",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "opioid_overdose"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Lifesaving naloxone",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "e0d7a5af17f68f5bd6d0ce7f0b987197885b036e06038358a1c77e08479f16c8"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_administer_reversal_002",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-M02",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "opioid_overdose"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Responding to overdose",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "743b018f812cd1085225efc0ede009b23ceb9cb7fe7d0d556838c6a151015180"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_call_ems_003",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-S03",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "naloxone_response_and_recurrence"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Responding to overdose",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "527fae6860e507c2929a14982d10daeda47c779024c5db27e1aa8e7709eed6ab"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_breathing_support_004",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-A04",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "opioid_overdose"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Responding to overdose",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "cd06bb2e29d6026a9a7073641f28e0823152cc4b38c958fb620d6bcf5ff02b50"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_positioning_005",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-M05",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "opioid_overdose"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Responding to overdose",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "b274cde5fef25abfc069a70683d80c27f83e28a03080e41923ebd06e00421415"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_signs_recognition_006",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-R06",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "opioid_overdose"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Signs of overdose",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "cfd44de4b6ebd9d03038490878d9e51f77d66963b73801a79118c73878931938"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_uncertain_treat_007",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-D07",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "opioid_overdose"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Steps to take",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "0b7722ee2b7beb05ff1dcd4374c40a2509d211a54946ded0579ec587731ca047"
+        ]
+      },
+      {
+        "chunk_id": "quote_opioid_stay_until_help_008",
+        "source_id": "cdc_overdose_response_2024",
+        "citation_label": "QB-OPIOID-S08",
+        "source_title": "What to Do If You Think Someone Is Overdosing",
+        "organization": "Centers for Disease Control and Prevention",
+        "source_tier": "society_guideline",
+        "publication_date": "2024",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "opioid_overdose"
+        ],
+        "locator": {
+          "url": "https://www.cdc.gov/stop-overdose/response/index.html",
+          "section_heading": "Steps to take",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "6dcb839a0d62823b15f8a493f75245f11f06a212bd49841c35c255142eab340b"
+        ]
+      },
+      {
+        "chunk_id": "quote_naloxone_temporary_recognition_006",
+        "source_id": "samhsa_opioid_overdose_reversal_2025",
+        "citation_label": "QB-NALOXONE-R06",
+        "source_title": "Opioid Overdose Reversal Medications",
+        "organization": "Substance Abuse and Mental Health Services Administration",
+        "source_tier": "society_guideline",
+        "publication_date": "2025",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "naloxone_response_and_recurrence"
+        ],
+        "locator": {
+          "url": "https://www.samhsa.gov/substance-use/treatment/overdose-prevention/opioid-overdose-reversal",
+          "section_heading": "What Is Naloxone?",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "fab3d497fdaf8fe8050e160018c76adfc5cc44ae035f63843aba8b77ddc96b11"
+        ]
+      },
+      {
+        "chunk_id": "quote_naloxone_breathing_assessment_007",
+        "source_id": "samhsa_opioid_overdose_reversal_2025",
+        "citation_label": "QB-NALOXONE-A07",
+        "source_title": "Opioid Overdose Reversal Medications",
+        "organization": "Substance Abuse and Mental Health Services Administration",
+        "source_tier": "society_guideline",
+        "publication_date": "2025",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "naloxone_response_and_recurrence"
+        ],
+        "locator": {
+          "url": "https://www.samhsa.gov/substance-use/treatment/overdose-prevention/opioid-overdose-reversal",
+          "section_heading": "Signs of opioid overdose",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "36f6394e26f8508f12a710f0b486fdae231d8083db590c72ac51fbe0f6e7ed2e"
+        ]
+      },
+      {
+        "chunk_id": "quote_naloxone_wakefulness_strategy_008",
+        "source_id": "samhsa_opioid_overdose_reversal_2025",
+        "citation_label": "QB-NALOXONE-D08",
+        "source_title": "Opioid Overdose Reversal Medications",
+        "organization": "Substance Abuse and Mental Health Services Administration",
+        "source_tier": "society_guideline",
+        "publication_date": "2025",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "naloxone_response_and_recurrence"
+        ],
+        "locator": {
+          "url": "https://www.samhsa.gov/substance-use/treatment/overdose-prevention/opioid-overdose-reversal",
+          "section_heading": "Signs of opioid overdose",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "693934b799ed3681fcf3214359662e8975d34f8863a7d85cd4a0e8378accb9ee"
+        ]
+      },
+      {
+        "chunk_id": "quote_naloxone_medical_help_009",
+        "source_id": "samhsa_opioid_overdose_reversal_2025",
+        "citation_label": "QB-NALOXONE-M09",
+        "source_title": "Opioid Overdose Reversal Medications",
+        "organization": "Substance Abuse and Mental Health Services Administration",
+        "source_tier": "society_guideline",
+        "publication_date": "2025",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "toxicology",
+          "overdose",
+          "substance_use",
+          "naloxone_response_and_recurrence"
+        ],
+        "locator": {
+          "url": "https://www.samhsa.gov/substance-use/treatment/overdose-prevention/opioid-overdose-reversal",
+          "section_heading": "Side Effects of OORMS",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "da03da9adbb269df22856aef3200c74676c3bf28f99b089c177af897875e95d1"
+        ]
+      },
+      {
+        "chunk_id": "quote_peds_fever_population_001",
+        "source_id": "aap_febrile_infant",
+        "citation_label": "QB-FEVER-R01",
+        "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+        "organization": "American Academy of Pediatrics",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "pediatrics",
+          "fever",
+          "pals",
+          "febrile_infant_8_to_21_days"
+        ],
+        "locator": {
+          "url": "https://www.aap.org/en/patient-care/infant-fever/",
+          "section_heading": "AAP infant fever clinical practice guideline",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "52502b13aadf0ef9545214c9f7b48a3a8e1b0486dafe14ad1b584ff17ea6a47b"
+        ]
+      },
+      {
+        "chunk_id": "quote_peds_fever_age_groups_002",
+        "source_id": "aap_febrile_infant",
+        "citation_label": "QB-FEVER-D02",
+        "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+        "organization": "American Academy of Pediatrics",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "pediatrics",
+          "fever",
+          "pals",
+          "febrile_infant_8_to_21_days"
+        ],
+        "locator": {
+          "url": "https://www.aap.org/en/patient-care/infant-fever/",
+          "section_heading": "AAP infant fever overview",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "3eb333357a3c3e22e2019fa316a13d0ae91c7c861d5403a92ecdd5ab07a77852"
+        ]
+      },
+      {
+        "chunk_id": "quote_peds_fever_age_band_003",
+        "source_id": "aap_febrile_infant",
+        "citation_label": "QB-FEVER-A03",
+        "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+        "organization": "American Academy of Pediatrics",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "pediatrics",
+          "fever",
+          "pals",
+          "febrile_infant_8_to_21_days"
+        ],
+        "locator": {
+          "url": "https://www.aap.org/en/patient-care/infant-fever/",
+          "section_heading": "AAP age-group recommendations",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "d78af7d0109a6084d9a5bbc790af16af615fb0a17283a412f9f38a8922d56440"
+        ]
+      },
+      {
+        "chunk_id": "quote_peds_fever_presenting_fever_004",
+        "source_id": "aap_febrile_infant",
+        "citation_label": "QB-FEVER-R04",
+        "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+        "organization": "American Academy of Pediatrics",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "pediatrics",
+          "fever",
+          "pals",
+          "febrile_infant_8_to_21_days"
+        ],
+        "locator": {
+          "url": "https://www.aap.org/en/patient-care/infant-fever/",
+          "section_heading": "AAP infant fever overview",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "2397c0e2cfe803cf9e85f23af10f4ef92a8b4abeb93fdf4323f7d3b6cd30cff2"
+        ]
+      },
+      {
+        "chunk_id": "quote_peds_fever_standardize_005",
+        "source_id": "aap_febrile_infant",
+        "citation_label": "QB-FEVER-H05",
+        "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+        "organization": "American Academy of Pediatrics",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "teaching_handoff",
+        "topic_tags": [
+          "pediatrics",
+          "fever",
+          "pals",
+          "febrile_infant_8_to_21_days"
+        ],
+        "locator": {
+          "url": "https://www.aap.org/en/patient-care/infant-fever/",
+          "section_heading": "REVISE febrile infant quality initiative",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "e79a388e7e521630cc1ba88818f6b6bc924a4cf18c8e697a6fa40dc96171b7ca"
+        ]
+      },
+      {
+        "chunk_id": "quote_peds_fever_initial_treatment_006",
+        "source_id": "aap_febrile_infant",
+        "citation_label": "QB-FEVER-M06",
+        "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+        "organization": "American Academy of Pediatrics",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "pediatrics",
+          "fever",
+          "pals",
+          "febrile_infant_8_to_21_days"
+        ],
+        "locator": {
+          "url": "https://www.aap.org/en/patient-care/infant-fever/",
+          "section_heading": "AAP Recommendations",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "e7b023d4e612da75d80efbf9f68f4905cb353b4d05d52a482e89c7d0e10d2935"
+        ]
+      },
+      {
+        "chunk_id": "quote_peds_fever_further_management_007",
+        "source_id": "aap_febrile_infant",
+        "citation_label": "QB-FEVER-S07",
+        "source_title": "Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old",
+        "organization": "American Academy of Pediatrics",
+        "source_tier": "society_guideline",
+        "publication_date": "2021",
+        "facet_id": "disposition_reassessment",
+        "topic_tags": [
+          "pediatrics",
+          "fever",
+          "pals",
+          "febrile_infant_8_to_21_days"
+        ],
+        "locator": {
+          "url": "https://www.aap.org/en/patient-care/infant-fever/",
+          "section_heading": "AAP Recommendations",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "fb53b998951b303964dcfce7ed71822def47a7c2e730994b9ac8739e7eebc43b"
+        ]
+      },
+      {
+        "chunk_id": "quote_stroke_alteplase_timing_001",
+        "source_id": "asa_quick_stroke_treatment_2026",
+        "citation_label": "QB-STROKE-M01",
+        "source_title": "Quick Stroke Treatment Can Save Lives",
+        "organization": "American Stroke Association",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "initial_management",
+        "topic_tags": [
+          "neurology",
+          "stroke",
+          "seizure",
+          "thrombolytic_eligibility_discussion"
+        ],
+        "locator": {
+          "url": "https://www.stroke.org/en/about-stroke/types-of-stroke/is-getting-quick-stroke-treatment-important",
+          "section_heading": "Medical Therapies",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "05c2373cddecebe4ff195b67762d30be1d557525c02152f40ee449d455cec75c"
+        ]
+      },
+      {
+        "chunk_id": "quote_stroke_imaging_002",
+        "source_id": "asa_stroke_diagnosis_2023",
+        "citation_label": "QB-STROKE-D02",
+        "source_title": "Common Diagnosis Methods",
+        "organization": "American Stroke Association",
+        "source_tier": "society_guideline",
+        "publication_date": "2023",
+        "facet_id": "diagnostic_strategy",
+        "topic_tags": [
+          "neurology",
+          "stroke",
+          "seizure",
+          "thrombolytic_eligibility_discussion"
+        ],
+        "locator": {
+          "url": "https://www.stroke.org/en/about-stroke/types-of-stroke/common-diagnosis-methods",
+          "section_heading": "Common Diagnosis Methods - Tests",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "dfd8472d7c35ad368d8bc078d3ab101ebbe25a2b46ed84e408bfc85aadaabafa"
+        ]
+      },
+      {
+        "chunk_id": "quote_stroke_diagnosis_003",
+        "source_id": "asa_stroke_symptoms_2026",
+        "citation_label": "QB-STROKE-R03",
+        "source_title": "Stroke Symptoms and Warning Signs",
+        "organization": "American Stroke Association",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "recognition",
+        "topic_tags": [
+          "neurology",
+          "stroke",
+          "seizure",
+          "acute_stroke_symptoms"
+        ],
+        "locator": {
+          "url": "https://www.stroke.org/en/about-stroke/stroke-symptoms",
+          "section_heading": "B.E. F.A.S.T. Warning Signs of Stroke",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "fe19cf7dceb57ea78a8becafeb6554258ad174f6c19890337206c2e0491748d7"
+        ]
+      },
+      {
+        "chunk_id": "quote_stroke_symptom_time_assessment_006",
+        "source_id": "asa_stroke_symptoms_2026",
+        "citation_label": "QB-STROKE-A06",
+        "source_title": "Stroke Symptoms and Warning Signs",
+        "organization": "American Stroke Association",
+        "source_tier": "society_guideline",
+        "publication_date": "2026",
+        "facet_id": "focused_assessment",
+        "topic_tags": [
+          "neurology",
+          "stroke",
+          "seizure",
+          "acute_stroke_symptoms"
+        ],
+        "locator": {
+          "url": "https://www.stroke.org/en/about-stroke/stroke-symptoms",
+          "section_heading": "Stroke Symptoms - TIA warning signs",
+          "page": "",
+          "locator_quality": "direct_quote_short_excerpt",
+          "verification_status": "human_verified"
+        },
+        "supporting_quote_hashes": [
+          "32eaf9ca3d291a51cdc1fd3c41a0355285531fba6363b2f40617639b543b6a52"
+        ]
+      }
+    ]
+  },
+  "generated_chunk_quarantine_summary": {
+    "learner_facing_use_allowed": false,
+    "generated_needs_review_chunks": 2400,
+    "generated_needs_review_by_facet": {
+      "recognition": 300,
+      "red_flags": 300,
+      "focused_assessment": 300,
+      "diagnostic_strategy": 300,
+      "initial_management": 300,
+      "medication_procedure": 300,
+      "disposition_reassessment": 300,
+      "teaching_handoff": 300
+    },
+    "generated_needs_review_by_source_tier": {
+      "ed_specific_guideline": 984,
+      "society_guideline": 1416
+    },
+    "representative_generated_chunk_ids": [
+      "triage_esi_1_resuscitation_recognition_001",
+      "triage_esi_1_resuscitation_red_flags_001",
+      "triage_esi_1_resuscitation_focused_assessment_001",
+      "triage_esi_1_resuscitation_diagnostic_strategy_001",
+      "triage_esi_1_resuscitation_initial_management_001",
+      "triage_esi_1_resuscitation_medication_procedure_001",
+      "triage_esi_1_resuscitation_disposition_reassessment_001",
+      "triage_esi_1_resuscitation_teaching_handoff_001",
+      "triage_esi_2_high_risk_recognition_002",
+      "triage_esi_2_high_risk_red_flags_002",
+      "triage_esi_2_high_risk_focused_assessment_002",
+      "triage_esi_2_high_risk_diagnostic_strategy_002",
+      "triage_esi_2_high_risk_initial_management_002",
+      "triage_esi_2_high_risk_medication_procedure_002",
+      "triage_esi_2_high_risk_disposition_reassessment_002",
+      "triage_esi_2_high_risk_teaching_handoff_002",
+      "triage_esi_3_resource_prediction_recognition_003",
+      "triage_esi_3_resource_prediction_red_flags_003",
+      "triage_esi_3_resource_prediction_focused_assessment_003",
+      "triage_esi_3_resource_prediction_diagnostic_strategy_003",
+      "triage_esi_3_resource_prediction_initial_management_003",
+      "triage_esi_3_resource_prediction_medication_procedure_003",
+      "triage_esi_3_resource_prediction_disposition_reassessment_003",
+      "triage_esi_3_resource_prediction_teaching_handoff_003",
+      "triage_esi_4_limited_resources_recognition_004"
+    ]
+  },
+  "feedback_claim_review_queue": [
+    {
+      "domain_key": "esi",
+      "label": "Final ESI accuracy",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_esi_and_resource_signals",
+      "current_status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_esi_claim_entailment",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "safety",
+      "label": "Objective safety reasoning",
+      "scoring_mode": "numeric",
+      "feedback_basis": "vital_sign_thresholds_and_objective_cues",
+      "current_status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_safety_claim_entailment",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "interview",
+      "label": "Interview coverage",
+      "scoring_mode": "numeric",
+      "feedback_basis": "case_complaint_history_and_required_question_domains",
+      "current_status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_interview_claim_entailment",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "focused_exam",
+      "label": "Focused exam selection",
+      "scoring_mode": "numeric",
+      "feedback_basis": "complaint_vitals_and_reviewed_inferred_exam_rules",
+      "current_status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_focused_exam_claim_entailment",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "diagnosis",
+      "label": "Working diagnosis",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_or_clinician_adjudicated_diagnosis",
+      "current_status_counts": {
+        "source_limited_formative_only": 23
+      },
+      "source_limited_formative_cases": 23,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Case truth adjudication resolving missing source-record diagnosis, referral, or reassessment fields before numeric use. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_diagnosis_claim_entailment",
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "referral",
+      "label": "Consult judgment",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "clinician_approved_referral_reference",
+      "current_status_counts": {
+        "source_limited_formative_only": 23
+      },
+      "source_limited_formative_cases": 23,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Case truth adjudication resolving missing source-record diagnosis, referral, or reassessment fields before numeric use. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_referral_claim_entailment",
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "escalation",
+      "label": "Initial management priorities",
+      "scoring_mode": "numeric",
+      "feedback_basis": "source_record_vitals_interventions_outcomes_and_esi_risk",
+      "current_status_counts": {
+        "case_grounded_pending_clinician_adjudication": 23
+      },
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_escalation_claim_entailment",
+      "current_release_status": "case_grounded_pending_clinician_educator_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "reassessment",
+      "label": "Reassessment targets",
+      "scoring_mode": "formative_when_truth_missing",
+      "feedback_basis": "source_record_vitals_disposition_and_escalation_triggers",
+      "current_status_counts": {
+        "source_limited_formative_only": 23
+      },
+      "source_limited_formative_cases": 23,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Case truth adjudication resolving missing source-record diagnosis, referral, or reassessment fields before numeric use. Emergency clinician calibration record for scoring thresholds and unsafe omission handling. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_reassessment_claim_entailment",
+      "current_release_status": "blocked_truth_unavailable_formative_only",
+      "reviewer_roles": [
+        "simulation_educator",
+        "emergency_clinician",
+        "medical_librarian_or_evidence_reviewer"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "soap",
+      "label": "SOAP note",
+      "scoring_mode": "numeric_structure_score",
+      "feedback_basis": "case_grounded_structured_note_rubric",
+      "current_status_counts": {
+        "rubric_grounded_requires_faculty_calibration": 23
+      },
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Faculty calibration record for the rubric anchors before summative assessment use. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_soap_claim_entailment",
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    },
+    {
+      "domain_key": "sbar",
+      "label": "SBAR handoff",
+      "scoring_mode": "conditional_numeric_structure_score",
+      "feedback_basis": "case_grounded_handoff_rubric",
+      "current_status_counts": {
+        "rubric_grounded_requires_faculty_calibration": 23
+      },
+      "source_limited_formative_cases": 0,
+      "numeric_cases_missing_required_evidence": 0,
+      "review_need": "Feedback traceability rows for every current public case in this domain. Clinician or faculty reviewer attestation that the feedback claim is entailed by case facts or a clearly cited standard. Equity and learner-safety check for stereotype-sensitive or overconfident wording. Faculty calibration record for the rubric anchors before summative assessment use. Quote-backed open evidence or clinician-approved local standard for any claim that goes beyond case-record facts.",
+      "packet_id": "domain_sbar_claim_entailment",
+      "current_release_status": "rubric_grounded_pending_faculty_calibration",
+      "reviewer_roles": [
+        "simulation_educator",
+        "clinical_skills_faculty"
+      ],
+      "required_review_actions": [
+        "Complete this packet in docs/learner_facing_claim_entailment_reviews.json.",
+        "Verify every learner-facing feedback claim against case truth, quote-backed open evidence, or a clinician-approved local standard."
+      ]
+    }
+  ],
+  "release_blockers": [
+    {
+      "id": "runtime_retrieval_not_locked",
+      "status": "cleared",
+      "evidence": {
+        "runtime_retrieval_all_probes_passed": true,
+        "runtime_retrieval_quote_backed_only_default": true,
+        "runtime_retrieval_reference_count": 5,
+        "runtime_retrieval_generated_needs_review_badges": 0,
+        "runtime_retrieval_needs_review_badges": 0,
+        "runtime_retrieval_smoke_review_items": 0,
+        "runtime_retrieval_quarantine_warning_visible": true,
+        "runtime_retrieval_quality_badge_visible": true,
+        "runtime_high_risk_retrieval_quality_threshold_passed": true,
+        "runtime_high_risk_retrieval_quality_top_base_score": 0.629,
+        "runtime_high_risk_retrieval_quality_minimum_base_score": 0.08,
+        "runtime_bm25_fallback_badge_visible": true,
+        "runtime_retrieval_nonclinical_scope_guardrail_warning_visible": true,
+        "runtime_retrieval_nonclinical_scope_guardrail_reference_count": 0
+      },
+      "required_to_clear": "Keep docs/open_evidence_retrieval_runtime_report.json passing so the built app proves quote-backed-only learner-facing retrieval."
+    },
+    {
+      "id": "high_risk_retrieval_quality_badge_not_ready",
+      "status": "cleared",
+      "evidence": {
+        "runtime_retrieval_quality_badge_visible": true,
+        "runtime_high_risk_retrieval_quality_threshold_passed": true,
+        "runtime_high_risk_retrieval_quality_top_base_score": 0.629,
+        "runtime_high_risk_retrieval_quality_minimum_base_score": 0.08,
+        "runtime_bm25_fallback_badge_visible": true
+      },
+      "required_to_clear": "Keep the built grounding lab showing the high-risk retrieval quality badge, BM25 fallback state, and minimum score threshold before learner-facing use."
+    },
+    {
+      "id": "source_freshness_not_ready",
+      "status": "blocked",
+      "evidence": {
+        "source_freshness_report_present": true,
+        "learner_facing_source_freshness_release_ready": false,
+        "learner_facing_quote_backed_sources_release_blocked": 16,
+        "stale_learner_facing_quote_backed_sources": 0,
+        "missing_local_review_date_sources": 109
+      },
+      "required_to_clear": "Use docs/source_freshness_report.json to replace stale learner-facing sources and record local review dates before national release."
+    },
+    {
+      "id": "high_risk_quote_depth_not_ready",
+      "status": "blocked",
+      "evidence": {
+        "high_risk_quote_coverage_depth_report_present": true,
+        "high_risk_topic_count": 15,
+        "high_risk_quote_coverage_depth_release_ready": false,
+        "high_risk_quote_coverage_depth_topics_meeting_core_facet_depth": 15,
+        "high_risk_quote_coverage_depth_missing_topic_facet_pairs": 0,
+        "high_risk_quote_coverage_depth_generated_needs_review_chunks": 120
+      },
+      "required_to_clear": "Use docs/high_risk_quote_coverage_depth_report.json to fill missing high-risk topic/facet quote-backed evidence before national learner feedback."
+    },
+    {
+      "id": "high_risk_classification_policy_not_ready",
+      "status": "cleared",
+      "evidence": {
+        "high_risk_clinical_classification_report_present": true,
+        "high_risk_clinical_classification_policy_ready": true,
+        "high_risk_clinical_classification_topic_count": 15,
+        "high_risk_clinical_classification_topics_with_alias_policy": 15,
+        "high_risk_clinical_classification_topic_alias_probes": 15,
+        "high_risk_clinical_classification_topic_alias_probes_passed": 15,
+        "high_risk_clinical_classification_retrieval_matrix_rows": 9,
+        "high_risk_clinical_classification_retrieval_matrix_rows_passed": 9,
+        "high_risk_clinical_classification_case_rows_classified": 23,
+        "high_risk_clinical_classification_current_case_count": 23,
+        "high_risk_clinical_classification_claim_sets_classified": 10,
+        "high_risk_clinical_classification_negative_controls_classified_nonclinical": 2,
+        "high_risk_clinical_classification_regex_fallback_only_high_risk_probes": 0,
+        "high_risk_clinical_classification_generated_needs_review_approved": 0
+      },
+      "required_to_clear": "Use docs/high_risk_clinical_classification_report.json to keep high-risk routing topic/facet-based across cases, actions, claims, and negative controls."
+    },
+    {
+      "id": "claim_reference_alignment_not_ready",
+      "status": "blocked",
+      "evidence": {
+        "claim_reference_alignment_report_present": true,
+        "claim_reference_alignment_claim_sets": 10,
+        "claim_reference_alignment_claim_sets_meeting_threshold": 9,
+        "claim_reference_alignment_claim_sets_requiring_domain_specific_support": 1,
+        "claim_reference_alignment_claim_sets_with_domain_specific_support": 0,
+        "claim_reference_alignment_claim_sets_missing_domain_specific_support": 1,
+        "claim_reference_alignment_domain_specific_release_ready": false,
+        "claim_reference_gap_packets_present": true,
+        "claim_reference_gap_packets_total": 1,
+        "claim_reference_gap_packets_pending": 1,
+        "claim_reference_gap_packets_generated_candidates": 160,
+        "claim_reference_gap_packets_all_domain_specific_gaps_packeted": true,
+        "claim_reference_alignment_generated_needs_review_references": 0,
+        "claim_reference_alignment_source_limited_claim_sets_blocked": 3,
+        "claim_reference_alignment_release_ready": false
+      },
+      "required_to_clear": "Use docs/feedback_claim_reference_alignment_report.json as reviewer input, then complete expert claim-entailment reviews before national feedback release."
+    },
+    {
+      "id": "claim_reference_gap_packets_not_clear",
+      "status": "blocked",
+      "evidence": {
+        "claim_reference_gap_packets_present": true,
+        "claim_reference_gap_packets_total": 1,
+        "claim_reference_gap_packets_pending": 1,
+        "claim_reference_gap_packets_generated_candidates": 160,
+        "claim_reference_gap_packets_all_domain_specific_gaps_packeted": true
+      },
+      "required_to_clear": "Use docs/claim_reference_gap_review_packets.json to close named-standard evidence gaps before learner-facing national feedback release."
+    },
+    {
+      "id": "generated_backlog_unreviewed",
+      "status": "blocked",
+      "evidence": {
+        "generated_needs_review_chunks": 2400,
+        "generated_chunks_quarantined_by_default": true,
+        "generated_references_returned_by_policy_probes": 0
+      },
+      "required_to_clear": "Replace, remove, or formally approve generated-needs-review chunks before they can become learner-facing source material."
+    },
+    {
+      "id": "claim_entailment_not_reviewed",
+      "status": "blocked",
+      "evidence": {
+        "claim_entailment_packet_report_present": true,
+        "claim_entailment_packet_count": 10,
+        "claim_entailment_adjudication_status_present": true,
+        "claim_entailment_adjudication_status": "claim_entailment_review_inputs_pending",
+        "claim_entailment_invalid_review_input_count": 0,
+        "claim_entailment_required_claim_sets": 10,
+        "claim_entailment_reviewed_claims": 0
+      },
+      "required_to_clear": "Use docs/feedback_claim_entailment_review_packets.json, then record valid clinician and educator reviews in docs/learner_facing_claim_entailment_reviews.json and keep docs/feedback_claim_entailment_adjudication_status.json valid."
+    },
+    {
+      "id": "evidence_adjudication_not_complete",
+      "status": "blocked",
+      "evidence": {
+        "active_reviewed_chunks": 2489,
+        "evidence_adjudication_approved_chunks": 0
+      },
+      "required_to_clear": "Record evidence chunk approvals in docs/evidence_chunk_adjudications.json using the clinical adjudication contract."
+    }
+  ],
+  "next_actions": [
+    "Keep runtime policy probes passing so generated-needs-review chunks stay quarantined from learner-facing retrieval.",
+    "Keep browser-runtime retrieval probes passing so the built app renders quote-backed references and zero generated-needs-review badges.",
+    "Use the high-risk topic coverage table to preserve quote-backed support for each high-risk domain while replacing generated background chunks.",
+    "Use docs/feedback_claim_entailment_review_packets.json to assign reviewer work, then create docs/learner_facing_claim_entailment_reviews.json and review every feedback claim set against case truth, quote-backed open evidence, or a clinician-approved local standard.",
+    "Record source-review approvals in docs/evidence_chunk_adjudications.json before promoting any generated-needs-review chunk.",
+    "Keep source-limited diagnosis, consult, and reassessment feedback formative until case truth adjudication is complete."
+  ]
+}

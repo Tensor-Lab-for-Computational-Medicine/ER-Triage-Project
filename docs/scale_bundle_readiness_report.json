@@ -1,0 +1,230 @@
+{
+  "schema_version": "scale_bundle_readiness_report_v1",
+  "generated_at": "2026-06-09T22:33:27.317Z",
+  "review_status": "default_route_budget_passed_optional_assets_need_monitoring",
+  "warning": "This report checks default-route bundle readiness. It does not replace load testing, device testing, accessibility audits, or CDN/deployment monitoring.",
+  "source_contract": {
+    "app_path": "frontend/src/App.jsx",
+    "legacy_simulator_lazy_loaded": true,
+    "legacy_simulator_static_import_present": false,
+    "default_route": "ClinicalFlowboard",
+    "optional_route": "/legacy or ?legacy=1"
+  },
+  "dist": {
+    "dist_present": true,
+    "index_path": "frontend/dist/index.html",
+    "initial_asset_names": [
+      "index-1309e3d2.css",
+      "index-7bae5285.js"
+    ]
+  },
+  "budget_policy": {
+    "initial_js_limit_kb": 500,
+    "initial_css_limit_kb": 200,
+    "optional_chunk_warning_kb": 500,
+    "rationale": "The default national cohort route should avoid loading optional legacy simulator, PDF ingestion, local embedding, and patient TTS payloads until explicitly requested."
+  },
+  "summary": {
+    "initial_js_bytes": 407362,
+    "initial_js_kb": 397.81,
+    "initial_css_bytes": 48097,
+    "initial_css_kb": 46.97,
+    "initial_asset_count": 2,
+    "total_asset_count": 9,
+    "optional_asset_count": 7,
+    "optional_large_asset_count": 5,
+    "largest_initial_asset": {
+      "file_name": "index-7bae5285.js",
+      "extension": "js",
+      "bytes": 407362,
+      "kb": 397.81,
+      "gzip_bytes": 117308,
+      "gzip_kb": 114.56,
+      "initial_route_asset": true,
+      "optional_or_lazy_asset": false
+    },
+    "largest_optional_asset": {
+      "file_name": "ort-wasm-simd-threaded.asyncify-e0c0c6d3.wasm",
+      "extension": "wasm",
+      "bytes": 23567050,
+      "kb": 23014.7,
+      "gzip_bytes": 5757038,
+      "gzip_kb": 5622.11,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    "default_route_initial_budget_passed": true
+  },
+  "initial_assets": [
+    {
+      "file_name": "index-7bae5285.js",
+      "extension": "js",
+      "bytes": 407362,
+      "kb": 397.81,
+      "gzip_bytes": 117308,
+      "gzip_kb": 114.56,
+      "initial_route_asset": true,
+      "optional_or_lazy_asset": false
+    },
+    {
+      "file_name": "index-1309e3d2.css",
+      "extension": "css",
+      "bytes": 48097,
+      "kb": 46.97,
+      "gzip_bytes": 8568,
+      "gzip_kb": 8.37,
+      "initial_route_asset": true,
+      "optional_or_lazy_asset": false
+    }
+  ],
+  "optional_large_assets": [
+    {
+      "file_name": "ort-wasm-simd-threaded.asyncify-e0c0c6d3.wasm",
+      "extension": "wasm",
+      "bytes": 23567050,
+      "kb": 23014.7,
+      "gzip_bytes": 5757038,
+      "gzip_kb": 5622.11,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "LegacySimulatorApp-c6c653c5.js",
+      "extension": "js",
+      "bytes": 8525908,
+      "kb": 8326.08,
+      "gzip_bytes": 442615,
+      "gzip_kb": 432.24,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "kokoro-82b7701c.js",
+      "extension": "js",
+      "bytes": 2179757,
+      "kb": 2128.67,
+      "gzip_bytes": 909380,
+      "gzip_kb": 888.07,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "pdf.worker-535304b7.mjs",
+      "extension": "mjs",
+      "bytes": 2161149,
+      "kb": 2110.5,
+      "gzip_bytes": 462010,
+      "gzip_kb": 451.18,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "transformers.web-bb7b6b38.js",
+      "extension": "js",
+      "bytes": 568271,
+      "kb": 554.95,
+      "gzip_bytes": 164817,
+      "gzip_kb": 160.95,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    }
+  ],
+  "all_assets": [
+    {
+      "file_name": "ort-wasm-simd-threaded.asyncify-e0c0c6d3.wasm",
+      "extension": "wasm",
+      "bytes": 23567050,
+      "kb": 23014.7,
+      "gzip_bytes": 5757038,
+      "gzip_kb": 5622.11,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "LegacySimulatorApp-c6c653c5.js",
+      "extension": "js",
+      "bytes": 8525908,
+      "kb": 8326.08,
+      "gzip_bytes": 442615,
+      "gzip_kb": 432.24,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "kokoro-82b7701c.js",
+      "extension": "js",
+      "bytes": 2179757,
+      "kb": 2128.67,
+      "gzip_bytes": 909380,
+      "gzip_kb": 888.07,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "pdf.worker-535304b7.mjs",
+      "extension": "mjs",
+      "bytes": 2161149,
+      "kb": 2110.5,
+      "gzip_bytes": 462010,
+      "gzip_kb": 451.18,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "transformers.web-bb7b6b38.js",
+      "extension": "js",
+      "bytes": 568271,
+      "kb": 554.95,
+      "gzip_bytes": 164817,
+      "gzip_kb": 160.95,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "pdf-b4371393.js",
+      "extension": "js",
+      "bytes": 464080,
+      "kb": 453.2,
+      "gzip_bytes": 137816,
+      "gzip_kb": 134.59,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "index-7bae5285.js",
+      "extension": "js",
+      "bytes": 407362,
+      "kb": 397.81,
+      "gzip_bytes": 117308,
+      "gzip_kb": 114.56,
+      "initial_route_asset": true,
+      "optional_or_lazy_asset": false
+    },
+    {
+      "file_name": "LegacySimulatorApp-673270a7.css",
+      "extension": "css",
+      "bytes": 107446,
+      "kb": 104.93,
+      "gzip_bytes": 18551,
+      "gzip_kb": 18.12,
+      "initial_route_asset": false,
+      "optional_or_lazy_asset": true
+    },
+    {
+      "file_name": "index-1309e3d2.css",
+      "extension": "css",
+      "bytes": 48097,
+      "kb": 46.97,
+      "gzip_bytes": 8568,
+      "gzip_kb": 8.37,
+      "initial_route_asset": true,
+      "optional_or_lazy_asset": false
+    }
+  ],
+  "next_actions": [
+    "Keep the default ClinicalFlowboard route free of legacy simulator, local PDF ingestion, embedding model, and patient TTS imports.",
+    "Add manualChunks or deeper lazy-loading for legacy-only PDF, transformer, and Kokoro assets if the legacy route becomes part of national deployment.",
+    "Run Lighthouse/WebPageTest-style checks on representative campus networks before national launch.",
+    "Add load testing and CDN cache validation for multi-school cohorts."
+  ]
+}

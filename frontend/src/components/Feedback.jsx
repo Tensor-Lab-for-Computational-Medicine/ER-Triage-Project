@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   askTutorQuestion,
   getFeedback,
@@ -6,6 +6,12 @@ import {
   getTutorSettings,
   gradeReasoningReview
 } from '../services/api';
+import {
+  EvidenceStatusBadge,
+  SourceVerificationActions,
+  SourceVerificationBadge,
+  SourceVerificationDrawer
+} from './SourceVerification';
 
 function getComparisonClass(comparison) {
   return String(comparison || '')
@@ -17,6 +23,36 @@ function scoreClass(percentage = 0) {
   if (percentage >= 85) return 'strong';
   if (percentage >= 65) return 'developing';
   return 'needs-review';
+}
+
+function evidenceStatusText(status = '') {
+  switch (status) {
+    case 'source_record_diagnosis_available':
+      return 'Source-record diagnosis available';
+    case 'source_record_diagnosis_unavailable':
+      return 'Source-record diagnosis unavailable; formative reasoning review';
+    case 'clinician_approved_consult_available':
+      return 'Clinician-approved consult reference available';
+    case 'clinician_approved_consult_unavailable':
+      return 'Clinician-approved consult reference unavailable; formative consult review';
+    default:
+      return status ? status.replace(/_/g, ' ') : 'Evidence status unavailable';
+  }
+}
+
+function scoringBasisText(status = '') {
+  switch (status) {
+    case 'source_record_comparison':
+      return 'Compared with source-record diagnosis context';
+    case 'formative_reasoning_structure':
+      return 'Formative reasoning structure review; excluded from numeric score';
+    case 'clinician_approved_consult_comparison':
+      return 'Compared with clinician-approved consult reference';
+    case 'unscored_formative_consult_reasoning':
+      return 'Unscored formative consult reasoning';
+    default:
+      return status ? status.replace(/_/g, ' ') : 'Scoring basis unavailable';
+  }
 }
 
 function getDomain(domains = [], key) {
@@ -39,7 +75,7 @@ function judgmentRows(domains = [], workflowAnalysis = {}, triageAnalysis = {}) 
   const referral = getDomain(domains, 'referral');
   const escalation = getDomain(domains, 'escalation');
   const reassessment = getDomain(domains, 'reassessment');
-  const sbar = getDomain(domains, 'sbar');
+  const soap = getDomain(domains, 'soap');
 
   return [
     {
@@ -66,25 +102,31 @@ function judgmentRows(domains = [], workflowAnalysis = {}, triageAnalysis = {}) 
     },
     {
       label: 'Reflecting',
-      score: averagePercentage([reassessment, sbar]),
-      evidence: workflowAnalysis?.reassessment?.message || workflowAnalysis?.sbar?.message || sbar?.message || 'Reflection was scored from reassessment and handoff completeness.',
-      action: workflowAnalysis?.sbar?.missing?.length
-        ? `Missing SBAR elements: ${workflowAnalysis.sbar.missing.join(', ')}.`
-        : 'Reassessment and handoff closed the loop on the ED encounter.'
+      score: averagePercentage([reassessment, soap]),
+      evidence: workflowAnalysis?.reassessment?.message || soap?.message || 'Reflection was scored from reassessment and SOAP documentation.',
+      action: 'Reassessment and SOAP documentation closed the loop on the ED encounter.'
     }
   ];
 }
 
 function DomainScore({ domain }) {
   if (!domain) return null;
+  const formativeOnly = domain.scoring_status === 'formative_only' || domain.scored === false || domain.possible === 0;
 
   return (
     <div className={`score-domain ${scoreClass(domain.percentage)}`}>
       <div>
         <strong>{domain.label}</strong>
         <span>{domain.message}</span>
+        {formativeOnly && (
+          <span>Formative only; excluded from numeric score until case truth is reviewed.</span>
+        )}
       </div>
-      <b>{domain.score} / {domain.possible}</b>
+      <b>
+        {formativeOnly
+          ? `Formative ${domain.formative_score || 0} / ${domain.formative_possible || 0}`
+          : `${domain.score} / ${domain.possible}`}
+      </b>
     </div>
   );
 }
@@ -105,33 +147,6 @@ function EvidenceList({ items, emptyText, renderItem }) {
   );
 }
 
-function SbarBlock({ sbar }) {
-  if (!sbar) return <p className="sbar-text">SBAR reference unavailable.</p>;
-  if (typeof sbar === 'string') return <pre className="sbar-text">{sbar}</pre>;
-  const rows = [
-    ['S', 'Situation', sbar.situation],
-    ['B', 'Background', sbar.background],
-    ['A', 'Assessment', sbar.assessment],
-    ['R', 'Recommendation', sbar.recommendation]
-  ].filter(([, , text]) => text);
-
-  if (!rows.length) return <p className="sbar-text">SBAR reference unavailable.</p>;
-
-  return (
-    <div className="gold-sbar-grid">
-      {rows.map(([letter, label, text]) => (
-        <div className="gold-sbar-item" key={letter}>
-          <span>{letter}</span>
-          <div>
-            <strong>{label}</strong>
-            <p>{text}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function NextCaseChecklist({ items }) {
   if (!items || items.length === 0) return null;
 
@@ -146,13 +161,78 @@ function NextCaseChecklist({ items }) {
   );
 }
 
+function CitationList({ grounding, citations, compact = false }) {
+  const [verificationReference, setVerificationReference] = useState(null);
+  const referenceCitations = citations?.references || grounding?.citations?.references || [];
+  const caseCitations = citations?.case_evidence || grounding?.citations?.case_evidence || [];
+  const issues = grounding?.issues || [];
+  const supportQuality = grounding?.support_quality;
+  if (!referenceCitations.length && !caseCitations.length && !issues.length && !supportQuality) return null;
+
+  return (
+    <div className={`citation-list ${compact ? 'compact' : ''}`} aria-label="Grounding citations">
+      <div className="citation-list-header">
+        <strong>Grounding</strong>
+        {grounding?.status && <span className={`citation-status ${grounding.status}`}>{grounding.status.replace('_', ' ')}</span>}
+      </div>
+      {supportQuality && (
+        <div className={`citation-support-quality ${supportQuality.status === 'passed' ? 'passed' : 'needs-review'}`}>
+          <span>Support quality checked</span>
+          <small>
+            {supportQuality.supported_claims || 0}/{supportQuality.checked_claims || 0} supported
+            {supportQuality.contradicted_claims ? `, ${supportQuality.contradicted_claims} contradicted` : ''}
+            {supportQuality.weak_support_claims ? `, ${supportQuality.weak_support_claims} weak` : ''}
+          </small>
+        </div>
+      )}
+      {referenceCitations.length > 0 && (
+        <ol className="citation-items">
+          {referenceCitations.map((item) => (
+            <li key={item.reference_chunk_id} className="citation-reference-item">
+              <div className="citation-reference-line">
+                <span>{item.citation_label || item.reference_chunk_id}</span>
+                {item.source_url ? (
+                  <a href={item.source_url} target="_blank" rel="noopener noreferrer">
+                    {item.citation_title || item.source_title || item.reference_chunk_id}
+                  </a>
+                ) : (
+                  <b>{item.citation_title || item.source_title || item.reference_chunk_id}</b>
+                )}
+                <SourceVerificationBadge status={item.verification_status} auditable={item.auditable} />
+                <EvidenceStatusBadge status={item.evidence_status} quoteBacked={item.quote_backed} />
+              </div>
+              <SourceVerificationActions reference={item} onVerify={setVerificationReference} />
+            </li>
+          ))}
+        </ol>
+      )}
+      <SourceVerificationDrawer
+        reference={verificationReference}
+        onClose={() => setVerificationReference(null)}
+      />
+      {caseCitations.length > 0 && (
+        <ul className="case-citation-items">
+          {caseCitations.slice(0, 4).map((item) => (
+            <li key={item.case_evidence_id}>
+              <span>{item.label}</span>
+              <small>{item.text}</small>
+            </li>
+          ))}
+        </ul>
+      )}
+      {issues.length > 0 && (
+        <p className="citation-issues">{issues.slice(0, 2).join(' ')}</p>
+      )}
+    </div>
+  );
+}
+
 function LearnerProfilePanel({ delta, recommendation }) {
   if (!delta && !recommendation) return null;
   const changes = [
     delta?.esi_error_direction && delta.esi_error_direction !== 'matched' ? `Acuity pattern: ${delta.esi_error_direction.replace('_', ' ')}` : '',
     delta?.interview_gaps?.length ? `Interview gaps: ${delta.interview_gaps.join(', ')}` : '',
-    delta?.missed_escalation_categories?.length ? `Escalation gaps: ${delta.missed_escalation_categories.join(', ')}` : '',
-    delta?.weak_sbar_sections?.length ? `SBAR gaps: ${delta.weak_sbar_sections.join(', ')}` : ''
+    delta?.missed_escalation_categories?.length ? `Escalation gaps: ${delta.missed_escalation_categories.join(', ')}` : ''
   ].filter(Boolean);
 
   return (
@@ -163,7 +243,7 @@ function LearnerProfilePanel({ delta, recommendation }) {
           <h4 style={{ margin: '4px 0 0', fontSize: '1.1rem' }}>{recommendation?.focus || 'Balanced triage practice'}</h4>
         </div>
       </div>
-      <p style={{ margin: '8px 0', fontSize: '0.95rem', color: '#475569' }}>{recommendation?.rationale || 'Continue rotating through acuity, interview, escalation, and handoff skills.'}</p>
+      <p style={{ margin: '8px 0', fontSize: '0.95rem', color: '#475569' }}>{recommendation?.rationale || 'Continue rotating through acuity, interview, escalation, and SOAP documentation.'}</p>
       {changes.length > 0 && (
         <EvidenceList
           items={changes}
@@ -216,7 +296,6 @@ function TutorResponse({ response }) {
           <p>{response.teaching_point}</p>
         </div>
       )}
-      {response.gold_standard_sbar && <SbarBlock sbar={response.gold_standard_sbar} />}
       {response.next_steps?.length > 0 && (
         <div className="next-step-grid tutor-next-steps">
           {response.next_steps.map((item) => (
@@ -235,6 +314,7 @@ function TutorResponse({ response }) {
           ))}
         </ul>
       )}
+      <CitationList grounding={response.grounding} citations={response.citations} compact />
     </div>
   );
 }
@@ -276,7 +356,7 @@ function TutorPanel({ sessionId, aiSettings }) {
 
   const suggestedQuestions = [
     'Summarize this case like an attending physician.',
-    'Show the reference-informed SBAR.',
+    'Review my SOAP note.',
     'What should I improve next time?'
   ];
 
@@ -395,6 +475,7 @@ function ReasoningReviewPanel({ review, loading, error, settings, onRetry }) {
             <p>{review.overall?.summary}</p>
             <small>{review.overall?.priority}</small>
           </div>
+          <CitationList grounding={review.grounding} compact />
 
           <div className="reasoning-section-grid">
             {(review.sections || []).map((section) => (
@@ -454,6 +535,23 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
   const [reviewError, setReviewError] = useState('');
 
   const [aiDebriefLoading, setAiDebriefLoading] = useState(false);
+  const [aiDebriefDraft, setAiDebriefDraft] = useState(null);
+  const [aiDebriefError, setAiDebriefError] = useState('');
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const clinicalReviewRef = useRef(null);
+  const scoringValidationRef = useRef(null);
+
+  const toggleDebriefDetails = () => {
+    const shouldExpand = !detailsExpanded;
+    setDetailsExpanded(shouldExpand);
+    [clinicalReviewRef.current, scoringValidationRef.current].forEach((details) => {
+      if (details) details.open = shouldExpand;
+    });
+  };
+
+  const syncDebriefDetailsState = () => {
+    setDetailsExpanded(Boolean(clinicalReviewRef.current?.open && scoringValidationRef.current?.open));
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -463,41 +561,9 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
         if (isMounted) {
           setFeedback(data);
           setReasoningReview(data.local_reasoning_review || null);
-          
-          const settings = aiSettings || getTutorSettings();
-          if (settings?.hasKey) {
-            setAiDebriefLoading(true);
-            getAiDebrief(sessionId).then(aiData => {
-              if (isMounted && aiData) {
-                setFeedback(prev => {
-                  if (!prev) return prev;
-                  const updated = { ...prev };
-                  
-                  if (aiData.expert_soap_note) {
-                    updated.physician_debrief = {
-                      ...updated.physician_debrief,
-                      soap_note: aiData.expert_soap_note
-                    };
-                  }
-                  
-                  if (aiData.clinical_tips) {
-                    const tips = [
-                      ...(aiData.clinical_tips.red_flags || []).map((item) => `Red flags: ${item}`),
-                      ...(aiData.clinical_tips.interview_quality || []).map((item) => `Interview: ${item}`),
-                      ...(aiData.clinical_tips.what_to_do_differently || []).map((item) => `Next case: ${item}`)
-                    ].filter(Boolean);
-                    if (tips.length) updated.next_case_checklist = tips;
-                  }
-                  
-                  return updated;
-                });
-              }
-            }).catch(e => {
-              console.error('AI Debrief failed:', e);
-            }).finally(() => {
-              if (isMounted) setAiDebriefLoading(false);
-            });
-          }
+          setAiDebriefDraft(null);
+          setAiDebriefError('');
+          setAiDebriefLoading(false);
         }
       } catch (err) {
         if (isMounted) setError(`Failed to load feedback: ${err.message || err.toString()}`);
@@ -535,6 +601,31 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
       setReviewError('The critique could not be generated.');
     } finally {
       setReviewLoading(false);
+    }
+  };
+
+  const requestAiDebriefDraft = async () => {
+    const activeSettings = getTutorSettings();
+    if (!activeSettings.hasKey) {
+      setAiDebriefError('Add an API key from AI Settings in the header to request an optional AI draft.');
+      return;
+    }
+
+    setAiDebriefLoading(true);
+    setAiDebriefError('');
+    try {
+      const draft = await getAiDebrief(sessionId);
+      if (!draft) {
+        setAiDebriefDraft(null);
+        setAiDebriefError('The AI draft returned no usable content. The evidence-based debrief is unchanged.');
+        return;
+      }
+      setAiDebriefDraft(draft);
+    } catch (err) {
+      setAiDebriefDraft(null);
+      setAiDebriefError('The AI draft could not be generated. The evidence-based debrief is unchanged.');
+    } finally {
+      setAiDebriefLoading(false);
     }
   };
 
@@ -583,11 +674,31 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
     : 0;
 
   const soapNote = physician_debrief?.soap_note || physician_case_review?.soap_note;
+  const learnerSoap = session_summary?.soap_note;
+  const aiDraftSoap = aiDebriefDraft?.expert_soap_note || null;
+  const aiDraftTips = aiDebriefDraft?.clinical_tips || null;
+  const aiDraftBlocked = Boolean(aiDebriefDraft?.blocked);
+  const aiDraftReady = Boolean(aiDebriefDraft && !aiDraftBlocked && (aiDraftSoap || aiDraftTips));
+  const aiDraftTipItems = aiDraftTips ? [
+    ...(aiDraftTips.red_flags || []).map((item) => `Red flags: ${item}`),
+    ...(aiDraftTips.interview_quality || []).map((item) => `Interview: ${item}`),
+    ...(aiDraftTips.what_to_do_differently || []).map((item) => `Next case: ${item}`)
+  ].filter(Boolean) : [];
   const missedEscalation = workflow_analysis?.escalation?.missed?.[0]?.name;
   const firstChecklistItem = next_case_checklist?.[0];
   const secondChecklistItem = next_case_checklist?.[1];
   const diagnosisMessage = workflow_analysis?.diagnosis?.message || 'Working diagnosis was reviewed against available case context.';
-  const referralMessage = workflow_analysis?.referral?.message || 'Referral judgment was reviewed when source context was available.';
+  const referralMessage = workflow_analysis?.referral?.message || 'Consult judgment was reviewed when source context was available.';
+  const restrictedDebriefData = session_summary?.restricted_debrief_data || [];
+  const missedItems = [
+    missedEscalation ? `Missed action: ${missedEscalation}` : '',
+    workflow_analysis?.focused_exam?.missed_systems?.length
+      ? `Missed exam: ${workflow_analysis.focused_exam.missed_systems.map((item) => item.name).join(', ')}`
+      : '',
+    workflow_analysis?.reassessment?.missed?.length
+      ? `Missed reassessment: ${workflow_analysis.reassessment.missed.map((item) => item.label).join(', ')}`
+      : ''
+  ].filter(Boolean);
 
   return (
     <section className="step-card debrief-card" aria-labelledby="debrief-heading">
@@ -615,25 +726,44 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
         <article className="debrief-quick-card">
           <span>Next case focus</span>
           <h3>{next_case_recommendation?.focus || 'Balanced ED workflow practice'}</h3>
-          <p>{next_case_recommendation?.rationale || 'Keep connecting history, vitals, exam, acuity, plan, reassessment, and handoff.'}</p>
+          <p>{next_case_recommendation?.rationale || 'Keep connecting history, vitals, exam, acuity, plan, reassessment, and SOAP documentation.'}</p>
         </article>
       </div>
 
+      <div className="debrief-next-action" aria-label="Debrief next action">
+        <div>
+          <span className="detail-kicker">Next action</span>
+          <strong>{firstChecklistItem || next_case_recommendation?.focus || 'Repeat the full ED workflow with tighter evidence use.'}</strong>
+        </div>
+        {missedItems.length > 0 && (
+          <div>
+            <span className="detail-kicker">What I missed</span>
+            <p>{missedItems.slice(0, 3).join(' - ')}</p>
+          </div>
+        )}
+      </div>
+
+      <div className="debrief-toolbar" aria-label="Debrief section shortcuts">
+        <a href="#clinical-review-details">Review</a>
+        <a href="#scoring-validation-details">Scoring</a>
+        <button type="button" className="btn-secondary compact-insert-button" onClick={toggleDebriefDetails}>
+          {detailsExpanded ? 'Collapse details' : 'Expand details'}
+        </button>
+      </div>
+
       <div className="debrief-detail-grid">
-        <details className="advanced-debrief-details clinical-review-details">
+        <details
+          ref={clinicalReviewRef}
+          className="advanced-debrief-details clinical-review-details"
+          id="clinical-review-details"
+          onToggle={syncDebriefDetailsState}
+        >
           <summary>
             <span>Clinical Review</span>
-            <strong>Assessment, referral, reassessment, and SBAR</strong>
+            <strong>Assessment, consults, reassessment, and SOAP</strong>
           </summary>
           <div className="advanced-debrief-content">
-            {aiDebriefLoading ? (
-              <div className="expert-soap-breakdown loading-state" style={{ textAlign: 'center', padding: '40px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-                <div className="spinner" style={{ margin: '0 auto 16px', width: '40px', height: '40px', border: '4px solid #cbd5e1', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                <h4 style={{ color: '#0f172a', margin: '0 0 8px' }}>Generating simulation guidance...</h4>
-                <p style={{ color: '#475569', margin: 0, fontSize: '0.95rem' }}>Draft assessment and plan text must be validated before clinical use.</p>
-              </div>
-            ) : soapNote && (
+            {soapNote && (
               <div className="expert-soap-breakdown">
                 <div className="soap-header">
                   <span className="detail-kicker">Simulation synthesis</span>
@@ -722,6 +852,32 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
             )}
 
             <div className="decision-review-grid">
+              {restrictedDebriefData.length > 0 && (
+                <article className="decision-review-card">
+                  <span className="detail-kicker">Restricted Linkage</span>
+                  <h3>Debrief-Only MIMIC Context</h3>
+                  {restrictedDebriefData.map((item) => (
+                    <p key={item.id}>
+                      <strong>{item.label}:</strong>{' '}
+                      {item.availability === 'available' ? item.value || item.note : 'Not documented in linked local data.'}
+                    </p>
+                  ))}
+                  <small>These retrospective facts are local-only and were not available during active learner decisions.</small>
+                </article>
+              )}
+
+              {learnerSoap && (
+                <article className="decision-review-card">
+                  <span className="detail-kicker">Your Note</span>
+                  <h3>SOAP Submission</h3>
+                  <p><strong>S:</strong> {learnerSoap.subjective || 'Not recorded.'}</p>
+                  <p><strong>O:</strong> {learnerSoap.objective || 'Not recorded.'}</p>
+                  <p><strong>A:</strong> {learnerSoap.assessment || 'Not recorded.'}</p>
+                  <p><strong>P:</strong> {learnerSoap.plan || 'Not recorded.'}</p>
+                  <p>{workflow_analysis?.soap?.message}</p>
+                </article>
+              )}
+
               <article className="decision-review-card">
                 <span className="detail-kicker">Diagnosis</span>
                 <h3>Working Diagnosis Review</h3>
@@ -730,19 +886,24 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                   <p><strong>Your differential:</strong> {session_summary.differential.join(', ')}</p>
                 )}
                 <p><strong>Reference context:</strong> {workflow_analysis?.diagnosis?.reference?.primary?.join(', ') || 'No reference diagnosis available.'}</p>
+                <p><strong>Evidence status:</strong> {evidenceStatusText(workflow_analysis?.diagnosis?.evidence_status)}</p>
+                <p><strong>Scoring basis:</strong> {scoringBasisText(workflow_analysis?.diagnosis?.scoring_basis)}</p>
+                {workflow_analysis?.diagnosis?.safety_note && (
+                  <p><strong>Safety note:</strong> {workflow_analysis.diagnosis.safety_note}</p>
+                )}
                 <p>{workflow_analysis?.diagnosis?.message}</p>
               </article>
 
               <article className="decision-review-card">
-                <span className="detail-kicker">Referral</span>
-                <h3>Referral Judgment Review</h3>
+                <span className="detail-kicker">Consult</span>
+                <h3>Consult Judgment Review</h3>
                 <p>
                   <strong>Your decision:</strong>{' '}
                   {session_summary?.referral_needed === null || session_summary?.referral_needed === undefined
-                    ? 'No referral decision recorded.'
+                    ? 'No consult decision recorded.'
                     : session_summary.referral_needed
                       ? `Request ${session_summary.referral_specialty}`
-                      : 'No immediate specialty referral.'}
+                      : 'No immediate consult.'}
                 </p>
                 <p>
                   <strong>Reference context:</strong>{' '}
@@ -750,6 +911,11 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                     ? workflow_analysis.referral.reference.clinician_approved_specialty.join(', ')
                     : 'No clinician-approved specialty reference for this case.'}
                 </p>
+                <p><strong>Evidence status:</strong> {evidenceStatusText(workflow_analysis?.referral?.evidence_status)}</p>
+                <p><strong>Scoring basis:</strong> {scoringBasisText(workflow_analysis?.referral?.scoring_basis)}</p>
+                {workflow_analysis?.referral?.safety_note && (
+                  <p><strong>Safety note:</strong> {workflow_analysis.referral.safety_note}</p>
+                )}
                 <p>{workflow_analysis?.referral?.message}</p>
               </article>
 
@@ -817,32 +983,15 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
               </div>
             </div>
 
-            <div className="sbar-critique-section">
-              <h3>Communication & SBAR Handoff</h3>
-              <div className="sbar-comparison-grid">
-                <div className="sbar-card student-sbar">
-                  <h4>Your SBAR Handoff</h4>
-                  <pre className="sbar-text">{session_summary?.sbar_handoff || 'No handoff documented.'}</pre>
-                </div>
-                <div className="sbar-card reference-informed-sbar">
-                  <h4>Reference-Informed SBAR Example</h4>
-                  <SbarBlock sbar={physician_case_review?.gold_standard_sbar || physician_debrief?.gold_standard_sbar} />
-                </div>
-              </div>
-              {workflow_analysis?.sbar?.message && (
-                <div className="sbar-rubric-feedback">
-                  <strong>Rubric Score: {workflow_analysis.sbar.score} / {workflow_analysis.sbar.possible}</strong>
-                  <p>{workflow_analysis.sbar.message}</p>
-                  {workflow_analysis?.sbar?.gaps?.length > 0 && (
-                    <small style={{ display: 'block', marginTop: '8px', color: '#1e40af' }}>Key opportunities to improve: {workflow_analysis.sbar.gaps.join('; ')}</small>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         </details>
 
-        <details className="advanced-debrief-details scoring-validation-details">
+        <details
+          ref={scoringValidationRef}
+          className="advanced-debrief-details scoring-validation-details"
+          id="scoring-validation-details"
+          onToggle={syncDebriefDetailsState}
+        >
           <summary>
             <span>Scoring & Validation</span>
             <strong>Provenance, score ledger, AI review, and tutor</strong>
@@ -858,6 +1007,74 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
               Diagnosis, referral, and management guidance is for simulation debriefing until hallucination validation and clinical expert review are complete.
             </div>
 
+            <section className="feedback-section full-width ai-draft-panel" style={{ padding: '16px', marginBottom: '20px' }}>
+              <div className="section-header compact">
+                <div>
+                  <span className="eyebrow">Optional AI Draft</span>
+                  <h4>AI Debrief Draft</h4>
+                </div>
+                <button type="button" className="btn-secondary" onClick={requestAiDebriefDraft} disabled={aiDebriefLoading}>
+                  {aiDebriefLoading ? 'Requesting draft...' : aiDebriefDraft ? 'Refresh draft' : 'Request draft'}
+                </button>
+              </div>
+              <p className="instruction">
+                AI draft text is not used for scoring, the simulation SOAP synthesis, or the next-case checklist.
+              </p>
+
+              {aiDebriefError && <div className="error-message compact-message">{aiDebriefError}</div>}
+              {aiDebriefLoading && <div className="loading compact-loading">Requesting grounded AI draft...</div>}
+
+              {aiDebriefDraft && (
+                <>
+                  <div className="validation-notice" role="note">
+                    {aiDraftBlocked
+                      ? 'AI draft blocked by grounding guardrails. The evidence-based debrief remains unchanged.'
+                      : 'AI draft is educator review material and requires citation review before clinical teaching use.'}
+                  </div>
+                  <CitationList grounding={aiDebriefDraft.grounding} citations={aiDebriefDraft.citations} compact />
+
+                  {aiDraftReady && (
+                    <div className="decision-review-grid" style={{ marginTop: '12px' }}>
+                      {aiDraftSoap && (
+                        <article className="decision-review-card">
+                          <span className="detail-kicker">Draft SOAP</span>
+                          <h3>AI Assessment Draft</h3>
+                          <p><strong>Primary diagnosis:</strong> {aiDraftSoap.assessment?.primary_diagnosis || 'Not provided.'}</p>
+                          {aiDraftSoap.assessment?.justification && (
+                            <p><strong>Rationale:</strong> {aiDraftSoap.assessment.justification}</p>
+                          )}
+                          {aiDraftSoap.plan?.length > 0 && (
+                            <ul className="clinical-list compact-list">
+                              {aiDraftSoap.plan.slice(0, 5).map((item, index) => {
+                                const isObject = item && typeof item === 'object';
+                                return (
+                                  <li key={`ai-draft-plan-${index}`}>
+                                    {isObject ? `${item.problem || 'Plan'}: ${item.plan || item.action || ''}` : item}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </article>
+                      )}
+
+                      {aiDraftTipItems.length > 0 && (
+                        <article className="decision-review-card">
+                          <span className="detail-kicker">Draft Tips</span>
+                          <h3>AI Teaching Tips</h3>
+                          <EvidenceList
+                            items={aiDraftTipItems}
+                            emptyText="No AI teaching tips returned."
+                            renderItem={(item) => item}
+                          />
+                        </article>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+
             <div className="debrief-accordion-stack simplified">
               <DebriefAccordion title="Complete Clinical Domain Scoring Ledger" badge={`Overall Score: ${scorePercent}% (${scorecard?.total ?? 0}/${scorecard?.possible ?? 100})`}>
                 <section className="feedback-section full-width" style={{ padding: 0 }}>
@@ -871,7 +1088,7 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
                 <section className="feedback-section full-width" style={{ padding: 0, marginTop: '24px' }}>
                   <h4>Score Domains</h4>
                   <div className="score-domain-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {domains.filter(domain => domain.key !== 'provisional_esi').map((domain) => (
+                    {domains.filter(domain => !['provisional_esi', 'sbar'].includes(domain.key)).map((domain) => (
                       <DomainScore domain={domain} key={domain.key} />
                     ))}
                   </div>
@@ -905,6 +1122,13 @@ function Feedback({ sessionId, caseRecord, aiSettings, onAiSettingsChange, onRes
       </div>
 
       <div className="step-actions">
+        <div className="workflow-action-status">
+          <span>Status</span>
+          <strong>{bannerHeadline}</strong>
+        </div>
+        <button type="button" className="btn-secondary workflow-jump-button" onClick={() => document.getElementById('clinical-review-details')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+          Review details
+        </button>
         <button type="button" className="btn-primary restart-button" onClick={onRestart}>
           Start Another Simulation Case
         </button>

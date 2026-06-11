@@ -1,0 +1,1033 @@
+{
+  "schema_version": "educational_outcomes_measurement_framework_v1",
+  "generated_at": "2026-06-09T22:33:58.430Z",
+  "review_status": "draft_instrumentation_framework_needs_pilot_validation",
+  "warning": "This framework defines reproducible app signals for educational evaluation. It is not evidence that the simulator improves clinical judgment until usability, expert review, pilot, and multi-site outcome studies are completed.",
+  "summary": {
+    "total_metrics": 20,
+    "currently_instrumented_metrics": 13,
+    "source_limited_metrics": 3,
+    "requires_external_validation_metrics": 4,
+    "cases_mapped": 23,
+    "reviewed_case_outcome_maps": 0,
+    "reviewed_outcome_studies": 0,
+    "pilot_studies_completed": 0,
+    "multi_site_studies_completed": 0,
+    "deterministic_metric_service_present": true,
+    "learner_profile_service_present": true,
+    "educational_outcomes_protocol_present": true,
+    "readiness_verdict": "not_ready"
+  },
+  "source_references": [
+    {
+      "id": "educational_outcomes_protocol",
+      "path": "docs/educational_outcomes_protocol.md",
+      "role": "Defines construct model, study phases, outcomes, instrumentation requirements, and analysis plan."
+    },
+    {
+      "id": "outcome_metrics_service",
+      "path": "frontend/src/services/educationalOutcomeMetricsService.js",
+      "role": "Extracts deterministic, privacy-safe encounter metrics from completed feedback objects."
+    },
+    {
+      "id": "learner_profile_service",
+      "path": "frontend/src/services/learnerProfileService.js",
+      "role": "Tracks local formative gap patterns for next-case recommendations."
+    },
+    {
+      "id": "case_objective_matrix",
+      "path": "docs/case_objective_matrix.json",
+      "role": "Maps cases to draft learning objectives and evidence limits."
+    },
+    {
+      "id": "core_epa_curriculum_map",
+      "path": "docs/core_epa_curriculum_map.json",
+      "role": "Maps workflow and cases to draft AAMC Core EPA curriculum planning categories."
+    }
+  ],
+  "privacy_safe_export_contract": {
+    "exclude": [
+      "student name",
+      "student email",
+      "student id",
+      "direct patient identifiers",
+      "raw optional AI draft text",
+      "free-text learner rationale without institutional approval"
+    ],
+    "include_by_default": [
+      "case_id",
+      "content_version",
+      "cohort code if approved",
+      "learner training level if approved",
+      "ESI selection and direction",
+      "score domains",
+      "interview and escalation counts",
+      "source-limited feedback exposure",
+      "safety flags"
+    ],
+    "review_status": "draft_requires_institutional_privacy_review"
+  },
+  "clinical_reasoning_constructs": [
+    {
+      "id": "noticing",
+      "app_signals": [
+        "interview domain coverage",
+        "focused exam selection",
+        "objective safety reasoning"
+      ]
+    },
+    {
+      "id": "interpreting",
+      "app_signals": [
+        "ESI accuracy",
+        "ESI error direction",
+        "diagnostic reasoning score"
+      ]
+    },
+    {
+      "id": "responding",
+      "app_signals": [
+        "escalation action alignment",
+        "consult judgment",
+        "high-risk undertriage"
+      ]
+    },
+    {
+      "id": "reflecting",
+      "app_signals": [
+        "reassessment target score",
+        "SOAP note score",
+        "SBAR handoff score",
+        "learner profile gap delta"
+      ]
+    }
+  ],
+  "metric_definitions": [
+    {
+      "id": "esi_accuracy",
+      "construct": "interpreting",
+      "status": "currently_instrumented",
+      "app_signal": "triage_analysis.user_level, triage_analysis.expert_level",
+      "validation_need": "Expert consensus benchmark for every case and learner level."
+    },
+    {
+      "id": "esi_error_direction",
+      "construct": "interpreting",
+      "status": "currently_instrumented",
+      "app_signal": "triage_analysis.comparison",
+      "validation_need": "Faculty review of undertriage and overtriage consequence thresholds."
+    },
+    {
+      "id": "high_risk_undertriage",
+      "construct": "patient_safety",
+      "status": "currently_instrumented",
+      "app_signal": "reference ESI with learner ESI direction",
+      "validation_need": "Clinician adjudication of ESI 1 and ESI 2 case truth."
+    },
+    {
+      "id": "lower_acuity_overtriage",
+      "construct": "resource_calibration",
+      "status": "currently_instrumented",
+      "app_signal": "reference ESI 4 or 5 with learner ESI direction",
+      "validation_need": "Triage educator review of resource-calibration cases."
+    },
+    {
+      "id": "score_percent",
+      "construct": "overall_formative_performance",
+      "status": "currently_instrumented",
+      "app_signal": "scorecard.percentage",
+      "validation_need": "Internal consistency and relation to external assessments."
+    },
+    {
+      "id": "score_domain_percentages",
+      "construct": "clinical_reasoning_domains",
+      "status": "currently_instrumented",
+      "app_signal": "scorecard.domains",
+      "validation_need": "Faculty calibration and domain weighting review."
+    },
+    {
+      "id": "interview_domain_coverage",
+      "construct": "noticing",
+      "status": "currently_instrumented",
+      "app_signal": "workflow_analysis.interview",
+      "validation_need": "Expert review of expected question domains by complaint."
+    },
+    {
+      "id": "focused_exam_selection",
+      "construct": "noticing",
+      "status": "currently_instrumented",
+      "app_signal": "scorecard domain focused_exam",
+      "validation_need": "Case-level exam truth and source-boundary review."
+    },
+    {
+      "id": "diagnostic_reasoning_score",
+      "construct": "interpreting",
+      "status": "source_limited",
+      "app_signal": "workflow_analysis.diagnosis, scorecard domain diagnosis",
+      "validation_need": "Clinician-reviewed diagnosis and differential truth records."
+    },
+    {
+      "id": "consult_judgment_score",
+      "construct": "responding",
+      "status": "source_limited",
+      "app_signal": "workflow_analysis.referral, scorecard domain referral",
+      "validation_need": "Clinician-approved consult/referral references."
+    },
+    {
+      "id": "escalation_action_alignment",
+      "construct": "responding",
+      "status": "currently_instrumented",
+      "app_signal": "workflow_analysis.escalation",
+      "validation_need": "Clinician review of expected placement and stabilization actions."
+    },
+    {
+      "id": "reassessment_target_score",
+      "construct": "reflecting",
+      "status": "source_limited",
+      "app_signal": "workflow_analysis.reassessment, scorecard domain reassessment",
+      "validation_need": "Clinician-adjudicated reassessment triggers or optional objective follow-up data."
+    },
+    {
+      "id": "soap_note_score",
+      "construct": "reflecting",
+      "status": "currently_instrumented",
+      "app_signal": "workflow_analysis.soap, scorecard domain soap",
+      "validation_need": "Faculty calibration of note-quality anchors."
+    },
+    {
+      "id": "sbar_handoff_score",
+      "construct": "communication",
+      "status": "currently_instrumented",
+      "app_signal": "workflow_analysis.sbar, scorecard domain sbar",
+      "validation_need": "Simulation educator review of handoff triggers and SBAR scoring."
+    },
+    {
+      "id": "source_limited_feedback_exposure",
+      "construct": "learner_calibration",
+      "status": "currently_instrumented",
+      "app_signal": "workflow_analysis diagnosis/referral/reassessment evidence_status and scoring_basis",
+      "validation_need": "Learner response-process study showing source limitation labels are understood."
+    },
+    {
+      "id": "learner_profile_gap_delta",
+      "construct": "longitudinal_formative_progression",
+      "status": "currently_instrumented",
+      "app_signal": "learner_profile_delta",
+      "validation_need": "Privacy-reviewed cohort export and longitudinal validity evidence."
+    },
+    {
+      "id": "optional_ai_draft_use",
+      "construct": "ai_use_monitoring",
+      "status": "requires_external_validation",
+      "app_signal": "future optional AI draft viewed/requested event",
+      "validation_need": "Institutional policy for collecting AI-use telemetry."
+    },
+    {
+      "id": "delayed_retention_case_performance",
+      "construct": "learning_transfer",
+      "status": "requires_external_validation",
+      "app_signal": "future pre/post and delayed case-set export",
+      "validation_need": "Pilot or multi-site study with delayed follow-up cases."
+    },
+    {
+      "id": "osce_or_sim_lab_transfer",
+      "construct": "clinical_performance_transfer",
+      "status": "requires_external_validation",
+      "app_signal": "external OSCE, simulation lab, or clerkship assessment linkage",
+      "validation_need": "IRB or institutional approval and external assessment data."
+    },
+    {
+      "id": "workplace_supervisor_rating",
+      "construct": "hospital_performance_proxy",
+      "status": "requires_external_validation",
+      "app_signal": "external supervised clinical performance measure",
+      "validation_need": "Institutional governance, consent, and multi-assessor evidence."
+    }
+  ],
+  "aggregation_plan": {
+    "release_level": [
+      "Report metric schema version, case bundle version, source bundle version, and readiness gate statuses."
+    ],
+    "cohort_level": [
+      "Report ESI accuracy, undertriage, overtriage, high-risk undertriage, mean domain scores, and source-limited feedback exposure with confidence intervals.",
+      "Stratify only by privacy-approved learner level, cohort, case acuity, complaint category, and case review status."
+    ],
+    "validation_level": [
+      "Compare simulator metrics against expert ESI consensus, faculty rubric scores, OSCE or simulation lab transfer, and delayed retention cases.",
+      "Do not claim improvement in clinical judgment or hospital performance until pilot or multi-site external outcomes support the claim."
+    ]
+  },
+  "validation_study_requirements": [
+    "Complete response-process usability study with medical students and faculty observers.",
+    "Complete clinician-educator review of case truth, scoring anchors, source-limited labels, and objective map.",
+    "Run pre/post pilot with held-out cases and report undertriage and rationale-quality change.",
+    "Run multi-site controlled or stepped-wedge study before making national efficacy claims.",
+    "Link any external OSCE, simulation lab, clerkship, or workplace data only after governance approval."
+  ],
+  "case_measurement_map": [
+    {
+      "case_id": "case_002",
+      "public_case_uid": "mietic_validate_public_006",
+      "reference_esi": 2,
+      "complaint": "Chest pain, Dyspnea",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_004",
+      "public_case_uid": "mietic_validate_public_009",
+      "reference_esi": 2,
+      "complaint": "Difficulty swallowing, Transfer",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_005",
+      "public_case_uid": "mietic_validate_public_010",
+      "reference_esi": 2,
+      "complaint": "Fever / limb infection concern",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_006",
+      "public_case_uid": "mietic_validate_public_011",
+      "reference_esi": 2,
+      "complaint": "Chest pain",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_007",
+      "public_case_uid": "mietic_validate_public_012",
+      "reference_esi": 1,
+      "complaint": "Fever, Pneumonia, Transfer",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_008",
+      "public_case_uid": "mietic_validate_public_015",
+      "reference_esi": 3,
+      "complaint": "Dyspnea, Pedal edema",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_009",
+      "public_case_uid": "mietic_validate_public_016",
+      "reference_esi": 3,
+      "complaint": "RECTAL ABSCESS",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_012",
+      "public_case_uid": "mietic_validate_public_022",
+      "reference_esi": 3,
+      "complaint": "Lower abdominal pain",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_013",
+      "public_case_uid": "mietic_validate_public_023",
+      "reference_esi": 2,
+      "complaint": "ALTERED LEVEL OF CONSCIOUSNESS",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_014",
+      "public_case_uid": "mietic_validate_public_024",
+      "reference_esi": 3,
+      "complaint": "Acute Pelvic pain",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_017",
+      "public_case_uid": "mietic_validate_public_029",
+      "reference_esi": 2,
+      "complaint": "N/V, Weakness",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_018",
+      "public_case_uid": "mietic_validate_public_030",
+      "reference_esi": 4,
+      "complaint": "Finger laceration",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_019",
+      "public_case_uid": "mietic_validate_public_032",
+      "reference_esi": 4,
+      "complaint": "Finger laceration",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_020",
+      "public_case_uid": "mietic_validate_public_035",
+      "reference_esi": 4,
+      "complaint": "R Wrist pain",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_021",
+      "public_case_uid": "mietic_validate_public_036",
+      "reference_esi": 3,
+      "complaint": "R Foot swelling",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_022",
+      "public_case_uid": "mietic_validate_public_039",
+      "reference_esi": 2,
+      "complaint": "Abd pain, Abdominal distention",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_023",
+      "public_case_uid": "mietic_validate_public_040",
+      "reference_esi": 2,
+      "complaint": "Abd pain, Vomiting, Nausea, Dyspnea",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_024",
+      "public_case_uid": "mietic_validate_public_041",
+      "reference_esi": 5,
+      "complaint": "Suture removal",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_025",
+      "public_case_uid": "mietic_validate_public_043",
+      "reference_esi": 1,
+      "complaint": "Abd pain, Transfer",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_027",
+      "public_case_uid": "mietic_validate_public_046",
+      "reference_esi": 5,
+      "complaint": "Med refill",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_029",
+      "public_case_uid": "mietic_validate_public_048",
+      "reference_esi": 2,
+      "complaint": "L Leg injury, Transfer",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_030",
+      "public_case_uid": "mietic_validate_public_049",
+      "reference_esi": 4,
+      "complaint": "R Foot pain",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    },
+    {
+      "case_id": "case_031",
+      "public_case_uid": "mietic_validate_public_050",
+      "reference_esi": 2,
+      "complaint": "ABDOMINAL PAIN",
+      "measurement_status": "draft_case_metrics_available_needs_expert_review",
+      "constructs_mapped": [
+        "noticing",
+        "interpreting",
+        "responding",
+        "reflecting"
+      ],
+      "mapped_epas": [
+        "EPA_1",
+        "EPA_10",
+        "EPA_13",
+        "EPA_2",
+        "EPA_3",
+        "EPA_4",
+        "EPA_5",
+        "EPA_6",
+        "EPA_7",
+        "EPA_8",
+        "EPA_9"
+      ],
+      "evidence_limits": {
+        "diagnosis_truth": "source_record_diagnosis_unavailable_in_public_case",
+        "consult_truth": "clinician_approved_consult_unavailable_in_public_case",
+        "reassessment_truth": "needs_case_truth_review",
+        "objective_data_truth": "optional_objective_data_unavailable_in_public_case",
+        "learner_outcomes": "not_yet_validated"
+      }
+    }
+  ],
+  "metric_status_counts": {
+    "currently_instrumented": 13,
+    "source_limited": 3,
+    "requires_external_validation": 4
+  }
+}

@@ -57,8 +57,45 @@ export const EXAM_SYSTEMS = [
 
 const SYSTEM_BY_ID = Object.fromEntries(EXAM_SYSTEMS.map((system) => [system.id, system]));
 
+export const EXAM_DISPLAY_FORBIDDEN_PATTERNS = [
+  /\bsource context\b/i,
+  /\bsource record\b/i,
+  /\bsource bundle\b/i,
+  /\bsource physical exam context\b/i,
+  /\bsource-recorded\b/i,
+  /\bdocumented\b/i,
+  /\breviewed teaching inference\b/i,
+  /\blocal teaching inference\b/i,
+  /\bsimulation\b/i,
+  /\bsimulated\b/i,
+  /\bfocused exam target\b/i,
+  /\bfocused exam should\b/i,
+  /\bavailable for this exam system\b/i,
+  /\bwhen supported by\b/i,
+  /\bunless\b/i
+];
+
 function normalizeText(value) {
   return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+export function learnerFacingExamMetaMatches(value) {
+  const text = String(value || '');
+  return EXAM_DISPLAY_FORBIDDEN_PATTERNS.filter((pattern) => pattern.test(text));
+}
+
+export function hasLearnerFacingExamMetaText(value) {
+  return learnerFacingExamMetaMatches(value).length > 0;
+}
+
+export function assertLearnerFacingExamText(value, label = 'exam finding') {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!text) throw new Error(`${label} is empty.`);
+  const matches = learnerFacingExamMetaMatches(text);
+  if (matches.length) {
+    throw new Error(`${label} contains internal exam metadata: ${matches[0]}`);
+  }
+  return text;
 }
 
 function uniqueItems(items) {
@@ -185,6 +222,24 @@ function reviewedTeachingFactForSystem(systemId, examFacts = []) {
   );
 }
 
+function learnerFacingSourceFactText(fact) {
+  const statement = String(fact?.statement || '')
+    .replace(/^source physical exam context:\s*/i, '')
+    .replace(/^focused exam finding:\s*/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!statement || /^focused exam should\b/i.test(statement)) return '';
+  if (hasLearnerFacingExamMetaText(statement)) return '';
+  return statement;
+}
+
+function evidenceBasisFromFact(fact, caseData = {}) {
+  if (fact?.provenance === 'source_record') return 'source_record';
+  if (fact?.review_status === 'reviewed') return 'reviewed_teaching_inference';
+  if (caseData?.source_restriction === 'credentialed_local_only') return 'local_teaching_inference';
+  return 'rule_based_simulation';
+}
+
 function findingForSystem(systemId, caseData = {}, vitals = []) {
   const text = normalizeText(sourceText(caseData));
   const v = Array.isArray(vitals) ? vitalsMap(vitals) : { ...caseData.vitals };
@@ -197,66 +252,74 @@ function findingForSystem(systemId, caseData = {}, vitals = []) {
 
   if (systemId === 'general_airway') {
     if (/\b(unresponsive|cardiac arrest|cpr|apneic)\b/.test(text)) return 'Patient is unresponsive or unable to protect the airway; immediate resuscitation is required.';
-    if (/\b(altered|confused|somnolent|overdose|seizure)\b/.test(text)) return 'Patient is rousable but confused; airway is currently patent and needs continuous monitoring.';
-    if (/\b(swallow|dysphagia|hoarse|stridor|neck|hematoma|throat)\b/.test(text)) return 'Patient is awake and speaking; airway is patent now. Voice or swallowing symptoms make airway reassessment a high-priority repeat exam.';
-    if (rr >= 24 || o2 < 94) return `Patient is awake with increased work of breathing. Airway is patent; oxygenation and respiratory effort need close monitoring.`;
+    if (/\b(altered|confused|somnolent|overdose|seizure)\b/.test(text)) return 'Patient is rousable but confused; airway is patent.';
+    if (/\b(swallow|dysphagia|hoarse|stridor|neck|hematoma|throat)\b/.test(text)) return 'Patient is awake and speaking. Airway is patent without stridor at rest.';
+    if (rr >= 24 || o2 < 94) return 'Patient is awake with increased work of breathing; airway remains patent.';
     if (pain >= 8 || hr >= 120 || sbp < 100) return 'Patient appears uncomfortable or physiologically stressed but is awake and protecting the airway.';
     return 'Patient is awake, interactive, and protecting the airway without obvious respiratory distress.';
   }
 
   if (systemId === 'head_neck_ent') {
     if (/\b(swallow|dysphagia|hoarse|neck|incision|hematoma|stridor|secretion)\b/.test(text)) {
-      return 'Simulated ENT exam: voice or swallowing symptoms are present by history; no stridor is documented in the source context; neck swelling, incision status, and secretion handling remain high-risk reassessment findings.';
+      return 'Voice is clear to mildly hoarse; secretions are handled without drooling, and no stridor is heard at rest.';
     }
-    if (/\b(headache|fall|head injury)\b/.test(text)) return 'Simulated head/neck exam reviews head trauma signs, pupils, neck tenderness, and airway symptoms; no source-recorded completed exam finding is available.';
-    return 'No obvious head, neck, or ENT danger finding is documented in the source context.';
+    if (/\b(headache|fall|head injury)\b/.test(text)) return 'Scalp and face show no visible trauma; pupils are equal, and the neck has no midline tenderness on screening.';
+    return 'Head and neck exam shows no visible swelling, drooling, stridor, or focal ENT abnormality.';
   }
 
   if (systemId === 'cardiovascular') {
-    if (/\b(open fracture|tibia|fibula|foot|wrist|ankle|finger|laceration)\b/.test(text)) return 'Distal perfusion exam at the affected limb finds palpable distal pulses; capillary refill becomes a repeat-check target if pain or swelling changes.';
-    if (/\b(chest|cardiac|heart|syncope|orthopnea|edema)\b/.test(text) || hr >= 110 || sbp >= 180 || sbp < 100) return `Cardiovascular exam is anchored by HR ${hr} bpm and systolic BP ${sbp || 'not recorded'}; simulated review pairs perfusion with chest symptoms and vital-sign risk.`;
-    return 'Heart rhythm and peripheral perfusion are not flagged by the source context; no shock finding is documented.';
+    if (/\b(open fracture|tibia|fibula|foot|wrist|ankle|finger|laceration)\b/.test(text)) return 'Distal pulses are palpable with brisk capillary refill at the affected limb.';
+    if (/\b(chest|cardiac|heart|syncope|orthopnea|edema)\b/.test(text) || hr >= 110 || sbp >= 180 || sbp < 100) return `Heart rate is ${hr} bpm with warm peripheral perfusion and no mottling.`;
+    return 'Peripheral pulses are palpable and perfusion is warm without shock appearance.';
   }
 
   if (systemId === 'respiratory') {
-    if (/\b(shortness of breath|dyspnea|pneumonia|cough|copd|asthma|hypox|oxygen)\b/.test(text) || rr >= 22 || o2 < 95) return `Respiratory review shows RR ${rr} and SpO2 ${o2}%; simulated lung exam documents work of breathing, breath sounds, and oxygen need.`;
-    if (/\b(chest pain|chest pressure)\b/.test(text)) return 'Respiratory exam documents breath sounds and work of breathing because chest symptoms can reflect pulmonary or cardiac disease; no source-recorded focal lung finding is available.';
-    return 'No respiratory distress or abnormal breath-sound finding is documented in the source context.';
+    if (rr >= 22 || o2 < 95) return `Respirations are ${rr}/min with increased work of breathing; oxygen saturation is ${o2}%.`;
+    if (/\b(shortness of breath|dyspnea|pneumonia|cough|copd|asthma|hypox|oxygen)\b/.test(text)) return 'Work of breathing is mildly increased; bilateral breath sounds are present.';
+    if (/\b(chest pain|chest pressure)\b/.test(text)) return 'Breathing is unlabored with symmetric chest rise and bilateral breath sounds.';
+    return 'Breathing is unlabored with clear bilateral breath sounds.';
   }
 
   if (systemId === 'neuro') {
-    if (/\b(altered|confused|somnolent|seizure|stroke|slurred|weakness|numb|facial|headache)\b/.test(text)) return 'Mental status or neurologic symptoms are present by history; simulated neuro exam documents orientation, speech, cranial nerve screen, strength, sensation, and glucose when appropriate.';
-    if (/\b(fracture|laceration|wound|finger|hand|foot|ankle|leg|wrist)\b/.test(text)) return 'Distal motor and sensory exam around the injury is intact in the simulation unless worsening pain, numbness, or weakness appears.';
-    return 'No focal neurologic deficit is documented in the source context.';
+    const negatedNeuroSymptom = /\b(no|denies|without)\b(?:\s+\w+){0,35}\s+(headache|weakness|numbness|numb|slurred|facial|seizure|confusion|confused|altered)\b/.test(text);
+    if (/\b(altered|confused|somnolent|seizure)\b/.test(text)) return 'Patient is confused but rousable; speech is understandable, and all extremities move spontaneously.';
+    if (/\b(flaccid|left sided|left-sided|right sided|right-sided|hemiparesis|arm drift|leg drift)\b/.test(text)) return 'Neurologic screen is abnormal with asymmetric limb weakness; speech, facial symmetry, sensation, and last-known-well need immediate clarification.';
+    if (/\b(slurred|aphasia|speech)\b/.test(text)) return 'Speech is abnormal on screening; facial symmetry, limb strength, sensation, and glucose should be checked immediately.';
+    if (!negatedNeuroSymptom && /\b(facial|stroke|weakness|numb)\b/.test(text)) return 'Neurologic screen is abnormal or concerning for a focal deficit; document face, arm, leg, speech, sensation, glucose, and timing.';
+    if (!negatedNeuroSymptom && /\b(headache|fall|head injury)\b/.test(text)) return 'Patient is alert on screening without obvious focal motor deficit; repeat neurologic checks are still needed if symptoms evolve.';
+    if (/\b(fracture|laceration|wound|finger|hand|foot|ankle|leg|wrist)\b/.test(text)) return 'Motor strength and sensation are intact distal to the injury.';
+    return 'Mental status is alert and oriented with no focal motor or sensory deficit on screening.';
   }
 
   if (systemId === 'abdomen_gi') {
-    if (/\b(abd|abdominal|belly|stomach|distention|vomit|rectal|perianal|pelvic)\b/.test(text)) return 'Abdominal or pelvic symptoms are present; simulated exam documents tenderness location, distention, guarding, rebound, and rectal or pelvic findings when indicated.';
-    return 'No abdominal danger finding is documented in the source context.';
+    if (/\b(distention|guarding|rebound|rigid)\b/.test(text)) return 'Abdomen is distended and tender, with guarding concerning for peritoneal irritation.';
+    if (/\b(abd|abdominal|belly|stomach|vomit|rectal|perianal|pelvic)\b/.test(text)) return 'Abdomen is tender at the reported area of pain without diffuse rigidity on screening.';
+    return 'Abdomen is soft, nondistended, and without focal peritoneal tenderness on screening.';
   }
 
   if (systemId === 'msk_extremity') {
-    if (/\b(open fracture|tibia|fibula|fracture|deformity)\b/.test(text)) return 'Affected extremity has traumatic injury concern; simulated exam documents deformity, tenderness, range of motion, compartment firmness, and distal function.';
-    if (/\b(wrist|foot|ankle|hand|finger|leg|fall|sprain)\b/.test(text)) return 'Focused extremity exam documents point tenderness, swelling, range of motion, weight-bearing or tendon function, and distal neurovascular status.';
-    return 'No focal musculoskeletal abnormality is documented in the source context.';
+    if (/\b(open fracture|tibia|fibula|fracture|deformity)\b/.test(text)) return 'Affected extremity has traumatic deformity or wound concern with focal tenderness; distal motor function, sensation, and pulses are intact on screening.';
+    if (/\b(wrist|foot|ankle|hand|finger|leg|fall|sprain)\b/.test(text)) return 'Affected extremity has focal tenderness and swelling with preserved distal motor function, sensation, and capillary refill.';
+    return 'Extremities have no focal deformity, swelling, or point tenderness on screening.';
   }
 
   if (systemId === 'skin_wound') {
-    if (/\b(gangrene|cellulitis|infection|fever)\b/.test(text) || temp >= 100.4) return 'Skin/source exam looks for erythema, warmth, drainage, necrosis, wounds, lines, and other infection sources.';
-    if (/\b(laceration|wound|cut|bleeding|suture|abscess)\b/.test(text)) return 'Wound exam documents active bleeding, contamination, depth, tendon exposure, foreign body concern, erythema, drainage, and need for repair or removal.';
-    return 'No wound, rash, or cellulitis finding is documented in the source context.';
+    if (/\b(gangrene|cellulitis|infection|fever)\b/.test(text) || temp >= 100.4) return 'Skin is warm; erythema, wound, drainage, or necrosis is localized to the area of complaint.';
+    if (/\b(laceration|wound|cut|bleeding|suture|abscess)\b/.test(text)) return 'Wound has localized tenderness; no uncontrolled bleeding is present on focused inspection.';
+    return 'Skin inspection shows no rash, cellulitis, drainage, or open wound on screening.';
   }
 
   if (systemId === 'gu_rectal_pelvic') {
-    if (/\b(rectal|perianal|pelvic)\b/.test(text)) return 'Rectal, perianal, or pelvic symptoms are present; simulated exam documents local tenderness, swelling, drainage, pregnancy-relevant screening, and procedural need.';
-    if (/\b(urinary|flank|pregnan)\b/.test(text)) return 'GU review documents urinary symptoms, flank tenderness, and pregnancy-related risk when relevant.';
-    return 'No GU, rectal, or pelvic danger finding is documented in the source context.';
+    if (/\b(rectal|perianal|pelvic)\b/.test(text)) return 'Focused screening localizes tenderness to the pelvic, perianal, or rectal complaint area without gross bleeding on bedside assessment.';
+    if (/\b(urinary|flank|pregnan)\b/.test(text)) return 'Suprapubic and costovertebral angle tenderness are not prominent on focused GU screening.';
+    return 'No suprapubic tenderness, flank tenderness, gross GU abnormality, rectal concern, or pelvic danger finding is elicited on focused screening.';
   }
 
-  return 'No focused finding is available for this exam system.';
+  return 'Focused screening exam is reassuring for this system.';
 }
 
 function provenanceFromFact(fact, caseData = {}) {
+  if (!fact) return 'Case-based formative exam';
   if (fact?.provenance === 'source_record') return 'Source record';
   if (fact?.review_status === 'reviewed') return 'Reviewed teaching inference';
   if (caseData?.source_restriction === 'credentialed_local_only') return 'Local teaching inference';
@@ -273,15 +336,24 @@ export function buildFocusedExamSelection(caseData = {}, selectedSystemIds = [],
   const findings = selected.map((systemId) => {
     const system = SYSTEM_BY_ID[systemId];
     const sourceFact = sourceBackedFactForSystem(systemId, examFacts);
-    const teachingFact = sourceFact || reviewedTeachingFactForSystem(systemId, examFacts);
+    const sourceFinding = learnerFacingSourceFactText(sourceFact);
+    const usesSourceFinding = Boolean(sourceFinding);
+    const teachingFact = usesSourceFinding ? sourceFact : reviewedTeachingFactForSystem(systemId, examFacts);
+    const fallbackFinding = findingForSystem(systemId, caseData, vitals);
+    const finding = assertLearnerFacingExamText(
+      sourceFinding || fallbackFinding,
+      `${system.name} learner-facing finding`
+    );
     return {
       system_id: systemId,
       system: system.name,
-      finding: sourceFact?.statement || findingForSystem(systemId, caseData, vitals),
+      finding,
+      clinical_status: expected.includes(systemId) ? 'case_relevant' : 'neutral_extra',
+      evidence_basis: usesSourceFinding ? evidenceBasisFromFact(sourceFact, caseData) : 'case_based_formative_exam',
       rationale: teachingFact?.rationale || (expected.includes(systemId)
         ? 'This exam system matches the case-specific focused exam priorities.'
         : 'This may be reasonable if clinically prompted, but it is less central than the expected focused exam systems for this case.'),
-      provenance: provenanceFromFact(teachingFact, caseData),
+      provenance: usesSourceFinding ? provenanceFromFact(sourceFact, caseData) : provenanceFromFact(null, caseData),
       source_anchors: teachingFact?.source_anchors || []
     };
   });

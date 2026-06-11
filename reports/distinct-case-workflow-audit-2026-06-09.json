@@ -1,0 +1,1930 @@
+{
+  "schema_version": "distinct_case_workflow_audit_v1",
+  "generated_at": "2026-06-10T01:25:21.166Z",
+  "requirements": {
+    "target_distinct_cases": 100,
+    "distinct_cases_available_for_audit": 100,
+    "distinct_cases_audited": 100,
+    "shortfall": 0,
+    "meets_target": true
+  },
+  "source_summaries": [
+    {
+      "source_id": "public_demo",
+      "label": "Public demo cases",
+      "path": "frontend\\src\\data\\cases.json",
+      "restricted": false,
+      "duplicate_check_only": false,
+      "missing": false,
+      "case_count": 23,
+      "non_finite_json_tokens": 0
+    },
+    {
+      "source_id": "restricted_main_ed",
+      "label": "Restricted local MIMIC ED-enriched cases",
+      "path": "data\\restricted\\mietic_mimic_main_ed_enriched_cases.restricted.json",
+      "restricted": true,
+      "duplicate_check_only": false,
+      "missing": false,
+      "case_count": 50,
+      "non_finite_json_tokens": 115
+    },
+    {
+      "source_id": "restricted_ed_supplemental",
+      "label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "path": "data\\restricted\\mimic_iv_ed_supplemental_cases.restricted.json",
+      "restricted": true,
+      "duplicate_check_only": false,
+      "missing": false,
+      "case_count": 27,
+      "non_finite_json_tokens": 0
+    },
+    {
+      "source_id": "restricted_main_duplicate_check",
+      "label": "Restricted local MIMIC main-enriched cases",
+      "path": "data\\restricted\\mietic_mimic_main_enriched_cases.restricted.json",
+      "restricted": true,
+      "duplicate_check_only": true,
+      "missing": false,
+      "case_count": 50,
+      "non_finite_json_tokens": 115
+    }
+  ],
+  "duplicate_case_ids": [
+    {
+      "case_id": "restricted_mietic_validate_public_001",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_002",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_003",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_004",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_005",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_006",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_007",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_008",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_009",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_010",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_011",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_012",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_013",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_014",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_015",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_016",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_017",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_018",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_019",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_020",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_021",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_022",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_023",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_024",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_025",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_026",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_027",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_028",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_029",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_030",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_031",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_032",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_033",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_034",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_035",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_036",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_037",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_038",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_039",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_040",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_041",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_042",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_043",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_044",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_045",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_046",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_047",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_048",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_049",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_050",
+      "source_ids": [
+        "restricted_main_ed",
+        "restricted_main_duplicate_check"
+      ]
+    }
+  ],
+  "issue_counts": {
+    "Structured vitals incomplete: temp.": 2,
+    "Structured vitals incomplete: dbp.": 1,
+    "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain.": 10,
+    "Learner-facing complaint is missing or invalid.": 1,
+    "Structured vitals incomplete: temp, rr.": 1,
+    "Structured vitals incomplete: temp, hr, o2, sbp, dbp, pain.": 1,
+    "Structured vitals incomplete: temp, rr, o2, pain.": 1,
+    "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp.": 1,
+    "Structured vitals incomplete: rr.": 1,
+    "Structured vitals incomplete: temp, sbp, dbp.": 1
+  },
+  "audited_cases": [
+    {
+      "case_id": "case_002",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_004",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_005",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_006",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_007",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_008",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 3,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_009",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 3,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_012",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_013",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_014",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_017",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_018",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_019",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_020",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_021",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_022",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_023",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_024",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_025",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_027",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_029",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_030",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "case_031",
+      "source_id": "public_demo",
+      "source_label": "Public demo cases",
+      "restricted": false,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "public_case_v2",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_001",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_002",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_003",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: dbp."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_004",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_005",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_006",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_007",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_008",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_009",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_010",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Learner-facing complaint is missing or invalid."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Runtime case normalization now derives a safe display complaint from the triage history when the source complaint is missing or corrupted."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_011",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_012",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_013",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, rr."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_014",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_015",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_016",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_017",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_018",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_019",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_020",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_021",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_022",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_023",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_024",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_025",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_026",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_027",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_028",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, rr, o2, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_029",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_030",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_031",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_032",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_033",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_034",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_035",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_036",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_037",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp, pain."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_038",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, hr, rr, o2, sbp, dbp."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_039",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_040",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_041",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_042",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: rr."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_043",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_044",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_045",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [
+        "Structured vitals incomplete: temp, sbp, dbp."
+      ],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles."
+      ],
+      "addressed": [
+        "Local loader now converts generated non-finite tokens to null and vital display avoids invented zero values for missing BP components."
+      ]
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_046",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_047",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_048",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_049",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_mietic_validate_public_050",
+      "source_id": "restricted_main_ed",
+      "source_label": "Restricted local MIMIC ED-enriched cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "Duplicate case id appears in 2 source bundles.",
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_001",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_002",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_003",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_004",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_005",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_006",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_007",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_008",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_009",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_010",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_011",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_012",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_013",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_014",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "LEFT WITHOUT BEING SEEN",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_015",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_016",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_017",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_018",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_019",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "ELOPED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_020",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_021",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_022",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_023",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 3,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_024",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 4,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_025",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 5,
+      "disposition": "HOME",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_026",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 1,
+      "disposition": "ADMITTED",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    },
+    {
+      "case_id": "restricted_ed_supplemental_027",
+      "source_id": "restricted_ed_supplemental",
+      "source_label": "Restricted local MIMIC-IV-ED supplemental cases",
+      "restricted": true,
+      "acuity": 2,
+      "disposition": "TRANSFER",
+      "schema_version": "clinical_case_v3",
+      "issues": [],
+      "peculiarities": [
+        "No case-specific defect found by automated structural workflow audit."
+      ],
+      "addressed": []
+    }
+  ],
+  "completion_status": "target_met"
+}
