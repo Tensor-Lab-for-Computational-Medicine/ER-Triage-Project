@@ -352,6 +352,27 @@ def test_structured_intervention_events_are_catalog_validated():
     assert "unknown structured intervention" in response.json()["detail"]
 
 
+def test_invalid_api_actions_do_not_advance_or_mutate_state():
+    client = TestClient(app)
+    session_id = client.post("/api/sessions", json={}).json()["session_id"]
+
+    invalid_actions = [
+        ({"type": "order", "order_id": "not_a_real_order", "dt_minutes": 10}, 404),
+        ({"type": "intervention", "intervention_id": "imaginary_bedside_trick", "dt_minutes": 7}, 400),
+        ({"type": "commit_esi", "payload": {}, "dt_minutes": 5}, 400),
+        ({"type": "advance_time", "dt_minutes": -1}, 400),
+    ]
+
+    for action, expected_status in invalid_actions:
+        response = client.post(f"/api/sessions/{session_id}/actions", json=action)
+        assert response.status_code == expected_status
+        snapshot = client.get(f"/api/sessions/{session_id}").json()
+        assert snapshot["snapshot"]["elapsed_minutes"] == 0
+        assert snapshot["snapshot"]["active_orders"] == []
+        assert snapshot["snapshot"]["interventions"] == []
+        assert snapshot["state"]["esi_history"] == []
+
+
 def test_completeness_flags_update_before_completion_without_early_omissions():
     case = sample_prepared_case()
     engine = start_case(case)

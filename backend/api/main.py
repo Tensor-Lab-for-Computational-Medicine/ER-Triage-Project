@@ -15,7 +15,7 @@ from backend.orders.catalog import get_order, search, serialize_order
 from backend.personas.service import answer_persona
 from backend.router.route import Intent, route_turn
 from backend.state.context import consult_context, nurse_context, patient_context
-from backend.state.engine import EncounterEngine, SOAPNote, TokenUsageRecord, start_case
+from backend.state.engine import IMMEDIATE_ORDER_TYPES, EncounterEngine, SOAPNote, TokenUsageRecord, start_case
 
 
 DEFAULT_CORS_ORIGINS = [
@@ -124,20 +124,14 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
         if engine.state.ended:
             raise HTTPException(status_code=400, detail="Encounter has ended; no further in-encounter actions are accepted.")
 
+        _validate_action_before_advance(action)
         engine.advance(dt=action.dt_minutes)
 
         if action.type == "order":
-            if not action.order_id:
-                raise HTTPException(status_code=400, detail="order_id is required")
-            order = get_order(action.order_id)
-            if order is None:
-                raise HTTPException(status_code=404, detail="unknown order")
             record = engine.apply_order(action.order_id)
             return _session_payload(engine, {"order": record.model_dump(mode="json")})
 
         if action.type == "intervention":
-            if not action.intervention_id:
-                raise HTTPException(status_code=400, detail="intervention_id is required")
             record = engine.apply_intervention(action.intervention_id)
             return _session_payload(engine, {"order": record.model_dump(mode="json")})
 
@@ -169,6 +163,42 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     raise HTTPException(status_code=400, detail="unsupported action")
+
+
+def _validate_action_before_advance(action: StudentAction) -> None:
+    if action.dt_minutes < 0:
+        raise HTTPException(status_code=400, detail="dt_minutes must be non-negative")
+
+    if action.type == "order":
+        if not action.order_id:
+            raise HTTPException(status_code=400, detail="order_id is required")
+        if get_order(action.order_id) is None:
+            raise HTTPException(status_code=404, detail="unknown order")
+
+    if action.type == "intervention":
+        if not action.intervention_id:
+            raise HTTPException(status_code=400, detail="intervention_id is required")
+        order = get_order(action.intervention_id.strip().lower().replace(" ", "_"))
+        if order is None:
+            raise HTTPException(status_code=400, detail=f"unknown structured intervention: {action.intervention_id}")
+        if order.type not in IMMEDIATE_ORDER_TYPES:
+            raise HTTPException(status_code=400, detail=f"{order.id} is not a structured intervention, medication, or procedure.")
+
+    if action.type == "commit_esi":
+        if "level" not in action.payload:
+            raise HTTPException(status_code=400, detail="ESI level is required")
+        try:
+            level = int(action.payload["level"])
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail="ESI level must be an integer from 1 to 5") from exc
+        if level < 1 or level > 5:
+            raise HTTPException(status_code=400, detail="ESI level must be an integer from 1 to 5")
+
+    if action.type == "commit_soap":
+        try:
+            SOAPNote.model_validate(action.payload)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/sessions/{session_id}/package")
