@@ -11,6 +11,7 @@ class ValidationCaseResult(BaseModel):
     diagnostic_match: bool
     esi_match: bool
     disposition_present: bool
+    critical_actions_complete: bool
 
 
 class ValidationReport(BaseModel):
@@ -18,6 +19,7 @@ class ValidationReport(BaseModel):
     diagnostic_agreement: float
     esi_agreement: float
     disposition_documentation_rate: float
+    critical_action_agreement: float
     release_blocked: bool
     failure_modes: list[str] = Field(default_factory=list)
 
@@ -37,6 +39,7 @@ def run_validation(
                 diagnostic_match=bool(feedback.diagnostic_accuracy["matched"]),
                 esi_match=feedback.acuity["last_committed_esi"] == package.hidden_truth.validated_esi,
                 disposition_present=_disposition_matches(package.soap.plan, package.hidden_truth.actual_disposition),
+                critical_actions_complete=not feedback.completeness["critical_actions"]["missed"],
             )
         )
 
@@ -44,6 +47,7 @@ def run_validation(
     diagnostic_agreement = sum(row.diagnostic_match for row in rows) / total
     esi_agreement = sum(row.esi_match for row in rows) / total
     disposition_rate = sum(row.disposition_present for row in rows) / total
+    critical_action_agreement = sum(row.critical_actions_complete for row in rows) / total
     failure_modes = []
     if diagnostic_agreement < threshold:
         failure_modes.append("diagnostic agreement below clinician threshold")
@@ -51,12 +55,15 @@ def run_validation(
         failure_modes.append("ESI agreement below clinician threshold")
     if disposition_rate < threshold:
         failure_modes.append("disposition documentation below clinician threshold")
+    if critical_action_agreement < threshold:
+        failure_modes.append("critical action agreement below clinician threshold")
 
     return ValidationReport(
         cases=rows,
         diagnostic_agreement=diagnostic_agreement,
         esi_agreement=esi_agreement,
         disposition_documentation_rate=disposition_rate,
+        critical_action_agreement=critical_action_agreement,
         release_blocked=bool(failure_modes),
         failure_modes=failure_modes,
     )

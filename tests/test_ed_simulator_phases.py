@@ -252,7 +252,7 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
     feedback = client.post(
         f"/api/sessions/{session_id}/grade",
         json={
-            "rubric": {"expected_orders": ["d_dimer"], "esi_tolerance": 0},
+            "rubric": {"expected_orders": ["d_dimer"], "critical_actions": ["oxygen"], "esi_tolerance": 0},
             "evidence_passages": [
                 {
                     "id": "esi",
@@ -264,6 +264,8 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
     ).json()
     assert feedback["diagnostic_accuracy"]["matched"] is True
     assert feedback["acuity"]["defensible"] is True
+    assert feedback["completeness"]["critical_actions"]["missed"] == []
+    assert feedback["workup_judgment"]["changed_management"] == ["d_dimer"]
     assert all(point["grounded"] for point in feedback["teaching_points"])
 
     after_grade = client.get(f"/api/sessions/{session_id}").json()
@@ -532,6 +534,10 @@ def test_phase_9_package_only_after_end_and_phase_10_validation_report():
     assert feedback.teaching_points[0].grounded is False
     assert "No evidence found" in feedback.teaching_points[0].claim
 
+    critical_feedback = grade_case_package(package, ClinicianRubric(esi_tolerance=0, critical_actions=["oxygen"]), [])
+    assert critical_feedback.completeness["critical_actions"]["missed"] == ["oxygen"]
+    assert critical_feedback.completeness["critical_actions"]["gaps"][0]["why_it_mattered"]
+
     report = run_validation(
         [package],
         ClinicianRubric(esi_tolerance=0),
@@ -541,6 +547,18 @@ def test_phase_9_package_only_after_end_and_phase_10_validation_report():
     assert report.release_blocked is False
     assert report.diagnostic_agreement == 1
     assert report.disposition_documentation_rate == 1
+    assert report.critical_action_agreement == 1
+
+    missed_critical_report = run_validation(
+        [package],
+        ClinicianRubric(esi_tolerance=0, critical_actions=["oxygen"]),
+        [EvidencePassage(id="x", title="PE", text="Pulmonary embolism with hypoxemia is high-risk.")],
+        threshold=0.8,
+    )
+    assert missed_critical_report.release_blocked is True
+    assert missed_critical_report.critical_action_agreement == 0
+    assert missed_critical_report.cases[0].critical_actions_complete is False
+    assert "critical action agreement below clinician threshold" in missed_critical_report.failure_modes
 
     unsafe_disposition_package = package.model_copy(
         update={

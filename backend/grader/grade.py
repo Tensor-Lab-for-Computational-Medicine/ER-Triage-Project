@@ -50,11 +50,27 @@ def grade_case_package(
     last_esi = package.esi_history[-1].level if package.esi_history else None
     esi_delta = abs(last_esi - truth.validated_esi) if last_esi else None
     ordered_ids = [order.order_id for order in package.orders]
+    performed_action_ids = set(ordered_ids)
     missed_orders = [order_id for order_id in rubric.expected_orders if order_id not in ordered_ids]
+    changed_management = [
+        order.order_id
+        for order in package.orders
+        if order.order_id in rubric.expected_orders and order.status == "resulted"
+    ]
     low_yield = [
         order.order_id
         for order in package.orders
         if order.status == "unavailable" and order.order_id not in rubric.expected_orders
+    ]
+    missed_critical_actions = [
+        action_id for action_id in rubric.critical_actions if action_id not in performed_action_ids
+    ]
+    critical_action_gaps = [
+        {
+            "action_id": action_id,
+            "why_it_mattered": "Clinician rubric marked this as critical for this case.",
+        }
+        for action_id in missed_critical_actions
     ]
 
     teaching_points = _grounded_teaching_points(package, evidence_passages)
@@ -74,9 +90,16 @@ def grade_case_package(
         completeness={
             "flags": package.completeness_flags,
             "omissions": package.completeness_flags.get("omissions", []),
+            "critical_actions": {
+                "expected": list(rubric.critical_actions),
+                "performed": [action_id for action_id in rubric.critical_actions if action_id in performed_action_ids],
+                "missed": missed_critical_actions,
+                "gaps": critical_action_gaps,
+            },
         },
         workup_judgment={
             "ordered": ordered_ids,
+            "changed_management": changed_management,
             "missed": missed_orders,
             "low_yield_or_unavailable": low_yield,
             "unordered_source_results": list(package.unordered_results),
