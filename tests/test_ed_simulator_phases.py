@@ -259,6 +259,18 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
 
     completed = client.post(f"/api/sessions/{session_id}/actions", json={"type": "complete", "dt_minutes": 0}).json()
     assert completed["state"]["ended"] is True
+    ended_order_ids = [order["order_id"] for order in completed["snapshot"]["active_orders"]]
+
+    post_end_action = client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "order", "order_id": "ct_pulmonary_angiography", "dt_minutes": 5},
+    )
+    assert post_end_action.status_code == 400
+    assert "Encounter has ended" in post_end_action.json()["detail"]
+    after_post_end = client.get(f"/api/sessions/{session_id}").json()
+    assert after_post_end["state"]["ended"] is True
+    assert after_post_end["snapshot"]["elapsed_minutes"] == completed["snapshot"]["elapsed_minutes"]
+    assert [order["order_id"] for order in after_post_end["snapshot"]["active_orders"]] == ended_order_ids
 
     package = client.get(f"/api/sessions/{session_id}/package").json()
     assert package["hidden_truth"]["final_diagnosis"] == "pulmonary embolism"

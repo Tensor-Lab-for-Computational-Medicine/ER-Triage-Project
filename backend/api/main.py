@@ -120,8 +120,10 @@ async def search_orders(q: str = "") -> list[dict[str, Any]]:
 @app.post("/api/sessions/{session_id}/actions")
 async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any]:
     engine = _get_engine(session_id)
-    case = engine.case
     try:
+        if engine.state.ended:
+            raise HTTPException(status_code=400, detail="Encounter has ended; no further in-encounter actions are accepted.")
+
         engine.advance(dt=action.dt_minutes)
 
         if action.type == "order":
