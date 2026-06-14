@@ -404,6 +404,8 @@ function DebriefScreen() {
   const transcript = (packageRecord?.transcript || []) as TranscriptMessage[];
   const realTimeline = (packageRecord?.real_timeline || []) as Array<{ elapsed_min: number; label: string; detail: string }>;
   const hiddenTruth = (packageRecord?.hidden_truth || {}) as Record<string, unknown>;
+  const completenessFlags = ((feedback?.completeness?.flags || packageRecord?.completeness_flags || {}) as Record<string, unknown>);
+  const omissions = ((feedback?.completeness?.omissions || completenessFlags.omissions || []) as string[]);
   const usageRows = ((packageRecord?.token_usage || session?.state.token_usage || []) as TokenUsageRecord[]);
   const usageTotals = usageRows.reduce(
     (totals, row) => ({
@@ -442,6 +444,22 @@ function DebriefScreen() {
                 <FeedbackRow label="Diagnostic match" value={String(feedback?.diagnostic_accuracy?.matched ?? false)} />
                 <FeedbackRow label="ESI defensible" value={String(feedback?.acuity?.defensible ?? false)} />
                 <FeedbackRow label="Missed workup" value={JSON.stringify(feedback?.workup_judgment?.missed || [])} />
+              </div>
+            </article>
+            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
+              <h2 className="m-0 mb-3 text-base font-extrabold">Completeness</h2>
+              <div className="mb-3 grid gap-2 text-sm">
+                <FeedbackRow label="ABCDE" value={flagLabel(completenessFlags.abcde_addressed)} />
+                <FeedbackRow label="ESI" value={flagLabel(completenessFlags.esi_committed)} />
+                <FeedbackRow label="Assessment" value={flagLabel(completenessFlags.assessment_committed)} />
+                <FeedbackRow label="Plan" value={flagLabel(completenessFlags.plan_committed)} />
+              </div>
+              <div className="grid gap-2 text-sm" data-testid="completeness-gaps">
+                {omissions.length ? omissions.map((omission) => (
+                  <div key={omission} className="rounded-md border border-[#e8b5b5] bg-[#fff7f7] p-3 font-semibold text-[#7f1d1d]">{omission}</div>
+                )) : (
+                  <div className="rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 font-semibold text-[#31534f]">No omissions recorded.</div>
+                )}
               </div>
             </article>
             <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
@@ -531,6 +549,10 @@ function formatClock(minutes: number) {
 
 function formatCost(cost: number) {
   return `$${cost.toFixed(4)}`;
+}
+
+function flagLabel(value: unknown) {
+  return value ? 'done' : 'missing';
 }
 
 function labelForSpeaker(speaker: string) {

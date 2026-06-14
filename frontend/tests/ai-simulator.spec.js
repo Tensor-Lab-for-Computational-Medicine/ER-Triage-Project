@@ -59,7 +59,24 @@ test('backend simulator runs a structured ED encounter to debrief', async ({ pag
   await expect(page.getByRole('heading', { name: 'Debrief' })).toBeVisible();
   await expect(page.getByText('Ground Truth')).toBeVisible();
   await expect(page.locator('dl')).toContainText('pulmonary embolism');
+  await expect(page.getByTestId('completeness-gaps')).toContainText('No omissions recorded.');
   await expect(page.getByTestId('usage-log')).toContainText('grader_feedback');
   await expect(page.getByTestId('usage-log')).toContainText('strong');
   expect(consoleProblems).toEqual([]);
+});
+
+test('backend simulator debrief surfaces omitted ESI and stabilization gaps', async ({ page }) => {
+  await page.goto('/ai-simulator');
+
+  await expect(page.getByRole('heading', { name: 'Vitals' })).toBeVisible();
+  await page.getByTestId('soap-assessment').fill('High-risk cardiopulmonary process.');
+  await page.getByTestId('soap-plan').fill('Disposition decision documented without stabilization.');
+  await expect(page.getByTestId('commit-soap')).toBeEnabled();
+  await page.getByTestId('commit-soap').click();
+  await expect(page.getByTestId('complete-case')).toBeEnabled();
+  await page.getByTestId('complete-case').click();
+
+  await expect(page.getByRole('heading', { name: 'Debrief' })).toBeVisible();
+  await expect(page.getByTestId('completeness-gaps')).toContainText('ESI was never committed.');
+  await expect(page.getByTestId('completeness-gaps')).toContainText('ABCDE stabilization was incomplete before disposition.');
 });

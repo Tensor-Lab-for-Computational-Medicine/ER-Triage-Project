@@ -322,6 +322,28 @@ def test_phase_12_model_tiering_records_routine_and_strong_usage():
     assert all(row["prompt_tokens"] > 0 and row["completion_tokens"] > 0 for row in usage_after_grade)
 
 
+def test_completion_records_omissions_without_blocking_end_encounter():
+    case = sample_prepared_case()
+    engine = start_case(case)
+
+    engine.commit_soap(
+        SOAPNote(
+            assessment="High-risk cardiopulmonary process.",
+            plan="Disposition decision documented without stabilization.",
+        )
+    )
+    assert engine.can_complete() is True
+
+    engine.complete_encounter()
+    assert engine.state.ended is True
+    assert engine.state.completeness_flags.end_encounter is True
+    assert "ESI was never committed." in engine.state.completeness_flags.omissions
+    assert "ABCDE stabilization was incomplete before disposition." in engine.state.completeness_flags.omissions
+
+    package = assemble_case_package(case, engine.state)
+    assert package.completeness_flags["omissions"] == engine.state.completeness_flags.omissions
+
+
 def test_phase_9_package_only_after_end_and_phase_10_validation_report():
     case = sample_prepared_case()
     engine = start_case(case)
