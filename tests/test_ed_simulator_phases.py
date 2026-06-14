@@ -43,23 +43,38 @@ def test_phase_2_preparation_keeps_hidden_out_of_encounter_context():
     assert_no_hidden(context, case)
 
 
+def test_phase_2_preparation_rejects_starting_vitals_mismatch():
+    raw = sample_raw_encounter()
+    raw["trajectory"]["starting_vitals"]["spo2"] = 99
+
+    with pytest.raises(CasePreparationError, match="visible presenting vitals"):
+        prepare_raw_encounter(raw)
+
+
 def test_phase_2_loader_excludes_pilot_ineligible_prepared_cases(tmp_path):
     eligible = sample_prepared_case()
     excluded = eligible.model_copy(deep=True)
     excluded.case_id = "excluded_sparse_trajectory"
     excluded.trajectory.rules = []
     excluded.trajectory.excluded_reason = "insufficient MIMIC data to define a safe trajectory"
+    mismatched = eligible.model_copy(deep=True)
+    mismatched.case_id = "excluded_mismatched_starting_vitals"
+    mismatched.trajectory.starting_vitals.spo2 = 99
 
     eligible_path = tmp_path / "eligible.json"
     excluded_path = tmp_path / "excluded.json"
+    mismatched_path = tmp_path / "mismatched.json"
     eligible_path.write_text(eligible.model_dump_json(), encoding="utf-8")
     excluded_path.write_text(excluded.model_dump_json(), encoding="utf-8")
+    mismatched_path.write_text(mismatched.model_dump_json(), encoding="utf-8")
 
     loaded = load_local_cases(tmp_path)
 
     assert set(loaded) == {eligible.case_id}
     with pytest.raises(CasePreparationError):
         load_prepared_case(excluded_path)
+    with pytest.raises(CasePreparationError, match="visible presenting vitals"):
+        load_prepared_case(mismatched_path)
 
 
 def test_phase_3_state_is_deterministic_and_contexts_exclude_hidden_truth():

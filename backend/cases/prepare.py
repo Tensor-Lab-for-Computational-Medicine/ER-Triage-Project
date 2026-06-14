@@ -32,6 +32,8 @@ def pilot_exclusion_reason(trajectory: TrajectorySpec) -> str | None:
 
 def assert_pilot_eligible(case: PreparedCase) -> None:
     reason = pilot_exclusion_reason(case.trajectory)
+    if not reason:
+        reason = _starting_vitals_mismatch_reason(case.visible_start, case.trajectory)
     if reason:
         raise CasePreparationError(reason)
 
@@ -45,11 +47,11 @@ def prepare_raw_encounter(raw: dict[str, Any]) -> PreparedCase:
     """
 
     trajectory = TrajectorySpec.model_validate(raw.get("trajectory") or {})
-    reason = pilot_exclusion_reason(trajectory)
+    visible_start = VisibleStart.model_validate(raw["visible_start"])
+    reason = pilot_exclusion_reason(trajectory) or _starting_vitals_mismatch_reason(visible_start, trajectory)
     if reason:
         raise CasePreparationError(reason)
 
-    visible_start = VisibleStart.model_validate(raw["visible_start"])
     hidden_truth = HiddenTruth.model_validate(raw["hidden_truth"])
     hpi_facts = [HpiFact.model_validate(item) for item in raw.get("hpi_facts", [])]
     result_bundles = {
@@ -81,6 +83,14 @@ def serialize_encounter_context(case: PreparedCase) -> dict[str, Any]:
         "trajectory_start": case.trajectory.starting_vitals.model_dump(mode="json"),
         "source": case.source,
     }
+
+
+def _starting_vitals_mismatch_reason(visible_start: VisibleStart, trajectory: TrajectorySpec) -> str | None:
+    presenting_vitals = visible_start.presenting_vitals.model_dump(mode="json")
+    starting_vitals = trajectory.starting_vitals.model_dump(mode="json")
+    if presenting_vitals == starting_vitals:
+        return None
+    return "visible presenting vitals must match trajectory starting vitals"
 
 
 def _main() -> None:
