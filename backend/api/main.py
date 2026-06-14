@@ -131,8 +131,6 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
             if order is None:
                 raise HTTPException(status_code=404, detail="unknown order")
             record = engine.apply_order(action.order_id)
-            if order.type in {"intervention", "medication"} and action.order_id in {"oxygen", "cardiac_monitor", "iv_access", "analgesia", "iv_fluids"}:
-                engine.apply_intervention(action.order_id)
             return _session_payload(engine, {"order": record.model_dump(mode="json")})
 
         if action.type == "intervention":

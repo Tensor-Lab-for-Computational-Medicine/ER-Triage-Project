@@ -11,6 +11,9 @@ from backend.orders.catalog import CatalogOrder, get_order
 from backend.orders.resolver import resolve
 
 
+IMMEDIATE_ORDER_TYPES = {"intervention", "medication", "procedure"}
+
+
 class EncounterPhase(str, Enum):
     TRIAGE = "triage"
     WORKUP = "workup"
@@ -119,27 +122,26 @@ class EncounterEngine:
         if order_id in self.state.active_orders:
             return self.state.active_orders[order_id]
 
+        immediate = order.type in IMMEDIATE_ORDER_TYPES
         record = OrderRecord(
             order_id=order.id,
             display_name=order.name,
             order_type=order.type,
-            status="ordered",
+            status="resulted" if immediate else "ordered",
             ordered_at_min=self.state.elapsed_minutes,
-            result_due_at_min=self.state.elapsed_minutes + order.result_delay_min,
+            result_due_at_min=self.state.elapsed_minutes if immediate else self.state.elapsed_minutes + order.result_delay_min,
+            result=_structured_action_result(order, self.state.elapsed_minutes) if immediate else None,
         )
         self.state.active_orders[order_id] = record
+        if immediate:
+            self._apply_intervention_effect(order_id)
         self._append("student", f"Ordered {order.name}.", {"type": "order", "order_id": order_id})
         self._release_due_orders()
         return self.state.active_orders[order_id]
 
     def apply_intervention(self, intervention_id: str) -> None:
         canonical = intervention_id.strip().lower().replace(" ", "_")
-        if canonical and canonical not in self.state.interventions:
-            self.state.interventions.append(canonical)
-        if canonical == "oxygen" and self.state.current_vitals.spo2 < 94:
-            self.state.current_vitals.spo2 = 94
-        if canonical == "analgesia" and self.state.current_vitals.pain is not None:
-            self.state.current_vitals.pain = max(0, self.state.current_vitals.pain - 1)
+        self._apply_intervention_effect(canonical)
         self._append("student", f"Applied intervention: {canonical.replace('_', ' ')}.", {"type": "intervention", "intervention_id": canonical})
         self._refresh_phase()
 
@@ -275,6 +277,14 @@ class EncounterEngine:
         if speaker in {"student", "patient", "nurse", "consultant"} and text.strip():
             self.state.running_summary = _compact_summary(self.state.running_summary, text)
 
+    def _apply_intervention_effect(self, canonical: str) -> None:
+        if canonical and canonical not in self.state.interventions:
+            self.state.interventions.append(canonical)
+        if canonical == "oxygen" and self.state.current_vitals.spo2 < 94:
+            self.state.current_vitals.spo2 = 94
+        if canonical == "analgesia" and self.state.current_vitals.pain is not None:
+            self.state.current_vitals.pain = max(0, self.state.current_vitals.pain - 1)
+
     def _appearance(self) -> str:
         if self.state.current_vitals.spo2 < 90:
             return "Worsening dyspnea with visible respiratory distress."
@@ -306,3 +316,13 @@ def _format_result(record: OrderRecord) -> str:
     if record.result.narrative:
         lines.append(record.result.narrative)
     return " ".join(lines)
+
+
+def _structured_action_result(order: CatalogOrder, elapsed_minutes: float) -> ResultBundle:
+    return ResultBundle(
+        order_id=order.id,
+        display_name=order.name,
+        resulted_at_min=int(round(elapsed_minutes)),
+        narrative=f"{order.name} recorded as a structured {order.type}; no diagnostic value is expected.",
+        source="simulator",
+    )

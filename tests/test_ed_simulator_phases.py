@@ -89,6 +89,15 @@ def test_phase_4_order_catalog_aliases_and_resolver_never_fabricates():
     engine.advance(dt=40)
     assert engine.state.active_orders["cmp"].status == "unavailable"
 
+    engine.apply_order("broad_spectrum_antibiotics")
+    antibiotic = engine.state.active_orders["broad_spectrum_antibiotics"]
+    assert antibiotic.status == "resulted"
+    assert antibiotic.result and antibiotic.result.source == "simulator"
+    assert "no diagnostic value is expected" in antibiotic.result.narrative
+    assert "broad_spectrum_antibiotics" in engine.state.interventions
+    engine.advance(dt=5)
+    assert engine.state.active_orders["broad_spectrum_antibiotics"].status == "resulted"
+
 
 def test_phase_4_order_catalog_is_fixed_broad_superset():
     catalog = load_catalog()
@@ -248,6 +257,25 @@ def test_backend_allows_vite_preview_cors_origin():
 
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:4173"
+
+
+def test_structured_medication_order_completes_without_fabricated_result_through_api():
+    client = TestClient(app)
+    session_id = client.post("/api/sessions", json={}).json()["session_id"]
+
+    response = client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "order", "order_id": "broad_spectrum_antibiotics", "dt_minutes": 0},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    order = payload["order"]
+    assert order["status"] == "resulted"
+    assert order["result"]["source"] == "simulator"
+    assert "no diagnostic value is expected" in order["result"]["narrative"]
+    assert order["unavailable_reason"] is None
+    assert "broad_spectrum_antibiotics" in payload["snapshot"]["interventions"]
 
 
 def test_in_loop_api_payloads_exclude_hidden_truth_until_package_after_end():
