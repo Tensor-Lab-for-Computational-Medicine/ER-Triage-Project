@@ -20,6 +20,22 @@ class CasePreparationError(ValueError):
     """Raised when a raw encounter cannot safely become a prepared case."""
 
 
+def pilot_exclusion_reason(trajectory: TrajectorySpec) -> str | None:
+    """Return why a case must stay out of the learner pilot, if any."""
+
+    if trajectory.excluded_reason:
+        return trajectory.excluded_reason
+    if not trajectory.rules:
+        return "trajectory rules are required for pilot safety"
+    return None
+
+
+def assert_pilot_eligible(case: PreparedCase) -> None:
+    reason = pilot_exclusion_reason(case.trajectory)
+    if reason:
+        raise CasePreparationError(reason)
+
+
 def prepare_raw_encounter(raw: dict[str, Any]) -> PreparedCase:
     """Transform one raw local encounter record into a visible/hidden split.
 
@@ -29,10 +45,9 @@ def prepare_raw_encounter(raw: dict[str, Any]) -> PreparedCase:
     """
 
     trajectory = TrajectorySpec.model_validate(raw.get("trajectory") or {})
-    if trajectory.excluded_reason:
-        raise CasePreparationError(trajectory.excluded_reason)
-    if not trajectory.rules:
-        raise CasePreparationError("trajectory rules are required for pilot safety")
+    reason = pilot_exclusion_reason(trajectory)
+    if reason:
+        raise CasePreparationError(reason)
 
     visible_start = VisibleStart.model_validate(raw["visible_start"])
     hidden_truth = HiddenTruth.model_validate(raw["hidden_truth"])

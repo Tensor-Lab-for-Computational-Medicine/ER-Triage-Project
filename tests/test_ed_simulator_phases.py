@@ -8,7 +8,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.api.main import app
-from backend.cases.prepare import prepare_raw_encounter, serialize_encounter_context
+from backend.cases.loaders import load_local_cases, load_prepared_case
+from backend.cases.prepare import CasePreparationError, prepare_raw_encounter, serialize_encounter_context
 from backend.cases.sample_cases import sample_prepared_case, sample_raw_encounter
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package
 from backend.grader.package import assemble_case_package
@@ -37,6 +38,25 @@ def test_phase_2_preparation_keeps_hidden_out_of_encounter_context():
 
     assert context["visible_start"]["chief_complaint"]
     assert_no_hidden(context, case)
+
+
+def test_phase_2_loader_excludes_pilot_ineligible_prepared_cases(tmp_path):
+    eligible = sample_prepared_case()
+    excluded = eligible.model_copy(deep=True)
+    excluded.case_id = "excluded_sparse_trajectory"
+    excluded.trajectory.rules = []
+    excluded.trajectory.excluded_reason = "insufficient MIMIC data to define a safe trajectory"
+
+    eligible_path = tmp_path / "eligible.json"
+    excluded_path = tmp_path / "excluded.json"
+    eligible_path.write_text(eligible.model_dump_json(), encoding="utf-8")
+    excluded_path.write_text(excluded.model_dump_json(), encoding="utf-8")
+
+    loaded = load_local_cases(tmp_path)
+
+    assert set(loaded) == {eligible.case_id}
+    with pytest.raises(CasePreparationError):
+        load_prepared_case(excluded_path)
 
 
 def test_phase_3_state_is_deterministic_and_contexts_exclude_hidden_truth():
