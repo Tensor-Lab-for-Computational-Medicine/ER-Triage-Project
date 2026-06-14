@@ -266,7 +266,7 @@ class EncounterEngine:
             resolved = resolve(record.order_id, self.case, self.state)
             if resolved.status == "resulted":
                 record.status = "resulted"
-                record.result = resolved.result
+                record.result = _stamp_result_release_time(resolved.result, self.state.elapsed_minutes)
                 self._append("results", _format_result(record), {"type": "result", "order_id": record.order_id})
             else:
                 record.status = "unavailable"
@@ -355,3 +355,9 @@ def _structured_action_result(order: CatalogOrder, elapsed_minutes: float) -> Re
         narrative=f"{order.name} recorded as a structured {order.type}; no diagnostic value is expected.",
         source="simulator",
     )
+
+
+def _stamp_result_release_time(result: ResultBundle | None, elapsed_minutes: float) -> ResultBundle | None:
+    if result is None:
+        return None
+    return result.model_copy(update={"resulted_at_min": int(round(elapsed_minutes))}, deep=True)

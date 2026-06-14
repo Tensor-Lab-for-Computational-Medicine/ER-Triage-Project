@@ -109,6 +109,7 @@ def test_phase_4_order_catalog_aliases_and_resolver_never_fabricates():
     engine.advance(dt=35)
     assert engine.state.active_orders["d_dimer"].status == "resulted"
     assert results_context(case, engine.state, "d_dimer")["result"]["values"][0]["value"] == "2.8"
+    assert engine.state.active_orders["d_dimer"].result.resulted_at_min == 35
 
     engine.apply_order("cmp")
     engine.advance(dt=40)
@@ -122,6 +123,17 @@ def test_phase_4_order_catalog_aliases_and_resolver_never_fabricates():
     assert "broad_spectrum_antibiotics" in engine.state.interventions
     engine.advance(dt=5)
     assert engine.state.active_orders["broad_spectrum_antibiotics"].status == "resulted"
+
+    delayed_engine = start_case(case)
+    delayed_engine.advance(dt=10)
+    delayed_engine.apply_order("d_dimer")
+    delayed_engine.advance(dt=34)
+    assert delayed_engine.state.active_orders["d_dimer"].status == "resulting"
+    delayed_engine.advance(dt=1)
+    delayed_record = delayed_engine.state.active_orders["d_dimer"]
+    assert delayed_record.status == "resulted"
+    assert delayed_record.result.resulted_at_min == 45
+    assert case.result_bundles["d_dimer"].resulted_at_min == 35
 
 
 def test_phase_4_order_catalog_is_fixed_broad_superset():
