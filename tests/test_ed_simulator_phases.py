@@ -360,6 +360,10 @@ def test_invalid_api_actions_do_not_advance_or_mutate_state():
         ({"type": "order", "order_id": "not_a_real_order", "dt_minutes": 10}, 404),
         ({"type": "intervention", "intervention_id": "imaginary_bedside_trick", "dt_minutes": 7}, 400),
         ({"type": "commit_esi", "payload": {}, "dt_minutes": 5}, 400),
+        ({"type": "commit_differential", "payload": {}, "dt_minutes": 6}, 400),
+        ({"type": "commit_differential", "payload": {"diagnoses": []}, "dt_minutes": 6}, 400),
+        ({"type": "commit_differential", "payload": {"diagnoses": ["   "]}, "dt_minutes": 6}, 400),
+        ({"type": "commit_differential", "payload": {"diagnoses": ["PE", 42]}, "dt_minutes": 6}, 400),
         ({"type": "advance_time", "dt_minutes": -1}, 400),
     ]
 
@@ -371,6 +375,12 @@ def test_invalid_api_actions_do_not_advance_or_mutate_state():
         assert snapshot["snapshot"]["active_orders"] == []
         assert snapshot["snapshot"]["interventions"] == []
         assert snapshot["state"]["esi_history"] == []
+        assert snapshot["state"]["differential"] == []
+        assert snapshot["state"]["soap"] == {"subjective": "", "objective": "", "assessment": "", "plan": ""}
+        assert snapshot["state"]["transcript"] == []
+
+    with pytest.raises(ValueError):
+        start_case(sample_prepared_case()).commit_differential([])
 
 
 def test_completeness_flags_update_before_completion_without_early_omissions():

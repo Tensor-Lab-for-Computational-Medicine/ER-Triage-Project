@@ -171,7 +171,10 @@ class EncounterEngine:
         return commitment
 
     def commit_differential(self, diagnoses: list[str]) -> list[str]:
-        self.state.differential = [item.strip() for item in diagnoses if item.strip()]
+        cleaned = [item.strip() for item in diagnoses if item.strip()]
+        if not cleaned:
+            raise ValueError("At least one differential diagnosis is required.")
+        self.state.differential = cleaned
         self._append("student", "Committed differential: " + "; ".join(self.state.differential), {"type": "differential_commit"})
         self._refresh_phase()
         return self.state.differential

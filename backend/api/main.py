@@ -143,7 +143,7 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
             return _session_payload(engine, {"esi_commitment": commitment.model_dump(mode="json")})
 
         if action.type == "commit_differential":
-            differential = engine.commit_differential(list(action.payload.get("diagnoses", [])))
+            differential = engine.commit_differential(_validated_differential_diagnoses(action.payload))
             return _session_payload(engine, {"differential": differential})
 
         if action.type == "commit_soap":
@@ -194,11 +194,27 @@ def _validate_action_before_advance(action: StudentAction) -> None:
         if level < 1 or level > 5:
             raise HTTPException(status_code=400, detail="ESI level must be an integer from 1 to 5")
 
+    if action.type == "commit_differential":
+        _validated_differential_diagnoses(action.payload)
+
     if action.type == "commit_soap":
         try:
             SOAPNote.model_validate(action.payload)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+def _validated_differential_diagnoses(payload: dict[str, Any]) -> list[str]:
+    raw_diagnoses = payload.get("diagnoses")
+    if not isinstance(raw_diagnoses, list):
+        raise HTTPException(status_code=400, detail="Differential diagnoses are required")
+    if not all(isinstance(item, str) for item in raw_diagnoses):
+        raise HTTPException(status_code=400, detail="Differential diagnoses must be text entries")
+
+    diagnoses = [item.strip() for item in raw_diagnoses if item.strip()]
+    if not diagnoses:
+        raise HTTPException(status_code=400, detail="At least one differential diagnosis is required")
+    return diagnoses
 
 
 @app.get("/api/sessions/{session_id}/package")
