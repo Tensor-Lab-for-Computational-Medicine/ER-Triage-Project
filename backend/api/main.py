@@ -245,7 +245,7 @@ async def _handle_free_text(engine: EncounterEngine, text: str) -> dict[str, Any
     elif route.persona == "consultant":
         context = consult_context(engine.case, engine.state, route.specialty or "consultant")
     else:
-        context = patient_context(engine.case, engine.state)
+        context = patient_context(engine.case, engine.state, text)
 
     result = await answer_persona(route.persona or "patient", context, text, LLM)
     engine.record_usage(

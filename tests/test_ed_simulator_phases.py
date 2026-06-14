@@ -113,7 +113,15 @@ def test_phase_6_personas_are_ground_truth_starved_and_state_consistent():
     case = sample_prepared_case()
     engine = start_case(case)
     engine.advance(dt=2)
-    context = patient_context(case, engine.state)
+    initial_patient_context = patient_context(case, engine.state)
+    assert initial_patient_context["hpi_facts"] == []
+
+    context = patient_context(case, engine.state, "When did the pain start?")
+    assert [fact["id"] for fact in context["hpi_facts"]] == ["onset"]
+    context_text = json.dumps(context)
+    assert "flew home from a long trip" not in context_text
+    assert "No fever" not in context_text
+
     messages = build_persona_messages("patient", context, "What is my diagnosis?")
     assert_no_hidden([message.model_dump() for message in messages], case)
     assert "clinician_note" not in json.dumps(context)

@@ -6,7 +6,7 @@ from backend.cases.schemas import PreparedCase, ResultBundle
 from backend.state.engine import CaseState
 
 
-def patient_context(case: PreparedCase, state: CaseState) -> dict[str, Any]:
+def patient_context(case: PreparedCase, state: CaseState, student_text: str | None = None) -> dict[str, Any]:
     return {
         "role": "patient",
         "case_id": case.case_id,
@@ -14,15 +14,7 @@ def patient_context(case: PreparedCase, state: CaseState) -> dict[str, Any]:
         "demographics": case.visible_start.demographics,
         "current_vitals": state.current_vitals.model_dump(mode="json"),
         "appearance": _appearance(case, state),
-        "hpi_facts": [
-            {
-                "id": fact.id,
-                "topic": fact.topic,
-                "triggers": list(fact.triggers),
-                "lay_response": fact.lay_response,
-            }
-            for fact in case.hpi_facts
-        ],
+        "hpi_facts": _released_hpi_facts(case, student_text),
         "running_summary": state.running_summary,
     }
 
@@ -79,3 +71,19 @@ def _appearance(case: PreparedCase, state: CaseState) -> str:
     if "oxygen" in state.interventions and state.current_vitals.spo2 >= 94:
         return "Breathing more comfortably on oxygen."
     return case.visible_start.appearance
+
+
+def _released_hpi_facts(case: PreparedCase, student_text: str | None) -> list[dict[str, Any]]:
+    asked = " ".join(str(student_text or "").lower().split())
+    if not asked:
+        return []
+    return [
+        {
+            "id": fact.id,
+            "topic": fact.topic,
+            "triggers": list(fact.triggers),
+            "lay_response": fact.lay_response,
+        }
+        for fact in case.hpi_facts
+        if any(trigger.lower() in asked for trigger in fact.triggers)
+    ]
