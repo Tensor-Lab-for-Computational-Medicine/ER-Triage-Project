@@ -1,0 +1,87 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any
+
+from backend.cases.schemas import (
+    HiddenTruth,
+    HpiFact,
+    PreparedCase,
+    ResultBundle,
+    TimelineEvent,
+    TrajectorySpec,
+    VisibleStart,
+)
+
+
+class CasePreparationError(ValueError):
+    """Raised when a raw encounter cannot safely become a prepared case."""
+
+
+def prepare_raw_encounter(raw: dict[str, Any]) -> PreparedCase:
+    """Transform one raw local encounter record into a visible/hidden split.
+
+    The raw shape is intentionally simple for the pilot. Adapters for specific
+    MIMIC-IV-Ext-CDS exports should normalize into this shape before calling
+    this function, keeping credentialed data local.
+    """
+
+    trajectory = TrajectorySpec.model_validate(raw.get("trajectory") or {})
+    if trajectory.excluded_reason:
+        raise CasePreparationError(trajectory.excluded_reason)
+    if not trajectory.rules:
+        raise CasePreparationError("trajectory rules are required for pilot safety")
+
+    visible_start = VisibleStart.model_validate(raw["visible_start"])
+    hidden_truth = HiddenTruth.model_validate(raw["hidden_truth"])
+    hpi_facts = [HpiFact.model_validate(item) for item in raw.get("hpi_facts", [])]
+    result_bundles = {
+        order_id: ResultBundle.model_validate({**bundle, "order_id": order_id})
+        for order_id, bundle in (raw.get("result_bundles") or {}).items()
+    }
+    real_timeline = [TimelineEvent.model_validate(item) for item in raw.get("real_timeline", [])]
+
+    return PreparedCase(
+        case_id=raw["case_id"],
+        title=raw["title"],
+        visible_start=visible_start,
+        hpi_facts=hpi_facts,
+        result_bundles=result_bundles,
+        hidden_truth=hidden_truth,
+        trajectory=trajectory,
+        real_timeline=real_timeline,
+        source=raw.get("source", "local-prepared"),
+    )
+
+
+def serialize_encounter_context(case: PreparedCase) -> dict[str, Any]:
+    """Serialize only the start-of-encounter visible context."""
+
+    return {
+        "case_id": case.case_id,
+        "title": case.title,
+        "visible_start": case.visible_start.model_dump(mode="json"),
+        "trajectory_start": case.trajectory.starting_vitals.model_dump(mode="json"),
+        "source": case.source,
+    }
+
+
+def _main() -> None:
+    parser = argparse.ArgumentParser(description="Prepare one local raw encounter JSON file.")
+    parser.add_argument("input", type=Path)
+    parser.add_argument("output", type=Path)
+    args = parser.parse_args()
+
+    raw = json.loads(args.input.read_text(encoding="utf-8"))
+    prepared = prepare_raw_encounter(raw)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(
+        json.dumps(prepared.model_dump(mode="json"), indent=2),
+        encoding="utf-8",
+    )
+
+
+if __name__ == "__main__":
+    _main()

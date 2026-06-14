@@ -1,18 +1,13 @@
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import ClinicalFlowboard from './components/ClinicalFlowboard';
-
-const LegacySimulatorApp = lazy(() => import('./LegacySimulatorApp'));
+import ClinicalReasoningSimulator from './screens/ClinicalReasoningSimulator';
 
 function App() {
   const params = new URLSearchParams(window.location.search);
-  const legacyMode = window.location.pathname === '/legacy' || params.get('legacy') === '1';
+  const aiSimulatorMode = window.location.pathname === '/ai-simulator' || params.get('sim') === 'ai';
 
-  if (legacyMode) {
-    return (
-      <Suspense fallback={<main className="flowboard-app"><div className="flowboard-shell">Loading legacy simulator...</div></main>}>
-        <LegacySimulatorApp />
-      </Suspense>
-    );
+  if (aiSimulatorMode) {
+    return <ClinicalReasoningSimulator />;
   }
 
   return <ClinicalFlowboard />;

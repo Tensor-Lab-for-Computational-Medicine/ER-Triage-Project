@@ -1,9 +1,0 @@
-{
-  "schema_version": "static_spa_fallback_report_v1",
-  "generated_at": "2026-06-11T17:55:27.219Z",
-  "fallback_path": "frontend/dist/404.html",
-  "source_path": "frontend/dist/index.html",
-  "fallback_present": true,
-  "fallback_bytes": 702,
-  "deployment_note": "GitHub Pages serves 404.html for unknown direct routes, allowing React path routes such as /legacy to bootstrap from the same static app shell."
-}

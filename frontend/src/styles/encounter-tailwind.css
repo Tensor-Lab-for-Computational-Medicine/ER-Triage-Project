@@ -1,0 +1,6 @@
+@tailwind components;
+@tailwind utilities;
+
+.ed-sim-font {
+  font-family: "Aptos", "Helvetica Neue", sans-serif;
+}

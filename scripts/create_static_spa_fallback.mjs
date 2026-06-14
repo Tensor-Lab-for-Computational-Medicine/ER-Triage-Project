@@ -6,7 +6,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST_PATH = join(ROOT, 'frontend', 'dist');
 const INDEX_PATH = join(DIST_PATH, 'index.html');
 const FALLBACK_PATH = join(DIST_PATH, '404.html');
-const REPORT_PATH = join(ROOT, 'docs', 'static_spa_fallback_report.json');
+const REPORT_PATH = join(DIST_PATH, 'static_spa_fallback_report.json');
 
 if (!existsSync(INDEX_PATH)) {
   throw new Error(`Cannot create SPA fallback because ${INDEX_PATH} does not exist. Run npm run build first.`);

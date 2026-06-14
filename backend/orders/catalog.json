@@ -1,0 +1,128 @@
+[
+  {
+    "id": "cbc",
+    "type": "lab",
+    "name": "CBC",
+    "aliases": ["complete blood count", "blood count", "hemogram"],
+    "result_delay_min": 30
+  },
+  {
+    "id": "cmp",
+    "type": "lab",
+    "name": "Comprehensive metabolic panel",
+    "aliases": ["chemistry", "chem 14", "metabolic panel", "electrolytes", "renal function"],
+    "result_delay_min": 40
+  },
+  {
+    "id": "lft",
+    "type": "lab",
+    "name": "Hepatic function panel",
+    "aliases": ["lfts", "liver function tests", "hepatic panel", "liver panel"],
+    "result_delay_min": 40
+  },
+  {
+    "id": "troponin",
+    "type": "lab",
+    "name": "High-sensitivity troponin",
+    "aliases": ["trop", "cardiac enzymes", "hs troponin"],
+    "result_delay_min": 45
+  },
+  {
+    "id": "d_dimer",
+    "type": "lab",
+    "name": "D-dimer",
+    "aliases": ["ddimer", "d dimer", "fibrin degradation"],
+    "result_delay_min": 35
+  },
+  {
+    "id": "lactate",
+    "type": "lab",
+    "name": "Serum lactate",
+    "aliases": ["lactic acid", "lactate level"],
+    "result_delay_min": 30
+  },
+  {
+    "id": "blood_culture",
+    "type": "lab",
+    "name": "Blood cultures",
+    "aliases": ["cultures", "blood culture x2", "bcx"],
+    "result_delay_min": 120
+  },
+  {
+    "id": "abg",
+    "type": "lab",
+    "name": "Arterial blood gas",
+    "aliases": ["blood gas", "arterial gas", "abg"],
+    "result_delay_min": 15
+  },
+  {
+    "id": "ecg_12_lead",
+    "type": "study",
+    "name": "12-lead ECG",
+    "aliases": ["ekg", "ecg", "electrocardiogram", "12 lead"],
+    "result_delay_min": 5
+  },
+  {
+    "id": "chest_xray",
+    "type": "imaging",
+    "name": "Chest X-ray",
+    "aliases": ["cxr", "portable chest", "chest radiograph"],
+    "result_delay_min": 25
+  },
+  {
+    "id": "ct_head_without_contrast",
+    "type": "imaging",
+    "name": "CT head without contrast",
+    "aliases": ["head ct", "noncontrast head ct", "ct brain"],
+    "result_delay_min": 50
+  },
+  {
+    "id": "ct_abdomen_pelvis_with_contrast",
+    "type": "imaging",
+    "name": "CT abdomen/pelvis with contrast",
+    "aliases": ["ct abdomen", "ct a/p", "ct belly", "ct abd pelvis"],
+    "result_delay_min": 70
+  },
+  {
+    "id": "ct_pulmonary_angiography",
+    "type": "imaging",
+    "name": "CT pulmonary angiography",
+    "aliases": ["ctpa", "pe study", "cta chest", "ct angiogram chest"],
+    "result_delay_min": 80
+  },
+  {
+    "id": "oxygen",
+    "type": "intervention",
+    "name": "Supplemental oxygen",
+    "aliases": ["o2", "nasal cannula", "oxygen therapy"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "cardiac_monitor",
+    "type": "intervention",
+    "name": "Cardiac monitor",
+    "aliases": ["monitor", "telemetry", "continuous monitoring"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "iv_access",
+    "type": "intervention",
+    "name": "IV access",
+    "aliases": ["place iv", "intravenous access", "large bore iv"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "iv_fluids",
+    "type": "medication",
+    "name": "IV crystalloid bolus",
+    "aliases": ["fluids", "normal saline", "lactated ringers", "bolus"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "analgesia",
+    "type": "medication",
+    "name": "Analgesia",
+    "aliases": ["pain medicine", "morphine", "ketorolac", "acetaminophen"],
+    "result_delay_min": 0
+  }
+]
