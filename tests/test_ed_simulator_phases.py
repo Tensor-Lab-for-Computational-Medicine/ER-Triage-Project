@@ -221,6 +221,7 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
     assert resulted["order"]["order_id"] == "oxygen"
     assert resulted["order"]["status"] == "resulted"
     assert "oxygen" in [order["order_id"] for order in resulted["snapshot"]["active_orders"]]
+    assert resulted["state"]["completeness_flags"]["abcde_addressed"] is True
 
     client.post(
         f"/api/sessions/{session_id}/actions",
@@ -320,6 +321,38 @@ def test_structured_intervention_events_are_catalog_validated():
     )
     assert response.status_code == 400
     assert "unknown structured intervention" in response.json()["detail"]
+
+
+def test_completeness_flags_update_before_completion_without_early_omissions():
+    case = sample_prepared_case()
+    engine = start_case(case)
+
+    assert engine.state.completeness_flags.abcde_addressed is False
+    assert engine.state.completeness_flags.esi_committed is False
+    assert engine.state.completeness_flags.omissions == []
+
+    engine.apply_intervention("oxygen")
+    assert engine.state.completeness_flags.abcde_addressed is True
+    assert engine.state.completeness_flags.omissions == []
+
+    engine.commit_esi(2, "hypoxemia")
+    assert engine.state.completeness_flags.esi_committed is True
+
+    engine.commit_soap(
+        SOAPNote(
+            assessment="Pulmonary embolism is the leading concern.",
+            plan="Continue oxygen and admit to a monitored bed.",
+        )
+    )
+    assert engine.state.completeness_flags.assessment_committed is True
+    assert engine.state.completeness_flags.plan_committed is True
+    assert engine.can_complete() is True
+    assert engine.state.completeness_flags.end_encounter is False
+    assert engine.state.completeness_flags.omissions == []
+
+    engine.complete_encounter()
+    assert engine.state.completeness_flags.end_encounter is True
+    assert engine.state.completeness_flags.omissions == []
 
 
 def test_in_loop_api_payloads_exclude_hidden_truth_until_package_after_end():

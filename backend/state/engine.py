@@ -101,6 +101,7 @@ class EncounterEngine:
             previous_vitals=case.trajectory.starting_vitals.model_copy(deep=True),
             running_summary=case.visible_start.triage_context,
         )
+        self._refresh_completeness_flags()
 
     def advance(self, action_effect: str | None = None, dt: float = 1) -> CaseState:
         if dt < 0:
@@ -112,6 +113,7 @@ class EncounterEngine:
         self.state.elapsed_minutes = round(self.state.elapsed_minutes + dt, 3)
         self._apply_trajectory(dt)
         self._release_due_orders()
+        self._refresh_completeness_flags()
         self._refresh_phase()
         return self.state
 
@@ -157,13 +159,14 @@ class EncounterEngine:
             self._apply_intervention_effect(order.id)
         self._append("student", transcript_text, metadata)
         self._release_due_orders()
+        self._refresh_completeness_flags()
         self._refresh_phase()
         return self.state.active_orders[order.id]
 
     def commit_esi(self, level: int, rationale: str = "") -> ESICommitment:
         commitment = ESICommitment(level=level, rationale=rationale, elapsed_minutes=self.state.elapsed_minutes)
         self.state.esi_history.append(commitment)
-        self.state.completeness_flags.esi_committed = True
+        self._refresh_completeness_flags()
         self._append("student", f"Committed ESI {level}. {rationale}".strip(), {"type": "esi_commit"})
         return commitment
 
@@ -175,13 +178,13 @@ class EncounterEngine:
 
     def commit_soap(self, soap: SOAPNote) -> SOAPNote:
         self.state.soap = soap
-        self.state.completeness_flags.assessment_committed = bool(soap.assessment.strip())
-        self.state.completeness_flags.plan_committed = bool(soap.plan.strip())
+        self._refresh_completeness_flags()
         self._append("student", "Committed SOAP note.", {"type": "soap_commit", "soap": soap.model_dump(mode="json")})
         self._refresh_phase()
         return self.state.soap
 
     def can_complete(self) -> bool:
+        self._refresh_completeness_flags()
         flags = self.state.completeness_flags
         return flags.assessment_committed and flags.plan_committed
 
@@ -189,7 +192,7 @@ class EncounterEngine:
         if not self.can_complete():
             raise ValueError("Assessment and Plan are required before completing the case.")
         flags = self.state.completeness_flags
-        flags.abcde_addressed = all(item in self.state.interventions for item in ["oxygen", "cardiac_monitor", "iv_access"]) or self.state.current_vitals.spo2 >= 94
+        self._refresh_completeness_flags()
         flags.end_encounter = True
         flags.omissions = []
         if not flags.esi_committed:
@@ -299,6 +302,17 @@ class EncounterEngine:
             self.state.current_vitals.spo2 = 94
         if canonical == "analgesia" and self.state.current_vitals.pain is not None:
             self.state.current_vitals.pain = max(0, self.state.current_vitals.pain - 1)
+
+    def _refresh_completeness_flags(self) -> None:
+        flags = self.state.completeness_flags
+        flags.esi_committed = bool(self.state.esi_history)
+        flags.assessment_committed = bool(self.state.soap.assessment.strip())
+        flags.plan_committed = bool(self.state.soap.plan.strip())
+        flags.abcde_addressed = self._abcde_addressed()
+
+    def _abcde_addressed(self) -> bool:
+        required_interventions = {"oxygen", "cardiac_monitor", "iv_access"}
+        return required_interventions.issubset(self.state.interventions) or self.state.current_vitals.spo2 >= 94
 
     def _appearance(self) -> str:
         if self.state.current_vitals.spo2 < 90:
