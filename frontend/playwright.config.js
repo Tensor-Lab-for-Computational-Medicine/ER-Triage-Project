@@ -6,6 +6,7 @@ const backendPort = process.env.PLAYWRIGHT_BACKEND_PORT || '8000';
 const backendURL = process.env.VITE_ED_SIM_API || `http://127.0.0.1:${backendPort}`;
 const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === 'true';
 const isCI = Boolean(process.env.CI);
+const skipWebServer = process.env.PLAYWRIGHT_SKIP_WEBSERVER === 'true';
 
 export default defineConfig({
   testDir: './tests',
@@ -21,21 +22,23 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry'
   },
-  webServer: [
-    {
-      command: `python -m uvicorn backend.api.main:app --host 127.0.0.1 --port ${backendPort}`,
-      url: `${backendURL}/health`,
-      cwd: '..',
-      reuseExistingServer: true,
-      timeout: 120_000
-    },
-    {
-      command: `npm run preview -- --host 127.0.0.1 --port ${previewPort} --strictPort`,
-      url: baseURL,
-      reuseExistingServer,
-      timeout: 120_000
-    }
-  ],
+  webServer: skipWebServer
+    ? undefined
+    : [
+        {
+          command: `python -m uvicorn backend.api.main:app --host 127.0.0.1 --port ${backendPort}`,
+          url: `${backendURL}/health`,
+          cwd: '..',
+          reuseExistingServer: true,
+          timeout: 120_000
+        },
+        {
+          command: `npm run preview -- --host 127.0.0.1 --port ${previewPort} --strictPort`,
+          url: baseURL,
+          reuseExistingServer,
+          timeout: 120_000
+        }
+      ],
   projects: [
     {
       name: 'chromium',

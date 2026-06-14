@@ -48,9 +48,56 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+      - name: Start e2e servers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8000 > backend-e2e.log 2>&1 &
+          echo "$!" > backend-e2e.pid
+
+          (
+            cd frontend
+            npm run preview -- --host 127.0.0.1 --port 4173 --strictPort
+          ) > frontend-preview.log 2>&1 &
+          echo "$!" > frontend-preview.pid
+
+          wait_for_url() {
+            local url="$1"
+            local label="$2"
+            for attempt in {1..60}; do
+              if curl -fsS "$url" > /dev/null; then
+                echo "$label is ready at $url"
+                return 0
+              fi
+              sleep 2
+            done
+
+            echo "::error::$label did not become ready at $url"
+            echo "---- backend-e2e.log ----"
+            cat backend-e2e.log || true
+            echo "---- frontend-preview.log ----"
+            cat frontend-preview.log || true
+            return 1
+          }
+
+          wait_for_url "http://127.0.0.1:8000/health" "backend"
+          wait_for_url "http://127.0.0.1:4173" "frontend"
+
       - name: Run frontend e2e tests
         working-directory: frontend
+        env:
+          PLAYWRIGHT_SKIP_WEBSERVER: "true"
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+          VITE_ED_SIM_API: http://127.0.0.1:8000
         run: npm run test:e2e
+
+      - name: Stop e2e servers
+        if: always()
+        shell: bash
+        run: |
+          kill "$(cat backend-e2e.pid)" 2>/dev/null || true
+          kill "$(cat frontend-preview.pid)" 2>/dev/null || true
 
       - name: Upload Playwright report
         if: failure()
@@ -58,6 +105,8 @@ jobs:
         with:
           name: playwright-report
           path: |
+            backend-e2e.log
+            frontend-preview.log
             frontend/playwright-report
             frontend/test-results
           if-no-files-found: ignore
