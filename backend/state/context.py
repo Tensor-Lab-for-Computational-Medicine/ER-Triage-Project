@@ -14,7 +14,15 @@ def patient_context(case: PreparedCase, state: CaseState) -> dict[str, Any]:
         "demographics": case.visible_start.demographics,
         "current_vitals": state.current_vitals.model_dump(mode="json"),
         "appearance": _appearance(case, state),
-        "hpi_facts": [fact.model_dump(mode="json") for fact in case.hpi_facts],
+        "hpi_facts": [
+            {
+                "id": fact.id,
+                "topic": fact.topic,
+                "triggers": list(fact.triggers),
+                "lay_response": fact.lay_response,
+            }
+            for fact in case.hpi_facts
+        ],
         "running_summary": state.running_summary,
     }
 

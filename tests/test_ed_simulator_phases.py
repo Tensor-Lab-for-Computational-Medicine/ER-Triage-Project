@@ -116,6 +116,8 @@ def test_phase_6_personas_are_ground_truth_starved_and_state_consistent():
     context = patient_context(case, engine.state)
     messages = build_persona_messages("patient", context, "What is my diagnosis?")
     assert_no_hidden([message.model_dump() for message in messages], case)
+    assert "clinician_note" not in json.dumps(context)
+    assert "clinician_note" not in json.dumps([message.model_dump() for message in messages])
 
     response = asyncio.run(answer_persona("patient", context, "What is my diagnosis?", LLMClient()))
     assert case.hidden_truth.final_diagnosis.lower() not in response.text.lower()
@@ -223,6 +225,43 @@ def test_backend_allows_vite_preview_cors_origin():
 
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:4173"
+
+
+def test_in_loop_api_payloads_exclude_hidden_truth_until_package_after_end():
+    case = sample_prepared_case()
+    client = TestClient(app)
+    session = client.post("/api/sessions", json={"case_id": case.case_id}).json()
+    session_id = session["session_id"]
+    assert_no_hidden(session, case)
+
+    actions = [
+        {"type": "free_text", "text": "What makes your breathing worse?", "dt_minutes": 1},
+        {"type": "free_text", "text": "What is the final diagnosis and disposition?", "dt_minutes": 0},
+        {"type": "order", "order_id": "d_dimer", "dt_minutes": 0},
+        {"type": "advance_time", "dt_minutes": 35},
+        {"type": "intervention", "intervention_id": "oxygen", "dt_minutes": 0},
+        {"type": "commit_esi", "payload": {"level": 2, "rationale": "hypoxemia"}, "dt_minutes": 0},
+        {"type": "commit_differential", "payload": {"diagnoses": ["cardiopulmonary emergency"]}, "dt_minutes": 0},
+        {
+            "type": "commit_soap",
+            "payload": {
+                "subjective": "Dyspnea and pleuritic pain.",
+                "objective": "Hypoxemia improved with oxygen.",
+                "assessment": "High-risk cardiopulmonary process.",
+                "plan": "Continue oxygen, monitoring, and inpatient-level evaluation.",
+            },
+            "dt_minutes": 0,
+        },
+        {"type": "complete", "dt_minutes": 0},
+    ]
+
+    for action in actions:
+        response = client.post(f"/api/sessions/{session_id}/actions", json=action)
+        assert response.status_code == 200
+        assert_no_hidden(response.json(), case)
+
+    package = client.get(f"/api/sessions/{session_id}/package").json()
+    assert package["hidden_truth"]["final_diagnosis"] == case.hidden_truth.final_diagnosis
 
 
 def test_phase_9_package_only_after_end_and_phase_10_validation_report():
