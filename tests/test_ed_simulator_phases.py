@@ -386,6 +386,7 @@ def test_invalid_api_actions_do_not_advance_or_mutate_state():
         ({"type": "commit_differential", "payload": {"diagnoses": ["   "]}, "dt_minutes": 6}, 400),
         ({"type": "commit_differential", "payload": {"diagnoses": ["PE", 42]}, "dt_minutes": 6}, 400),
         ({"type": "advance_time", "dt_minutes": -1}, 400),
+        ({"type": "complete", "dt_minutes": 5}, 400),
     ]
 
     for action, expected_status in invalid_actions:

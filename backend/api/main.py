@@ -125,7 +125,7 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
         if engine.state.ended:
             raise HTTPException(status_code=400, detail="Encounter has ended; no further in-encounter actions are accepted.")
 
-        _validate_action_before_advance(action)
+        _validate_action_before_advance(action, engine)
         engine.advance(dt=action.dt_minutes)
 
         if action.type == "order":
@@ -166,7 +166,7 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
     raise HTTPException(status_code=400, detail="unsupported action")
 
 
-def _validate_action_before_advance(action: StudentAction) -> None:
+def _validate_action_before_advance(action: StudentAction, engine: EncounterEngine) -> None:
     if action.dt_minutes < 0:
         raise HTTPException(status_code=400, detail="dt_minutes must be non-negative")
 
@@ -203,6 +203,9 @@ def _validate_action_before_advance(action: StudentAction) -> None:
             SOAPNote.model_validate(action.payload)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if action.type == "complete" and not engine.can_complete():
+        raise HTTPException(status_code=400, detail="Assessment and Plan are required before completing the case.")
 
 
 def _validated_differential_diagnoses(payload: dict[str, Any]) -> list[str]:
