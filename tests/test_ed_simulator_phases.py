@@ -211,6 +211,50 @@ def test_phase_6_personas_are_ground_truth_starved_and_state_consistent():
     assert f"SpO2 {engine.state.current_vitals.spo2}%" in nurse_response.text
 
 
+def test_phase_6_personas_replace_model_invented_vitals_with_state():
+    case = sample_prepared_case()
+    engine = start_case(case)
+    engine.advance(dt=4)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "The patient is stable. Current vitals: "
+                                "HR 60, BP 120/80, RR 12, SpO2 99%."
+                            )
+                        }
+                    }
+                ],
+                "usage": {"prompt_tokens": 10, "completion_tokens": 10},
+            },
+        )
+
+    client = LLMClient(
+        LLMConfig(
+            provider="openai_compatible",
+            base_url="https://llm.example.test/v1/chat/completions",
+            api_key="test-key",
+        ),
+        transport=httpx.MockTransport(handler),
+    )
+
+    nurse_response = asyncio.run(answer_persona("nurse", nurse_context(case, engine.state), "What are the vitals?", client))
+    assert f"HR {engine.state.current_vitals.hr}" in nurse_response.text
+    assert f"SpO2 {engine.state.current_vitals.spo2}%" in nurse_response.text
+    assert "99%" not in nurse_response.text
+    assert "stable" not in nurse_response.text.lower()
+
+    patient_response = asyncio.run(answer_persona("patient", patient_context(case, engine.state), "Are you stable?", client))
+    assert "monitor numbers" in patient_response.text
+    assert "99%" not in patient_response.text
+    assert "stable" not in patient_response.text.lower()
+
+
 def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
     client = TestClient(app)
 
