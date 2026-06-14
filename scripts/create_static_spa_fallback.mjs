@@ -21,7 +21,7 @@ const report = {
   source_path: 'frontend/dist/index.html',
   fallback_present: existsSync(FALLBACK_PATH),
   fallback_bytes: statSync(FALLBACK_PATH).size,
-  deployment_note: 'GitHub Pages serves 404.html for unknown direct routes, allowing React path routes such as /legacy to bootstrap from the same static app shell.'
+  deployment_note: 'GitHub Pages serves 404.html for unknown direct routes, allowing React path routes such as /ai-simulator to bootstrap from the same static app shell.'
 };
 
 writeFileSync(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`, 'utf8');

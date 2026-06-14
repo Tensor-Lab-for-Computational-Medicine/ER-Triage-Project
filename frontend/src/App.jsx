@@ -4,7 +4,8 @@ import ClinicalReasoningSimulator from './screens/ClinicalReasoningSimulator';
 
 function App() {
   const params = new URLSearchParams(window.location.search);
-  const aiSimulatorMode = window.location.pathname === '/ai-simulator' || params.get('sim') === 'ai';
+  const pathname = window.location.pathname.replace(/\/$/, '');
+  const aiSimulatorMode = pathname.endsWith('/ai-simulator') || params.get('sim') === 'ai';
 
   if (aiSimulatorMode) {
     return <ClinicalReasoningSimulator />;
