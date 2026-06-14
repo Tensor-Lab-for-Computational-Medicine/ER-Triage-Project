@@ -264,6 +264,56 @@ def test_in_loop_api_payloads_exclude_hidden_truth_until_package_after_end():
     assert package["hidden_truth"]["final_diagnosis"] == case.hidden_truth.final_diagnosis
 
 
+def test_phase_12_model_tiering_records_routine_and_strong_usage():
+    client = TestClient(app)
+    session = client.post("/api/sessions", json={}).json()
+    session_id = session["session_id"]
+
+    client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "free_text", "text": "When did the pain start?", "dt_minutes": 1},
+    )
+    client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "free_text", "text": "Nurse, can you repeat vitals?", "dt_minutes": 1},
+    )
+    client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "free_text", "text": "Call pulmonology for this patient", "dt_minutes": 1},
+    )
+    usage_before_grade = client.get(f"/api/sessions/{session_id}").json()["state"]["token_usage"]
+    tiers = {row["purpose"]: row["tier"] for row in usage_before_grade}
+    assert tiers["patient_dialogue"] == "cheap"
+    assert tiers["nurse_dialogue"] == "cheap"
+    assert tiers["consultant_dialogue"] == "strong"
+
+    client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "commit_esi", "payload": {"level": 2, "rationale": "hypoxemia"}, "dt_minutes": 0},
+    )
+    client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "commit_differential", "payload": {"diagnoses": ["pulmonary embolism"]}, "dt_minutes": 0},
+    )
+    client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={
+            "type": "commit_soap",
+            "payload": {
+                "assessment": "Pulmonary embolism.",
+                "plan": "Admit to monitored inpatient bed.",
+            },
+            "dt_minutes": 0,
+        },
+    )
+    client.post(f"/api/sessions/{session_id}/actions", json={"type": "complete", "dt_minutes": 0})
+    client.post(f"/api/sessions/{session_id}/grade", json={"rubric": {"esi_tolerance": 0}, "evidence_passages": []})
+
+    usage_after_grade = client.get(f"/api/sessions/{session_id}").json()["state"]["token_usage"]
+    assert any(row["purpose"] == "grader_feedback" and row["tier"] == "strong" for row in usage_after_grade)
+    assert all(row["prompt_tokens"] > 0 and row["completion_tokens"] > 0 for row in usage_after_grade)
+
+
 def test_phase_9_package_only_after_end_and_phase_10_validation_report():
     case = sample_prepared_case()
     engine = start_case(case)

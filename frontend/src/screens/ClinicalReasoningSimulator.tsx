@@ -14,7 +14,7 @@ import {
   Stethoscope,
   Warning
 } from '@phosphor-icons/react';
-import { EncounterProvider, OrderRecord, ResultBundle, Snapshot, TranscriptMessage, useEncounter } from '../store/encounterStore';
+import { EncounterProvider, OrderRecord, ResultBundle, Snapshot, TokenUsageRecord, TranscriptMessage, useEncounter } from '../store/encounterStore';
 import '../styles/encounter-tailwind.css';
 
 function ClinicalReasoningSimulator() {
@@ -404,6 +404,14 @@ function DebriefScreen() {
   const transcript = (packageRecord?.transcript || []) as TranscriptMessage[];
   const realTimeline = (packageRecord?.real_timeline || []) as Array<{ elapsed_min: number; label: string; detail: string }>;
   const hiddenTruth = (packageRecord?.hidden_truth || {}) as Record<string, unknown>;
+  const usageRows = ((packageRecord?.token_usage || session?.state.token_usage || []) as TokenUsageRecord[]);
+  const usageTotals = usageRows.reduce(
+    (totals, row) => ({
+      tokens: totals.tokens + row.prompt_tokens + row.completion_tokens,
+      cost: totals.cost + row.estimated_cost_usd
+    }),
+    { tokens: 0, cost: 0 }
+  );
 
   return (
     <main className="ed-sim-font min-h-screen bg-[#f4f7f8] p-4 text-[#17232b]">
@@ -446,6 +454,23 @@ function DebriefScreen() {
                   </li>
                 ))}
               </ul>
+            </article>
+            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
+              <h2 className="m-0 mb-3 text-base font-extrabold">Usage</h2>
+              <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
+                <FeedbackRow label="Tokens" value={String(usageTotals.tokens)} />
+                <FeedbackRow label="Cost" value={formatCost(usageTotals.cost)} />
+              </div>
+              <div className="grid gap-2 text-xs" data-testid="usage-log">
+                {usageRows.length ? usageRows.map((row, index) => (
+                  <div key={`${row.purpose}-${index}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-2">
+                    <span className="font-bold text-[#394951]">{row.purpose}</span>
+                    <span className="font-semibold text-[#607078]">{row.tier} - {row.prompt_tokens + row.completion_tokens} tokens - {formatCost(row.estimated_cost_usd)}</span>
+                  </div>
+                )) : (
+                  <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 font-semibold text-[#607078]">No model usage recorded.</div>
+                )}
+              </div>
             </article>
           </div>
 
@@ -502,6 +527,10 @@ function formatClock(minutes: number) {
   const hrs = Math.floor(whole / 60);
   const mins = whole % 60;
   return hrs ? `${hrs}h ${mins}m` : `${mins}m`;
+}
+
+function formatCost(cost: number) {
+  return `$${cost.toFixed(4)}`;
 }
 
 function labelForSpeaker(speaker: string) {

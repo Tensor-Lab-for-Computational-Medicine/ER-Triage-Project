@@ -45,6 +45,15 @@ export type TranscriptMessage = {
   metadata?: Record<string, unknown>;
 };
 
+export type TokenUsageRecord = {
+  tier: string;
+  model: string;
+  prompt_tokens: number;
+  completion_tokens: number;
+  estimated_cost_usd: number;
+  purpose: string;
+};
+
 export type Snapshot = {
   case_id: string;
   title: string;
@@ -76,7 +85,7 @@ export type ApiSession = {
     can_complete: boolean;
     ended: boolean;
     transcript: TranscriptMessage[];
-    token_usage: Array<Record<string, unknown>>;
+    token_usage: TokenUsageRecord[];
   };
   route?: Record<string, unknown>;
   response?: string;
@@ -309,7 +318,6 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     const session = await postAction({ type: 'complete', dt_minutes: 0 });
     if (!session?.session_id) return;
     try {
-      const packageRecord = await request<Record<string, unknown>>(`/api/sessions/${session.session_id}/package`);
       const feedback = await request<GraderFeedback>(`/api/sessions/${session.session_id}/grade`, {
         method: 'POST',
         body: JSON.stringify({
@@ -317,6 +325,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
           evidence_passages: []
         })
       });
+      const packageRecord = await request<Record<string, unknown>>(`/api/sessions/${session.session_id}/package`);
       dispatch({ type: 'package', packageRecord, feedback });
     } catch (error) {
       dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Debrief failed.' });

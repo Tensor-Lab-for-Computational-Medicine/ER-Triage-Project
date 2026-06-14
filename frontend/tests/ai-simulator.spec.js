@@ -59,5 +59,7 @@ test('backend simulator runs a structured ED encounter to debrief', async ({ pag
   await expect(page.getByRole('heading', { name: 'Debrief' })).toBeVisible();
   await expect(page.getByText('Ground Truth')).toBeVisible();
   await expect(page.locator('dl')).toContainText('pulmonary embolism');
+  await expect(page.getByTestId('usage-log')).toContainText('grader_feedback');
+  await expect(page.getByTestId('usage-log')).toContainText('strong');
   expect(consoleProblems).toEqual([]);
 });
