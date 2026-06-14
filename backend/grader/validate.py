@@ -31,13 +31,12 @@ def run_validation(
     rows: list[ValidationCaseResult] = []
     for package in packages:
         feedback = grade_case_package(package, rubric, evidence_passages)
-        disposition_text = f"{package.soap.plan} {package.hidden_truth.actual_disposition}".lower()
         rows.append(
             ValidationCaseResult(
                 case_id=package.case_id,
                 diagnostic_match=bool(feedback.diagnostic_accuracy["matched"]),
                 esi_match=feedback.acuity["last_committed_esi"] == package.hidden_truth.validated_esi,
-                disposition_present=package.hidden_truth.actual_disposition.lower().split()[0] in disposition_text,
+                disposition_present=_disposition_matches(package.soap.plan, package.hidden_truth.actual_disposition),
             )
         )
 
@@ -61,3 +60,33 @@ def run_validation(
         release_blocked=bool(failure_modes),
         failure_modes=failure_modes,
     )
+
+
+def _disposition_matches(student_plan: str, actual_disposition: str) -> bool:
+    plan = _normalize_disposition_text(student_plan)
+    truth = _normalize_disposition_text(actual_disposition)
+    if not plan or not truth:
+        return False
+
+    categories = {
+        "admit": ["admit", "admitted", "admission", "inpatient", "monitored bed", "telemetry"],
+        "discharge": ["discharge", "discharged", "home"],
+        "observe": ["observation", "observe", "obs"],
+        "transfer": ["transfer", "transferred"],
+        "icu": ["icu", "intensive care", "critical care"],
+    }
+    truth_categories = {
+        category
+        for category, aliases in categories.items()
+        if any(alias in truth for alias in aliases)
+    }
+    if truth_categories:
+        return any(
+            any(alias in plan for alias in categories[category])
+            for category in truth_categories
+        )
+    return truth in plan
+
+
+def _normalize_disposition_text(text: str) -> str:
+    return " ".join(str(text or "").lower().replace("-", " ").split())

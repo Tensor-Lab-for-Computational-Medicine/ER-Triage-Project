@@ -294,3 +294,22 @@ def test_phase_9_package_only_after_end_and_phase_10_validation_report():
     )
     assert report.release_blocked is False
     assert report.diagnostic_agreement == 1
+    assert report.disposition_documentation_rate == 1
+
+    unsafe_disposition_package = package.model_copy(
+        update={
+            "soap": SOAPNote(
+                assessment="Pulmonary embolism",
+                plan="Discharge home with outpatient follow-up.",
+            )
+        }
+    )
+    unsafe_report = run_validation(
+        [unsafe_disposition_package],
+        ClinicianRubric(esi_tolerance=0),
+        [EvidencePassage(id="x", title="PE", text="Pulmonary embolism with hypoxemia is high-risk.")],
+        threshold=0.8,
+    )
+    assert unsafe_report.release_blocked is True
+    assert unsafe_report.disposition_documentation_rate == 0
+    assert "disposition documentation below clinician threshold" in unsafe_report.failure_modes
