@@ -151,19 +151,32 @@ const initialState: EncounterState = {
   feedback: null
 };
 
+function hasSoapContent(soap?: SoapDraft | null) {
+  return Boolean(soap && Object.values(soap).some((value) => value.trim()));
+}
+
 function reducer(state: EncounterState, action: EncounterAction): EncounterState {
   if (action.type === 'loading') return { ...state, loading: true, error: '' };
   if (action.type === 'busy') return { ...state, busy: action.value };
   if (action.type === 'error') return { ...state, loading: false, busy: false, error: action.value };
   if (action.type === 'session') {
+    const newSession = action.value.session_id !== state.session?.session_id;
+    const serverSoap = action.value.state.soap || initialState.soapDraft;
+    const soapDraft = newSession || hasSoapContent(serverSoap) ? serverSoap : state.soapDraft;
     return {
       ...state,
       loading: false,
       busy: false,
       error: '',
-      previousSnapshot: state.session?.snapshot || state.previousSnapshot,
+      previousSnapshot: newSession ? null : state.session?.snapshot || state.previousSnapshot,
       session: action.value,
-      soapDraft: action.value.state.soap || state.soapDraft
+      chatDraft: newSession ? '' : state.chatDraft,
+      esiDraft: newSession ? '' : state.esiDraft,
+      esiRationale: newSession ? '' : state.esiRationale,
+      differentialDraft: newSession ? '' : state.differentialDraft,
+      soapDraft,
+      packageRecord: newSession ? null : state.packageRecord,
+      feedback: newSession ? null : state.feedback
     };
   }
   if (action.type === 'orders') return { ...state, orderQuery: action.query, orderResults: action.results };
@@ -270,7 +283,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
   }, [postAction]);
 
   const advanceTime = useCallback(async (minutes: number) => {
-    await postAction({ type: 'free_text', text: 'Nurse, please recheck vitals and pending results.', dt_minutes: minutes });
+    await postAction({ type: 'advance_time', dt_minutes: minutes });
   }, [postAction]);
 
   const commitEsi = useCallback(async () => {

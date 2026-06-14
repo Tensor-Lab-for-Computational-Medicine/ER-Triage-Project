@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException, Request
@@ -17,14 +18,24 @@ from backend.state.context import consult_context, nurse_context, patient_contex
 from backend.state.engine import EncounterEngine, SOAPNote, TokenUsageRecord, start_case
 
 
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+    "https://tensor-lab-for-computational-medicine.github.io",
+]
+
+
+def configured_cors_origins() -> list[str]:
+    extra = [origin.strip() for origin in os.getenv("ED_SIM_CORS_ORIGINS", "").split(",") if origin.strip()]
+    return [*DEFAULT_CORS_ORIGINS, *extra]
+
+
 app = FastAPI(title="ED Clinical Reasoning Simulator")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://tensor-lab-for-computational-medicine.github.io",
-    ],
+    allow_origins=configured_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +49,7 @@ async def allow_pages_private_network_response(request: Request, call_next):
     if request.headers.get("origin") == "https://tensor-lab-for-computational-medicine.github.io":
         response.headers["Access-Control-Allow-Private-Network"] = "true"
     return response
+
 
 CASES = load_local_cases()
 SESSIONS: dict[str, EncounterEngine] = {}
@@ -53,6 +65,7 @@ class StudentAction(BaseModel):
         "free_text",
         "order",
         "intervention",
+        "advance_time",
         "commit_esi",
         "commit_differential",
         "commit_soap",
@@ -126,6 +139,9 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
             if not action.intervention_id:
                 raise HTTPException(status_code=400, detail="intervention_id is required")
             engine.apply_intervention(action.intervention_id)
+            return _session_payload(engine)
+
+        if action.type == "advance_time":
             return _session_payload(engine)
 
         if action.type == "commit_esi":

@@ -29,6 +29,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "npm run build && npm run test:e2e",
     "test:e2e": "playwright test",
+    "test:e2e:simulator": "playwright test tests/ai-simulator.spec.js",
     "test:e2e:headed": "playwright test --headed"
   }
 }

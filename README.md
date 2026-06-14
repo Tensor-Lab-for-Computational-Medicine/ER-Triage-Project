@@ -65,12 +65,29 @@ cd frontend
 npm run build
 ```
 
-Optional browser workflow tests:
+Browser workflow tests:
 
 ```powershell
 cd frontend
+npm run test:e2e:simulator
 npm run test:e2e
 ```
+
+`npm run test:e2e:simulator` starts or reuses the FastAPI backend on `127.0.0.1:8000`, serves the production frontend preview, and runs a structured encounter smoke test through `/ai-simulator`.
+
+If you already have a backend on another port, build the frontend with `VITE_ED_SIM_API` pointing to it and run Playwright with the same value:
+
+```powershell
+cd frontend
+$env:VITE_ED_SIM_API="http://127.0.0.1:8001"
+$env:PLAYWRIGHT_BACKEND_PORT="8001"
+npm run build
+npm run test:e2e:simulator
+```
+
+## Deployment Notes
+
+GitHub Pages deploys only the static React bundle. The public Flowboard route works as a static app, and `/ai-simulator` can render the clinical workspace shell, but the backend-driven simulator actions require a reachable FastAPI backend. A public learner pilot therefore needs an HTTPS-hosted backend configured via `VITE_ED_SIM_API`; a static Pages deployment alone cannot run sessions, structured orders, deterministic vitals, package assembly, or grading.
 
 ## Data Rules
 

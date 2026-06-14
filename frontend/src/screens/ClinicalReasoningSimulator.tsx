@@ -82,7 +82,7 @@ function Header({ snapshot }: { snapshot: Snapshot }) {
       <div className="min-w-0">
         <strong className="block truncate text-[15px] font-extrabold text-[#17232b]">{snapshot.title}</strong>
         <span className="text-sm text-[#607078]">
-          {String(demographics.age || '')}{demographics.age ? 'y' : ''} {String(demographics.sex || '')} · {snapshot.visible_start.chief_complaint}
+          {String(demographics.age || '')}{demographics.age ? 'y' : ''} {String(demographics.sex || '')} - {snapshot.visible_start.chief_complaint}
         </span>
       </div>
       <div className="flex h-[58px] items-center gap-2 border-t border-[#eef2f2] text-sm font-semibold md:border-l md:border-t-0 md:px-4">
@@ -240,10 +240,11 @@ function OrderPanel() {
               value={encounter.orderQuery}
               onChange={(event) => void encounter.searchOrders(event.target.value)}
               placeholder="Search labs, imaging, ECG, meds..."
+              disabled={encounter.busy}
               className="h-10 w-full rounded-md border border-[#cdd8d8] pl-9 pr-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
             />
           </label>
-          <button type="button" className="h-10 rounded-md border border-[#cdd8d8] px-3 text-sm font-bold" onClick={() => void encounter.searchOrders('')}>
+          <button type="button" className="h-10 rounded-md border border-[#cdd8d8] px-3 text-sm font-bold disabled:text-[#87949b]" onClick={() => void encounter.searchOrders('')} disabled={encounter.busy}>
             Clear
           </button>
         </div>
@@ -254,7 +255,7 @@ function OrderPanel() {
             ['iv_access', 'IV'],
             ['analgesia', 'Analgesia']
           ].map(([id, label]) => (
-            <button key={id} data-testid={`quick-${id}`} type="button" onClick={() => void encounter.applyIntervention(id)} className="inline-flex h-9 items-center gap-2 rounded-md border border-[#cdd8d8] px-3 text-sm font-bold">
+            <button key={id} data-testid={`quick-${id}`} type="button" onClick={() => void encounter.applyIntervention(id)} disabled={encounter.busy} className="inline-flex h-9 items-center gap-2 rounded-md border border-[#cdd8d8] px-3 text-sm font-bold disabled:text-[#87949b]">
               <Plus size={15} /> {label}
             </button>
           ))}
@@ -267,10 +268,11 @@ function OrderPanel() {
               type="button"
               key={order.id}
               onClick={() => void encounter.placeOrder(order.id)}
-              className="grid min-h-[54px] gap-1 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 text-left hover:border-[#0f766e]"
+              disabled={encounter.busy}
+              className="grid min-h-[54px] gap-1 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 text-left hover:border-[#0f766e] disabled:text-[#87949b]"
             >
               <strong className="text-sm text-[#17232b]">{order.name}</strong>
-              <span className="text-xs text-[#607078]">{order.type} · {order.result_delay_min} min</span>
+              <span className="text-xs text-[#607078]">{order.type} - {order.result_delay_min} min</span>
             </button>
           ))}
         </div>

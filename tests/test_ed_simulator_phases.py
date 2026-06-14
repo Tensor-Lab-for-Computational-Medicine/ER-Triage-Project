@@ -155,8 +155,12 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
     assert redirect["route"]["intent"] == "typed_order_redirect"
 
     client.post(f"/api/sessions/{session_id}/actions", json={"type": "order", "order_id": "d_dimer", "dt_minutes": 0})
-    resulted = client.post(f"/api/sessions/{session_id}/actions", json={"type": "intervention", "intervention_id": "oxygen", "dt_minutes": 35}).json()
-    assert any(order["status"] == "resulted" for order in resulted["snapshot"]["active_orders"])
+    advanced = client.post(f"/api/sessions/{session_id}/actions", json={"type": "advance_time", "dt_minutes": 35}).json()
+    assert "route" not in advanced
+    assert any(order["status"] == "resulted" for order in advanced["snapshot"]["active_orders"])
+    assert advanced["snapshot"]["current_vitals"]["spo2"] < started["snapshot"]["current_vitals"]["spo2"]
+
+    resulted = client.post(f"/api/sessions/{session_id}/actions", json={"type": "intervention", "intervention_id": "oxygen", "dt_minutes": 0}).json()
     assert resulted["snapshot"]["current_vitals"]["spo2"] >= 94
 
     client.post(
@@ -204,6 +208,21 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
 
     after_grade = client.get(f"/api/sessions/{session_id}").json()
     assert any(row["purpose"] == "grader_feedback" and row["tier"] == "strong" for row in after_grade["state"]["token_usage"])
+
+
+def test_backend_allows_vite_preview_cors_origin():
+    client = TestClient(app)
+
+    response = client.options(
+        "/api/sessions",
+        headers={
+            "Origin": "http://127.0.0.1:4173",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:4173"
 
 
 def test_phase_9_package_only_after_end_and_phase_10_validation_report():
