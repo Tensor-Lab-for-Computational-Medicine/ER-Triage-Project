@@ -46,10 +46,14 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
+        env:
+          VITE_BASE_PATH: ./
         run: npm run build
 
       - name: Start e2e servers
         shell: bash
+        env:
+          VITE_BASE_PATH: ./
         run: |
           set -euo pipefail
 
