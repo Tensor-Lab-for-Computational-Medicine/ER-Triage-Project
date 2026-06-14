@@ -20,7 +20,11 @@ from backend.state.engine import EncounterEngine, SOAPNote, TokenUsageRecord, st
 app = FastAPI(title="ED Clinical Reasoning Simulator")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://tensor-lab-for-computational-medicine.github.io",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
