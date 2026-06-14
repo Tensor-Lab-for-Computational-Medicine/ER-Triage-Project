@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -30,6 +30,14 @@ app.add_middleware(
     allow_headers=["*"],
     allow_private_network=True,
 )
+
+
+@app.middleware("http")
+async def allow_pages_private_network_response(request: Request, call_next):
+    response = await call_next(request)
+    if request.headers.get("origin") == "https://tensor-lab-for-computational-medicine.github.io":
+        response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
 
 CASES = load_local_cases()
 SESSIONS: dict[str, EncounterEngine] = {}
