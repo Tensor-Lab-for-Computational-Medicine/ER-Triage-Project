@@ -16,6 +16,7 @@ from backend.cases.prepare import CasePreparationError, prepare_raw_encounter, s
 from backend.cases.sample_cases import sample_prepared_case, sample_raw_encounter
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package
 from backend.grader.package import assemble_case_package
+from backend.grader.retrieval import retrieve_evidence_passages
 from backend.grader.validate import run_validation
 from backend.llm.client import LLMClient, LLMConfig, LLMMessage
 from backend.orders.catalog import load_catalog, search
@@ -295,7 +296,12 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
         f"/api/sessions/{session_id}/grade",
         json={
             "rubric": {"expected_orders": ["d_dimer"], "critical_actions": ["oxygen"], "esi_tolerance": 0},
-            "evidence_passages": [
+            "evidence_corpus": [
+                {
+                    "id": "rash",
+                    "title": "Minor rash care",
+                    "text": "Topical skin care guidance for uncomplicated dermatitis.",
+                },
                 {
                     "id": "esi",
                     "title": "ESI hypoxemia reference",
@@ -583,6 +589,42 @@ def test_completion_records_omissions_without_blocking_end_encounter():
 
     package = assemble_case_package(case, engine.state)
     assert package.completeness_flags["omissions"] == engine.state.completeness_flags.omissions
+
+
+def test_phase_10_retrieval_layer_selects_case_relevant_grounding():
+    case = sample_prepared_case()
+    engine = start_case(case)
+    engine.apply_intervention("oxygen")
+    engine.commit_esi(2, "hypoxemia")
+    engine.commit_differential(["pulmonary embolism"])
+    engine.commit_soap(
+        SOAPNote(
+            assessment="Pulmonary embolism with hypoxemia.",
+            plan="Admit to monitored inpatient bed.",
+        )
+    )
+    engine.complete_encounter()
+    package = assemble_case_package(case, engine.state)
+
+    corpus = [
+        EvidencePassage(id="rash", title="Minor rash care", text="Topical skin care for uncomplicated dermatitis."),
+        EvidencePassage(
+            id="pe",
+            title="Pulmonary embolism",
+            text="Pulmonary embolism with hypoxemia requires rapid stabilization.",
+        ),
+        EvidencePassage(
+            id="esi",
+            title="ESI acuity",
+            text="Emergency Severity Index uses unstable vitals and hypoxemia for acuity.",
+        ),
+    ]
+
+    retrieved = retrieve_evidence_passages(package, corpus, limit=2)
+
+    assert [passage.id for passage in retrieved] == ["pe", "esi"]
+    feedback = grade_case_package(package, ClinicianRubric(esi_tolerance=0), retrieved)
+    assert all(point.grounded for point in feedback.teaching_points)
 
 
 def test_phase_9_package_only_after_end_and_phase_10_validation_report():

@@ -9,7 +9,8 @@ from pydantic import BaseModel, Field
 
 from backend.cases.loaders import load_local_cases
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package_with_model
-from backend.grader.package import assemble_case_package
+from backend.grader.package import CasePackage, assemble_case_package
+from backend.grader.retrieval import retrieve_evidence_passages
 from backend.llm.client import LLMClient
 from backend.orders.catalog import get_order, search, serialize_order
 from backend.personas.service import answer_persona
@@ -236,7 +237,7 @@ async def grade_session(session_id: str, payload: dict[str, Any] | None = None) 
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     payload = payload or {}
     rubric = ClinicianRubric.model_validate(payload.get("rubric") or {})
-    evidence = [EvidencePassage.model_validate(item) for item in payload.get("evidence_passages", [])]
+    evidence = _grade_evidence(package, payload)
     feedback, usage = await grade_case_package_with_model(package, rubric, evidence, LLM)
     engine.record_usage(
         TokenUsageRecord(
@@ -249,6 +250,22 @@ async def grade_session(session_id: str, payload: dict[str, Any] | None = None) 
         )
     )
     return feedback.model_dump(mode="json")
+
+
+def _grade_evidence(package: CasePackage, payload: dict[str, Any]) -> list[EvidencePassage]:
+    supplied = [EvidencePassage.model_validate(item) for item in payload.get("evidence_passages", [])]
+    if supplied:
+        return supplied
+
+    corpus_payload = payload.get("evidence_corpus", [])
+    if isinstance(corpus_payload, dict):
+        corpus_payload = corpus_payload.get("passages", [])
+    corpus = [EvidencePassage.model_validate(item) for item in corpus_payload]
+    try:
+        limit = int(payload.get("evidence_limit", 3))
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="evidence_limit must be an integer") from exc
+    return retrieve_evidence_passages(package, corpus, limit=max(0, min(limit, 10)))
 
 
 async def _handle_free_text(engine: EncounterEngine, text: str) -> dict[str, Any]:

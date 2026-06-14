@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package
 from backend.grader.package import CasePackage
+from backend.grader.retrieval import retrieve_evidence_passages
 
 
 class ValidationCaseResult(BaseModel):
@@ -38,7 +39,8 @@ def run_validation(
 ) -> ValidationReport:
     rows: list[ValidationCaseResult] = []
     for package in packages:
-        feedback = grade_case_package(package, rubric, evidence_passages)
+        retrieved_passages = retrieve_evidence_passages(package, evidence_passages)
+        feedback = grade_case_package(package, rubric, retrieved_passages)
         rows.append(
             ValidationCaseResult(
                 case_id=package.case_id,
