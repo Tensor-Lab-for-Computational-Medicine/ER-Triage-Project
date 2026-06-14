@@ -5,7 +5,7 @@ from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from backend.cases.loaders import load_local_cases
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package_with_model
@@ -267,8 +267,11 @@ async def grade_session(session_id: str, payload: dict[str, Any] | None = None) 
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     payload = payload or {}
-    rubric = ClinicianRubric.model_validate(payload.get("rubric") or {})
-    evidence = _grade_evidence(package, payload)
+    try:
+        rubric = ClinicianRubric.model_validate(payload.get("rubric") or {})
+        evidence = _grade_evidence(package, payload)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail={"message": "Invalid grading payload", "errors": exc.errors()}) from exc
     feedback, usage = await grade_case_package_with_model(package, rubric, evidence, LLM)
     engine.record_usage(
         TokenUsageRecord(

@@ -364,6 +364,38 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
     assert any(row["purpose"] == "grader_feedback" and row["tier"] == "strong" for row in after_grade["state"]["token_usage"])
 
 
+def test_grading_api_rejects_malformed_payloads_without_usage():
+    client = TestClient(app)
+    session_id = client.post("/api/sessions", json={}).json()["session_id"]
+
+    client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={
+            "type": "commit_soap",
+            "payload": {
+                "assessment": "Pulmonary embolism is possible.",
+                "plan": "Admit to monitored bed.",
+            },
+            "dt_minutes": 0,
+        },
+    )
+    client.post(f"/api/sessions/{session_id}/actions", json={"type": "complete", "dt_minutes": 0})
+
+    invalid_payloads = [
+        {"rubric": {"esi_tolerance": "high"}},
+        {"evidence_passages": [{"id": "pe", "title": "Missing text"}]},
+        {"evidence_corpus": {"passages": [{"id": "esi", "text": "Missing title"}]}},
+        {"evidence_limit": "many"},
+    ]
+
+    for payload in invalid_payloads:
+        response = client.post(f"/api/sessions/{session_id}/grade", json=payload)
+        assert response.status_code == 400
+
+    state = client.get(f"/api/sessions/{session_id}").json()["state"]
+    assert state["token_usage"] == []
+
+
 def test_backend_allows_vite_preview_cors_origin():
     client = TestClient(app)
 
