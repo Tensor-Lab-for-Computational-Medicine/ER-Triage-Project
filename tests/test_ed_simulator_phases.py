@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import json
 import asyncio
+from pathlib import Path
+import subprocess
+import sys
 
 import httpx
 import pytest
@@ -577,3 +580,57 @@ def test_phase_9_package_only_after_end_and_phase_10_validation_report():
     assert unsafe_report.release_blocked is True
     assert unsafe_report.disposition_documentation_rate == 0
     assert "disposition documentation below clinician threshold" in unsafe_report.failure_modes
+
+
+def test_phase_10_validation_cli_emits_release_blocking_report(tmp_path):
+    case = sample_prepared_case()
+    engine = start_case(case)
+    engine.commit_esi(2, "hypoxemia")
+    engine.commit_differential(["pulmonary embolism"])
+    engine.commit_soap(
+        SOAPNote(
+            assessment="Pulmonary embolism",
+            plan="Admit to monitored inpatient bed.",
+        )
+    )
+    engine.complete_encounter()
+    package = assemble_case_package(case, engine.state)
+
+    package_path = tmp_path / "package.json"
+    rubric_path = tmp_path / "rubric.json"
+    evidence_path = tmp_path / "evidence.json"
+    report_path = tmp_path / "report.json"
+    package_path.write_text(package.model_dump_json(), encoding="utf-8")
+    rubric_path.write_text(json.dumps({"esi_tolerance": 0, "critical_actions": ["oxygen"]}), encoding="utf-8")
+    evidence_path.write_text(
+        json.dumps([{"id": "pe", "title": "PE hypoxemia", "text": "Pulmonary embolism with hypoxemia is high-risk."}]),
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "backend.grader.validate",
+            str(package_path),
+            "--rubric",
+            str(rubric_path),
+            "--evidence",
+            str(evidence_path),
+            "--threshold",
+            "0.8",
+            "--output",
+            str(report_path),
+        ],
+        cwd=Path(__file__).resolve().parents[1],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["release_blocked"] is True
+    assert report["critical_action_agreement"] == 0
+    assert report["cases"][0]["critical_actions_complete"] is False
+    assert "critical action agreement below clinician threshold" in report["failure_modes"]

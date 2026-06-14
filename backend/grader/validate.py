@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package
@@ -69,6 +75,26 @@ def run_validation(
     )
 
 
+def run_validation_from_files(
+    package_paths: list[Path],
+    rubric_path: Path | None = None,
+    evidence_path: Path | None = None,
+    threshold: float = 0.8,
+) -> ValidationReport:
+    packages = [CasePackage.model_validate_json(path.read_text(encoding="utf-8")) for path in package_paths]
+    rubric_payload = _read_json(rubric_path) if rubric_path else {}
+    evidence_payload = _read_json(evidence_path) if evidence_path else []
+    if isinstance(evidence_payload, dict):
+        evidence_payload = evidence_payload.get("passages", [])
+
+    return run_validation(
+        packages,
+        ClinicianRubric.model_validate(rubric_payload),
+        [EvidencePassage.model_validate(item) for item in evidence_payload],
+        threshold=threshold,
+    )
+
+
 def _disposition_matches(student_plan: str, actual_disposition: str) -> bool:
     plan = _normalize_disposition_text(student_plan)
     truth = _normalize_disposition_text(actual_disposition)
@@ -97,3 +123,37 @@ def _disposition_matches(student_plan: str, actual_disposition: str) -> bool:
 
 def _normalize_disposition_text(text: str) -> str:
     return " ".join(str(text or "").lower().replace("-", " ").split())
+
+
+def _read_json(path: Path | None) -> Any:
+    if path is None:
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Run the grader validation release gate over completed case packages.")
+    parser.add_argument("packages", nargs="+", type=Path, help="Completed CasePackage JSON file(s).")
+    parser.add_argument("--rubric", type=Path, help="ClinicianRubric JSON file.")
+    parser.add_argument("--evidence", type=Path, help="Evidence passages JSON file or {'passages': [...]} object.")
+    parser.add_argument("--threshold", type=float, default=0.8, help="Minimum agreement required for each validation metric.")
+    parser.add_argument("--output", type=Path, help="Optional path to write the JSON validation report.")
+    args = parser.parse_args(argv)
+
+    report = run_validation_from_files(
+        args.packages,
+        rubric_path=args.rubric,
+        evidence_path=args.evidence,
+        threshold=args.threshold,
+    )
+    rendered = report.model_dump_json(indent=2)
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered + "\n", encoding="utf-8")
+    else:
+        print(rendered)
+    return 1 if report.release_blocked else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main(sys.argv[1:]))

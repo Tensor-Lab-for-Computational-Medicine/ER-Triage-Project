@@ -85,6 +85,20 @@ npm run build
 npm run test:e2e:simulator
 ```
 
+## Grader Validation Gate
+
+Before learner pilot use, run the grader validation harness against completed `CasePackage` JSON files reviewed for the held-out set:
+
+```powershell
+python -m backend.grader.validate data/validation/packages/*.json `
+  --rubric data/validation/rubric.json `
+  --evidence data/validation/evidence.json `
+  --threshold 0.8 `
+  --output reports/grader-validation.json
+```
+
+The command writes an agreement report and exits with a non-zero status when `release_blocked` is true. Keep package, rubric, evidence, and report files local unless they are explicitly de-identified and approved for the repo.
+
 ## Deployment Notes
 
 GitHub Pages deploys only the static React bundle. The public Flowboard route works as a static app, and `/ai-simulator` can render the clinical workspace shell, but the backend-driven simulator actions require a reachable FastAPI backend. A public learner pilot therefore needs an HTTPS-hosted backend configured via `VITE_ED_SIM_API`; a static Pages deployment alone cannot run sessions, structured orders, deterministic vitals, package assembly, or grading.
