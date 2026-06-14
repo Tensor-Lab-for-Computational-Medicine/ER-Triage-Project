@@ -577,6 +577,43 @@ def test_in_loop_api_payloads_exclude_hidden_truth_until_package_after_end():
     assert package["hidden_truth"]["final_diagnosis"] == case.hidden_truth.final_diagnosis
 
 
+def test_unordered_source_results_release_only_in_post_encounter_package():
+    case = sample_prepared_case()
+    client = TestClient(app)
+    session = client.post("/api/sessions", json={"case_id": case.case_id}).json()
+    session_id = session["session_id"]
+    unordered_ct_result_text = "Right lower lobe segmental filling defect"
+
+    actions = [
+        {"type": "order", "order_id": "d_dimer", "dt_minutes": 0},
+        {"type": "advance_time", "dt_minutes": 35},
+        {"type": "intervention", "intervention_id": "oxygen", "dt_minutes": 0},
+        {"type": "commit_esi", "payload": {"level": 2, "rationale": "hypoxemia"}, "dt_minutes": 0},
+        {"type": "commit_differential", "payload": {"diagnoses": ["pulmonary embolism"]}, "dt_minutes": 0},
+        {
+            "type": "commit_soap",
+            "payload": {
+                "assessment": "Pulmonary embolism remains a concern without definitive imaging.",
+                "plan": "Admit for monitored evaluation and continue oxygen.",
+            },
+            "dt_minutes": 0,
+        },
+        {"type": "complete", "dt_minutes": 0},
+    ]
+
+    assert unordered_ct_result_text not in json.dumps(session)
+    for action in actions:
+        response = client.post(f"/api/sessions/{session_id}/actions", json=action)
+        assert response.status_code == 200
+        payload_text = json.dumps(response.json())
+        assert unordered_ct_result_text not in payload_text
+        assert "ct_pulmonary_angiography" not in [order["order_id"] for order in response.json()["snapshot"]["active_orders"]]
+
+    package = client.get(f"/api/sessions/{session_id}/package").json()
+    assert "ct_pulmonary_angiography" in package["unordered_results"]
+    assert unordered_ct_result_text in package["unordered_results"]["ct_pulmonary_angiography"]["narrative"]
+
+
 def test_phase_12_model_tiering_records_routine_and_strong_usage():
     client = TestClient(app)
     session = client.post("/api/sessions", json={}).json()
