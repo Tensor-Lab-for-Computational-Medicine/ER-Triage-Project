@@ -78,6 +78,8 @@ def test_phase_3_state_is_deterministic_and_contexts_exclude_hidden_truth():
     assert first_after == second_after
     assert first_before["spo2"] < case.visible_start.presenting_vitals.spo2
     assert first_after["spo2"] >= 94
+    assert first_engine.state.active_orders["oxygen"].status == "resulted"
+    assert first_engine.state.active_orders["oxygen"].result.source == "simulator"
 
     assert_no_hidden(patient_context(case, first_engine.state), case)
     assert_no_hidden(nurse_context(case, first_engine.state), case)
@@ -216,6 +218,9 @@ def test_phase_7_9_10_api_playthrough_gates_package_and_grades():
 
     resulted = client.post(f"/api/sessions/{session_id}/actions", json={"type": "intervention", "intervention_id": "oxygen", "dt_minutes": 0}).json()
     assert resulted["snapshot"]["current_vitals"]["spo2"] >= 94
+    assert resulted["order"]["order_id"] == "oxygen"
+    assert resulted["order"]["status"] == "resulted"
+    assert "oxygen" in [order["order_id"] for order in resulted["snapshot"]["active_orders"]]
 
     client.post(
         f"/api/sessions/{session_id}/actions",
@@ -296,6 +301,25 @@ def test_structured_medication_order_completes_without_fabricated_result_through
     assert "no diagnostic value is expected" in order["result"]["narrative"]
     assert order["unavailable_reason"] is None
     assert "broad_spectrum_antibiotics" in payload["snapshot"]["interventions"]
+
+
+def test_structured_intervention_events_are_catalog_validated():
+    case = sample_prepared_case()
+    engine = start_case(case)
+
+    with pytest.raises(ValueError):
+        engine.apply_intervention("imaginary bedside trick")
+    assert engine.state.interventions == []
+    assert engine.state.active_orders == {}
+
+    client = TestClient(app)
+    session_id = client.post("/api/sessions", json={}).json()["session_id"]
+    response = client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "intervention", "intervention_id": "imaginary_bedside_trick", "dt_minutes": 0},
+    )
+    assert response.status_code == 400
+    assert "unknown structured intervention" in response.json()["detail"]
 
 
 def test_in_loop_api_payloads_exclude_hidden_truth_until_package_after_end():

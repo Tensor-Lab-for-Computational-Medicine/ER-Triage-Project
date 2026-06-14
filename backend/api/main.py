@@ -136,8 +136,8 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
         if action.type == "intervention":
             if not action.intervention_id:
                 raise HTTPException(status_code=400, detail="intervention_id is required")
-            engine.apply_intervention(action.intervention_id)
-            return _session_payload(engine)
+            record = engine.apply_intervention(action.intervention_id)
+            return _session_payload(engine, {"order": record.model_dump(mode="json")})
 
         if action.type == "advance_time":
             return _session_payload(engine)

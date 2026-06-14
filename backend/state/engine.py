@@ -119,8 +119,28 @@ class EncounterEngine:
         order = get_order(order_id)
         if order is None:
             raise ValueError(f"unknown order: {order_id}")
-        if order_id in self.state.active_orders:
-            return self.state.active_orders[order_id]
+        return self._apply_catalog_order(
+            order,
+            f"Ordered {order.name}.",
+            {"type": "order", "order_id": order.id},
+        )
+
+    def apply_intervention(self, intervention_id: str) -> OrderRecord:
+        canonical = intervention_id.strip().lower().replace(" ", "_")
+        order = get_order(canonical)
+        if order is None:
+            raise ValueError(f"unknown structured intervention: {canonical}")
+        if order.type not in IMMEDIATE_ORDER_TYPES:
+            raise ValueError(f"{canonical} is not a structured intervention, medication, or procedure.")
+        return self._apply_catalog_order(
+            order,
+            f"Applied intervention: {order.id.replace('_', ' ')}.",
+            {"type": "intervention", "intervention_id": order.id},
+        )
+
+    def _apply_catalog_order(self, order: CatalogOrder, transcript_text: str, metadata: dict[str, Any]) -> OrderRecord:
+        if order.id in self.state.active_orders:
+            return self.state.active_orders[order.id]
 
         immediate = order.type in IMMEDIATE_ORDER_TYPES
         record = OrderRecord(
@@ -132,18 +152,13 @@ class EncounterEngine:
             result_due_at_min=self.state.elapsed_minutes if immediate else self.state.elapsed_minutes + order.result_delay_min,
             result=_structured_action_result(order, self.state.elapsed_minutes) if immediate else None,
         )
-        self.state.active_orders[order_id] = record
+        self.state.active_orders[order.id] = record
         if immediate:
-            self._apply_intervention_effect(order_id)
-        self._append("student", f"Ordered {order.name}.", {"type": "order", "order_id": order_id})
+            self._apply_intervention_effect(order.id)
+        self._append("student", transcript_text, metadata)
         self._release_due_orders()
-        return self.state.active_orders[order_id]
-
-    def apply_intervention(self, intervention_id: str) -> None:
-        canonical = intervention_id.strip().lower().replace(" ", "_")
-        self._apply_intervention_effect(canonical)
-        self._append("student", f"Applied intervention: {canonical.replace('_', ' ')}.", {"type": "intervention", "intervention_id": canonical})
         self._refresh_phase()
+        return self.state.active_orders[order.id]
 
     def commit_esi(self, level: int, rationale: str = "") -> ESICommitment:
         commitment = ESICommitment(level=level, rationale=rationale, elapsed_minutes=self.state.elapsed_minutes)
