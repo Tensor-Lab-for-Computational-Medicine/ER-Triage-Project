@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
 
-const API_BASE = (import.meta as any).env?.VITE_ED_SIM_API || 'http://127.0.0.1:8000';
+const API_BASE = (import.meta as any).env?.VITE_ED_SIM_API || 'http://localhost:8000';
 
 export type VitalSigns = {
   temp_c: number | null;
