@@ -89,12 +89,27 @@ npm run test:e2e:simulator
 
 GitHub Pages deploys only the static React bundle. The public Flowboard route works as a static app, and `/ai-simulator` can render the clinical workspace shell, but the backend-driven simulator actions require a reachable FastAPI backend. A public learner pilot therefore needs an HTTPS-hosted backend configured via `VITE_ED_SIM_API`; a static Pages deployment alone cannot run sessions, structured orders, deterministic vitals, package assembly, or grading.
 
+## LLM Configuration
+
+The simulator defaults to `ED_SIM_LLM_PROVIDER=mock` so local tests stay deterministic. To use a real chat-completions-compatible provider, set:
+
+```powershell
+$env:ED_SIM_LLM_PROVIDER="openai_compatible"
+$env:ED_SIM_LLM_BASE_URL="https://your-provider.example/v1/chat/completions"
+$env:ED_SIM_LLM_API_KEY="..."
+$env:ED_SIM_CHEAP_MODEL="cheap-dialogue-model"
+$env:ED_SIM_STRONG_MODEL="strong-consult-grader-model"
+```
+
+Routine patient/nurse dialogue uses the cheap tier. Consultant and grader calls use the strong tier.
+
 ## Data Rules
 
 - Do not commit credentialed PhysioNet/MIMIC data.
 - Do not commit prepared local pilot cases from `data/cases/`.
 - Do not commit build outputs, reports, scratch files, PDFs, or temporary logs.
 - Hidden case truth may enter only the grader package after encounter completion.
+- Keep `backend/orders/catalog.json` as a broad fixed superset across cases. Do not filter it to a case's expected workup.
 
 ## Core Scripts
 

@@ -124,5 +124,229 @@
     "name": "Analgesia",
     "aliases": ["pain medicine", "morphine", "ketorolac", "acetaminophen"],
     "result_delay_min": 0
+  },
+  {
+    "id": "urinalysis",
+    "type": "lab",
+    "name": "Urinalysis",
+    "aliases": ["ua", "urine dip", "urine test"],
+    "result_delay_min": 25
+  },
+  {
+    "id": "urine_pregnancy",
+    "type": "lab",
+    "name": "Urine pregnancy test",
+    "aliases": ["hcg", "pregnancy test", "urine hcg", "upt"],
+    "result_delay_min": 20
+  },
+  {
+    "id": "serum_pregnancy",
+    "type": "lab",
+    "name": "Serum beta-hCG",
+    "aliases": ["serum hcg", "beta hcg", "quant hcg"],
+    "result_delay_min": 35
+  },
+  {
+    "id": "coagulation_panel",
+    "type": "lab",
+    "name": "Coagulation panel",
+    "aliases": ["pt", "inr", "ptt", "coags", "coag studies"],
+    "result_delay_min": 30
+  },
+  {
+    "id": "type_and_screen",
+    "type": "lab",
+    "name": "Type and screen",
+    "aliases": ["blood type", "crossmatch screen", "type screen"],
+    "result_delay_min": 45
+  },
+  {
+    "id": "venous_blood_gas",
+    "type": "lab",
+    "name": "Venous blood gas",
+    "aliases": ["vbg", "venous gas"],
+    "result_delay_min": 15
+  },
+  {
+    "id": "point_of_care_glucose",
+    "type": "lab",
+    "name": "Point-of-care glucose",
+    "aliases": ["fingerstick", "bedside glucose", "poc glucose", "glucose check"],
+    "result_delay_min": 2
+  },
+  {
+    "id": "lipase",
+    "type": "lab",
+    "name": "Lipase",
+    "aliases": ["pancreatic enzyme", "pancreatitis lab"],
+    "result_delay_min": 40
+  },
+  {
+    "id": "bnp",
+    "type": "lab",
+    "name": "BNP",
+    "aliases": ["nt-probnp", "brain natriuretic peptide", "heart failure marker"],
+    "result_delay_min": 45
+  },
+  {
+    "id": "magnesium",
+    "type": "lab",
+    "name": "Magnesium",
+    "aliases": ["mg level", "serum magnesium"],
+    "result_delay_min": 35
+  },
+  {
+    "id": "respiratory_viral_panel",
+    "type": "lab",
+    "name": "Respiratory viral panel",
+    "aliases": ["covid flu rsv", "viral swab", "respiratory swab"],
+    "result_delay_min": 60
+  },
+  {
+    "id": "wound_culture",
+    "type": "lab",
+    "name": "Wound culture",
+    "aliases": ["skin culture", "abscess culture"],
+    "result_delay_min": 180
+  },
+  {
+    "id": "pelvis_xray",
+    "type": "imaging",
+    "name": "Pelvis X-ray",
+    "aliases": ["pelvic radiograph", "ap pelvis"],
+    "result_delay_min": 30
+  },
+  {
+    "id": "extremity_xray",
+    "type": "imaging",
+    "name": "Extremity X-ray",
+    "aliases": ["limb xray", "fracture film", "bone xray"],
+    "result_delay_min": 35
+  },
+  {
+    "id": "ct_cervical_spine",
+    "type": "imaging",
+    "name": "CT cervical spine",
+    "aliases": ["ct c spine", "neck ct", "c-spine ct"],
+    "result_delay_min": 55
+  },
+  {
+    "id": "ct_angio_head_neck",
+    "type": "imaging",
+    "name": "CTA head and neck",
+    "aliases": ["ct angiogram head neck", "stroke cta", "head neck cta"],
+    "result_delay_min": 60
+  },
+  {
+    "id": "ultrasound_ruq",
+    "type": "imaging",
+    "name": "Right upper quadrant ultrasound",
+    "aliases": ["ruq ultrasound", "gallbladder ultrasound", "biliary ultrasound"],
+    "result_delay_min": 60
+  },
+  {
+    "id": "pelvic_ultrasound",
+    "type": "imaging",
+    "name": "Pelvic ultrasound",
+    "aliases": ["transvaginal ultrasound", "tvus", "pelvic us"],
+    "result_delay_min": 70
+  },
+  {
+    "id": "focused_cardiac_ultrasound",
+    "type": "study",
+    "name": "Focused cardiac ultrasound",
+    "aliases": ["echo bedside", "pocus echo", "cardiac pocus"],
+    "result_delay_min": 10
+  },
+  {
+    "id": "fast_exam",
+    "type": "study",
+    "name": "FAST exam",
+    "aliases": ["trauma ultrasound", "e-fast", "efast"],
+    "result_delay_min": 10
+  },
+  {
+    "id": "continuous_pulse_ox",
+    "type": "intervention",
+    "name": "Continuous pulse oximetry",
+    "aliases": ["pulse ox", "continuous spo2", "oxygen monitor"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "nebulized_bronchodilator",
+    "type": "medication",
+    "name": "Nebulized bronchodilator",
+    "aliases": ["albuterol", "duoneb", "bronchodilator treatment", "neb"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "antiemetic",
+    "type": "medication",
+    "name": "Antiemetic",
+    "aliases": ["ondansetron", "zofran", "nausea medicine"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "aspirin",
+    "type": "medication",
+    "name": "Aspirin",
+    "aliases": ["asa", "chewable aspirin", "antiplatelet"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "nitroglycerin",
+    "type": "medication",
+    "name": "Nitroglycerin",
+    "aliases": ["nitro", "sublingual nitro"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "broad_spectrum_antibiotics",
+    "type": "medication",
+    "name": "Broad-spectrum antibiotics",
+    "aliases": ["vancomycin", "cefepime", "zosyn", "sepsis antibiotics"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "anticoagulation",
+    "type": "medication",
+    "name": "Anticoagulation",
+    "aliases": ["heparin", "enoxaparin", "blood thinner"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "tetanus_vaccine",
+    "type": "medication",
+    "name": "Tetanus vaccination",
+    "aliases": ["tdap", "tetanus shot", "tetanus booster"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "splint",
+    "type": "procedure",
+    "name": "Splint application",
+    "aliases": ["immobilize", "ortho splint", "apply splint"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "laceration_repair",
+    "type": "procedure",
+    "name": "Laceration repair",
+    "aliases": ["sutures", "stitches", "wound closure"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "incision_and_drainage",
+    "type": "procedure",
+    "name": "Incision and drainage",
+    "aliases": ["i and d", "abscess drainage", "I&D"],
+    "result_delay_min": 0
+  },
+  {
+    "id": "urinary_catheter",
+    "type": "procedure",
+    "name": "Urinary catheter placement",
+    "aliases": ["foley", "catheterize", "bladder catheter"],
+    "result_delay_min": 0
   }
 ]

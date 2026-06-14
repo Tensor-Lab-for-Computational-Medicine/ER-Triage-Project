@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import asyncio
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -12,8 +13,8 @@ from backend.cases.sample_cases import sample_prepared_case, sample_raw_encounte
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package
 from backend.grader.package import assemble_case_package
 from backend.grader.validate import run_validation
-from backend.llm.client import LLMClient
-from backend.orders.catalog import search
+from backend.llm.client import LLMClient, LLMConfig, LLMMessage
+from backend.orders.catalog import load_catalog, search
 from backend.orders.resolver import resolve
 from backend.personas.service import answer_persona, build_persona_messages
 from backend.router.route import Intent, route_turn
@@ -87,6 +88,20 @@ def test_phase_4_order_catalog_aliases_and_resolver_never_fabricates():
     engine.apply_order("cmp")
     engine.advance(dt=40)
     assert engine.state.active_orders["cmp"].status == "unavailable"
+
+
+def test_phase_4_order_catalog_is_fixed_broad_superset():
+    catalog = load_catalog()
+    ids = {item.id for item in catalog}
+    types = {item.type for item in catalog}
+
+    assert len(catalog) >= 45
+    assert {"lab", "imaging", "study", "procedure", "medication", "intervention"} <= types
+    assert {"d_dimer", "ct_pulmonary_angiography", "broad_spectrum_antibiotics", "fast_exam", "urinary_catheter"} <= ids
+    assert search("duoneb")[0].id == "nebulized_bronchodilator"
+    assert search("FAST")[0].id == "fast_exam"
+    assert search("foley")[0].id == "urinary_catheter"
+    assert search("vancomycin")[0].id == "broad_spectrum_antibiotics"
 
 
 @pytest.mark.parametrize(
@@ -320,6 +335,52 @@ def test_phase_12_model_tiering_records_routine_and_strong_usage():
     usage_after_grade = client.get(f"/api/sessions/{session_id}").json()["state"]["token_usage"]
     assert any(row["purpose"] == "grader_feedback" and row["tier"] == "strong" for row in usage_after_grade)
     assert all(row["prompt_tokens"] > 0 and row["completion_tokens"] > 0 for row in usage_after_grade)
+
+
+def test_phase_12_openai_compatible_llm_adapter_uses_configured_tiers():
+    calls = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        payload = json.loads(request.content.decode("utf-8"))
+        calls.append(
+            {
+                "url": str(request.url),
+                "authorization": request.headers.get("authorization"),
+                "model": payload["model"],
+                "messages": payload["messages"],
+            }
+        )
+        return httpx.Response(
+            200,
+            json={
+                "choices": [{"message": {"content": f"response from {payload['model']}"}}],
+                "usage": {"prompt_tokens": 11, "completion_tokens": 7},
+            },
+        )
+
+    client = LLMClient(
+        LLMConfig(
+            provider="openai_compatible",
+            cheap_model="configured-cheap",
+            strong_model="configured-strong",
+            cheap_cost_per_1k=0.1,
+            strong_cost_per_1k=0.3,
+            base_url="https://llm.example.test/v1/chat/completions",
+            api_key="test-key",
+        ),
+        transport=httpx.MockTransport(handler),
+    )
+
+    cheap = asyncio.run(client.complete([LLMMessage(role="user", content="hello")], "cheap", "patient_dialogue"))
+    strong = asyncio.run(client.complete([LLMMessage(role="user", content="consult")], "strong", "grader_feedback"))
+
+    assert [call["model"] for call in calls] == ["configured-cheap", "configured-strong"]
+    assert all(call["authorization"] == "Bearer test-key" for call in calls)
+    assert calls[0]["url"] == "https://llm.example.test/v1/chat/completions"
+    assert cheap.text == "response from configured-cheap"
+    assert strong.text == "response from configured-strong"
+    assert cheap.estimated_cost_usd == pytest.approx(0.0018)
+    assert strong.estimated_cost_usd == pytest.approx(0.0054)
 
 
 def test_completion_records_omissions_without_blocking_end_encounter():
