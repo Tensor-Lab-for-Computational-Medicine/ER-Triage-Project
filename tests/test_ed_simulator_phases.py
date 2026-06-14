@@ -422,9 +422,11 @@ def test_invalid_api_actions_do_not_advance_or_mutate_state():
     session_id = client.post("/api/sessions", json={}).json()["session_id"]
 
     invalid_actions = [
+        ({"type": "free_text", "text": "   ", "dt_minutes": 3}, 400),
         ({"type": "order", "order_id": "not_a_real_order", "dt_minutes": 10}, 404),
         ({"type": "intervention", "intervention_id": "imaginary_bedside_trick", "dt_minutes": 7}, 400),
         ({"type": "commit_esi", "payload": {}, "dt_minutes": 5}, 400),
+        ({"type": "commit_esi", "payload": {"level": 2, "rationale": ["hypoxemia"]}, "dt_minutes": 5}, 400),
         ({"type": "commit_differential", "payload": {}, "dt_minutes": 6}, 400),
         ({"type": "commit_differential", "payload": {"diagnoses": []}, "dt_minutes": 6}, 400),
         ({"type": "commit_differential", "payload": {"diagnoses": ["   "]}, "dt_minutes": 6}, 400),

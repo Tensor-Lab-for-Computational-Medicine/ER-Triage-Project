@@ -140,7 +140,8 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
             return _session_payload(engine)
 
         if action.type == "commit_esi":
-            commitment = engine.commit_esi(int(action.payload["level"]), action.payload.get("rationale", ""))
+            level, rationale = _validated_esi_commitment(action.payload)
+            commitment = engine.commit_esi(level, rationale)
             return _session_payload(engine, {"esi_commitment": commitment.model_dump(mode="json")})
 
         if action.type == "commit_differential":
@@ -170,6 +171,9 @@ def _validate_action_before_advance(action: StudentAction, engine: EncounterEngi
     if action.dt_minutes < 0:
         raise HTTPException(status_code=400, detail="dt_minutes must be non-negative")
 
+    if action.type == "free_text" and not str(action.text or "").strip():
+        raise HTTPException(status_code=400, detail="free_text actions require non-empty text")
+
     if action.type == "order":
         if not action.order_id:
             raise HTTPException(status_code=400, detail="order_id is required")
@@ -186,14 +190,7 @@ def _validate_action_before_advance(action: StudentAction, engine: EncounterEngi
             raise HTTPException(status_code=400, detail=f"{order.id} is not a structured intervention, medication, or procedure.")
 
     if action.type == "commit_esi":
-        if "level" not in action.payload:
-            raise HTTPException(status_code=400, detail="ESI level is required")
-        try:
-            level = int(action.payload["level"])
-        except (TypeError, ValueError) as exc:
-            raise HTTPException(status_code=400, detail="ESI level must be an integer from 1 to 5") from exc
-        if level < 1 or level > 5:
-            raise HTTPException(status_code=400, detail="ESI level must be an integer from 1 to 5")
+        _validated_esi_commitment(action.payload)
 
     if action.type == "commit_differential":
         _validated_differential_diagnoses(action.payload)
@@ -219,6 +216,24 @@ def _validated_differential_diagnoses(payload: dict[str, Any]) -> list[str]:
     if not diagnoses:
         raise HTTPException(status_code=400, detail="At least one differential diagnosis is required")
     return diagnoses
+
+
+def _validated_esi_commitment(payload: dict[str, Any]) -> tuple[int, str]:
+    if "level" not in payload:
+        raise HTTPException(status_code=400, detail="ESI level is required")
+    try:
+        level = int(payload["level"])
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="ESI level must be an integer from 1 to 5") from exc
+    if level < 1 or level > 5:
+        raise HTTPException(status_code=400, detail="ESI level must be an integer from 1 to 5")
+
+    rationale = payload.get("rationale", "")
+    if rationale is None:
+        rationale = ""
+    if not isinstance(rationale, str):
+        raise HTTPException(status_code=400, detail="ESI rationale must be text")
+    return level, rationale.strip()
 
 
 @app.get("/api/sessions/{session_id}/package")
