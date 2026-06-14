@@ -149,7 +149,7 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
             return _session_payload(engine, {"differential": differential})
 
         if action.type == "commit_soap":
-            soap = SOAPNote.model_validate(action.payload)
+            soap = _validated_soap_note(action.payload)
             engine.commit_soap(soap)
             return _session_payload(engine)
 
@@ -196,10 +196,7 @@ def _validate_action_before_advance(action: StudentAction, engine: EncounterEngi
         _validated_differential_diagnoses(action.payload)
 
     if action.type == "commit_soap":
-        try:
-            SOAPNote.model_validate(action.payload)
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        _validated_soap_note(action.payload)
 
     if action.type == "complete" and not engine.can_complete():
         raise HTTPException(status_code=400, detail="Assessment and Plan are required before completing the case.")
@@ -234,6 +231,22 @@ def _validated_esi_commitment(payload: dict[str, Any]) -> tuple[int, str]:
     if not isinstance(rationale, str):
         raise HTTPException(status_code=400, detail="ESI rationale must be text")
     return level, rationale.strip()
+
+
+def _validated_soap_note(payload: dict[str, Any]) -> SOAPNote:
+    try:
+        soap = SOAPNote.model_validate(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if not soap.assessment.strip() or not soap.plan.strip():
+        raise HTTPException(status_code=400, detail="SOAP Assessment and Plan are required")
+    return SOAPNote(
+        subjective=soap.subjective.strip(),
+        objective=soap.objective.strip(),
+        assessment=soap.assessment.strip(),
+        plan=soap.plan.strip(),
+    )
 
 
 @app.get("/api/sessions/{session_id}/package")
