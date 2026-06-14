@@ -93,11 +93,12 @@ Before learner pilot use, run the grader validation harness against completed `C
 python -m backend.grader.validate data/validation/packages/*.json `
   --rubric data/validation/rubric.json `
   --evidence data/validation/evidence.json `
+  --answer-key data/validation/clinician-answer-key.json `
   --threshold 0.8 `
   --output reports/grader-validation.json
 ```
 
-The command writes an agreement report and exits with a non-zero status when `release_blocked` is true. Keep package, rubric, evidence, and report files local unless they are explicitly de-identified and approved for the repo.
+The command writes an agreement report and exits with a non-zero status when `release_blocked` is true. The optional-but-release-critical answer key is clinician-authored and scored separately from MIMIC ground truth, so low agreement against either source blocks learner use. Keep package, rubric, evidence, answer key, and report files local unless they are explicitly de-identified and approved for the repo.
 
 The backend grading endpoint accepts either pre-selected `evidence_passages` or a broader
 `evidence_corpus`/`passages` object. When given a corpus, the grader uses a deterministic

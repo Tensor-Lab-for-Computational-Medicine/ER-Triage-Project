@@ -17,7 +17,7 @@ from backend.cases.sample_cases import sample_prepared_case, sample_raw_encounte
 from backend.grader.grade import ClinicianRubric, EvidencePassage, grade_case_package
 from backend.grader.package import assemble_case_package
 from backend.grader.retrieval import retrieve_evidence_passages
-from backend.grader.validate import run_validation
+from backend.grader.validate import ClinicianAnswerKey, run_validation
 from backend.llm.client import LLMClient, LLMConfig, LLMMessage
 from backend.orders.catalog import load_catalog, search
 from backend.orders.resolver import resolve
@@ -740,11 +740,45 @@ def test_phase_9_package_only_after_end_and_phase_10_validation_report():
         ClinicianRubric(esi_tolerance=0),
         [EvidencePassage(id="x", title="PE", text="Pulmonary embolism with hypoxemia is high-risk.")],
         threshold=0.8,
+        clinician_answer_key={
+            package.case_id: ClinicianAnswerKey(
+                case_id=package.case_id,
+                acceptable_diagnoses=["pulmonary embolism"],
+                expected_esi=2,
+                expected_disposition="Admitted to monitored inpatient bed",
+            )
+        },
     )
     assert report.release_blocked is False
     assert report.diagnostic_agreement == 1
     assert report.disposition_documentation_rate == 1
     assert report.critical_action_agreement == 1
+    assert report.clinician_answer_key_coverage == 1
+    assert report.clinician_diagnostic_agreement == 1
+    assert report.clinician_esi_agreement == 1
+    assert report.clinician_disposition_agreement == 1
+
+    conflicting_answer_key_report = run_validation(
+        [package],
+        ClinicianRubric(esi_tolerance=0),
+        [EvidencePassage(id="x", title="PE", text="Pulmonary embolism with hypoxemia is high-risk.")],
+        threshold=0.8,
+        clinician_answer_key={
+            package.case_id: ClinicianAnswerKey(
+                case_id=package.case_id,
+                acceptable_diagnoses=["pneumonia"],
+                expected_esi=3,
+                expected_disposition="Discharge home",
+            )
+        },
+    )
+    assert conflicting_answer_key_report.release_blocked is True
+    assert conflicting_answer_key_report.clinician_diagnostic_agreement == 0
+    assert conflicting_answer_key_report.clinician_esi_agreement == 0
+    assert conflicting_answer_key_report.clinician_disposition_agreement == 0
+    assert "clinician diagnostic agreement below clinician threshold" in conflicting_answer_key_report.failure_modes
+    assert "clinician ESI agreement below clinician threshold" in conflicting_answer_key_report.failure_modes
+    assert "clinician disposition agreement below clinician threshold" in conflicting_answer_key_report.failure_modes
 
     missed_critical_report = run_validation(
         [package],
@@ -793,11 +827,28 @@ def test_phase_10_validation_cli_emits_release_blocking_report(tmp_path):
     package_path = tmp_path / "package.json"
     rubric_path = tmp_path / "rubric.json"
     evidence_path = tmp_path / "evidence.json"
+    answer_key_path = tmp_path / "answer_key.json"
     report_path = tmp_path / "report.json"
     package_path.write_text(package.model_dump_json(), encoding="utf-8")
     rubric_path.write_text(json.dumps({"esi_tolerance": 0, "critical_actions": ["oxygen"]}), encoding="utf-8")
     evidence_path.write_text(
         json.dumps([{"id": "pe", "title": "PE hypoxemia", "text": "Pulmonary embolism with hypoxemia is high-risk."}]),
+        encoding="utf-8",
+    )
+    answer_key_path.write_text(
+        json.dumps(
+            {
+                "cases": [
+                    {
+                        "case_id": package.case_id,
+                        "acceptable_diagnoses": ["pulmonary embolism"],
+                        "expected_esi": 3,
+                        "expected_disposition": "Admitted to monitored inpatient bed",
+                        "critical_actions": ["oxygen"],
+                    }
+                ]
+            }
+        ),
         encoding="utf-8",
     )
 
@@ -811,6 +862,8 @@ def test_phase_10_validation_cli_emits_release_blocking_report(tmp_path):
             str(rubric_path),
             "--evidence",
             str(evidence_path),
+            "--answer-key",
+            str(answer_key_path),
             "--threshold",
             "0.8",
             "--output",
@@ -826,5 +879,10 @@ def test_phase_10_validation_cli_emits_release_blocking_report(tmp_path):
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["release_blocked"] is True
     assert report["critical_action_agreement"] == 0
+    assert report["clinician_answer_key_coverage"] == 1
+    assert report["clinician_esi_agreement"] == 0
     assert report["cases"][0]["critical_actions_complete"] is False
+    assert report["cases"][0]["clinician_critical_actions_complete"] is False
     assert "critical action agreement below clinician threshold" in report["failure_modes"]
+    assert "clinician ESI agreement below clinician threshold" in report["failure_modes"]
+    assert "clinician critical action agreement below clinician threshold" in report["failure_modes"]
