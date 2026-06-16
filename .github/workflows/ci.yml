@@ -54,6 +54,10 @@ jobs:
       - name: Start e2e servers
         shell: bash
         env:
+          ED_SIM_ALLOW_MOCK_LLM: "true"
+          ED_SIM_ALLOW_UNVALIDATED_GRADER: "true"
+          ED_SIM_CASE_DIR: tests/fixtures/no_local_cases
+          ED_SIM_LLM_PROVIDER: mock
           VITE_BASE_PATH: ./
         run: |
           set -euo pipefail
