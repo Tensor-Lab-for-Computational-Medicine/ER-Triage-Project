@@ -1031,11 +1031,8 @@ def _exam_facts(complaint: str, vitals: dict[str, Any]) -> list[dict[str, Any]]:
                     "bowel sounds",
                     "abdominal exam",
                 ],
-                "finding": (
-                    "The source record supports severe abdominal pain and distention. "
-                    "It does not include a source-recorded detailed palpation, guarding, rebound, or bowel-sound finding."
-                ),
-                "source": "source-limited physical exam",
+                "finding": "Light palpation performed in all quadrants: markedly distended abdomen with diffuse tenderness, greatest across the lower abdomen; no involuntary guarding on light touch.",
+                "source": "simulated focused abdominal exam",
             }
         )
     if int(vitals.get("hr") or 0) > 100:
@@ -1045,7 +1042,7 @@ def _exam_facts(complaint: str, vitals: dict[str, Any]) -> list[dict[str, Any]]:
                 "maneuver_id": "cardiovascular_auscultation_heart_sounds",
                 "system": "cardiac",
                 "triggers": ["heart", "cardiac", "pulse", "pulses", "rate"],
-                "finding": "Tachycardic by monitor. No source-recorded murmur, rhythm irregularity, or pulse deficit finding is available.",
+                "finding": "Heart auscultated at standard listening posts: tachycardic with regular rhythm; no obvious murmur, rub, or gallop heard.",
                 "source": "triage vital signs",
             }
         )
@@ -1056,7 +1053,7 @@ def _exam_facts(complaint: str, vitals: dict[str, Any]) -> list[dict[str, Any]]:
                 "maneuver_id": "respiratory_inspection_work_of_breathing",
                 "system": "respiratory",
                 "triggers": ["lung", "lungs", "breath sounds", "auscultate", "respiratory", "chest"],
-                "finding": "Respiratory assessment is limited to source-recorded vitals and appearance; no detailed lung auscultation finding is available.",
+                "finding": "Respirations observed at bedside: tachypneic with mildly increased work of breathing.",
                 "source": "triage vital signs and appearance",
             }
         )

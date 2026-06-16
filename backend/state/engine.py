@@ -418,8 +418,10 @@ class EncounterEngine:
             return self._appearance(), "live-state"
         for fact in self.case.exam_facts:
             if (fact.maneuver_id or fact.id) == maneuver.id:
+                if self._is_generic_exam_finding(fact.finding):
+                    break
                 return fact.finding, fact.source
-        return "Not assessed / no abnormality documented for this maneuver in the source record.", "source-record-absent"
+        return self._default_exam_finding(maneuver), "simulator-default-exam"
 
     def _refresh_completeness_flags(self) -> None:
         flags = self.state.completeness_flags
@@ -440,6 +442,94 @@ class EncounterEngine:
         if "analgesia" in self.state.interventions and self.state.current_vitals.pain is not None and self.state.current_vitals.pain <= 4:
             return "More comfortable after analgesia, still requiring focused reassessment."
         return self.case.visible_start.appearance
+
+    def _is_generic_exam_finding(self, finding: str) -> bool:
+        text = " ".join(str(finding or "").lower().split())
+        generic_fragments = (
+            "not assessed",
+            "no abnormality documented",
+            "source record",
+            "source-record",
+            "source-recorded",
+            "does not include",
+            "not documented",
+            "no documentation",
+            "no detailed",
+        )
+        return not text or any(fragment in text for fragment in generic_fragments)
+
+    def _default_exam_finding(self, maneuver: ExamManeuver) -> str:
+        text = " ".join(
+            [
+                self.case.visible_start.chief_complaint,
+                self.case.visible_start.triage_context,
+                self.case.visible_start.appearance,
+            ]
+        ).lower()
+        abdominal = any(term in text for term in ("abd", "belly", "distention", "distended", "bowel", "vomit"))
+        chest = any(term in text for term in ("chest", "shortness of breath", "dyspnea", "breath", "spo2", "hypox"))
+        tachycardic = self.state.current_vitals.hr >= 100
+        tachypneic = self.state.current_vitals.rr >= 22 or self.state.current_vitals.spo2 < 94
+
+        defaults = {
+            "general_inspection_skin_color": "Skin inspected over face, lips, hands, and exposed extremities: no cyanosis, mottling, or marked pallor seen.",
+            "general_palpation_temperature": "Skin palpated over forehead and distal extremities: warm and dry, without marked coolness or clamminess.",
+            "general_special_mental_status": "Brief mental status assessed: awake, attentive to the encounter, and able to follow simple commands.",
+            "abdomen_inspection_scars": "Abdominal skin inspected: no ecchymosis, erythema, open wound, or acute surgical-site change seen.",
+            "abdomen_auscultation_bruits": "Auscultated over the epigastrium, periumbilical area, and flanks: no abdominal bruit heard.",
+            "abdomen_percussion_cva_tenderness": "Percussion over both costovertebral angles: no right or left CVA tenderness elicited.",
+            "abdomen_palpation_guarding": "Guarding assessed with gentle palpation: no involuntary guarding or board-like rigidity appreciated.",
+            "abdomen_palpation_rebound": "Rebound tenderness checked gently: no clear rebound pain elicited.",
+            "abdomen_special_murphy": "Murphy sign assessed with right upper quadrant palpation during inspiration: negative, without inspiratory arrest.",
+            "abdomen_special_rosving": "Rovsing sign assessed with left lower quadrant pressure: negative, without referred right lower quadrant pain.",
+            "abdomen_special_psoas": "Psoas sign assessed with hip extension/resisted flexion: negative, without focal right lower quadrant pain.",
+            "abdomen_special_obturator": "Obturator sign assessed with hip flexion and internal rotation: negative, without focal pelvic or right lower quadrant pain.",
+            "cardiovascular_inspection_jvp": "Neck veins inspected with the head of bed elevated: no obvious jugular venous distention.",
+            "cardiovascular_palpation_pulses": "Radial pulses palpated bilaterally: symmetric and palpable; distal extremities are warm.",
+            "cardiovascular_palpation_precordium": "Precordium palpated: no heave, lift, or palpable thrill appreciated.",
+            "cardiovascular_percussion_cardiac_dullness": "Precordial percussion performed: no clinically obvious expansion of cardiac dullness at bedside.",
+            "cardiovascular_special_orthostatics": "Orthostatic screen not suggestive of immediate positional intolerance during this brief bedside assessment.",
+            "respiratory_palpation_chest_wall": "Chest wall palpated over the area of reported discomfort and adjacent ribs: no focal crepitus or deformity.",
+            "respiratory_palpation_tactile_fremitus": "Tactile fremitus assessed over symmetric posterior lung fields: no focal asymmetry appreciated.",
+            "respiratory_percussion_lung_fields": "Lung fields percussed bilaterally: no focal dullness to percussion appreciated.",
+            "respiratory_special_egophony": "Egophony assessed over posterior lung fields: no focal E-to-A change heard.",
+            "neurologic_inspection_speech": "Speech and face inspected during conversation: speech is clear and facial movement appears symmetric.",
+            "neurologic_palpation_spine": "Spine palpated along the midline: no focal midline step-off or point tenderness appreciated.",
+            "neurologic_auscultation_carotids": "Carotids auscultated bilaterally: no carotid bruit heard.",
+            "neurologic_percussion_reflexes": "Patellar reflexes checked bilaterally: present and grossly symmetric.",
+            "neurologic_special_pronator_drift": "Pronator drift assessed with arms extended: no drift observed.",
+            "skin_inspection_rash": "Exposed skin inspected: no diffuse rash, petechiae, vesicles, or cellulitic change seen.",
+            "skin_palpation_turgor": "Skin turgor assessed at the hand/forearm: no marked tenting.",
+            "skin_auscultation_bruit_over_lesion": "No vascular skin lesion is apparent on inspection; no bruit heard over exposed abnormal skin.",
+            "skin_percussion_tender_area": "Tender skin areas tapped/percussed where exposed: no focal percussion tenderness.",
+            "skin_special_nikolsky": "Nikolsky sign assessed on intact exposed skin: negative, without epidermal sloughing.",
+            "extremities_inspection_edema": "Extremities inspected for swelling and symmetry: no unilateral leg swelling or marked edema seen.",
+            "extremities_palpation_calf": "Calves palpated bilaterally: soft and symmetric without focal calf tenderness.",
+            "extremities_auscultation_bruit": "Peripheral vascular auscultation over accessible femoral areas: no bruit heard.",
+            "extremities_percussion_bony_tenderness": "Bony areas percussed where clinically exposed: no focal bony percussion tenderness.",
+            "extremities_special_homan": "Homan sign assessed gently: no calf pain with passive ankle dorsiflexion.",
+        }
+        if maneuver.id == "abdomen_inspection_distention":
+            return "Abdomen inspected from bedside: visibly distended." if abdominal else "Abdomen inspected from bedside: flat to mildly rounded, without visible distention."
+        if maneuver.id == "abdomen_auscultation_bowel_sounds":
+            return "Auscultated in all four quadrants: bowel sounds are present but decreased." if abdominal else "Auscultated in all four quadrants: bowel sounds present without high-pitched rushes."
+        if maneuver.id == "abdomen_percussion_tympany":
+            return "Percussion across the abdomen: tympany predominates over the distended central abdomen." if abdominal else "Percussion across the abdomen: no focal percussion tenderness or marked tympany."
+        if maneuver.id == "abdomen_palpation_light":
+            return "Light palpation performed in all quadrants: diffuse tenderness over the distended abdomen, greatest in the lower abdomen; no involuntary guarding on light touch." if abdominal else "Light palpation performed in all quadrants: abdomen soft and non-tender, without guarding."
+        if maneuver.id == "abdomen_palpation_deep":
+            return "Deep palpation performed only where tolerated: diffuse tenderness persists; no discrete palpable mass appreciated." if abdominal else "Deep palpation performed in all quadrants: no focal deep tenderness or palpable mass appreciated."
+        if maneuver.id == "cardiovascular_auscultation_heart_sounds":
+            rhythm = "tachycardic" if tachycardic else "regular rate"
+            return f"Heart auscultated at standard listening posts: {rhythm} with regular rhythm; no obvious murmur, rub, or gallop heard."
+        if maneuver.id == "respiratory_inspection_work_of_breathing":
+            return "Respirations observed at bedside: tachypneic with mildly increased work of breathing." if tachypneic else "Respirations observed at bedside: unlabored, without accessory muscle use."
+        if maneuver.id == "respiratory_auscultation_breath_sounds":
+            return "Auscultated anterior and posterior lung fields: breath sounds present bilaterally, without focal wheeze or crackles." if chest or tachypneic else "Auscultated anterior and posterior lung fields: clear breath sounds bilaterally."
+        return defaults.get(
+            maneuver.id,
+            f"{maneuver.name} performed: no acute abnormality appreciated on this focused bedside assessment.",
+        )
 
 
 def start_case(case: PreparedCase, session_id: str | None = None) -> EncounterEngine:

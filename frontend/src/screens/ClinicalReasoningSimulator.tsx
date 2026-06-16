@@ -15,13 +15,15 @@ import {
   MagnifyingGlass,
   NotePencil,
   Pause,
+  Play,
   Plus,
   Pulse,
   SignOut,
   Stethoscope,
+  UserCircle,
   Warning
 } from '@phosphor-icons/react';
-import { CaseStatus, EncounterProvider, OrderRecord, ResultBundle, Snapshot, TokenUsageRecord, TranscriptMessage, VitalSigns, useEncounter } from '../store/encounterStore';
+import { CaseStatus, EncounterProvider, ExamManeuver, ExamRecord, OrderRecord, ResultBundle, Snapshot, TokenUsageRecord, TranscriptMessage, VitalSigns, useEncounter } from '../store/encounterStore';
 import '../styles/encounter-tailwind.css';
 
 function ClinicalReasoningSimulator() {
@@ -74,9 +76,9 @@ function SimulatorScreen() {
       {error ? (
         <div className="border-b border-[#e6dddd] bg-[#fff7f7] px-4 py-2 text-sm font-semibold text-[#7f1d1d]">{error}</div>
       ) : null}
-      <div className="grid min-h-[calc(100vh-58px)] grid-cols-1 gap-3 p-3 xl:h-[calc(100vh-58px)] xl:min-h-0 xl:grid-cols-[320px_minmax(620px,1fr)_360px] xl:overflow-hidden">
+      <div className="grid min-h-[calc(100vh-66px)] grid-cols-1 items-start gap-3 overflow-x-clip p-3 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)] min-[1500px]:h-[calc(100vh-66px)] min-[1500px]:min-h-0 min-[1500px]:grid-cols-[minmax(270px,300px)_minmax(0,1fr)_minmax(300px,340px)] min-[1500px]:items-stretch min-[1500px]:overflow-hidden">
         <VitalsRail />
-        <section className="grid min-h-[760px] grid-rows-[minmax(260px,0.66fr)_minmax(360px,1fr)] gap-3 overflow-hidden xl:h-full xl:min-h-0">
+        <section className="grid min-h-[720px] min-w-0 grid-rows-[minmax(260px,0.66fr)_minmax(360px,1fr)] gap-3 overflow-visible lg:min-h-[760px] min-[1500px]:h-full min-[1500px]:min-h-0 min-[1500px]:overflow-hidden">
           <ConversationPanel />
           <StructuredActionsPanel />
         </section>
@@ -116,15 +118,16 @@ function DebriefLockedScreen() {
 function Header({ snapshot, caseStatus }: { snapshot: Snapshot; caseStatus?: CaseStatus }) {
   const encounter = useEncounter();
   const demographics = snapshot.visible_start.demographics;
+  const clockPaused = encounter.simClockPaused;
   return (
-    <header className="grid min-h-[66px] grid-cols-1 items-center border-b border-[#d7dfdf] bg-white px-4 text-[#17232b] lg:grid-cols-[280px_minmax(280px,1fr)_auto_auto_auto_auto_auto]">
-      <div className="flex h-full items-center gap-3 border-b border-[#eef2f2] py-3 lg:border-b-0 lg:border-r lg:pr-4">
+    <header className="flex min-h-[66px] flex-wrap items-stretch border-b border-[#d7dfdf] bg-white px-3 text-[#17232b]">
+      <div className="flex min-h-[56px] min-w-0 flex-[1_1_230px] items-center gap-3 border-b border-[#eef2f2] py-3 lg:max-w-[260px] xl:border-b-0 xl:border-r xl:pr-4">
         <div className="grid h-9 w-9 place-items-center rounded-md bg-[#1264e0] text-white">
           <FirstAidKit size={22} weight="bold" />
         </div>
         <strong className="text-[15px] font-extrabold text-[#1061d5]">ED Clinical Simulator</strong>
       </div>
-      <div className="min-w-0 border-b border-[#eef2f2] py-3 lg:border-b-0 lg:px-4">
+      <div className="min-w-0 flex-[999_1_320px] border-b border-[#eef2f2] py-3 lg:px-4 xl:border-b-0">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <strong className="block truncate text-[15px] font-extrabold text-[#17232b]">{snapshot.title}</strong>
           {caseStatus ? <CaseStatusBadge status={caseStatus} /> : null}
@@ -133,28 +136,36 @@ function Header({ snapshot, caseStatus }: { snapshot: Snapshot; caseStatus?: Cas
           {String(demographics.age || '')}{demographics.age ? 'y' : ''} {String(demographics.sex || '')} - {snapshot.visible_start.chief_complaint} - Case ID: {snapshot.case_id}
         </span>
       </div>
-      <div className="flex h-full items-center border-b border-[#eef2f2] py-2 lg:border-b-0 lg:border-l lg:px-4">
+      <div className="flex min-h-[48px] flex-none items-center border-b border-[#eef2f2] py-2 sm:px-3 xl:border-b-0 xl:border-l">
         <span className="rounded-md bg-[#11191f] px-3 py-2 text-xs font-extrabold capitalize text-white">Phase: {snapshot.phase}</span>
       </div>
-      <div className="flex h-full items-center gap-2 border-b border-[#eef2f2] py-2 text-sm lg:border-b-0 lg:border-l lg:px-4">
+      <div className="flex min-h-[48px] flex-none items-center gap-2 border-b border-[#eef2f2] py-2 text-sm sm:px-3 xl:border-b-0 xl:border-l">
         <Clock size={17} />
         <div className="grid">
           <span className="text-xs font-bold text-[#607078]">Sim Time</span>
-          <strong className="font-extrabold">{formatDigitalClock(snapshot.elapsed_minutes)}</strong>
+          <strong className="font-extrabold" data-testid="sim-clock-display">{formatDigitalClock(snapshot.elapsed_minutes)}</strong>
         </div>
       </div>
-      <div className="flex h-full items-center gap-2 border-b border-[#eef2f2] py-2 lg:border-b-0 lg:border-l lg:px-4">
-        <button type="button" className="grid h-9 w-9 place-items-center rounded-md border border-[#cdd8d8] bg-white text-[#17232b]" title="Pause simulator">
-          <Pause size={16} weight="bold" />
+      <div className="flex min-h-[48px] flex-none items-center gap-2 border-b border-[#eef2f2] py-2 sm:px-3 xl:border-b-0 xl:border-l">
+        <button
+          type="button"
+          data-testid="sim-clock-toggle"
+          className={`grid h-9 w-9 place-items-center rounded-md border border-[#cdd8d8] text-[#17232b] ${clockPaused ? 'bg-[#eef8f5]' : 'bg-white'}`}
+          title={clockPaused ? 'Resume simulator' : 'Pause simulator'}
+          aria-label={clockPaused ? 'Resume simulator clock' : 'Pause simulator clock'}
+          aria-pressed={clockPaused}
+          onClick={encounter.toggleSimClock}
+        >
+          {clockPaused ? <Play size={16} weight="bold" /> : <Pause size={16} weight="bold" />}
         </button>
         <button type="button" className="h-9 rounded-md border border-[#cdd8d8] bg-white px-3 text-sm font-extrabold" onClick={() => void encounter.advanceTime(5)} disabled={encounter.busy}>
           +5 min
         </button>
       </div>
-      <div className="flex h-full items-center gap-2 border-b border-[#eef2f2] py-2 text-sm font-extrabold capitalize lg:border-b-0 lg:border-l lg:px-4">
+      <div className="flex min-h-[48px] flex-none items-center gap-2 border-b border-[#eef2f2] py-2 text-sm font-extrabold capitalize sm:px-3 xl:border-b-0 xl:border-l">
         <Pulse size={18} /> Triage
       </div>
-      <div className="flex h-full items-center gap-2 py-2 lg:border-l lg:px-4">
+      <div className="flex min-h-[48px] flex-none items-center gap-2 py-2 sm:px-3 xl:border-l">
         <button type="button" className="grid h-9 w-9 place-items-center rounded-md border border-[#cdd8d8] bg-white text-[#17232b]" title="Settings">
           <GearSix size={17} />
         </button>
@@ -211,11 +222,12 @@ function VitalsRail() {
   const trendPoints = React.useMemo(() => monitorTrendPoints(session.snapshot, liveVitals, tick), [session.snapshot, liveVitals, tick]);
 
   return (
-    <aside className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-3 overflow-hidden pr-1">
+    <aside className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3 overflow-hidden min-[1500px]:h-full">
+      <PatientVisualPanel snapshot={session.snapshot} />
       {!monitorOpen ? (
         <MonitorClosedPanel snapshot={session.snapshot} onOpen={() => setMonitorOpen(true)} />
       ) : (
-      <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#202b32] bg-[#11191f]" data-testid="vitals-monitor">
+      <section className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#202b32] bg-[#11191f]" data-testid="vitals-monitor">
         <div className="flex items-center justify-between gap-3 border-b border-[#26343c] px-4 py-3 text-white">
           <div className="flex items-center gap-2">
             <Pulse size={19} weight="bold" />
@@ -232,11 +244,11 @@ function VitalsRail() {
           </button>
         </div>
         <div className="min-h-0 overflow-auto p-3 text-white">
-          <div className="mb-2 flex items-center gap-2 border-b border-[#26343c] pb-3 text-sm font-bold">
+          <div className="mb-2 flex min-w-0 flex-wrap items-center gap-2 border-b border-[#26343c] pb-3 text-sm font-bold">
             <span>O2 Therapy</span>
             <span className={`h-2.5 w-2.5 rounded-full ${lastOxygen ? 'bg-[#62d96b]' : current.spo2 < 94 ? 'bg-[#ff4d3f]' : 'bg-[#2f444d]'}`} />
             <span className="text-[#c8d4d8]">{lastOxygen ? 'O2 Applied' : 'Not applied'}</span>
-            <span className="ml-auto rounded-md bg-[#2a316b] px-2 py-1 text-xs text-white">{spo2Response}</span>
+            <span className="rounded-md bg-[#2a316b] px-2 py-1 text-xs text-white sm:ml-auto">{spo2Response}</span>
           </div>
           <div className="grid gap-0 divide-y divide-[#26343c]">
             {monitoredRows.map((row) => (
@@ -272,9 +284,51 @@ function VitalsRail() {
   );
 }
 
+function PatientVisualPanel({ snapshot }: { snapshot: Snapshot }) {
+  const visual = snapshot.visible_start.visual;
+  const [imageFailed, setImageFailed] = React.useState(false);
+  const source = visual?.src?.trim() || '';
+  const hasImage = Boolean(source && !imageFailed);
+
+  React.useEffect(() => {
+    setImageFailed(false);
+  }, [source]);
+
+  return (
+    <section className="grid min-w-0 rounded-lg border border-[#d7dfdf] bg-white p-2" data-testid="patient-visual-panel" aria-label="Patient visual">
+      <div className="patient-visual-frame" data-testid="patient-visual-frame">
+        {hasImage ? (
+          <img
+            data-testid="patient-visual-image"
+            src={source}
+            alt={visual?.alt || patientVisualAlt(snapshot)}
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <PatientVisualFallback snapshot={snapshot} />
+        )}
+      </div>
+    </section>
+  );
+}
+
+function PatientVisualFallback({ snapshot }: { snapshot: Snapshot }) {
+  const tone = fallbackAvatarTone(snapshot.case_id);
+  const style = {
+    '--patient-avatar-bg': tone.bg,
+    '--patient-avatar-fg': tone.fg
+  } as React.CSSProperties;
+
+  return (
+    <div className="patient-visual-fallback" style={style} role="img" aria-label={patientVisualAlt(snapshot)} data-testid="patient-visual-fallback">
+      <UserCircle size={72} weight="duotone" />
+    </div>
+  );
+}
+
 function MonitorClosedPanel({ snapshot, onOpen }: { snapshot: Snapshot; onOpen: () => void }) {
   return (
-    <section className="grid content-start gap-3 rounded-lg border border-[#d7dfdf] bg-white p-4" data-testid="vitals-monitor-closed">
+    <section className="grid min-w-0 content-start gap-3 rounded-lg border border-[#d7dfdf] bg-white p-4" data-testid="vitals-monitor-closed">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Pulse size={19} weight="bold" />
@@ -293,7 +347,7 @@ function MonitorClosedPanel({ snapshot, onOpen }: { snapshot: Snapshot; onOpen: 
       </button>
       <div className="rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 text-sm">
         <strong className="block text-[#17232b]">Last triage set</strong>
-        <span className="mt-1 block text-[#607078]">
+        <span className="mt-1 block break-words text-[#607078]">
           HR {snapshot.current_vitals.hr}, SpO2 {snapshot.current_vitals.spo2}%, RR {snapshot.current_vitals.rr}, BP {snapshot.current_vitals.sbp}/{snapshot.current_vitals.dbp}
         </span>
       </div>
@@ -326,19 +380,20 @@ function MonitorWaveRow({
   const delta = rawCurrent !== null && rawPrevious !== null ? rawCurrent - rawPrevious : 0;
   const points = buildWavePoints(row.kind, rawCurrent ?? 0, tick);
   const valueTone = row.key === 'spo2' && Number(rawCurrent) < 94 ? '#ff6b6b' : row.color;
+  const valueSize = row.key === 'bp' ? 'text-[21px]' : 'text-[25px]';
 
   return (
-    <div className="grid min-h-[58px] grid-cols-[5px_72px_minmax(0,1fr)_34px] items-center gap-2 py-1.5">
+    <div className="grid min-h-[58px] min-w-0 grid-cols-[5px_minmax(84px,96px)_minmax(0,1fr)_34px] items-center gap-2 py-1.5">
       <div className="h-full rounded-sm" style={{ backgroundColor: valueTone }} />
-      <div>
+      <div className="min-w-0">
         <div className="text-xs font-extrabold" style={{ color: valueTone }}>{row.label}</div>
         <div className="mt-1 flex items-end gap-1">
-          <strong data-testid={`monitor-value-${row.key}`} className="text-[25px] font-extrabold leading-none" style={{ color: valueTone }}>{row.value}</strong>
+          <strong data-testid={`monitor-value-${row.key}`} className={`${valueSize} font-extrabold leading-none`} style={{ color: valueTone }}>{row.value}</strong>
           <span className="pb-1 text-xs text-[#d3dee2]">{row.unit}</span>
         </div>
         {delta ? <span className="text-xs font-extrabold" style={{ color: valueTone }}>{formatDelta(delta)}</span> : null}
       </div>
-      <svg className="h-9 w-full overflow-visible" viewBox="0 0 180 44" aria-hidden="true">
+      <svg className="h-9 min-w-0 w-full overflow-visible" viewBox="0 0 180 44" aria-hidden="true">
         <line x1="0" x2="180" y1="22" y2="22" stroke="#293a43" strokeDasharray="4 6" strokeWidth="1" />
         <polyline data-testid={`waveform-${row.key}`} points={points} fill="none" stroke={valueTone} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
@@ -399,7 +454,7 @@ function AiConnectionPanel() {
   if (connected) {
     return (
       <section className="rounded-lg border border-[#d7dfdf] bg-white px-3 py-2" data-testid="ai-status-panel">
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <ChatCircleText size={16} weight="bold" />
           <p className="m-0 min-w-0 flex-1 truncate text-xs font-semibold text-[#31534f]" data-testid="ai-status-message">
             Connected: {status?.provider} / {status?.cheap_model}
@@ -516,27 +571,50 @@ function ConversationPanel() {
   const encounter = useEncounter();
   const messages = encounter.session?.state.transcript || [];
   const aiReady = Boolean(encounter.llmStatus?.ready);
+  const [activeTool, setActiveTool] = React.useState<'note' | 'consult' | 'more' | null>(null);
+  const [noteDraft, setNoteDraft] = React.useState('');
+  const consultSpecialties = ['surgery', 'medicine', 'gastroenterology', 'cardiology', 'pulmonology', 'radiology'];
+
+  const toggleTool = (tool: 'note' | 'consult' | 'more') => {
+    setActiveTool((current) => (current === tool ? null : tool));
+  };
+
+  const submitNote = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const note = noteDraft.trim();
+    if (!note) return;
+    await encounter.addNote(note);
+    setNoteDraft('');
+    setActiveTool(null);
+  };
+
+  const sendQuickTurn = async (text: string) => {
+    await encounter.sendQuickText(text);
+    setActiveTool(null);
+  };
 
   return (
-    <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] rounded-lg border border-[#d7dfdf] bg-white">
+    <section className="grid min-h-0 min-w-0 grid-rows-[auto_auto_minmax(0,1fr)_auto] rounded-lg border border-[#d7dfdf] bg-white">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4e9e9] px-4 py-3">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ChatCircleText size={19} weight="bold" />
           <h2 className="m-0 text-base font-extrabold">Conversation</h2>
         </div>
         <div className="flex items-center gap-2">
           <button
+            data-testid="add-note-action"
             type="button"
-            className="inline-flex h-8 items-center gap-2 rounded-md border border-[#cdd8d8] px-2 text-xs font-bold text-[#26323a] disabled:text-[#87949b]"
-            onClick={() => encounter.setChatDraft(encounter.chatDraft || 'Add note: ')}
+            className={`inline-flex h-8 items-center gap-2 rounded-md border px-2 text-xs font-bold disabled:text-[#87949b] ${activeTool === 'note' ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] text-[#26323a]'}`}
+            onClick={() => toggleTool('note')}
             disabled={encounter.busy}
           >
             <NotePencil size={15} /> Add Note
           </button>
           <button
+            data-testid="call-consult-action"
             type="button"
-            className="inline-flex h-8 items-center gap-2 rounded-md border border-[#cdd8d8] px-2 text-xs font-bold text-[#26323a] disabled:text-[#87949b]"
-            onClick={() => encounter.setChatDraft(encounter.chatDraft || 'Call surgery consult: ')}
+            className={`inline-flex h-8 items-center gap-2 rounded-md border px-2 text-xs font-bold disabled:text-[#87949b] ${activeTool === 'consult' ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] text-[#26323a]'}`}
+            onClick={() => toggleTool('consult')}
             disabled={encounter.busy}
           >
             <MagnifyingGlass size={15} /> Call Consult
@@ -550,11 +628,69 @@ function ConversationPanel() {
           >
             <Clock size={15} /> 15 min
           </button>
-          <button type="button" className="grid h-8 w-8 place-items-center rounded-md border border-[#cdd8d8] text-[#26323a]" title="More conversation actions">
+          <button
+            type="button"
+            data-testid="more-actions"
+            className={`grid h-8 w-8 place-items-center rounded-md border ${activeTool === 'more' ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] text-[#26323a]'}`}
+            title="More conversation actions"
+            onClick={() => toggleTool('more')}
+          >
             <DotsThreeVertical size={16} weight="bold" />
           </button>
         </div>
       </div>
+      {activeTool ? (
+        <div className="border-b border-[#e4e9e9] bg-[#fbfcfc] px-4 py-3">
+          {activeTool === 'note' ? (
+            <form data-testid="note-composer" className="grid gap-2" onSubmit={(event) => void submitNote(event)}>
+              <textarea
+                value={noteDraft}
+                onChange={(event) => setNoteDraft(event.target.value)}
+                className="min-h-[72px] resize-y rounded-md border border-[#cdd8d8] bg-white px-3 py-2 text-sm leading-6 outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
+                placeholder="Clinical note"
+              />
+              <div className="flex justify-end gap-2">
+                <button type="button" className="h-8 rounded-md border border-[#cdd8d8] px-3 text-xs font-bold" onClick={() => setActiveTool(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="h-8 rounded-md bg-[#11191f] px-3 text-xs font-bold text-white" disabled={!noteDraft.trim() || encounter.busy}>
+                  Save Note
+                </button>
+              </div>
+            </form>
+          ) : null}
+          {activeTool === 'consult' ? (
+            <div data-testid="consult-menu" className="flex flex-wrap gap-2">
+              {consultSpecialties.map((specialty) => (
+                <button
+                  key={specialty}
+                  type="button"
+                  className="h-8 rounded-md border border-[#cdd8d8] bg-white px-3 text-xs font-bold capitalize disabled:text-[#87949b]"
+                  disabled={!aiReady || encounter.busy}
+                  onClick={() => void sendQuickTurn(`Call ${specialty} consult. Please review the patient and give recommendations based on the current ED presentation, vitals, and resulted studies.`)}
+                >
+                  {specialty}
+                </button>
+              ))}
+              {!aiReady ? <span className="self-center text-xs font-semibold text-[#7f1d1d]">Connect AI to call a consultant.</span> : null}
+            </div>
+          ) : null}
+          {activeTool === 'more' ? (
+            <div data-testid="more-actions-menu" className="flex flex-wrap gap-2">
+              <button type="button" className="h-8 rounded-md border border-[#cdd8d8] bg-white px-3 text-xs font-bold disabled:text-[#87949b]" disabled={!aiReady || encounter.busy} onClick={() => void sendQuickTurn('Nurse, please reassess the patient and report current status.')}>
+                Nurse status
+              </button>
+              <button type="button" className="h-8 rounded-md border border-[#cdd8d8] bg-white px-3 text-xs font-bold disabled:text-[#87949b]" disabled={!aiReady || encounter.busy} onClick={() => void sendQuickTurn('How is your pain right now?')}>
+                Pain update
+              </button>
+              <button type="button" className="h-8 rounded-md border border-[#cdd8d8] bg-white px-3 text-xs font-bold" onClick={() => { encounter.setChatDraft(''); setActiveTool(null); }}>
+                Clear draft
+              </button>
+              {!aiReady ? <span className="self-center text-xs font-semibold text-[#7f1d1d]">Connect AI for dialogue actions.</span> : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <div className="min-h-0 overflow-auto p-4">
         {messages.length ? (
           <div className="grid gap-3">
@@ -594,8 +730,9 @@ function ConversationPanel() {
 function MessageBubble({ message }: { message: TranscriptMessage }) {
   const isStudent = message.speaker === 'student';
   const isResult = message.speaker === 'results';
+  const isNote = message.metadata?.type === 'clinical_note';
   const tone = isStudent
-    ? 'border-[#cdd8d8] bg-[#fbfcfc]'
+    ? isNote ? 'border-[#d7dfdf] bg-[#fbfcfc]' : 'border-[#cdd8d8] bg-[#fbfcfc]'
     : isResult
       ? 'border-[#c8e3dd] bg-[#f2faf7]'
       : 'border-[#dfe7e7] bg-white';
@@ -611,13 +748,149 @@ function MessageBubble({ message }: { message: TranscriptMessage }) {
 }
 
 function StructuredActionsPanel() {
+  const [activeTab, setActiveTab] = React.useState<'orders' | 'exam'>('orders');
+
   return (
-    <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] rounded-lg border border-[#d7dfdf] bg-white">
+    <section className="grid min-h-0 min-w-0 grid-rows-[auto_auto_minmax(0,1fr)] rounded-lg border border-[#d7dfdf] bg-white">
       <InterventionChips />
-      <div className="grid min-h-0 overflow-hidden p-3">
-        <OrderPanel />
+      <div className="flex flex-wrap gap-5 border-b border-[#e4e9e9] px-4 text-sm font-bold">
+        {([
+          ['orders', 'Orders & Results'],
+          ['exam', 'Physical Exam']
+        ] as Array<['orders' | 'exam', string]>).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            data-testid={`structured-tab-${id}`}
+            onClick={() => setActiveTab(id)}
+            className={`border-x-0 border-t-0 border-b-2 bg-transparent px-0 pb-3 pt-3 outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]/20 ${activeTab === id ? 'border-[#0f766e] text-[#0f5f58]' : 'border-transparent text-[#26323a]'}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="grid min-h-0 min-w-0 overflow-hidden p-3">
+        {activeTab === 'orders' ? <OrderPanel /> : <ExamPanel />}
       </div>
     </section>
+  );
+}
+
+function ExamPanel() {
+  const encounter = useEncounter();
+  const snapshot = encounter.session?.snapshot;
+  const [regionFilter, setRegionFilter] = React.useState('all');
+  const [typeFilter, setTypeFilter] = React.useState('all');
+  const performed = (snapshot?.performed_exams || encounter.session?.state.performed_exams || []) as ExamRecord[];
+  const regions = React.useMemo(() => uniqueSorted(encounter.examCatalog.map((item) => item.region)), [encounter.examCatalog]);
+  const maneuverTypes = React.useMemo(() => uniqueSorted(encounter.examCatalog.map((item) => item.maneuver_type)), [encounter.examCatalog]);
+  const visibleExams = encounter.examResults
+    .filter((item) => regionFilter === 'all' || item.region === regionFilter)
+    .filter((item) => typeFilter === 'all' || item.maneuver_type === typeFilter)
+    .slice(0, 14);
+  const latestFindings = [...performed].reverse();
+
+  return (
+    <section className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#d7dfdf] bg-white" data-testid="exam-panel">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e4e9e9] px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Stethoscope size={19} weight="bold" />
+          <h2 className="m-0 text-base font-extrabold">Physical Exam</h2>
+        </div>
+        <span className="rounded-md bg-[#eef2f2] px-2 py-1 text-xs font-extrabold text-[#52636b]">{performed.length} findings</span>
+      </div>
+      <div className="grid min-h-0 min-w-0 grid-cols-1 overflow-hidden lg:grid-cols-[minmax(240px,290px)_minmax(0,1fr)]">
+        <aside className="min-h-0 min-w-0 overflow-auto border-r border-[#e4e9e9]">
+          <div className="grid gap-3 border-b border-[#e4e9e9] p-3">
+            <strong className="text-sm">Exam Search</strong>
+            <label className="relative block">
+              <MagnifyingGlass size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#607078]" />
+              <input
+                data-testid="exam-search"
+                value={encounter.examQuery}
+                onChange={(event) => void encounter.searchExams(event.target.value)}
+                placeholder="Search abdomen, lungs, pulses..."
+                disabled={encounter.busy}
+                className="h-10 w-full rounded-md border border-[#cdd8d8] pl-9 pr-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {['all', ...regions].map((region) => (
+                <button
+                  key={region}
+                  type="button"
+                  className={`rounded-md border px-2 py-1 text-xs font-bold capitalize ${regionFilter === region ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] bg-white text-[#26323a]'}`}
+                  onClick={() => setRegionFilter(region)}
+                >
+                  {region === 'all' ? 'All' : regionLabel(region)}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {['all', ...maneuverTypes].map((maneuverType) => (
+                <button
+                  key={maneuverType}
+                  type="button"
+                  className={`rounded-md border px-2 py-1 text-xs font-bold capitalize ${typeFilter === maneuverType ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] bg-white text-[#26323a]'}`}
+                  onClick={() => setTypeFilter(maneuverType)}
+                >
+                  {maneuverType}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid content-start gap-1.5 p-3" data-testid="exam-search-results">
+            {visibleExams.length ? visibleExams.map((exam) => (
+              <ExamManeuverButton key={exam.id} exam={exam} disabled={encounter.busy} onClick={() => void encounter.performExam(exam.id)} />
+            )) : (
+              <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 text-sm font-semibold text-[#607078]">No exam maneuvers match.</div>
+            )}
+          </div>
+        </aside>
+        <section className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-[#fbfcfc]">
+          <div className="flex items-center justify-between gap-3 border-b border-[#e4e9e9] bg-white px-4 py-3">
+            <strong className="text-sm">Findings</strong>
+            <span className="text-xs font-bold text-[#607078]">{latestFindings.length} recorded</span>
+          </div>
+          <div className="min-h-0 overflow-auto p-3" data-testid="exam-findings-list">
+            {latestFindings.length ? (
+              <div className="grid gap-2">
+                {latestFindings.map((record, index) => (
+                  <article key={`${record.maneuver_id}-${record.performed_at_min}-${index}`} className="rounded-md border border-[#dfe7e7] bg-white p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <strong className="block text-sm">{record.display_name}</strong>
+                        <span className="text-xs font-semibold capitalize text-[#607078]">{regionLabel(record.region)} - {record.maneuver_type}</span>
+                      </div>
+                      <span className="text-xs font-bold text-[#607078]">{formatClock(record.performed_at_min)}</span>
+                    </div>
+                    <p className="m-0 mt-2 whitespace-pre-wrap text-sm leading-6 text-[#27313a]">{record.finding}</p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="grid h-full min-h-[220px] place-items-center rounded-md border border-dashed border-[#cdd8d8] bg-white p-4 text-center text-sm font-semibold text-[#607078]">
+                Choose a physical exam maneuver to record source-scoped findings.
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}
+
+function ExamManeuverButton({ exam, disabled, onClick }: { exam: ExamManeuver; disabled: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="grid min-h-[48px] gap-0.5 rounded-md border border-[#dfe7e7] bg-white px-3 py-2 text-left hover:border-[#0f766e] disabled:text-[#87949b]"
+    >
+      <strong className="text-sm text-[#17232b]">{exam.name}</strong>
+      <span className="text-xs capitalize text-[#607078]">{regionLabel(exam.region)} - {exam.maneuver_type}</span>
+    </button>
   );
 }
 
@@ -664,13 +937,11 @@ type OrderResultItem = {
   unavailable_reason?: string | null;
 };
 
-type OrderWorkspaceTab = 'orders' | 'results' | 'all' | 'reports' | 'vitals';
 type OrderTypeFilter = 'all' | 'lab' | 'imaging' | 'study' | 'medication';
 
 function OrderPanel() {
   const encounter = useEncounter();
   const snapshot = encounter.session?.snapshot;
-  const [activeTab, setActiveTab] = React.useState<OrderWorkspaceTab>('results');
   const [orderFilter, setOrderFilter] = React.useState<OrderTypeFilter>('all');
   const activeOrders = snapshot?.active_orders || [];
   const archivedResults = snapshot?.resulted_orders || [];
@@ -714,7 +985,7 @@ function OrderPanel() {
     .slice(0, 7);
 
   return (
-    <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#d7dfdf] bg-white">
+    <section className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#d7dfdf] bg-white">
       <div className="grid border-b border-[#e4e9e9]">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-2">
@@ -727,27 +998,9 @@ function OrderPanel() {
             <span className="rounded-md bg-[#fff1f1] px-2 py-1 text-[#7f1d1d]">{unavailableCount} unavailable</span>
           </div>
         </div>
-        <div className="flex flex-wrap gap-6 px-4 text-sm font-bold">
-          {([
-            ['orders', 'Orders'],
-            ['results', 'Results'],
-            ['all', 'All Results'],
-            ['reports', 'Reports'],
-            ['vitals', 'Vitals History']
-          ] as Array<[OrderWorkspaceTab, string]>).map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveTab(id)}
-              className={`border-x-0 border-t-0 border-b-2 bg-transparent px-0 pb-3 pt-1 outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/20 ${activeTab === id ? 'border-[#2563eb] text-[#1555c0]' : 'border-transparent text-[#26323a]'}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
       </div>
-      <div className="grid min-h-0 grid-cols-1 overflow-hidden lg:grid-cols-[290px_minmax(0,1fr)]">
-        <aside className="min-h-0 overflow-auto border-r border-[#e4e9e9]">
+      <div className="grid min-h-0 min-w-0 grid-cols-1 overflow-hidden lg:grid-cols-[minmax(240px,290px)_minmax(0,1fr)]">
+        <aside className="min-h-0 min-w-0 overflow-auto border-r border-[#e4e9e9]">
           <div className="grid gap-3 border-b border-[#e4e9e9] p-3">
             <strong className="text-sm">Order Search</strong>
             <label className="relative block">
@@ -812,11 +1065,9 @@ function OrderPanel() {
           </div>
         </aside>
         <ResultsWorkspace
-          tab={activeTab}
           items={visibleOrderItems}
           selectedItem={selectedResult}
           onSelect={setSelectedResultId}
-          snapshot={snapshot}
         />
       </div>
     </section>
@@ -886,36 +1137,25 @@ function ResultValueSummary({ result }: { result: ResultBundle }) {
 }
 
 function ResultsWorkspace({
-  tab,
   items,
   selectedItem,
-  onSelect,
-  snapshot
+  onSelect
 }: {
-  tab: OrderWorkspaceTab;
   items: OrderResultItem[];
   selectedItem?: OrderResultItem;
   onSelect: (orderId: string) => void;
-  snapshot?: Snapshot;
 }) {
   const [viewerItem, setViewerItem] = React.useState<OrderResultItem | null>(null);
-
-  if (tab === 'vitals') {
-    return <VitalsHistoryPane snapshot={snapshot} />;
-  }
-
-  const visibleItems = tab === 'reports'
-    ? items.filter((item) => item.order_type === 'imaging' || item.order_type === 'study')
-    : items;
+  const visibleItems = items;
   const selected = selectedItem && visibleItems.some((item) => item.order_id === selectedItem.order_id)
     ? selectedItem
     : visibleItems[0];
 
   return (
     <>
-      <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-[#fbfcfc]" data-testid="result-detail">
+      <section className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-[#fbfcfc]" data-testid="result-detail">
         <div className="flex items-center justify-between gap-3 border-b border-[#e4e9e9] bg-white px-4 py-3">
-          <strong className="text-sm">{tabLabel(tab)}</strong>
+          <strong className="text-sm">Results</strong>
           <span className="text-xs font-bold text-[#607078]">{visibleItems.length} available</span>
         </div>
         <div className="min-h-0 overflow-auto p-3" data-testid="resulted-orders">
@@ -1107,9 +1347,7 @@ function ResultViewerModal({ item, onClose }: { item: OrderResultItem; onClose: 
   const isEcg = isEcgDisplayName(item.display_name);
   const isDefaultEcg = isDefaultEcgResult(item.display_name, result);
   const reference = result.source_reference || {};
-  const referenceEntries = isDefaultEcg ? [] : Object.entries(reference)
-    .filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== '')
-    .slice(0, 12);
+  const referenceEntries = isDefaultEcg ? [] : sourceReferenceDisplayEntries(reference);
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" data-testid="result-viewer-modal" role="dialog" aria-modal="true" aria-label={`${item.display_name} viewer`}>
@@ -1145,7 +1383,7 @@ function ResultViewerModal({ item, onClose }: { item: OrderResultItem; onClose: 
                 {referenceEntries.map(([key, value]) => (
                   <React.Fragment key={key}>
                     <dt className="font-bold text-[#52636b]">{humanizeKey(key)}</dt>
-                    <dd className="m-0 min-w-0 break-words text-[#17232b]">{String(value)}</dd>
+                    <dd className="m-0 min-w-0 break-words text-[#17232b]">{value}</dd>
                   </React.Fragment>
                 ))}
               </dl>
@@ -1199,6 +1437,69 @@ function humanizeKey(key: string) {
   return key
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+const LOCAL_PATH_PROVENANCE_KEYS = new Set([
+  'source_file',
+  'metadata_file',
+  'dictionary_file',
+  'path',
+  'path_hint',
+  'source_root',
+  'mimic_hosp_dir',
+  'mimic_note_dir',
+  'mimic_cxr_dir',
+  'mimic_ecg_dir',
+  'command',
+  'sql'
+]);
+
+function sourceReferenceDisplayEntries(reference: Record<string, unknown>) {
+  const entries: Array<[string, string]> = [];
+  const append = (key: string, value: unknown) => {
+    if (entries.length >= 12 || !isDisplayableSourceReferenceValue(key, value)) return;
+    entries.push([key, String(value).trim()]);
+  };
+
+  Object.entries(reference).forEach(([key, value]) => {
+    if (key === 'rows' && Array.isArray(value)) {
+      value.slice(0, 3).forEach((row, index) => {
+        if (!isPlainRecord(row)) return;
+        Object.entries(row).forEach(([rowKey, rowValue]) => append(`row ${index + 1} ${rowKey}`, rowValue));
+      });
+      return;
+    }
+    if (isPlainRecord(value)) {
+      Object.entries(value).forEach(([childKey, childValue]) => append(`${key} ${childKey}`, childValue));
+      return;
+    }
+    append(key, value);
+  });
+
+  return entries;
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isDisplayableSourceReferenceValue(key: string, value: unknown) {
+  if (value === null || value === undefined || typeof value === 'object') return false;
+  const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  if (
+    LOCAL_PATH_PROVENANCE_KEYS.has(normalizedKey)
+    || Array.from(LOCAL_PATH_PROVENANCE_KEYS).some((pathKey) => normalizedKey.endsWith(`_${pathKey}`))
+  ) return false;
+  const rendered = String(value).trim();
+  return rendered !== '' && !looksLikeLocalPath(rendered);
+}
+
+function looksLikeLocalPath(value: string) {
+  return /^[A-Za-z]:[\\/]/.test(value)
+    || /^\\\\/.test(value)
+    || /^\/(?:Users|home|mnt|var|tmp|opt)\//.test(value)
+    || value.includes("read_csv_auto('")
+    || value.includes('read_csv_auto("');
 }
 
 const REPORT_SECTION_PATTERN = /\b(FINAL REPORT|CLINICAL HISTORY|REASON FOR EXAM|EXAMINATION|INDICATION|COMPARISON|TECHNIQUE|FINDINGS|IMPRESSION|CONCLUSION|HISTORY|PROCEDURE|REPORT|EXAM)\s*:/gi;
@@ -1294,7 +1595,7 @@ function saveResultReport(item: OrderResultItem) {
     ? [
         '',
         'Source Provenance',
-        ...Object.entries(result.source_reference).map(([key, value]) => `${humanizeKey(key)}: ${String(value)}`)
+        ...sourceReferenceDisplayEntries(result.source_reference).map(([key, value]) => `${humanizeKey(key)}: ${value}`)
       ]
     : [];
   const text = [
@@ -1375,32 +1676,6 @@ function ResultTable({ result }: { result: ResultBundle }) {
   );
 }
 
-function VitalsHistoryPane({ snapshot }: { snapshot?: Snapshot }) {
-  const tick = useMonitorTick();
-  const points = snapshot ? monitorTrendPoints(snapshot, undefined, tick) : [];
-  return (
-    <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-[#fbfcfc]" data-testid="result-detail">
-      <div className="flex items-center justify-between gap-3 border-b border-[#e4e9e9] bg-white px-4 py-3">
-        <strong className="text-sm">Vitals History</strong>
-        <span className="text-xs font-bold text-[#607078]">{points.length} state samples</span>
-      </div>
-      <div className="min-h-0 overflow-auto p-3" data-testid="resulted-orders">
-        <div className="rounded-md border border-[#dfe7e7] bg-white p-3">
-          <MonitorTrendChart points={points} />
-        </div>
-        <div className="mt-3 grid gap-2">
-          {points.map((point) => (
-            <div key={`${point.elapsed}-${point.vitals.hr}-${point.vitals.spo2}`} className="grid grid-cols-[70px_minmax(0,1fr)] gap-3 rounded-md border border-[#dfe7e7] bg-white p-3 text-sm">
-              <strong>{formatClock(point.elapsed)}</strong>
-              <span>HR {point.vitals.hr}, SpO2 {point.vitals.spo2}%, RR {point.vitals.rr}, BP {point.vitals.sbp}/{point.vitals.dbp}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function CommitRail() {
   const encounter = useEncounter();
   const session = encounter.session;
@@ -1410,7 +1685,7 @@ function CommitRail() {
   const lastEsi = session.state.esi_history.at(-1);
 
   return (
-    <aside className="grid min-h-0 content-start gap-3 overflow-auto pr-1">
+    <aside className="grid min-h-0 min-w-0 content-start gap-3 overflow-auto lg:col-span-2 min-[1500px]:col-span-1">
       <section className="rounded-lg border border-[#d7dfdf] bg-white p-4">
         <div className="mb-3 flex items-center gap-2">
           <Warning size={18} weight="bold" />
@@ -1725,10 +2000,11 @@ function formatClock(minutes: number) {
 }
 
 function formatDigitalClock(minutes: number) {
-  const whole = Math.max(0, Math.round(minutes));
-  const hrs = Math.floor(whole / 60);
-  const mins = whole % 60;
-  return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`;
+  const totalSeconds = Math.max(0, Math.round(minutes * 60));
+  const hrs = Math.floor(totalSeconds / 3600);
+  const mins = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+  return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
 function formatMinuteStamp(minutes: number) {
@@ -1746,12 +2022,6 @@ function flagLabel(value: unknown) {
 
 function titleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function tabLabel(tab: OrderWorkspaceTab) {
-  if (tab === 'all') return 'All Results';
-  if (tab === 'vitals') return 'Vitals History';
-  return titleCase(tab);
 }
 
 function normalizeActionFeedback(raw: unknown): {
@@ -1783,6 +2053,10 @@ function regionLabel(region: string) {
   return region;
 }
 
+function uniqueSorted(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean))).sort((first, second) => first.localeCompare(second));
+}
+
 function labelForSpeaker(speaker: string) {
   if (speaker === 'student') return 'Student';
   if (speaker === 'patient') return 'Patient';
@@ -1794,6 +2068,7 @@ function labelForSpeaker(speaker: string) {
 }
 
 function labelForMessage(message: TranscriptMessage) {
+  if (message.metadata?.type === 'clinical_note') return 'Note';
   if (message.speaker === 'exam') {
     const region = String(message.metadata?.region || '').trim();
     return region ? `Exam - ${regionLabel(region)}` : 'Exam';
@@ -1826,6 +2101,33 @@ function orderStatusSummary(order: OrderResultItem) {
 
 function isDiagnosticOrderItem(order: OrderResultItem) {
   return ['lab', 'imaging', 'study', 'result'].includes(order.order_type);
+}
+
+function patientVisualAlt(snapshot: Snapshot) {
+  const demographics = snapshot.visible_start.demographics;
+  const sex = String(demographics.sex || '').trim();
+  const ageBucket = ageBucketLabel(demographics.age);
+  return `${[ageBucket, sex, 'patient'].filter(Boolean).join(' ')} visual for ${snapshot.visible_start.chief_complaint}.`;
+}
+
+function ageBucketLabel(age: unknown) {
+  const value = Number(age);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  if (value >= 70) return 'older adult';
+  if (value >= 45) return 'middle-aged';
+  if (value >= 18) return 'adult';
+  return 'pediatric';
+}
+
+function fallbackAvatarTone(caseId: string) {
+  const tones = [
+    { bg: '#eef2f2', fg: '#26323a' },
+    { bg: '#e9f4f1', fg: '#0f5f58' },
+    { bg: '#f6efe6', fg: '#6b4a1d' },
+    { bg: '#edf1f7', fg: '#34445c' }
+  ];
+  const hash = Array.from(caseId).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return tones[hash % tones.length];
 }
 
 function simulatedMonitorVitals(base: VitalSigns, elapsedMinutes: number, tick: number): VitalSigns {

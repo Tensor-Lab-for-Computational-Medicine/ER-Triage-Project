@@ -33,7 +33,7 @@ from backend.cases.readiness import validate_abdominal_case_readiness
 from backend.cases.release_gate_audit import build_release_gate_audit
 from backend.cases.review import apply_case_review
 from backend.cases.sample_cases import sample_prepared_case, sample_raw_encounter
-from backend.cases.schemas import PreparedCase
+from backend.cases.schemas import CaseVisual, ExamFact, PreparedCase
 from backend.cases.source_gaps import build_source_gap_report
 from backend.cases.source_probe import build_source_probe_report
 from backend.cases.source_acquisition import build_source_acquisition_checklist
@@ -622,6 +622,38 @@ def test_phase_2_loader_excludes_pilot_ineligible_prepared_cases(tmp_path):
         load_prepared_case(mismatched_path)
 
 
+def test_phase_2_loader_supports_portable_case_bundle_folders(tmp_path):
+    legacy = sample_prepared_case()
+    bundled = sample_prepared_case().model_copy(deep=True)
+    bundled.case_id = "bundled_sample_case"
+
+    legacy_path = tmp_path / "legacy.json"
+    legacy_path.write_text(legacy.model_dump_json(), encoding="utf-8")
+
+    bundle_dir = tmp_path / bundled.case_id
+    artifact_dir = bundle_dir / "artifacts"
+    artifact_dir.mkdir(parents=True)
+    (bundle_dir / "prepared_case.json").write_text(bundled.model_dump_json(), encoding="utf-8")
+    (bundle_dir / "case_bundle.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "case_id": bundled.case_id,
+                "prepared_case": "prepared_case.json",
+                "artifacts_dir": "artifacts",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (artifact_dir / "source-probe.json").write_text(json.dumps({"case_id": bundled.case_id}), encoding="utf-8")
+
+    loaded = load_local_cases(tmp_path)
+
+    assert set(loaded) == {legacy.case_id, bundled.case_id}
+    assert load_local_cases(bundle_dir) == {bundled.case_id: bundled}
+    assert load_prepared_case(bundle_dir) == bundled
+
+
 def test_mimic_ext_adapter_maps_abdominal_case_without_committing_restricted_fixture_data():
     case = prepare_mimic_ext_case(sample_enriched_abdominal_case())
     engine = start_case(case)
@@ -653,6 +685,10 @@ def test_mimic_ext_adapter_maps_abdominal_case_without_committing_restricted_fix
     assert "nausea" in hpi_by_id["associated_symptoms"].triggers
     assert "fever" not in hpi_by_id["associated_symptoms"].triggers
     assert hpi_by_id["allergies"].lay_response == "I have no known allergies."
+    abdominal_light = next(fact for fact in case.exam_facts if fact.maneuver_id == "abdomen_palpation_light")
+    assert abdominal_light.finding == "Light palpation performed in all quadrants: markedly distended abdomen with diffuse tenderness, greatest across the lower abdomen; no involuntary guarding on light touch."
+    assert "source record" not in abdominal_light.finding.lower()
+    assert "source-recorded" not in abdominal_light.finding.lower()
     assert_no_hidden(serialize_encounter_context(case), case)
     assert_no_hidden(patient_context(case, engine.state, "Why are you here?"), case)
     assert_no_hidden(nurse_context(case, engine.state), case)
@@ -4594,6 +4630,30 @@ def test_api_start_session_uses_configured_default_case_id():
     assert explicit_session["snapshot"]["case_id"] == first.case_id
 
 
+def test_api_session_payload_includes_optional_visible_patient_visual():
+    case = sample_prepared_case().model_copy(deep=True)
+    case.visible_start.visual = CaseVisual(
+        kind="synthetic_image",
+        src="/patient-media/sample_pe_001.webp",
+        alt="Synthetic middle-aged female-presenting patient seated upright with increased work of breathing.",
+        prompt_summary="Middle-aged female-presenting patient in a generic ED room, seated upright, anxious, mildly diaphoretic, with increased work of breathing.",
+        clinical_cues=["middle-aged", "female-presenting", "increased work of breathing"],
+        provenance="Generated from deidentified learner-visible triage fields only.",
+        review_status="local_privacy_self_check_passed",
+    )
+    api_main.CASES = {case.case_id: case}
+    client = TestClient(app)
+
+    session = client.post("/api/sessions", json={"case_id": case.case_id}).json()
+
+    visual = session["snapshot"]["visible_start"]["visual"]
+    assert visual["kind"] == "synthetic_image"
+    assert visual["src"] == "/patient-media/sample_pe_001.webp"
+    assert visual["clinical_cues"] == ["middle-aged", "female-presenting", "increased work of breathing"]
+    assert visual["review_status"] == "local_privacy_self_check_passed"
+    assert_no_hidden(visual, case)
+
+
 def test_api_case_status_is_hidden_safe_and_locks_unvalidated_feedback():
     case = sample_prepared_case()
     api_main.CASES = {case.case_id: case}
@@ -4721,10 +4781,14 @@ def test_structured_exam_action_reveals_authored_or_absent_finding_without_llm()
     authored = engine.perform_exam("respiratory_inspection_work_of_breathing")
     absent = engine.perform_exam("abdomen_special_murphy")
 
-    assert authored.finding == "Tachypneic with increased work of breathing; no source-recorded detailed lung auscultation finding is available."
+    assert authored.finding == "Respirations observed at bedside: tachypneic with increased work of breathing."
     assert authored.source == "triage vitals and appearance"
-    assert absent.finding == "Not assessed / no abnormality documented for this maneuver in the source record."
-    assert absent.source == "source-record-absent"
+    assert absent.finding == "Murphy sign assessed with right upper quadrant palpation during inspiration: negative, without inspiratory arrest."
+    assert absent.source == "simulator-default-exam"
+    assert "source-record" not in authored.finding.lower()
+    assert "source record" not in authored.finding.lower()
+    assert "source-record" not in absent.finding.lower()
+    assert "source record" not in absent.finding.lower()
     assert [record.maneuver_id for record in engine.state.performed_exams] == [
         "respiratory_inspection_work_of_breathing",
         "abdomen_special_murphy",
@@ -4732,6 +4796,51 @@ def test_structured_exam_action_reveals_authored_or_absent_finding_without_llm()
     assert engine.state.transcript[-2].speaker == "exam"
     assert engine.state.transcript[-2].metadata["region"] == "respiratory"
     assert engine.state.token_usage == []
+
+
+def test_legacy_generic_exam_fact_is_replaced_by_specific_default_template():
+    case = sample_prepared_case().model_copy(deep=True)
+    case.exam_facts = [
+        ExamFact(
+            id="legacy_skin_temperature_absent",
+            maneuver_id="general_palpation_temperature",
+            system="general",
+            triggers=["warmth", "temperature"],
+            finding="Not assessed / no abnormality documented for this maneuver in the source record.",
+            source="legacy-source-record-absent",
+        )
+    ]
+    engine = start_case(case)
+
+    record = engine.perform_exam("general_palpation_temperature")
+
+    assert record.finding == "Skin palpated over forehead and distal extremities: warm and dry, without marked coolness or clamminess."
+    assert record.source == "simulator-default-exam"
+    assert "source record" not in record.finding.lower()
+    assert "not assessed" not in record.finding.lower()
+
+
+def test_every_catalog_exam_has_specific_default_finding_without_source_disclaimer():
+    case = sample_prepared_case().model_copy(deep=True)
+    case.exam_facts = []
+    engine = start_case(case)
+    banned_fragments = (
+        "not assessed",
+        "no abnormality documented",
+        "source record",
+        "source-record",
+        "source-recorded",
+        "does not include",
+        "not documented",
+        "no documentation",
+        "no detailed",
+    )
+
+    for maneuver in load_exam_catalog():
+        record = engine.perform_exam(maneuver.id)
+        lower = record.finding.lower()
+        assert len(record.finding.split()) >= 6, (maneuver.id, record.finding)
+        assert not any(fragment in lower for fragment in banned_fragments), (maneuver.id, record.finding)
 
 
 def test_structured_exam_general_appearance_tracks_live_state():
@@ -5034,6 +5143,25 @@ def test_persona_free_text_requires_configured_ai_provider():
     state = client.get(f"/api/sessions/{session_id}").json()
     assert state["snapshot"]["elapsed_minutes"] == 0
     assert state["state"]["transcript"] == []
+
+
+def test_add_note_records_chart_note_without_ai_provider():
+    api_main.LLM = LLMClient(LLMConfig(provider="unconfigured"))
+    api_main.ALLOW_MOCK_LLM = False
+    client = TestClient(app)
+    session_id = client.post("/api/sessions", json={}).json()["session_id"]
+
+    response = client.post(
+        f"/api/sessions/{session_id}/actions",
+        json={"type": "add_note", "text": "Objective note: patient appears uncomfortable.", "dt_minutes": 0},
+    )
+
+    assert response.status_code == 200
+    note = response.json()["state"]["transcript"][-1]
+    assert note["speaker"] == "student"
+    assert note["metadata"]["type"] == "clinical_note"
+    assert note["text"] == "Objective note: patient appears uncomfortable."
+    assert response.json()["state"]["token_usage"] == []
 
 
 def test_physical_exam_free_text_returns_deterministic_source_scoped_result_without_persona_usage():

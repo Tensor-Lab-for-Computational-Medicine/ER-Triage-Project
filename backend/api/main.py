@@ -72,6 +72,7 @@ class StartSessionRequest(BaseModel):
 class StudentAction(BaseModel):
     type: Literal[
         "free_text",
+        "add_note",
         "exam",
         "order",
         "intervention",
@@ -233,6 +234,18 @@ async def handle_action(session_id: str, action: StudentAction) -> dict[str, Any
         if action.type == "advance_time":
             return _session_payload(engine)
 
+        if action.type == "add_note":
+            note_text = (action.text or "").strip()
+            engine.state.transcript.append(
+                {
+                    "speaker": "student",
+                    "text": note_text,
+                    "elapsed_minutes": engine.state.elapsed_minutes,
+                    "metadata": {"type": "clinical_note"},
+                }
+            )
+            return _session_payload(engine)
+
         if action.type == "commit_esi":
             level, rationale = _validated_esi_commitment(action.payload)
             commitment = engine.commit_esi(level, rationale)
@@ -276,6 +289,9 @@ def _validate_action_before_advance(action: StudentAction, engine: EncounterEngi
 
     if action.type == "free_text" and not str(action.text or "").strip():
         raise HTTPException(status_code=400, detail="free_text actions require non-empty text")
+
+    if action.type == "add_note" and not str(action.text or "").strip():
+        raise HTTPException(status_code=400, detail="add_note actions require non-empty text")
 
     if action.type == "exam":
         if not action.exam_maneuver_id:

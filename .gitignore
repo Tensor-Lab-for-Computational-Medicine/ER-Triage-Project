@@ -31,6 +31,8 @@ mimic-iv-ext-clinical-decision-support-for-referral-triage-and-diagnosis-*
 mimic-iv-ext-clinical-decision-support-for-referral-triage-and-diagnosis-*/
 data/restricted/
 data/cases/
+*.case-bundle.zip
+*.restricted*.zip
 frontend/src/data/*.restricted*.json
 reports/restricted/
 clinical_knowledge_bundle.local*.json

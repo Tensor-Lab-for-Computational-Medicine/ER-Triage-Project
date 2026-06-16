@@ -14,6 +14,8 @@ RESTRICTED_PATTERNS = [
     "mimic-iv-ext-clinical-decision-support-for-referral-triage-and-diagnosis-*/*",
     "data/restricted/*",
     "data/restricted/**/*",
+    "data/cases/*",
+    "data/cases/**/*",
     "frontend/src/data/*.restricted*.json",
     "reports/restricted/*",
     "reports/restricted/**/*",
@@ -22,11 +24,38 @@ RESTRICTED_PATTERNS = [
 IGNORE_SENTINELS = [
     "mimic-iv-ext-clinical-decision-support-for-referral-triage-and-diagnosis-1.0.2",
     "data/restricted/example.json",
+    "data/cases/example.json",
     "frontend/src/data/mimic.restricted.json",
     "reports/restricted/audit.json",
 ]
 
 FRONTEND_SOURCE_GLOBS = ["*.js", "*.jsx", "*.ts", "*.tsx"]
+RESTRICTED_TEXT_MARKERS = [
+    "restricted_mietic_validate_public_",
+    "data/cases/restricted_",
+    "data\\cases\\restricted_",
+]
+TEXT_SCAN_EXTENSIONS = {
+    ".css",
+    ".html",
+    ".js",
+    ".jsx",
+    ".txt",
+    ".ts",
+    ".tsx",
+    ".py",
+    ".md",
+    ".json",
+    ".yml",
+    ".yaml",
+}
+TEXT_SCAN_EXCLUDED_TRACKED_PATHS = {
+    "scripts/check_restricted_data_privacy.py",
+}
+LOCAL_MACHINE_TEXT_MARKERS = [
+    "C:\\Users\\Aaron Ge",
+    "D:\\Projects\\EHR Triage",
+]
 RESTRICTED_STATIC_REFERENCE_MARKERS = [
     "import ",
     " from ",
@@ -94,6 +123,25 @@ def check_visible_untracked_files() -> None:
     require(not leaked, "Restricted files are visible as untracked git files:\n" + "\n".join(leaked))
 
 
+def check_tracked_restricted_text_markers() -> None:
+    tracked = [line for line in run_git(["ls-files"]).splitlines() if line.strip()]
+    offenders: list[str] = []
+    for path in tracked:
+        normalized = path.replace("\\", "/")
+        if normalized in TEXT_SCAN_EXCLUDED_TRACKED_PATHS:
+            continue
+        candidate = ROOT / normalized
+        if candidate.suffix.lower() not in TEXT_SCAN_EXTENSIONS:
+            continue
+        text = candidate.read_text(encoding="utf-8", errors="ignore")
+        if any(marker in text for marker in [*RESTRICTED_TEXT_MARKERS, *LOCAL_MACHINE_TEXT_MARKERS]):
+            offenders.append(normalized)
+    require(
+        not offenders,
+        "Tracked files contain concrete restricted case identifiers or paths:\n" + "\n".join(offenders),
+    )
+
+
 def check_public_static_imports() -> None:
     frontend = ROOT / "frontend" / "src"
     if not frontend.exists():
@@ -115,15 +163,25 @@ def check_public_static_imports() -> None:
 
 def check_public_build_artifacts() -> None:
     offenders: list[str] = []
+    marker_offenders: list[str] = []
     for directory in PUBLIC_BUILD_DIRS:
         if not directory.exists():
             continue
         for path in directory.rglob("*"):
             if path.is_file() and matches_restricted(str(path.relative_to(ROOT))):
                 offenders.append(str(path.relative_to(ROOT)))
+            if path.is_file() and path.suffix.lower() in TEXT_SCAN_EXTENSIONS:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+                if any(marker in text for marker in [*RESTRICTED_TEXT_MARKERS, *LOCAL_MACHINE_TEXT_MARKERS]):
+                    marker_offenders.append(str(path.relative_to(ROOT)))
     require(
         not offenders,
         "Restricted data artifacts are present in public build paths:\n" + "\n".join(offenders),
+    )
+    require(
+        not marker_offenders,
+        "Public build files contain concrete restricted case identifiers or local machine paths:\n"
+        + "\n".join(marker_offenders),
     )
 
 
@@ -131,6 +189,7 @@ def main() -> None:
     check_git_ignore_rules()
     check_tracked_files()
     check_visible_untracked_files()
+    check_tracked_restricted_text_markers()
     check_public_static_imports()
     check_public_build_artifacts()
     print("Restricted-data privacy checks passed.")

@@ -61,7 +61,7 @@ def sample_raw_encounter() -> dict:
                 "maneuver_id": "respiratory_inspection_work_of_breathing",
                 "system": "respiratory",
                 "triggers": ["lung", "lungs", "breath sounds", "auscultate", "respiratory", "chest"],
-                "finding": "Tachypneic with increased work of breathing; no source-recorded detailed lung auscultation finding is available.",
+                "finding": "Respirations observed at bedside: tachypneic with increased work of breathing.",
                 "source": "triage vitals and appearance",
             },
             {
@@ -69,7 +69,7 @@ def sample_raw_encounter() -> dict:
                 "maneuver_id": "cardiovascular_auscultation_heart_sounds",
                 "system": "cardiac",
                 "triggers": ["heart", "cardiac", "pulse", "pulses", "rate"],
-                "finding": "Tachycardic by monitor. No source-recorded murmur, rhythm irregularity, or pulse deficit finding is available.",
+                "finding": "Heart auscultated at standard listening posts: tachycardic with regular rhythm; no obvious murmur, rub, or gallop heard.",
                 "source": "triage vital signs",
             },
         ],

@@ -15,12 +15,23 @@ class VitalSigns(BaseModel):
     pain: int | None = Field(default=None, ge=0, le=10)
 
 
+class CaseVisual(BaseModel):
+    kind: str = "synthetic_image"
+    src: str | None = None
+    alt: str = ""
+    prompt_summary: str = ""
+    clinical_cues: list[str] = Field(default_factory=list)
+    provenance: str = ""
+    review_status: str = "unreviewed"
+
+
 class VisibleStart(BaseModel):
     chief_complaint: str
     demographics: dict[str, Any]
     presenting_vitals: VitalSigns
     triage_context: str
     appearance: str
+    visual: CaseVisual | None = None
 
 
 class HpiFact(BaseModel):

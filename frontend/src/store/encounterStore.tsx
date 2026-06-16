@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
 
 const previewApiBase =
   typeof window !== 'undefined' && window.location.port === '4173'
@@ -6,6 +6,8 @@ const previewApiBase =
     : 'http://localhost:8000';
 const API_BASE = (import.meta as any).env?.VITE_ED_SIM_API || previewApiBase;
 const AI_CONFIG_STORAGE_KEY = 'ed-simulator.ai-config.v1';
+const REALTIME_ADVANCE_INTERVAL_MS = 1000;
+const MINUTE_MS = 60_000;
 
 type AIProviderDraft = 'openai_responses' | 'openai_compatible' | 'openrouter';
 
@@ -156,6 +158,16 @@ export type TokenUsageRecord = {
   purpose: string;
 };
 
+export type CaseVisual = {
+  kind: string;
+  src?: string | null;
+  alt?: string | null;
+  prompt_summary?: string | null;
+  clinical_cues?: string[];
+  provenance?: string | null;
+  review_status?: string | null;
+};
+
 export type Snapshot = {
   case_id: string;
   title: string;
@@ -168,6 +180,7 @@ export type Snapshot = {
     triage_context: string;
     appearance: string;
     presenting_vitals: VitalSigns;
+    visual?: CaseVisual | null;
   };
   appearance: string;
   active_orders: OrderRecord[];
@@ -246,6 +259,7 @@ type EncounterState = {
   previousSnapshot: Snapshot | null;
   loading: boolean;
   busy: boolean;
+  simClockPaused: boolean;
   error: string;
   llmStatus: LLMStatus | null;
   aiConfigSaved: boolean;
@@ -273,7 +287,8 @@ type EncounterAction =
   | { type: 'loading' }
   | { type: 'busy'; value: boolean }
   | { type: 'error'; value: string }
-  | { type: 'session'; value: ApiSession }
+  | { type: 'session'; value: ApiSession; clearBusy?: boolean }
+  | { type: 'simClockPaused'; value: boolean }
   | { type: 'llmStatus'; value: LLMStatus }
   | { type: 'aiConfigSaved'; value: boolean }
   | { type: 'aiProviderDraft'; value: AIProviderDraft }
@@ -298,6 +313,7 @@ const initialState: EncounterState = {
   previousSnapshot: null,
   loading: true,
   busy: false,
+  simClockPaused: false,
   error: '',
   llmStatus: null,
   aiConfigSaved: Boolean(savedAIConfig),
@@ -334,6 +350,7 @@ function reducer(state: EncounterState, action: EncounterAction): EncounterState
   if (action.type === 'loading') return { ...state, loading: true, error: '' };
   if (action.type === 'busy') return { ...state, busy: action.value };
   if (action.type === 'error') return { ...state, loading: false, busy: false, error: action.value };
+  if (action.type === 'simClockPaused') return { ...state, simClockPaused: action.value };
   if (action.type === 'llmStatus') return { ...state, llmStatus: action.value };
   if (action.type === 'aiConfigSaved') return { ...state, aiConfigSaved: action.value };
   if (action.type === 'aiProviderDraft') return { ...state, aiProviderDraft: action.value };
@@ -348,7 +365,8 @@ function reducer(state: EncounterState, action: EncounterAction): EncounterState
     return {
       ...state,
       loading: false,
-      busy: false,
+      busy: action.clearBusy === false ? state.busy : false,
+      simClockPaused: newSession ? false : state.simClockPaused,
       error: '',
       previousSnapshot: newSession ? null : state.session?.snapshot || state.previousSnapshot,
       session: action.value,
@@ -381,8 +399,11 @@ type EncounterContextValue = EncounterState & {
   searchExams: (query: string) => Promise<void>;
   placeOrder: (orderId: string) => Promise<void>;
   performExam: (maneuverId: string) => Promise<void>;
+  addNote: (text: string) => Promise<void>;
+  sendQuickText: (text: string) => Promise<void>;
   applyIntervention: (interventionId: string) => Promise<void>;
   advanceTime: (minutes: number) => Promise<void>;
+  toggleSimClock: () => void;
   commitEsi: () => Promise<void>;
   commitDifferential: () => Promise<void>;
   updateSoap: (field: keyof SoapDraft, value: string) => void;
@@ -404,6 +425,13 @@ const EncounterContext = createContext<EncounterContextValue | null>(null);
 
 export function EncounterProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const actionQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const latestSessionIdRef = useRef<string | null>(null);
+  const lastAutoAdvanceAtRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    latestSessionIdRef.current = state.session?.session_id || null;
+  }, [state.session?.session_id]);
 
   const request = useCallback(async <T,>(path: string, options?: RequestInit): Promise<T> => {
     const headers = options?.body
@@ -482,21 +510,58 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     void start();
   }, [start]);
 
-  const postAction = useCallback(async (payload: Record<string, unknown>) => {
+  const postAction = useCallback(async (payload: Record<string, unknown>, options: { showBusy?: boolean; silentError?: boolean } = {}) => {
     if (!state.session?.session_id) return null;
-    dispatch({ type: 'busy', value: true });
-    try {
-      const session = await request<ApiSession>(`/api/sessions/${state.session.session_id}/actions`, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-      dispatch({ type: 'session', value: session });
-      return session;
-    } catch (error) {
-      dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Action failed.' });
-      return null;
-    }
+    const sessionId = state.session.session_id;
+    const showBusy = options.showBusy !== false;
+    const runAction = async () => {
+      if (showBusy) dispatch({ type: 'busy', value: true });
+      try {
+        const session = await request<ApiSession>(`/api/sessions/${sessionId}/actions`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        if (!latestSessionIdRef.current || latestSessionIdRef.current === sessionId) {
+          dispatch({ type: 'session', value: session, clearBusy: showBusy });
+        }
+        return session;
+      } catch (error) {
+        if (!options.silentError && (!latestSessionIdRef.current || latestSessionIdRef.current === sessionId)) {
+          dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Action failed.' });
+        }
+        return null;
+      }
+    };
+    const queuedAction = actionQueueRef.current.then(runAction, runAction);
+    actionQueueRef.current = queuedAction.then(() => undefined, () => undefined);
+    return queuedAction;
   }, [request, state.session?.session_id]);
+
+  useEffect(() => {
+    const sessionId = state.session?.session_id;
+    const ended = Boolean(state.session?.state.ended);
+    if (!sessionId || state.loading || state.busy || state.simClockPaused || ended) {
+      lastAutoAdvanceAtRef.current = null;
+      return undefined;
+    }
+
+    lastAutoAdvanceAtRef.current = Date.now();
+    const intervalId = window.setInterval(() => {
+      const now = Date.now();
+      const previous = lastAutoAdvanceAtRef.current ?? now;
+      lastAutoAdvanceAtRef.current = now;
+      const dtMinutes = Math.max(0, (now - previous) / MINUTE_MS);
+      if (dtMinutes <= 0) return;
+      void postAction(
+        { type: 'advance_time', dt_minutes: dtMinutes },
+        { showBusy: false, silentError: true }
+      );
+    }, REALTIME_ADVANCE_INTERVAL_MS);
+    return () => {
+      window.clearInterval(intervalId);
+      lastAutoAdvanceAtRef.current = null;
+    };
+  }, [postAction, state.busy, state.loading, state.session?.session_id, state.session?.state.ended, state.simClockPaused]);
 
   const sendFreeText = useCallback(async () => {
     const text = state.chatDraft.trim();
@@ -586,6 +651,22 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     await postAction({ type: 'exam', exam_maneuver_id: maneuverId, dt_minutes: 0 });
   }, [postAction]);
 
+  const addNote = useCallback(async (text: string) => {
+    const note = text.trim();
+    if (!note) return;
+    await postAction({ type: 'add_note', text: note, dt_minutes: 0 });
+  }, [postAction]);
+
+  const sendQuickText = useCallback(async (text: string) => {
+    const turn = text.trim();
+    if (!turn) return;
+    if (!state.llmStatus?.ready) {
+      dispatch({ type: 'error', value: state.llmStatus?.message || 'AI provider is not configured.' });
+      return;
+    }
+    await postAction({ type: 'free_text', text: turn, dt_minutes: 1 });
+  }, [postAction, state.llmStatus]);
+
   const applyIntervention = useCallback(async (interventionId: string) => {
     await postAction({ type: 'intervention', intervention_id: interventionId, dt_minutes: 0 });
   }, [postAction]);
@@ -593,6 +674,10 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
   const advanceTime = useCallback(async (minutes: number) => {
     await postAction({ type: 'advance_time', dt_minutes: minutes });
   }, [postAction]);
+
+  const toggleSimClock = useCallback(() => {
+    dispatch({ type: 'simClockPaused', value: !state.simClockPaused });
+  }, [state.simClockPaused]);
 
   const commitEsi = useCallback(async () => {
     if (!state.esiDraft) return;
@@ -636,8 +721,11 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     searchExams,
     placeOrder,
     performExam,
+    addNote,
+    sendQuickText,
     applyIntervention,
     advanceTime,
+    toggleSimClock,
     commitEsi,
     commitDifferential,
     updateSoap,
@@ -661,8 +749,11 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     searchExams,
     placeOrder,
     performExam,
+    addNote,
+    sendQuickText,
     applyIntervention,
     advanceTime,
+    toggleSimClock,
     commitEsi,
     commitDifferential,
     updateSoap,
