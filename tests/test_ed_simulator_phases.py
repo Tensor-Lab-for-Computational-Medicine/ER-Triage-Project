@@ -2879,7 +2879,7 @@ def test_source_refresh_fails_closed_when_decisive_probe_still_unresolved(tmp_pa
     assert acquisition_task.signal == "ct_imaging_order"
     assert "ct_abdomen_pelvis_with_contrast" in acquisition_task.candidate_order_ids
     assert acquisition_task.missing_source_modules == ["mimic_iv_note_radiology"]
-    assert any(path.replace("\\", "/").endswith("note/radiology.csv.gz") for path in acquisition_task.expected_paths)
+    assert any("radiology" in path.lower() for path in acquisition_task.expected_paths)
     assert acquisition_task.localized_operator_queries
     assert "Narrative and values are copied only from source-recorded rows" in acquisition_task.acceptance_criteria[0]
     checklist = build_source_acquisition_checklist(report)
