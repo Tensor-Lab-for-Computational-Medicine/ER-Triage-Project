@@ -48,6 +48,7 @@ jobs:
         working-directory: frontend
         env:
           VITE_BASE_PATH: ./
+          VITE_ED_SIM_API: http://127.0.0.1:8000
         run: npm run build
 
       - name: Start e2e servers
