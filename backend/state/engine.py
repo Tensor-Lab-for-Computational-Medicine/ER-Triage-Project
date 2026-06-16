@@ -7,6 +7,7 @@ from uuid import uuid4
 from pydantic import BaseModel, Field
 
 from backend.cases.schemas import PreparedCase, ResultBundle, VisibleSnapshot, VitalSigns
+from backend.exams.catalog import ExamManeuver, get_maneuver
 from backend.orders.catalog import CatalogOrder, get_order
 from backend.orders.resolver import resolve
 
@@ -30,6 +31,24 @@ class OrderRecord(BaseModel):
     result_due_at_min: float
     result: ResultBundle | None = None
     unavailable_reason: str | None = None
+
+
+class ExamRecord(BaseModel):
+    maneuver_id: str
+    display_name: str
+    region: str
+    maneuver_type: str
+    finding: str
+    source: str
+    performed_at_min: float
+
+
+class InterventionRecord(BaseModel):
+    intervention_id: str
+    display_name: str
+    applied_at_min: float
+    effect_summary: str
+    vitals_after: VitalSigns
 
 
 class ESICommitment(BaseModel):
@@ -79,6 +98,8 @@ class CaseState(BaseModel):
     phase: EncounterPhase = EncounterPhase.TRIAGE
     active_orders: dict[str, OrderRecord] = Field(default_factory=dict)
     interventions: list[str] = Field(default_factory=list)
+    performed_exams: list[ExamRecord] = Field(default_factory=list)
+    intervention_events: list[InterventionRecord] = Field(default_factory=list)
     esi_history: list[ESICommitment] = Field(default_factory=list)
     differential: list[str] = Field(default_factory=list)
     soap: SOAPNote = Field(default_factory=SOAPNote)
@@ -90,7 +111,7 @@ class CaseState(BaseModel):
 
 
 class EncounterEngine:
-    """Single source of truth for physiologic and procedural state."""
+    """Single source of truth for vitals and procedural state."""
 
     def __init__(self, case: PreparedCase, session_id: str | None = None):
         self.case = case
@@ -127,17 +148,57 @@ class EncounterEngine:
             {"type": "order", "order_id": order.id},
         )
 
-    def apply_intervention(self, intervention_id: str) -> OrderRecord:
+    def perform_exam(self, maneuver_id: str) -> ExamRecord:
+        maneuver = get_maneuver(maneuver_id)
+        if maneuver is None:
+            raise ValueError(f"unknown exam maneuver: {maneuver_id}")
+
+        finding, source = self._resolve_exam_finding(maneuver)
+        record = ExamRecord(
+            maneuver_id=maneuver.id,
+            display_name=maneuver.name,
+            region=maneuver.region,
+            maneuver_type=maneuver.maneuver_type,
+            finding=finding,
+            source=source,
+            performed_at_min=self.state.elapsed_minutes,
+        )
+        self.state.performed_exams.append(record)
+        self._append(
+            "exam",
+            f"{maneuver.name}: {finding}",
+            {
+                "type": "exam_result",
+                "exam_maneuver_id": maneuver.id,
+                "region": maneuver.region,
+                "maneuver_type": maneuver.maneuver_type,
+                "source": source,
+            },
+        )
+        self._refresh_completeness_flags()
+        return record
+
+    def apply_intervention(self, intervention_id: str) -> InterventionRecord:
         canonical = intervention_id.strip().lower().replace(" ", "_")
         order = get_order(canonical)
         if order is None:
             raise ValueError(f"unknown structured intervention: {canonical}")
         if order.type not in IMMEDIATE_ORDER_TYPES:
             raise ValueError(f"{canonical} is not a structured intervention, medication, or procedure.")
-        return self._apply_catalog_order(
+        if order.id not in self.state.active_orders:
+            self.state.active_orders[order.id] = OrderRecord(
+                order_id=order.id,
+                display_name=order.name,
+                order_type=order.type,
+                status="resulted",
+                ordered_at_min=self.state.elapsed_minutes,
+                result_due_at_min=self.state.elapsed_minutes,
+                result=_structured_action_result(order, self.state.elapsed_minutes),
+            )
+        return self._record_intervention(
             order,
-            f"Applied intervention: {order.id.replace('_', ' ')}.",
             {"type": "intervention", "intervention_id": order.id},
+            append_transcript=True,
         )
 
     def _apply_catalog_order(self, order: CatalogOrder, transcript_text: str, metadata: dict[str, Any]) -> OrderRecord:
@@ -156,7 +217,11 @@ class EncounterEngine:
         )
         self.state.active_orders[order.id] = record
         if immediate:
-            self._apply_intervention_effect(order.id)
+            self._record_intervention(
+                order,
+                {"type": "intervention_from_order", "intervention_id": order.id, "order_id": order.id},
+                append_transcript=False,
+            )
         self._append("student", transcript_text, metadata)
         self._release_due_orders()
         self._refresh_completeness_flags()
@@ -223,6 +288,8 @@ class EncounterEngine:
             active_orders=[record.model_dump(mode="json") for record in self.state.active_orders.values()],
             resulted_orders=resulted,
             interventions=list(self.state.interventions),
+            performed_exams=[record.model_dump(mode="json") for record in self.state.performed_exams],
+            intervention_events=[record.model_dump(mode="json") for record in self.state.intervention_events],
             running_summary=self.state.running_summary,
         )
 
@@ -298,13 +365,61 @@ class EncounterEngine:
         if speaker in {"student", "patient", "nurse", "consultant"} and text.strip():
             self.state.running_summary = _compact_summary(self.state.running_summary, text)
 
-    def _apply_intervention_effect(self, canonical: str) -> None:
+    def _record_intervention(
+        self,
+        order: CatalogOrder,
+        metadata: dict[str, Any] | None = None,
+        append_transcript: bool = True,
+    ) -> InterventionRecord:
+        already_active = order.id in self.state.interventions
+        effect_summary = self._apply_intervention_effect(order.id, already_active=already_active)
+        record = InterventionRecord(
+            intervention_id=order.id,
+            display_name=order.name,
+            applied_at_min=self.state.elapsed_minutes,
+            effect_summary=effect_summary,
+            vitals_after=self.state.current_vitals.model_copy(deep=True),
+        )
+        self.state.intervention_events.append(record)
+        if append_transcript:
+            self._append(
+                "nurse",
+                _intervention_confirmation(order.id, order.name, already_active),
+                metadata or {"type": "intervention", "intervention_id": order.id},
+            )
+        self._refresh_completeness_flags()
+        self._refresh_phase()
+        return record
+
+    def _apply_intervention_effect(self, canonical: str, already_active: bool = False) -> str:
         if canonical and canonical not in self.state.interventions:
             self.state.interventions.append(canonical)
+        if already_active:
+            return f"{canonical.replace('_', ' ')} was already active; no additional vital-sign change applied."
         if canonical == "oxygen" and self.state.current_vitals.spo2 < 94:
             self.state.current_vitals.spo2 = 94
+            return "SpO2 increased immediately toward the authored oxygen recovery trajectory."
         if canonical == "analgesia" and self.state.current_vitals.pain is not None:
             self.state.current_vitals.pain = max(0, self.state.current_vitals.pain - 1)
+            return "Pain score decreased immediately and will continue along the authored analgesia response."
+        if canonical == "iv_fluids" and self.state.current_vitals.sbp < 110:
+            self.state.current_vitals.sbp = min(115, self.state.current_vitals.sbp + 5)
+            return "Systolic blood pressure increased immediately toward the authored fluid response."
+        if canonical == "cardiac_monitor":
+            return "Continuous monitoring is active; diagnostic results are not generated by this intervention."
+        if canonical == "continuous_pulse_ox":
+            return "Continuous pulse oximetry is active; oxygenation remains governed by the trajectory."
+        if canonical == "iv_access":
+            return "IV access is established for medications, fluids, and contrast if ordered."
+        return f"{canonical.replace('_', ' ')} recorded; deterministic state updated without a source-result reveal."
+
+    def _resolve_exam_finding(self, maneuver: ExamManeuver) -> tuple[str, str]:
+        if maneuver.id == "general_inspection_appearance":
+            return self._appearance(), "live-state"
+        for fact in self.case.exam_facts:
+            if (fact.maneuver_id or fact.id) == maneuver.id:
+                return fact.finding, fact.source
+        return "Not assessed / no abnormality documented for this maneuver in the source record.", "source-record-absent"
 
     def _refresh_completeness_flags(self) -> None:
         flags = self.state.completeness_flags
@@ -322,6 +437,8 @@ class EncounterEngine:
             return "Worsening dyspnea with visible respiratory distress."
         if "oxygen" in self.state.interventions and self.state.current_vitals.spo2 >= 94:
             return "Breathing more comfortably on oxygen."
+        if "analgesia" in self.state.interventions and self.state.current_vitals.pain is not None and self.state.current_vitals.pain <= 4:
+            return "More comfortable after analgesia, still requiring focused reassessment."
         return self.case.visible_start.appearance
 
 
@@ -337,6 +454,8 @@ def _compact_summary(current: str, addition: str, max_chars: int = 700) -> str:
 def _format_result(record: OrderRecord) -> str:
     if not record.result:
         return f"{record.display_name}: resulted."
+    if _is_default_ecg_result(record):
+        return f"{record.display_name} resulted. ECG tracing is available in the result viewer."
     lines = [f"{record.display_name} resulted."]
     if record.result.values:
         values = []
@@ -350,6 +469,15 @@ def _format_result(record: OrderRecord) -> str:
     return " ".join(lines)
 
 
+def _is_default_ecg_result(record: OrderRecord) -> bool:
+    display_name = record.display_name.lower()
+    return bool(
+        record.result
+        and record.result.source == "simulator-default"
+        and ("ecg" in display_name or "ekg" in display_name or "12-lead" in display_name)
+    )
+
+
 def _structured_action_result(order: CatalogOrder, elapsed_minutes: float) -> ResultBundle:
     return ResultBundle(
         order_id=order.id,
@@ -358,6 +486,24 @@ def _structured_action_result(order: CatalogOrder, elapsed_minutes: float) -> Re
         narrative=f"{order.name} recorded as a structured {order.type}; no diagnostic value is expected.",
         source="simulator",
     )
+
+
+def _intervention_confirmation(intervention_id: str, display_name: str, already_active: bool) -> str:
+    if already_active:
+        return f"{display_name} already active."
+    if intervention_id == "oxygen":
+        return "O2 started, 2 L nasal cannula."
+    if intervention_id == "cardiac_monitor":
+        return "Cardiac monitor started."
+    if intervention_id == "continuous_pulse_ox":
+        return "Continuous pulse oximetry started."
+    if intervention_id == "iv_access":
+        return "IV access established."
+    if intervention_id == "iv_fluids":
+        return "IV crystalloid bolus started."
+    if intervention_id == "analgesia":
+        return "Analgesia given."
+    return f"{display_name} completed."
 
 
 def _stamp_result_release_time(result: ResultBundle | None, elapsed_minutes: float) -> ResultBundle | None:

@@ -58,6 +58,8 @@ def retrieve_evidence_passages(
 
 def _package_query(package: CasePackage) -> str:
     ordered = " ".join(order.order_id.replace("_", " ") for order in package.orders)
+    exams = " ".join(f"{record.display_name} {record.finding}" for record in package.exams)
+    interventions = " ".join(f"{record.display_name} {record.effect_summary}" for record in package.interventions)
     transcript = " ".join(message.text for message in package.transcript)
     key_points = " ".join(package.hidden_truth.clinician_key_points)
     return " ".join(
@@ -67,6 +69,8 @@ def _package_query(package: CasePackage) -> str:
             package.soap.assessment,
             package.soap.plan,
             ordered,
+            exams,
+            interventions,
             transcript,
             key_points,
         ]

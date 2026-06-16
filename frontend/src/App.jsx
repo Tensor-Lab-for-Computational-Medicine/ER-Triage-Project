@@ -1,22 +1,15 @@
-import React, { lazy, Suspense } from 'react';
+import React, { useEffect } from 'react';
 import ClinicalReasoningSimulator from './screens/ClinicalReasoningSimulator';
 
-const ClinicalFlowboard = lazy(() => import('./components/ClinicalFlowboard'));
-
 function App() {
-  const params = new URLSearchParams(window.location.search);
-  const pathname = window.location.pathname.replace(/\/$/, '');
-  const aiSimulatorMode = pathname.endsWith('/ai-simulator') || params.get('sim') === 'ai';
+  useEffect(() => {
+    const pathname = window.location.pathname.replace(/\/$/, '');
+    if (!pathname.endsWith('/ai-simulator')) {
+      window.history.replaceState(null, '', `/ai-simulator${window.location.search}${window.location.hash}`);
+    }
+  }, []);
 
-  if (aiSimulatorMode) {
-    return <ClinicalReasoningSimulator />;
-  }
-
-  return (
-    <Suspense fallback={<main className="min-h-screen bg-[#f4f7f8]" />}>
-      <ClinicalFlowboard />
-    </Suspense>
-  );
+  return <ClinicalReasoningSimulator />;
 }
 
 export default App;

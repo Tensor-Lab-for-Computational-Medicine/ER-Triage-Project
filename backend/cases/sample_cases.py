@@ -47,6 +47,32 @@ def sample_raw_encounter() -> dict:
                 "clinician_note": "No fever or productive cough by history.",
             },
         ],
+        "exam_facts": [
+            {
+                "id": "general_appearance",
+                "maneuver_id": "general_inspection_appearance",
+                "system": "general",
+                "triggers": ["general", "appearance", "look", "inspect", "exam"],
+                "finding": "Anxious, mildly diaphoretic, and working harder to breathe.",
+                "source": "triage appearance",
+            },
+            {
+                "id": "respiratory_effort",
+                "maneuver_id": "respiratory_inspection_work_of_breathing",
+                "system": "respiratory",
+                "triggers": ["lung", "lungs", "breath sounds", "auscultate", "respiratory", "chest"],
+                "finding": "Tachypneic with increased work of breathing; no source-recorded detailed lung auscultation finding is available.",
+                "source": "triage vitals and appearance",
+            },
+            {
+                "id": "cardiac_rate",
+                "maneuver_id": "cardiovascular_auscultation_heart_sounds",
+                "system": "cardiac",
+                "triggers": ["heart", "cardiac", "pulse", "pulses", "rate"],
+                "finding": "Tachycardic by monitor. No source-recorded murmur, rhythm irregularity, or pulse deficit finding is available.",
+                "source": "triage vital signs",
+            },
+        ],
         "result_bundles": {
             "ecg_12_lead": {
                 "display_name": "12-lead ECG",
@@ -138,6 +164,85 @@ def sample_raw_encounter() -> dict:
             {"elapsed_min": 3, "label": "Stabilization", "detail": "Oxygen, monitor, IV access, and ECG prioritized."},
             {"elapsed_min": 80, "label": "Imaging", "detail": "CT pulmonary angiography identified segmental clot."},
             {"elapsed_min": 120, "label": "Disposition", "detail": "Admitted for monitored treatment."},
+        ],
+        "rubric": {
+            "expected_diagnoses": ["pulmonary embolism"],
+            "expected_orders": ["d_dimer", "ct_pulmonary_angiography"],
+            "indicated_exams": [
+                {
+                    "id": "general_inspection_appearance",
+                    "label": "General appearance",
+                    "why": "Hypoxemia and dyspnea require early assessment of distress and work of breathing.",
+                    "early_minutes": 2,
+                    "evidence_terms": ["hypoxemia", "emergency severity index", "oxygen"],
+                },
+                {
+                    "id": "respiratory_inspection_work_of_breathing",
+                    "label": "Work of breathing",
+                    "why": "Respiratory distress changes stabilization urgency and monitoring needs.",
+                    "early_minutes": 2,
+                    "evidence_terms": ["hypoxemia", "oxygen", "respiratory distress"],
+                },
+                {
+                    "id": "respiratory_auscultation_breath_sounds",
+                    "label": "Breath sounds",
+                    "why": "Breath-sound assessment helps compare PE against pneumonia, pneumothorax, and bronchospasm branches.",
+                    "evidence_terms": ["dyspnea", "breath sounds", "respiratory"],
+                },
+                {
+                    "id": "cardiovascular_auscultation_heart_sounds",
+                    "label": "Heart sounds",
+                    "why": "Tachycardia and pleuritic pain warrant a focused cardiopulmonary exam.",
+                    "evidence_terms": ["tachycardia", "emergency severity index"],
+                },
+            ],
+            "indicated_interventions": [
+                {
+                    "id": "oxygen",
+                    "label": "Supplemental oxygen",
+                    "why": "The presenting SpO2 is low and worsens without oxygen in the authored trajectory.",
+                    "early_minutes": 2,
+                    "evidence_terms": ["hypoxemia", "oxygen"],
+                },
+                {
+                    "id": "cardiac_monitor",
+                    "label": "Cardiac monitor",
+                    "why": "Hypoxemia and tachycardia warrant continuous monitoring during early stabilization.",
+                    "early_minutes": 3,
+                    "evidence_terms": ["emergency severity index", "high risk", "monitoring"],
+                },
+                {
+                    "id": "iv_access",
+                    "label": "IV access",
+                    "why": "IV access supports contrast imaging and treatment if the patient deteriorates.",
+                    "early_minutes": 5,
+                    "evidence_terms": ["resources", "intravenous"],
+                },
+            ],
+            "excessive_interventions": [
+                {
+                    "id": "broad_spectrum_antibiotics",
+                    "label": "Broad-spectrum antibiotics",
+                    "why": "No authored infectious syndrome or source result supports empiric antibiotics in this presentation.",
+                    "evidence_terms": ["no fever", "productive cough"],
+                }
+            ],
+            "critical_actions": ["oxygen", "cardiac_monitor", "iv_access"],
+            "esi_tolerance": 0,
+        },
+        "evidence_corpus": [
+            {
+                "id": "esi-hypoxemia",
+                "title": "Emergency Severity Index stabilization priorities",
+                "url": "https://www.ncbi.nlm.nih.gov/books/NBK2627/",
+                "text": "Emergency Severity Index triage prioritizes high-risk patients and immediate life-saving interventions. Hypoxemia, respiratory distress, oxygen therapy, monitoring, and intravenous access are relevant early stabilization resources.",
+            },
+            {
+                "id": "acute-dyspnea-exam",
+                "title": "Emergency dyspnea assessment",
+                "url": "https://www.ncbi.nlm.nih.gov/books/NBK499965/",
+                "text": "Emergency evaluation of dyspnea includes appearance, work of breathing, vital signs, oxygenation, cardiac assessment, and lung examination to identify respiratory distress and dangerous cardiopulmonary causes.",
+            },
         ],
     }
 

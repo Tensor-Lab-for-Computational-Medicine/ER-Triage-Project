@@ -22,7 +22,7 @@ DEFAULT_OUTPUT = ROOT / "reports" / "restricted" / "grounding_audit.restricted.j
 RISKY_PATTERNS = {
     "diagnosis": re.compile(r"\b(diagnos|differential|pneumonia|sepsis|fracture|stroke|embol|infarct|appendicitis|ulcer|failure|infection)\b", re.I),
     "medication": re.compile(r"\b(medication|antibiotic|opioid|ketorolac|acetaminophen|aspirin|heparin|insulin|vancomycin|ceftriaxone|dose|mg|mcg)\b", re.I),
-    "test": re.compile(r"\b(test|lab|cbc|cmp|troponin|lactate|culture|x-?ray|ct|mri|ultrasound|ecg|ekg|imaging)\b", re.I),
+    "test": re.compile(r"\b(test|lab|cbc|bmp|cmp|troponin|lactate|culture|x-?ray|ct|mri|ultrasound|ecg|ekg|imaging)\b", re.I),
     "treatment": re.compile(r"\b(treat|start|give|administer|bolus|fluid|intubat|oxygen|consult|procedure|surgery|admit|discharge)\b", re.I),
     "disposition": re.compile(r"\b(discharge|admit|admission|transfer|home|icu|floor|ward|observation)\b", re.I),
     "esi": re.compile(r"\bESI\s*([1-5])\b", re.I),

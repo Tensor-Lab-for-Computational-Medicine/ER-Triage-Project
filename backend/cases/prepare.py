@@ -6,10 +6,15 @@ from pathlib import Path
 from typing import Any
 
 from backend.cases.schemas import (
+    CaseReviewStatus,
+    CaseRubric,
+    EvidencePassageSpec,
+    ExamFact,
     HiddenTruth,
     HpiFact,
     PreparedCase,
     ResultBundle,
+    SourceEvidenceAudit,
     TimelineEvent,
     TrajectorySpec,
     VisibleStart,
@@ -54,22 +59,32 @@ def prepare_raw_encounter(raw: dict[str, Any]) -> PreparedCase:
 
     hidden_truth = HiddenTruth.model_validate(raw["hidden_truth"])
     hpi_facts = [HpiFact.model_validate(item) for item in raw.get("hpi_facts", [])]
+    exam_facts = [ExamFact.model_validate(item) for item in raw.get("exam_facts", [])]
     result_bundles = {
         order_id: ResultBundle.model_validate({**bundle, "order_id": order_id})
         for order_id, bundle in (raw.get("result_bundles") or {}).items()
     }
     real_timeline = [TimelineEvent.model_validate(item) for item in raw.get("real_timeline", [])]
+    rubric = CaseRubric.model_validate(raw.get("rubric") or {})
+    evidence_corpus = [EvidencePassageSpec.model_validate(item) for item in raw.get("evidence_corpus", [])]
+    review_status = CaseReviewStatus.model_validate(raw.get("review_status") or {})
+    source_evidence_audit = SourceEvidenceAudit.model_validate(raw.get("source_evidence_audit") or {})
 
     return PreparedCase(
         case_id=raw["case_id"],
         title=raw["title"],
         visible_start=visible_start,
         hpi_facts=hpi_facts,
+        exam_facts=exam_facts,
         result_bundles=result_bundles,
         hidden_truth=hidden_truth,
         trajectory=trajectory,
         real_timeline=real_timeline,
+        rubric=rubric,
+        evidence_corpus=evidence_corpus,
         source=raw.get("source", "local-prepared"),
+        review_status=review_status,
+        source_evidence_audit=source_evidence_audit,
     )
 
 

@@ -7,6 +7,13 @@
     "result_delay_min": 30
   },
   {
+    "id": "bmp",
+    "type": "lab",
+    "name": "Basic metabolic panel",
+    "aliases": ["bmp", "basic chemistry", "chem 7", "chem 8", "electrolytes", "renal function"],
+    "result_delay_min": 35
+  },
+  {
     "id": "cmp",
     "type": "lab",
     "name": "Comprehensive metabolic panel",

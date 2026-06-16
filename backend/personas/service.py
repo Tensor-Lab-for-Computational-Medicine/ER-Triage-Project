@@ -23,6 +23,27 @@ _VITAL_PATTERNS = {
     "pain": [re.compile(r"\bpain\D{0,24}(\d{1,2})\b", re.I)],
 }
 _BP_PATTERN = re.compile(r"\b(?:bp|blood pressure)?\D{0,16}(\d{2,3})\s*/\s*(\d{2,3})\b", re.I)
+_NAME_QUESTION = re.compile(r"\b(what(?:'s| is) your name|who are you|name\??)\b", re.I)
+_GREETING = re.compile(r"^\s*(hi|hello|hey|good morning|good afternoon|good evening)\s*[.!?]*\s*$", re.I)
+_WHY_HERE = re.compile(r"\b(why are you here|what brings you|what brought you|chief complaint|what happened|what's going on)\b", re.I)
+_CURRENT_SYMPTOMS = re.compile(r"\b(how are you feeling|how do you feel|what are you feeling|symptoms?|what hurts)\b", re.I)
+_HIDDEN_QUERY = re.compile(r"\b(diagnosis|what do i have|esi|emergency severity index|disposition|admit|admission|ground truth|answer)\b", re.I)
+_INAPPROPRIATE = re.compile(r"\b(big butts?|sexy|sex|turn you on|hot|ass|breasts?|boobs?|naked)\b", re.I)
+_OFF_TOPIC = re.compile(r"\b(pizza|favorite|favourite|sports?|movie|music|song|hobby|hobbies|vacation|weather|politics|date|dating)\b", re.I)
+_CLINICAL_TERMS = re.compile(
+    r"\b(pain|chest|breath|breathing|short of breath|symptom|sick|ed|er|hospital|medicine|allergy|allergies|history|"
+    r"fever|cough|travel|clot|surgery|pregnan|nausea|vomit|dizzy|faint|name|age|address|phone|emergency contact|"
+    r"smok|drink|drug|medication|medical|doctor|nurse)\b",
+    re.I,
+)
+_HPI_QUERY = re.compile(
+    r"\b("
+    r"when|start|started|onset|duration|fever|cough|sputum|nausea|vomit|vomiting|bowel|constipation|diarrhea|"
+    r"appetite|eat|drink|urinate|urination|stool|travel|clot|estrogen|risk|surgery|allerg|history|medical|"
+    r"medications?|blood thinner|pain|severity|score|chest|breath|breathing|short of breath|abdomen|abdominal|belly"
+    r")\b",
+    re.I,
+)
 
 
 def build_persona_messages(role: str, context: dict, student_text: str) -> list[LLMMessage]:
@@ -35,27 +56,32 @@ def build_persona_messages(role: str, context: dict, student_text: str) -> list[
 
 
 async def answer_persona(role: str, context: dict, student_text: str, client: LLMClient) -> LLMResult:
-    if client.config.provider == "mock":
+    if client.provider_name() == "mock":
         text = _deterministic_response(role, context, student_text)
         messages = build_persona_messages(role, context, student_text)
         result = await client.complete(messages, "strong" if role == "consultant" else "cheap", f"{role}_dialogue")
-        return result.model_copy(update={"text": _guard_state_consistency(role, context, text)})
+        guarded = _guard_persona_response(role, context, student_text, text)
+        return result.model_copy(update={"text": guarded})
 
     messages = build_persona_messages(role, context, student_text)
     tier = "strong" if role == "consultant" else "cheap"
     result = await client.complete(messages, tier, f"{role}_dialogue")
-    return result.model_copy(update={"text": _guard_state_consistency(role, context, result.text)})
+    guarded = _guard_persona_response(role, context, student_text, result.text)
+    return result.model_copy(update={"text": guarded})
 
 
 def _deterministic_response(role: str, context: dict, student_text: str) -> str:
     lowered = student_text.lower()
     if role == "patient":
+        source_scoped = _patient_source_scoped_response(context, student_text)
+        if source_scoped:
+            return source_scoped
         for fact in context.get("hpi_facts", []):
             if any(trigger in lowered for trigger in fact.get("triggers", [])):
                 return fact["lay_response"]
         if any(term in lowered for term in ["diagnosis", "what do i have", "esi", "disposition", "admit"]):
             return "I do not know that. I can only tell you what I am feeling."
-        return "I feel short of breath and the chest pain is worse when I breathe in."
+        return _symptom_redirect(context, "")
 
     if role == "nurse":
         vitals = context.get("current_vitals", {})
@@ -79,6 +105,90 @@ def _deterministic_response(role: str, context: dict, student_text: str) -> str:
         )
 
     raise ValueError(f"unknown persona role: {role}")
+
+
+def _guard_persona_response(role: str, context: dict, student_text: str, text: str) -> str:
+    guarded = _guard_state_consistency(role, context, text)
+    if role == "patient":
+        return _patient_source_scoped_response(context, student_text) or guarded
+    return guarded
+
+
+def _patient_source_scoped_response(context: dict, student_text: str) -> str:
+    realism = _patient_realism_response(context, student_text)
+    if realism:
+        return realism
+
+    if _HIDDEN_QUERY.search(student_text or ""):
+        return "I do not know that. I can only tell you what I am feeling."
+
+    facts = context.get("hpi_facts") or []
+    if facts:
+        responses = []
+        seen = set()
+        for fact in facts:
+            response = str(fact.get("lay_response") or "").strip()
+            if response and response not in seen:
+                responses.append(response)
+                seen.add(response)
+        if responses:
+            return " ".join(responses)
+
+    if _CURRENT_SYMPTOMS.search(student_text or ""):
+        return _symptom_redirect(context, "")
+
+    if _HPI_QUERY.search(student_text or ""):
+        return _source_limited_unknown(context)
+
+    return ""
+
+
+def _patient_realism_response(context: dict, student_text: str) -> str:
+    asked = " ".join(str(student_text or "").split())
+    lowered = asked.lower()
+    chief_complaint = str(context.get("chief_complaint") or "my symptoms").strip()
+
+    if _NAME_QUESTION.search(asked):
+        name = str((context.get("patient_identity") or {}).get("name") or "I can tell you my name").strip()
+        return f"My name is {name}."
+
+    if _GREETING.match(asked):
+        return _symptom_redirect(context, "Hi...")
+
+    if _WHY_HERE.search(asked):
+        return f"I came in because of {chief_complaint.lower()}."
+
+    if _INAPPROPRIATE.search(asked):
+        return _symptom_redirect(context, "Please don't ask me that right now.")
+
+    if _OFF_TOPIC.search(asked) and not _CLINICAL_TERMS.search(asked):
+        return _symptom_redirect(context, "Can we focus on why I'm here?")
+
+    return ""
+
+
+def _symptom_redirect(context: dict, prefix: str) -> str:
+    chief_complaint = str(context.get("chief_complaint") or "").strip()
+    appearance = str(context.get("appearance") or "").strip()
+    prefix = prefix.strip()
+    if chief_complaint:
+        symptom = chief_complaint[0].lower() + chief_complaint[1:]
+        if prefix:
+            return f"{prefix} I'm having {symptom}."
+        return f"I'm having {symptom}."
+    if appearance:
+        if prefix:
+            return f"{prefix} {appearance}"
+        return appearance
+    if prefix:
+        return f"{prefix} I feel sick."
+    return "I feel sick."
+
+
+def _source_limited_unknown(context: dict) -> str:
+    chief_complaint = str(context.get("chief_complaint") or "my symptoms").strip()
+    symptom = chief_complaint[0].lower() + chief_complaint[1:] if chief_complaint else "my symptoms"
+    return f"I don't have that detail available. I can tell you I'm here because of {symptom}."
 
 
 def _guard_state_consistency(role: str, context: dict, text: str) -> str:

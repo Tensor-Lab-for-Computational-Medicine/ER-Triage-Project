@@ -221,6 +221,14 @@ def file_table_path(base: Path, name: str) -> Path | None:
     return first_existing(csv_candidates(name_path))
 
 
+def cxr_raw_reports_dir(base: Path) -> Path | None:
+    if (base / "files").is_dir():
+        return base / "files"
+    if base.is_dir() and any(child.is_dir() and re.fullmatch(r"p\d{2}", child.name) for child in base.iterdir()):
+        return base
+    return None
+
+
 def sql_path(path: Path) -> str:
     return "'" + str(path).replace("'", "''").replace("\\", "/") + "'"
 
@@ -299,6 +307,7 @@ def discover_paths(args: argparse.Namespace) -> dict[str, dict[str, Path | None]
             "study_list": file_table_path(cxr_dir, "cxr-study-list.csv") or table_path(cxr_dir, "mimic-cxr-2.0.0-metadata", "cxr-study-list"),
             "record_list": file_table_path(cxr_dir, "cxr-record-list.csv") or table_path(cxr_dir, "mimic-cxr-2.0.0-metadata", "cxr-record-list"),
             "reports": file_table_path(cxr_dir, "cxr_reports.csv"),
+            "raw_reports_dir": cxr_raw_reports_dir(cxr_dir),
         },
         "ecg": {
             "record_list": file_table_path(ecg_dir, "record-list.csv") or table_path(ecg_dir, "record-list"),
@@ -772,8 +781,46 @@ def query_cxr_context(con: duckdb.DuckDBPyConnection, paths: dict[str, Path | No
         if note:
             notes.append(note)
     else:
-        notes.append("MIMIC-CXR report CSV not found; raw text reports are not parsed by this linker.")
+        raw_reports_dir = paths.get("raw_reports_dir")
+        if raw_reports_dir:
+            result["reports"] = query_raw_cxr_reports(con, raw_reports_dir, args.limit_per_case)
+        else:
+            notes.append("MIMIC-CXR report CSV and raw text report folder not found.")
     return result, notes
+
+
+def query_raw_cxr_reports(con: duckdb.DuckDBPyConnection, raw_reports_dir: Path, limit_per_case: int) -> list[dict[str, Any]]:
+    rows = fetch_records(
+        con,
+        """
+            SELECT public_case_uid, subject_id
+            FROM mietic_ids
+            WHERE subject_id IS NOT NULL
+            ORDER BY public_case_uid
+        """,
+    )
+    linked: list[dict[str, Any]] = []
+    per_case_limit = min(limit_per_case, 5)
+    for row in rows:
+        subject_id = compact_text(row.get("subject_id"))
+        if not subject_id:
+            continue
+        subject_id = subject_id.split(".", 1)[0]
+        subject_dir = raw_reports_dir / f"p{subject_id[:2]}" / f"p{subject_id}"
+        if not subject_dir.is_dir():
+            continue
+        for report_path in sorted(subject_dir.glob("s*.txt"))[:per_case_limit]:
+            linked.append(
+                {
+                    "public_case_uid": row["public_case_uid"],
+                    "subject_id": subject_id,
+                    "study_id": report_path.stem.removeprefix("s"),
+                    "report_snippet": compact_text(report_path.read_text(encoding="utf-8", errors="replace"))[:900],
+                    "source_format": "mimic-cxr-raw-text",
+                    "source_file": str(report_path),
+                }
+            )
+    return linked
 
 
 def query_ecg_context(con: duckdb.DuckDBPyConnection, paths: dict[str, Path | None], args: argparse.Namespace) -> tuple[dict[str, list[dict[str, Any]]], list[str]]:

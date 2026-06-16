@@ -31,6 +31,15 @@ class HpiFact(BaseModel):
     clinician_note: str
 
 
+class ExamFact(BaseModel):
+    id: str
+    maneuver_id: str | None = None
+    system: str
+    triggers: list[str] = Field(default_factory=list)
+    finding: str
+    source: str = "source-record"
+
+
 class ResultValue(BaseModel):
     name: str
     value: str
@@ -46,6 +55,7 @@ class ResultBundle(BaseModel):
     values: list[ResultValue] = Field(default_factory=list)
     narrative: str | None = None
     source: str = "mimic"
+    source_reference: dict[str, Any] = Field(default_factory=dict)
 
 
 class HiddenTruth(BaseModel):
@@ -53,6 +63,31 @@ class HiddenTruth(BaseModel):
     validated_esi: int = Field(ge=1, le=5)
     actual_disposition: str
     clinician_key_points: list[str] = Field(default_factory=list)
+
+
+class EvidencePassageSpec(BaseModel):
+    id: str
+    title: str
+    text: str
+    url: str | None = None
+
+
+class RubricAction(BaseModel):
+    id: str
+    label: str = ""
+    why: str = ""
+    early_minutes: float | None = None
+    evidence_terms: list[str] = Field(default_factory=list)
+
+
+class CaseRubric(BaseModel):
+    expected_diagnoses: list[str] = Field(default_factory=list)
+    expected_orders: list[str] = Field(default_factory=list)
+    indicated_exams: list[RubricAction] = Field(default_factory=list)
+    indicated_interventions: list[RubricAction] = Field(default_factory=list)
+    excessive_interventions: list[RubricAction] = Field(default_factory=list)
+    critical_actions: list[str] = Field(default_factory=list)
+    esi_tolerance: int = 0
 
 
 class TrajectoryCondition(BaseModel):
@@ -77,6 +112,24 @@ class TrajectorySpec(BaseModel):
     excluded_reason: str | None = None
 
 
+class CaseReviewStatus(BaseModel):
+    trajectory_clinician_signed_off: bool = False
+    grader_clinician_validated: bool = False
+    playthrough_clinician_signed_off: bool = False
+    trajectory_review: dict[str, Any] = Field(default_factory=dict)
+    grader_validation_review: dict[str, Any] = Field(default_factory=dict)
+    playthrough_review: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class SourceEvidenceAudit(BaseModel):
+    source_identifiers: dict[str, Any] = Field(default_factory=dict)
+    result_bundle_ids: list[str] = Field(default_factory=list)
+    documented_order_signals: list[str] = Field(default_factory=list)
+    documented_orders_without_results: list[str] = Field(default_factory=list)
+    documented_order_details: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class TimelineEvent(BaseModel):
     elapsed_min: int
     label: str
@@ -88,11 +141,16 @@ class PreparedCase(BaseModel):
     title: str
     visible_start: VisibleStart
     hpi_facts: list[HpiFact] = Field(default_factory=list)
+    exam_facts: list[ExamFact] = Field(default_factory=list)
     result_bundles: dict[str, ResultBundle] = Field(default_factory=dict)
     hidden_truth: HiddenTruth
     trajectory: TrajectorySpec
     real_timeline: list[TimelineEvent] = Field(default_factory=list)
+    rubric: CaseRubric = Field(default_factory=CaseRubric)
+    evidence_corpus: list[EvidencePassageSpec] = Field(default_factory=list)
     source: str = "local-prepared"
+    review_status: CaseReviewStatus = Field(default_factory=CaseReviewStatus)
+    source_evidence_audit: SourceEvidenceAudit = Field(default_factory=SourceEvidenceAudit)
 
 
 class VisibleSnapshot(BaseModel):
@@ -106,4 +164,6 @@ class VisibleSnapshot(BaseModel):
     active_orders: list[dict[str, Any]] = Field(default_factory=list)
     resulted_orders: list[ResultBundle] = Field(default_factory=list)
     interventions: list[str] = Field(default_factory=list)
+    performed_exams: list[dict[str, Any]] = Field(default_factory=list)
+    intervention_events: list[dict[str, Any]] = Field(default_factory=list)
     running_summary: str = ""

@@ -27,6 +27,7 @@ class ValidationCaseResult(BaseModel):
     esi_match: bool
     disposition_present: bool
     critical_actions_complete: bool
+    feedback_grounding_complete: bool
     clinician_key_present: bool = False
     clinician_diagnostic_match: bool | None = None
     clinician_esi_match: bool | None = None
@@ -40,6 +41,7 @@ class ValidationReport(BaseModel):
     esi_agreement: float
     disposition_documentation_rate: float
     critical_action_agreement: float
+    feedback_grounding_rate: float
     clinician_answer_key_coverage: float = 0
     clinician_diagnostic_agreement: float | None = None
     clinician_esi_agreement: float | None = None
@@ -73,6 +75,7 @@ def run_validation(
                 esi_match=last_esi == package.hidden_truth.validated_esi,
                 disposition_present=_disposition_matches(package.soap.plan, package.hidden_truth.actual_disposition),
                 critical_actions_complete=not feedback.completeness["critical_actions"]["missed"],
+                feedback_grounding_complete=_feedback_grounding_complete(feedback),
                 clinician_key_present=answer_key is not None,
                 clinician_diagnostic_match=(
                     _diagnosis_matches(student_diagnosis_text, answer_key.acceptable_diagnoses)
@@ -102,6 +105,7 @@ def run_validation(
     esi_agreement = sum(row.esi_match for row in rows) / total
     disposition_rate = sum(row.disposition_present for row in rows) / total
     critical_action_agreement = sum(row.critical_actions_complete for row in rows) / total
+    feedback_grounding_rate = sum(row.feedback_grounding_complete for row in rows) / total
     key_coverage = sum(row.clinician_key_present for row in rows) / total if answer_key_supplied else 0
     clinician_diagnostic_agreement = _optional_agreement(rows, "clinician_diagnostic_match")
     clinician_esi_agreement = _optional_agreement(rows, "clinician_esi_match")
@@ -116,6 +120,10 @@ def run_validation(
         failure_modes.append("disposition documentation below clinician threshold")
     if critical_action_agreement < threshold:
         failure_modes.append("critical action agreement below clinician threshold")
+    if feedback_grounding_rate < threshold:
+        failure_modes.append("feedback grounding contract below clinician threshold")
+    if not answer_key_supplied:
+        failure_modes.append("clinician answer key required for release validation")
     if answer_key_supplied:
         if key_coverage < 1:
             failure_modes.append("clinician answer key missing for held-out cases")
@@ -140,6 +148,7 @@ def run_validation(
         esi_agreement=esi_agreement,
         disposition_documentation_rate=disposition_rate,
         critical_action_agreement=critical_action_agreement,
+        feedback_grounding_rate=feedback_grounding_rate,
         clinician_answer_key_coverage=key_coverage,
         clinician_diagnostic_agreement=clinician_diagnostic_agreement,
         clinician_esi_agreement=clinician_esi_agreement,
@@ -212,6 +221,62 @@ def _normalize_disposition_text(text: str) -> str:
     return " ".join(str(text or "").lower().replace("-", " ").split())
 
 
+def _feedback_grounding_complete(feedback) -> bool:
+    teaching_ok = all(
+        _grounding_item_ok(
+            grounded=bool(point.grounded),
+            evidence_id=point.evidence_id,
+            text=point.claim,
+            note=point.claim,
+        )
+        for point in feedback.teaching_points
+    )
+    action_items = _flatten_action_feedback_items(feedback.action_feedback)
+    action_ok = all(
+        _grounding_item_ok(
+            grounded=bool(item.get("grounded")),
+            evidence_id=item.get("evidence_id"),
+            text=item.get("message"),
+            note=item.get("evidence_note"),
+        )
+        for item in action_items
+    )
+    workup_items = _flatten_action_feedback_items(feedback.workup_judgment.get("items", []))
+    workup_ok = all(
+        _grounding_item_ok(
+            grounded=bool(item.get("grounded")),
+            evidence_id=item.get("evidence_id"),
+            text=item.get("message"),
+            note=item.get("evidence_note"),
+        )
+        for item in workup_items
+    )
+    return teaching_ok and action_ok and workup_ok
+
+
+def _flatten_action_feedback_items(value: Any) -> list[dict[str, Any]]:
+    if isinstance(value, dict):
+        if {"grounded", "message", "evidence_note"} <= set(value):
+            return [value]
+        items: list[dict[str, Any]] = []
+        for nested in value.values():
+            items.extend(_flatten_action_feedback_items(nested))
+        return items
+    if isinstance(value, list):
+        items: list[dict[str, Any]] = []
+        for nested in value:
+            items.extend(_flatten_action_feedback_items(nested))
+        return items
+    return []
+
+
+def _grounding_item_ok(*, grounded: bool, evidence_id: Any, text: Any, note: Any) -> bool:
+    text_blob = f"{text or ''} {note or ''}".lower()
+    if grounded:
+        return bool(evidence_id) and "no evidence found" not in text_blob
+    return not evidence_id and "no evidence found" in text_blob
+
+
 def _read_json(path: Path | None) -> Any:
     if path is None:
         return None
@@ -237,6 +302,8 @@ def _normalize_answer_key(
     if answer_key is None:
         return {}
     if isinstance(answer_key, dict):
+        if "cases" in answer_key:
+            return _normalize_answer_key([ClinicianAnswerKey.model_validate(item) for item in answer_key.get("cases") or []])
         return {
             case_id: value if isinstance(value, ClinicianAnswerKey) else ClinicianAnswerKey.model_validate(value)
             for case_id, value in answer_key.items()
@@ -256,7 +323,11 @@ def _main(argv: list[str] | None = None) -> int:
     parser.add_argument("packages", nargs="+", type=Path, help="Completed CasePackage JSON file(s).")
     parser.add_argument("--rubric", type=Path, help="ClinicianRubric JSON file.")
     parser.add_argument("--evidence", type=Path, help="Evidence passages JSON file or {'passages': [...]} object.")
-    parser.add_argument("--answer-key", type=Path, help="Clinician answer key JSON file or {'cases': [...]} object.")
+    parser.add_argument(
+        "--answer-key",
+        type=Path,
+        help="Clinician answer key JSON file or {'cases': [...]} object; required for release validation to pass.",
+    )
     parser.add_argument("--threshold", type=float, default=0.8, help="Minimum agreement required for each validation metric.")
     parser.add_argument("--output", type=Path, help="Optional path to write the JSON validation report.")
     args = parser.parse_args(argv)

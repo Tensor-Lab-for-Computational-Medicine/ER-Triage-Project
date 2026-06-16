@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const previewPort = process.env.PLAYWRIGHT_PORT || '4173';
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${previewPort}`;
-const backendPort = process.env.PLAYWRIGHT_BACKEND_PORT || '8000';
+const backendPort = process.env.PLAYWRIGHT_BACKEND_PORT || '18000';
 const backendURL = process.env.VITE_ED_SIM_API || `http://127.0.0.1:${backendPort}`;
 const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === 'true';
 const isCI = Boolean(process.env.CI);
@@ -29,6 +29,13 @@ export default defineConfig({
           command: `python -m uvicorn backend.api.main:app --host 127.0.0.1 --port ${backendPort}`,
           url: `${backendURL}/health`,
           cwd: '..',
+          env: {
+            ...process.env,
+            ED_SIM_CASE_DIR: process.env.ED_SIM_CASE_DIR || 'tests/fixtures/no_local_cases',
+            ED_SIM_LLM_PROVIDER: process.env.ED_SIM_LLM_PROVIDER || 'mock',
+            ED_SIM_ALLOW_MOCK_LLM: process.env.ED_SIM_ALLOW_MOCK_LLM || 'true',
+            ED_SIM_ALLOW_UNVALIDATED_GRADER: process.env.ED_SIM_ALLOW_UNVALIDATED_GRADER || 'true'
+          },
           reuseExistingServer: true,
           timeout: 120_000
         },
