@@ -42,7 +42,33 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run backend tests
-        run: python -m pytest
+        run: python -m pytest --junitxml=backend-pytest.xml
+
+      - name: Report backend pytest failures
+        if: failure()
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          def escape(value: str) -> str:
+              return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+          path = Path("backend-pytest.xml")
+          if not path.is_file():
+              print("::warning::backend-pytest.xml was not created")
+              raise SystemExit(0)
+
+          root = ET.parse(path).getroot()
+          for case in root.iter("testcase"):
+              problem = next((child for child in case if child.tag in {"failure", "error"}), None)
+              if problem is None:
+                  continue
+              title = f"{case.get('classname', '')}.{case.get('name', '')}".strip(".")
+              message = problem.get("message") or (problem.text or "").strip() or "pytest failure"
+              print(f"::error title={escape(title)}::{escape(message[:4000])}")
+          PY
 
       - name: Build frontend
         working-directory: frontend
