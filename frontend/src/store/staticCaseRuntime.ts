@@ -1272,7 +1272,7 @@ function isGenericFinding(finding: string) {
 
 function debriefSourceEnrichment(caseJson: PreparedCase) {
   const enrichment = JSON.parse(JSON.stringify(caseJson.source_enrichment || {}));
-  ['home_medications', 'ed_medications', 'source_vitals', 'debrief_timeline', 'note_digests', 'note_documents', 'historical_references'].forEach((key) => {
+  ['home_medications', 'ed_medications', 'source_vitals', 'debrief_timeline', 'note_digests', 'note_documents', 'ecg_interpretations', 'historical_references'].forEach((key) => {
     if (Array.isArray(enrichment[key])) {
       enrichment[key] = enrichment[key].filter((item: any) => item?.visibility !== 'authoring_only_hidden');
     }

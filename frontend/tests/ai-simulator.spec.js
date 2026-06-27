@@ -93,6 +93,14 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await page.getByText('CT abdomen/pelvis with contrast').click();
   await page.getByTestId('advance-15').click();
   await expect(page.getByTestId('resulted-orders')).toContainText('sigmoid volvulus');
+  await page.getByTestId('order-search').fill('ecg');
+  await page.getByText('12-lead ECG').click();
+  await expect(page.getByTestId('resulted-orders')).toContainText('ECG tracing');
+  await page.getByTestId('open-result-viewer').click();
+  await page.getByTestId('ecg-interpretation-input').fill('Atrial fibrillation without acute ST elevation.');
+  await page.getByTestId('save-ecg-interpretation').click();
+  await expect(page.getByText('12-lead ECG interpretation saved.')).toBeVisible();
+  await page.getByRole('button', { name: 'Done' }).click();
 
   await page.getByTestId('esi-level-2').click();
   await page.getByTestId('commit-esi').click();
@@ -110,17 +118,27 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await expect(page.getByTestId('copy-open-evidence-prompt')).toBeVisible();
   await page.getByTestId('debrief-tab-missed').click();
   await expect(page.getByTestId('review-group-reinforce')).toContainText('Reinforced strengths');
+  await expect(page.getByTestId('ecg-interpretation-review')).toContainText('ECG Interpretation Comparison');
+  await expect(page.getByTestId('ecg-learner-read')).toContainText('Atrial fibrillation without acute ST elevation.');
+  await expect(page.getByTestId('ecg-source-read')).toContainText('Atrial fibrillation with low voltage in extremity leads.');
+  await expect(page.getByTestId('ecg-interpretation-review')).toContainText('subject-level source references');
   await page.getByTestId('debrief-tab-prompt').click();
   await expect(page.getByTestId('evidence-prompt-preview')).toContainText('Source note digest');
   await expect(page.getByTestId('evidence-prompt-preview')).toContainText('Original note included');
+  await expect(page.getByTestId('evidence-prompt-preview')).toContainText('ECG comparison');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('sigmoid volvulus');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Missed workup: none');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('ECG interpretation comparison');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('learner read: Atrial fibrillation without acute ST elevation.');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('source read(s): MIMIC ECG study test-study-1: Atrial fibrillation with low voltage in extremity leads.');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Physician discharge-summary digest');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original physician note text');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original discharge note text for external review.');
   await page.getByTestId('debrief-tab-source').click();
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Original physician note');
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Physician discharge summary sections');
+  await expect(page.getByTestId('source-enrichment-debrief')).toContainText('ECG interpretations');
+  await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Atrial fibrillation with low voltage in extremity leads.');
   await expect(page.getByTestId('source-original-note')).toContainText('Original discharge note text for external review.');
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Home medications');
   expect(consoleProblems).toEqual([]);
@@ -265,6 +283,30 @@ function sampleCase() {
         values: [{ name: 'WBC', value: '12.4', unit: 'K/uL', flag: 'high', reference_range: '4.0-10.0' }],
         narrative: 'Mild leukocytosis.',
         source: 'authored-test-case'
+      },
+      ecg_12_lead: {
+        order_id: 'ecg_12_lead',
+        display_name: '12-lead ECG',
+        resulted_at_min: 0,
+        values: [{ name: 'RR interval', value: '833', unit: 'ms' }],
+        narrative: 'No same-encounter ECG machine measurement was found for this ED stay. Nearest subject-level ECG: Atrial fibrillation with low voltage in extremity leads.',
+        source: 'MIMIC-IV-ECG subject-level reference',
+        source_reference: {
+          encounter_link_status: 'subject_only',
+          requires_manual_verification: true,
+          match_basis: 'subject_id only; ECG time is outside the ED encounter window',
+          rows: [
+            {
+              order_id: 'ecg_12_lead',
+              study_id: 'test-study-1',
+              ecg_time: '2145-10-10T11:18:00.000',
+              machine_report: 'Atrial fibrillation with low voltage in extremity leads.',
+              encounter_link_status: 'subject_only',
+              requires_manual_verification: true,
+              match_basis: 'subject_id only; ECG time is outside the ED encounter window'
+            }
+          ]
+        }
       }
     },
     rubric: {
@@ -310,6 +352,19 @@ function sampleCase() {
       ],
       note_digests: [
         { note_type: 'Discharge summary', summary: 'Hospital course included decompression and discharge planning.', visibility: 'debrief' }
+      ],
+      ecg_interpretations: [
+        {
+          order_id: 'ecg_12_lead',
+          source_module: 'MIMIC-IV-ECG',
+          source_table: 'machine_measurements',
+          study_id: 'test-study-1',
+          ecg_time: '2145-10-10T11:18:00.000',
+          machine_report: 'Atrial fibrillation with low voltage in extremity leads.',
+          encounter_link_status: 'subject_only',
+          requires_manual_verification: true,
+          match_basis: 'subject_id only; ECG time is outside the ED encounter window'
+        }
       ]
     }
   };
@@ -323,7 +378,8 @@ function orderCatalog() {
     { id: 'iv_fluids', type: 'medication', name: 'IV crystalloid bolus', aliases: ['fluids'], result_delay_min: 0 },
     { id: 'analgesia', type: 'medication', name: 'Analgesia', aliases: ['pain medicine'], result_delay_min: 0 },
     { id: 'cbc', type: 'lab', name: 'CBC', aliases: ['complete blood count'], result_delay_min: 10 },
-    { id: 'ct_abdomen_pelvis_contrast', type: 'imaging', name: 'CT abdomen/pelvis with contrast', aliases: ['ct abdomen', 'ct a/p'], result_delay_min: 15 }
+    { id: 'ct_abdomen_pelvis_contrast', type: 'imaging', name: 'CT abdomen/pelvis with contrast', aliases: ['ct abdomen', 'ct a/p'], result_delay_min: 15 },
+    { id: 'ecg_12_lead', type: 'study', name: '12-lead ECG', aliases: ['ecg', 'ekg', 'electrocardiogram'], result_delay_min: 0 }
   ];
 }
 
