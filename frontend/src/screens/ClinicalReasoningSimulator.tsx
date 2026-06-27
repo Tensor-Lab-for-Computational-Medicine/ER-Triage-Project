@@ -2767,7 +2767,7 @@ function DebriefScreen() {
               ) : null}
               {activeTab === 'source' ? (
                 <div className="h-full overflow-auto pr-1">
-                  <SourceCaseContext enrichment={sourceEnrichment} />
+                  <SourceCaseContext enrichment={sourceEnrichment} ecgInterpretationReviews={ecgInterpretationReviews} />
                 </div>
               ) : null}
             </div>
@@ -2800,6 +2800,7 @@ type EcgSourceInterpretationEntry = {
 type EcgInterpretationReview = {
   orderId: string;
   displayName: string;
+  displayedTrace: EcgSourceInterpretationEntry;
   studentText: string;
   elapsedMinutes?: number;
   sourceSummary: string;
@@ -3228,10 +3229,15 @@ function buildOpenEvidencePrompt({
   sourceEnrichment: SourceEnrichment;
   ecgInterpretationReviews: EcgInterpretationReview[];
 }) {
+  const ecgReviewByOrderId = new Map(ecgInterpretationReviews.map((review) => [review.orderId, review]));
   const resultSummaries = packageOrders
     .filter((order) => order.result)
     .slice(0, 8)
-    .map((order) => `${order.display_name}: ${resultBrief(order.result)}`);
+    .map((order) => {
+      const ecgReview = ecgReviewByOrderId.get(order.order_id);
+      if (ecgReview) return `${order.display_name}: ${ecgResultLineForPrompt(ecgReview)}`;
+      return `${order.display_name}: ${resultBrief(order.result)}`;
+    });
   const transcriptExcerpt = transcript
     .slice(0, 12)
     .map((message) => `${formatClock(message.elapsed_minutes)} ${labelForMessage(message)}: ${message.text}`);
@@ -3455,11 +3461,17 @@ function recordArray(value: unknown) {
   return Array.isArray(value) ? value.filter(isPlainRecord) : [];
 }
 
-function SourceCaseContext({ enrichment }: { enrichment: SourceEnrichment }) {
+function SourceCaseContext({
+  enrichment,
+  ecgInterpretationReviews
+}: {
+  enrichment: SourceEnrichment;
+  ecgInterpretationReviews: EcgInterpretationReview[];
+}) {
   const timelineItems = prioritizedTimelineItems(enrichment.debriefTimeline);
   const noteItems = prioritizedNoteDigests(enrichment.noteDigests);
   const noteDocuments = prioritizedNoteDocuments(enrichment.noteDocuments);
-  const ecgItems = prioritizedEcgInterpretations(enrichment.ecgInterpretations);
+  const displayedEcgEntries = uniqueEcgSourceEntries(ecgInterpretationReviews.flatMap((review) => review.sourceEntries));
   const physicianNoteItems = noteItems.filter((item) => recordString(item, 'source_table') === 'note.discharge' || recordString(item, 'note_type').toLowerCase().includes('discharge') || recordString(item, 'section'));
   const hasContent = [
     enrichment.homeMedications,
@@ -3468,9 +3480,8 @@ function SourceCaseContext({ enrichment }: { enrichment: SourceEnrichment }) {
     enrichment.debriefTimeline,
     enrichment.noteDigests,
     enrichment.noteDocuments,
-    enrichment.ecgInterpretations,
     enrichment.historicalReferences
-  ].some((items) => items.length) || enrichment.provenanceNotes.length > 0;
+  ].some((items) => items.length) || displayedEcgEntries.length > 0 || enrichment.provenanceNotes.length > 0;
   if (!hasContent) return null;
 
   return (
@@ -3497,17 +3508,24 @@ function SourceCaseContext({ enrichment }: { enrichment: SourceEnrichment }) {
           )}
         </SourceContextSection>
 
-        <SourceContextSection title="ECG interpretations" items={ecgItems} empty="No source ECG interpretation rows attached." defaultOpen>
-          {(item, index) => (
-            <SourceContextRow
-              key={`${recordString(item, 'study_id')}-${recordString(item, 'ecg_time')}-${index}`}
-              title={ecgSourceTitle(item, index)}
-              detail={extractEcgReportText(item)}
-              meta={[ecgSourceMeta(item), sourceTableLabel(item)].filter(Boolean).join(' - ')}
-              tone={ecgSourceCaveat(item) ? 'warning' : 'default'}
-            />
-          )}
-        </SourceContextSection>
+        {displayedEcgEntries.length ? (
+          <details className="rounded-md border border-[#d7dfdf] bg-white" open>
+            <summary className="cursor-pointer px-3 py-2 text-sm font-extrabold text-[#17232b]">
+              Displayed ECG interpretation
+            </summary>
+            <div className="grid gap-2 border-t border-[#e4e9e9] bg-[#fbfcfc] p-3">
+              {displayedEcgEntries.map((entry) => (
+                <SourceContextRow
+                  key={entry.id}
+                  title={entry.title}
+                  detail={entry.interpretation}
+                  meta={entry.meta}
+                  tone={entry.caveat ? 'warning' : 'default'}
+                />
+              ))}
+            </div>
+          </details>
+        ) : null}
 
         <SourceContextSection title="ED medications" items={enrichment.edMedications.slice(0, 8)} empty="No ED medication rows attached." defaultOpen>
           {(item) => (
@@ -3639,15 +3657,17 @@ function buildEcgInterpretationReviews(
     .filter((order) => isEcgOrderForReview(order))
     .map((order) => {
       const interpretation = resultInterpretations[order.order_id];
+      const displayedTrace = displayedEcgTraceForOrder(order);
       const sourceEntries = uniqueEcgSourceEntries([
         ...ecgSourceEntriesForOrder(order, sourceEnrichment.ecgInterpretations),
         ...ecgSourceEntriesFromResult(order.result, order.order_id)
       ]);
-      const sourceSummary = ecgResultNarrativeSummary(order.result);
+      const sourceSummary = ecgResultNarrativeSummary(order.result, sourceEntries);
       const sourceCaveat = ecgReviewCaveat(order.result, sourceEntries, sourceSummary);
       return {
         orderId: order.order_id,
         displayName: order.display_name,
+        displayedTrace,
         studentText: String(interpretation?.text || '').trim(),
         elapsedMinutes: typeof interpretation?.elapsed_minutes === 'number' ? interpretation.elapsed_minutes : undefined,
         sourceSummary,
@@ -3662,14 +3682,59 @@ function isEcgOrderForReview(order: OrderResultItem) {
   return isEcgDisplayName(order.display_name) || /ecg|ekg|electrocardiogram|12_lead|12-lead/i.test(order.order_id);
 }
 
+function displayedEcgTraceForOrder(order: OrderResultItem): EcgSourceInterpretationEntry {
+  const reference = isPlainRecord(order.result?.source_reference) ? order.result.source_reference : {};
+  return {
+    id: `${order.order_id}-displayed-${recordString(reference, 'study_id') || recordString(reference, 'path') || 'trace'}`,
+    title: ecgSourceTitle(reference, 0) || `${order.display_name} displayed tracing`,
+    interpretation: '',
+    meta: [ecgSourceMeta(reference), order.result?.source ? `Source: ${order.result.source}` : ''].filter(Boolean).join(' - '),
+    caveat: ecgSourceCaveat(reference)
+  };
+}
+
+function displayedEcgIdentity(result: ResultBundle | null | undefined) {
+  const reference = isPlainRecord(result?.source_reference) ? result.source_reference : {};
+  return {
+    studyId: normalizeEcgIdentityValue(recordString(reference, 'study_id')),
+    path: normalizeEcgPath(recordString(reference, 'path') || recordString(reference, 'waveform_base_path')),
+    ecgTime: normalizeEcgIdentityValue(recordString(reference, 'ecg_time'))
+  };
+}
+
+function displayedEcgMatchesRecord(
+  identity: ReturnType<typeof displayedEcgIdentity>,
+  record: Record<string, unknown>
+) {
+  const hasIdentity = Boolean(identity.studyId || identity.path || identity.ecgTime);
+  if (!hasIdentity) return true;
+  const studyId = normalizeEcgIdentityValue(recordString(record, 'study_id'));
+  if (identity.studyId && studyId) return identity.studyId === studyId;
+  const path = normalizeEcgPath(recordString(record, 'path') || recordString(record, 'waveform_base_path'));
+  if (identity.path && path) return identity.path === path || path.endsWith(identity.path) || identity.path.endsWith(path);
+  const ecgTime = normalizeEcgIdentityValue(recordString(record, 'ecg_time'));
+  if (identity.ecgTime && ecgTime) return identity.ecgTime === ecgTime;
+  return false;
+}
+
+function normalizeEcgIdentityValue(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function normalizeEcgPath(value: string) {
+  return value.trim().replace(/\\/g, '/').replace(/\.[a-z0-9]+$/i, '').toLowerCase();
+}
+
 function ecgSourceEntriesForOrder(order: OrderResultItem, items: Record<string, unknown>[]) {
   const orderId = order.order_id.toLowerCase();
+  const identity = displayedEcgIdentity(order.result);
   return prioritizedEcgInterpretations(items)
     .filter((item) => {
       const itemOrderId = recordString(item, 'order_id').toLowerCase();
       const itemLabel = `${recordString(item, 'display_name')} ${recordString(item, 'label')} ${recordString(item, 'title')}`.toLowerCase();
       return !itemOrderId || itemOrderId === orderId || itemLabel.includes('ecg') || itemLabel.includes('ekg') || itemLabel.includes('12-lead');
     })
+    .filter((item) => displayedEcgMatchesRecord(identity, item))
     .map((item, index) => ecgSourceEntryFromRecord(item, index))
     .filter((entry): entry is EcgSourceInterpretationEntry => Boolean(entry));
 }
@@ -3677,12 +3742,13 @@ function ecgSourceEntriesForOrder(order: OrderResultItem, items: Record<string, 
 function ecgSourceEntriesFromResult(result: ResultBundle | null | undefined, orderId: string) {
   if (!result?.source_reference || isSimulatorDefaultResult(result)) return [];
   const reference = result.source_reference;
+  const identity = displayedEcgIdentity(result);
   const records = [
     ...recordArray(reference.rows),
     ...recordArray(reference.nearest_subject_ecgs),
     ...recordArray(reference.candidates),
     ...(extractEcgReportText(reference) ? [reference] : [])
-  ];
+  ].filter((item) => displayedEcgMatchesRecord(identity, item));
   return records
     .map((item, index) => ecgSourceEntryFromRecord({ ...item, order_id: recordString(item, 'order_id') || orderId }, index))
     .filter((entry): entry is EcgSourceInterpretationEntry => Boolean(entry));
@@ -3710,7 +3776,10 @@ function uniqueEcgSourceEntries(entries: EcgSourceInterpretationEntry[]) {
   });
 }
 
-function ecgResultNarrativeSummary(result: ResultBundle | null | undefined) {
+function ecgResultNarrativeSummary(result: ResultBundle | null | undefined, sourceEntries: EcgSourceInterpretationEntry[]) {
+  if (sourceEntries.length) {
+    return `${sourceEntries[0].title}: ${sourceEntries[0].interpretation}`;
+  }
   if (!result || isSimulatorDefaultResult(result)) return '';
   const narrative = String(result.narrative || '').trim();
   return narrative;
@@ -3725,16 +3794,24 @@ function ecgReviewCaveat(result: ResultBundle | null | undefined, entries: EcgSo
 }
 
 function ecgComparisonTextForPrompt(review: EcgInterpretationReview) {
-  const sourceEntries = review.sourceEntries.slice(0, 4).map((entry) => `${entry.title}: ${entry.interpretation}`);
+  const sourceEntries = review.sourceEntries.map((entry) => `${entry.title}: ${entry.interpretation}`);
   const sourceText = sourceEntries.length
     ? sourceEntries.join(' | ')
     : review.sourceSummary || 'No source ECG interpretation attached.';
-  const extraCount = review.sourceEntries.length > sourceEntries.length ? ` ${review.sourceEntries.length - sourceEntries.length} additional source interpretation(s) available in source context.` : '';
   return [
+    `${review.displayName}: displayed ECG: ${review.displayedTrace.title}${review.displayedTrace.meta ? ` (${review.displayedTrace.meta})` : ''}`,
     `${review.displayName}: learner read: ${review.studentText || 'not saved'}`,
-    `source read(s): ${sourceText}${extraCount}`,
+    `source read for displayed ECG: ${sourceText}`,
     review.sourceCaveat ? `caveat: ${review.sourceCaveat}` : ''
   ].filter(Boolean).join('; ');
+}
+
+function ecgResultLineForPrompt(review: EcgInterpretationReview) {
+  const sourceEntries = review.sourceEntries.map((entry) => `${entry.title}: ${entry.interpretation}`);
+  return [
+    `displayed ECG ${review.displayedTrace.title}${review.displayedTrace.meta ? ` (${review.displayedTrace.meta})` : ''}`,
+    sourceEntries.length ? `source read for displayed ECG: ${sourceEntries.join(' | ')}` : 'No source ECG interpretation attached to the displayed tracing.'
+  ].join('; ');
 }
 
 function extractEcgReportText(record: Record<string, unknown>) {
@@ -4070,37 +4147,31 @@ function EcgInterpretationReviewPanel({ reviews }: { reviews: EcgInterpretationR
                   </span>
                 </div>
               </div>
-              <div className="grid gap-3 lg:grid-cols-2">
+              <div className="grid gap-3 lg:grid-cols-3">
                 <section className="rounded-md border border-[#dfe7e7] bg-white p-3" data-testid="ecg-learner-read">
                   <strong className="block text-xs uppercase text-[#607078]">Learner ECG interpretation</strong>
                   <p className="m-0 mt-2 whitespace-pre-wrap break-words text-sm font-semibold leading-6 text-[#27313a]">
                     {hasStudent ? review.studentText : 'No ECG interpretation was saved before completion.'}
                   </p>
                 </section>
-                <section className="rounded-md border border-[#dfe7e7] bg-white p-3">
-                  <strong className="block text-xs uppercase text-[#607078]">Source ECG summary</strong>
+                <section className="rounded-md border border-[#dfe7e7] bg-white p-3" data-testid="ecg-displayed-tracing">
+                  <strong className="block text-xs uppercase text-[#607078]">Displayed ECG</strong>
+                  <p className="m-0 mt-2 text-sm font-extrabold leading-6 text-[#27313a]">{review.displayedTrace.title}</p>
+                  {review.displayedTrace.meta ? <p className="m-0 mt-1 text-xs font-bold leading-5 text-[#607078]">{review.displayedTrace.meta}</p> : null}
+                  {review.displayedTrace.caveat ? <span className="mt-2 inline-block rounded-sm bg-[#fff3d7] px-1.5 py-0.5 text-[11px] font-extrabold text-[#7c4a00]">{review.displayedTrace.caveat}</span> : null}
+                </section>
+                <section className="rounded-md border border-[#dfe7e7] bg-white p-3" data-testid="ecg-source-read">
+                  <strong className="block text-xs uppercase text-[#607078]">Source read for displayed ECG</strong>
                   <p className="m-0 mt-2 whitespace-pre-wrap break-words text-sm font-semibold leading-6 text-[#27313a]">
-                    {review.sourceSummary || (review.sourceEntries.length ? `${review.sourceEntries.length} source ECG interpretation rows are attached below.` : 'No source ECG interpretation text is attached to this bundle.')}
+                    {review.sourceEntries.length ? review.sourceEntries.map((entry) => entry.interpretation).join(' ') : review.sourceSummary || 'No source ECG interpretation text is attached to this bundle.'}
                   </p>
+                  {review.sourceEntries.length ? (
+                    <p className="m-0 mt-2 text-xs font-bold leading-5 text-[#607078]">
+                      {review.sourceEntries.map((entry) => [entry.title, entry.meta].filter(Boolean).join(' - ')).join(' | ')}
+                    </p>
+                  ) : null}
                 </section>
               </div>
-              {review.sourceEntries.length ? (
-                <section className="rounded-md border border-[#dfe7e7] bg-white p-3" data-testid="ecg-source-read">
-                  <strong className="block text-xs uppercase text-[#607078]">Source ECG interpretation rows</strong>
-                  <div className="mt-3 grid gap-2 xl:grid-cols-2">
-                    {review.sourceEntries.map((entry) => (
-                      <article key={entry.id} className="rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-2" data-testid="ecg-source-entry">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <strong className="text-[#27313a]">{entry.title}</strong>
-                          {entry.caveat ? <span className="rounded-sm bg-[#fff3d7] px-1.5 py-0.5 text-[11px] font-extrabold text-[#7c4a00]">{entry.caveat}</span> : null}
-                        </div>
-                        <p className="m-0 mt-1 whitespace-pre-wrap break-words font-semibold leading-6 text-[#27313a]">{entry.interpretation}</p>
-                        {entry.meta ? <div className="mt-1 text-xs font-bold text-[#607078]">{entry.meta}</div> : null}
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
               {!hasSource ? (
                 <div className="rounded-md border border-dashed border-[#cdd8d8] bg-white p-3 font-semibold text-[#607078]">No source ECG interpretation text is attached to this bundle.</div>
               ) : null}

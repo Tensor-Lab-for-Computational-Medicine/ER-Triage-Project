@@ -120,7 +120,9 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await expect(page.getByTestId('review-group-reinforce')).toContainText('Reinforced strengths');
   await expect(page.getByTestId('ecg-interpretation-review')).toContainText('ECG Interpretation Comparison');
   await expect(page.getByTestId('ecg-learner-read')).toContainText('Atrial fibrillation without acute ST elevation.');
+  await expect(page.getByTestId('ecg-displayed-tracing')).toContainText('MIMIC ECG study test-study-1');
   await expect(page.getByTestId('ecg-source-read')).toContainText('Atrial fibrillation with low voltage in extremity leads.');
+  await expect(page.getByTestId('ecg-interpretation-review')).not.toContainText('Sinus rhythm with first degree AV block.');
   await expect(page.getByTestId('ecg-interpretation-review')).toContainText('subject-level source references');
   await page.getByTestId('debrief-tab-prompt').click();
   await expect(page.getByTestId('evidence-prompt-preview')).toContainText('Source note digest');
@@ -129,16 +131,19 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('sigmoid volvulus');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Missed workup: none');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('ECG interpretation comparison');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('displayed ECG: MIMIC ECG study test-study-1');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('learner read: Atrial fibrillation without acute ST elevation.');
-  await expect(page.getByTestId('open-evidence-prompt')).toContainText('source read(s): MIMIC ECG study test-study-1: Atrial fibrillation with low voltage in extremity leads.');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('source read for displayed ECG: MIMIC ECG study test-study-1: Atrial fibrillation with low voltage in extremity leads.');
+  await expect(page.getByTestId('open-evidence-prompt')).not.toContainText('Sinus rhythm with first degree AV block.');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Physician discharge-summary digest');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original physician note text');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original discharge note text for external review.');
   await page.getByTestId('debrief-tab-source').click();
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Original physician note');
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Physician discharge summary sections');
-  await expect(page.getByTestId('source-enrichment-debrief')).toContainText('ECG interpretations');
+  await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Displayed ECG interpretation');
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Atrial fibrillation with low voltage in extremity leads.');
+  await expect(page.getByTestId('source-enrichment-debrief')).not.toContainText('Sinus rhythm with first degree AV block.');
   await expect(page.getByTestId('source-original-note')).toContainText('Original discharge note text for external review.');
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Home medications');
   expect(consoleProblems).toEqual([]);
@@ -289,9 +294,11 @@ function sampleCase() {
         display_name: '12-lead ECG',
         resulted_at_min: 0,
         values: [{ name: 'RR interval', value: '833', unit: 'ms' }],
-        narrative: 'No same-encounter ECG machine measurement was found for this ED stay. Nearest subject-level ECG: Atrial fibrillation with low voltage in extremity leads.',
+        narrative: 'No same-encounter ECG machine measurement was found for this ED stay. Nearest subject-level ECG: Atrial fibrillation with low voltage in extremity leads. Additional subject ECG references near the encounter: test-study-2 Sinus rhythm with first degree AV block.',
         source: 'MIMIC-IV-ECG subject-level reference',
         source_reference: {
+          study_id: 'test-study-1',
+          ecg_time: '2145-10-10T11:18:00.000',
           encounter_link_status: 'subject_only',
           requires_manual_verification: true,
           match_basis: 'subject_id only; ECG time is outside the ED encounter window',
@@ -301,6 +308,15 @@ function sampleCase() {
               study_id: 'test-study-1',
               ecg_time: '2145-10-10T11:18:00.000',
               machine_report: 'Atrial fibrillation with low voltage in extremity leads.',
+              encounter_link_status: 'subject_only',
+              requires_manual_verification: true,
+              match_basis: 'subject_id only; ECG time is outside the ED encounter window'
+            },
+            {
+              order_id: 'ecg_12_lead',
+              study_id: 'test-study-2',
+              ecg_time: '2145-10-11T11:18:00.000',
+              machine_report: 'Sinus rhythm with first degree AV block.',
               encounter_link_status: 'subject_only',
               requires_manual_verification: true,
               match_basis: 'subject_id only; ECG time is outside the ED encounter window'
@@ -361,6 +377,17 @@ function sampleCase() {
           study_id: 'test-study-1',
           ecg_time: '2145-10-10T11:18:00.000',
           machine_report: 'Atrial fibrillation with low voltage in extremity leads.',
+          encounter_link_status: 'subject_only',
+          requires_manual_verification: true,
+          match_basis: 'subject_id only; ECG time is outside the ED encounter window'
+        },
+        {
+          order_id: 'ecg_12_lead',
+          source_module: 'MIMIC-IV-ECG',
+          source_table: 'machine_measurements',
+          study_id: 'test-study-2',
+          ecg_time: '2145-10-11T11:18:00.000',
+          machine_report: 'Sinus rhythm with first degree AV block.',
           encounter_link_status: 'subject_only',
           requires_manual_verification: true,
           match_basis: 'subject_id only; ECG time is outside the ED encounter window'
