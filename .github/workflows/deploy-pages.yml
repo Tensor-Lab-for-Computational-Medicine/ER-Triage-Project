@@ -36,6 +36,9 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Exclude local patient media from Pages artifact
+        run: rm -rf frontend/public/patient-media
+
       - name: Build
         working-directory: frontend
         run: npm run build

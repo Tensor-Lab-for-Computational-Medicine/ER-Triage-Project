@@ -5,7 +5,10 @@ function App() {
   useEffect(() => {
     const pathname = window.location.pathname.replace(/\/$/, '');
     if (!pathname.endsWith('/ai-simulator')) {
-      window.history.replaceState(null, '', `/ai-simulator${window.location.search}${window.location.hash}`);
+      const rawBase = import.meta.env.BASE_URL || '/';
+      const basePath = rawBase === './' ? '' : rawBase.replace(/\/$/, '');
+      const targetPath = `${basePath}/ai-simulator`.replace(/\/{2,}/g, '/');
+      window.history.replaceState(null, '', `${targetPath}${window.location.search}${window.location.hash}`);
     }
   }, []);
 

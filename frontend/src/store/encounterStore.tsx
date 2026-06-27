@@ -1,24 +1,26 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import {
+  browserAiConfiguredStatus,
+  buildBrowserAiReply,
+  type BrowserAiConfig,
+  type BrowserAiModelOption,
+  type BrowserAiProvider
+} from './browserAiClient';
+import {
+  StaticCaseRuntime,
+  loadStaticCaseBundle,
+  staticLlmStatus,
+  staticNoBundleMessage
+} from './staticCaseRuntime';
 
-const previewApiBase =
-  typeof window !== 'undefined' && window.location.port === '4173'
-    ? 'http://127.0.0.1:18000'
-    : 'http://localhost:8000';
-const API_BASE = (import.meta as any).env?.VITE_ED_SIM_API || previewApiBase;
 const AI_CONFIG_STORAGE_KEY = 'ed-simulator.ai-config.v1';
 const REALTIME_ADVANCE_INTERVAL_MS = 1000;
 const MINUTE_MS = 60_000;
 
-type AIProviderDraft = 'openai_responses' | 'openai_compatible' | 'openrouter';
+export type AIProviderDraft = BrowserAiProvider;
+export type AIModelOption = BrowserAiModelOption;
 
-type SavedAIConfig = {
-  version: 1;
-  provider: AIProviderDraft;
-  apiKey: string;
-  baseUrl: string;
-  cheapModel: string;
-  strongModel: string;
-};
+type SavedAIConfig = BrowserAiConfig & { version: 1 };
 
 function readSavedAIConfig(): SavedAIConfig | null {
   if (typeof window === 'undefined') return null;
@@ -27,7 +29,7 @@ function readSavedAIConfig(): SavedAIConfig | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<SavedAIConfig>;
     const provider = parsed.provider;
-    if (!['openai_responses', 'openai_compatible', 'openrouter'].includes(String(provider))) return null;
+    if (!['openai_responses', 'deepseek', 'openai_compatible', 'openrouter'].includes(String(provider))) return null;
     const apiKey = String(parsed.apiKey || '').trim();
     if (!apiKey) return null;
     return {
@@ -64,12 +66,68 @@ function clearSavedAIConfig() {
   }
 }
 
-function defaultCheapModel(provider: AIProviderDraft) {
-  return provider === 'openrouter' ? 'openai/gpt-4o-mini' : 'gpt-5.4-mini';
+export function defaultAIBaseUrl(provider: AIProviderDraft) {
+  if (provider === 'deepseek') return 'https://api.deepseek.com/chat/completions';
+  if (provider === 'openrouter') return 'https://openrouter.ai/api/v1/chat/completions';
+  return '';
 }
 
-function defaultStrongModel(provider: AIProviderDraft) {
-  return provider === 'openrouter' ? 'openai/gpt-4o' : 'gpt-5.5';
+const OPENAI_MODEL_OPTIONS: AIModelOption[] = [
+  { id: 'gpt-5.5', label: 'GPT-5.5' },
+  { id: 'gpt-5.4', label: 'GPT-5.4' },
+  { id: 'gpt-5.4-mini', label: 'GPT-5.4 mini' },
+  { id: 'gpt-4.1', label: 'GPT-4.1' },
+  { id: 'gpt-4.1-mini', label: 'GPT-4.1 mini' },
+  { id: 'gpt-4o', label: 'GPT-4o' },
+  { id: 'gpt-4o-mini', label: 'GPT-4o mini' }
+];
+
+const DEEPSEEK_MODEL_OPTIONS: AIModelOption[] = [
+  { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+  { id: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
+  { id: 'deepseek-chat', label: 'DeepSeek chat legacy alias' },
+  { id: 'deepseek-reasoner', label: 'DeepSeek reasoner legacy alias' }
+];
+
+const OPENROUTER_FALLBACK_MODEL_OPTIONS: AIModelOption[] = [
+  { id: 'openai/gpt-5.5', label: 'OpenAI GPT-5.5' },
+  { id: 'openai/gpt-5.4', label: 'OpenAI GPT-5.4' },
+  { id: 'openai/gpt-5.4-mini', label: 'OpenAI GPT-5.4 mini' },
+  { id: 'anthropic/claude-sonnet-4.5', label: 'Claude Sonnet 4.5' },
+  { id: 'google/gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+  { id: 'meta-llama/llama-3.3-70b-instruct', label: 'Llama 3.3 70B Instruct' },
+  { id: 'openai/gpt-4o', label: 'OpenAI GPT-4o' },
+  { id: 'openai/gpt-4o-mini', label: 'OpenAI GPT-4o mini' }
+];
+
+const OPENAI_COMPATIBLE_MODEL_OPTIONS: AIModelOption[] = [
+  { id: 'gpt-5.4-mini', label: 'GPT-5.4 mini' },
+  { id: 'gpt-5.4', label: 'GPT-5.4' },
+  { id: 'gpt-4.1-mini', label: 'GPT-4.1 mini' },
+  { id: 'gpt-4.1', label: 'GPT-4.1' },
+  { id: 'gpt-4o-mini', label: 'GPT-4o mini' },
+  { id: 'gpt-4o', label: 'GPT-4o' },
+  { id: 'llama-3.3-70b-instruct', label: 'Llama 3.3 70B Instruct' },
+  { id: 'mixtral-8x7b-instruct', label: 'Mixtral 8x7B Instruct' }
+];
+
+export function modelOptionsForProvider(provider: AIProviderDraft, openRouterOptions: AIModelOption[] = []) {
+  if (provider === 'deepseek') return DEEPSEEK_MODEL_OPTIONS;
+  if (provider === 'openrouter') return openRouterOptions.length ? openRouterOptions : OPENROUTER_FALLBACK_MODEL_OPTIONS;
+  if (provider === 'openai_compatible') return OPENAI_COMPATIBLE_MODEL_OPTIONS;
+  return OPENAI_MODEL_OPTIONS;
+}
+
+export function defaultCheapModel(provider: AIProviderDraft) {
+  if (provider === 'deepseek') return 'deepseek-v4-flash';
+  if (provider === 'openrouter') return 'openai/gpt-5.4-mini';
+  return 'gpt-5.4-mini';
+}
+
+export function defaultStrongModel(provider: AIProviderDraft) {
+  if (provider === 'deepseek') return 'deepseek-v4-pro';
+  if (provider === 'openrouter') return 'openai/gpt-5.5';
+  return 'gpt-5.5';
 }
 
 export type VitalSigns = {
@@ -119,11 +177,6 @@ export type ExamManeuver = {
   aliases: string[];
 };
 
-type ExamCatalogPayload = {
-  items: ExamManeuver[];
-  tree?: Record<string, Record<string, ExamManeuver[]>>;
-};
-
 export type ExamRecord = {
   maneuver_id: string;
   display_name: string;
@@ -147,6 +200,13 @@ export type TranscriptMessage = {
   text: string;
   elapsed_minutes: number;
   metadata?: Record<string, unknown>;
+};
+
+export type ResultInterpretation = {
+  order_id: string;
+  display_name: string;
+  text: string;
+  elapsed_minutes: number;
 };
 
 export type TokenUsageRecord = {
@@ -211,6 +271,7 @@ export type ApiSession = {
     can_complete: boolean;
     ended: boolean;
     transcript: TranscriptMessage[];
+    result_interpretations: Record<string, ResultInterpretation>;
     performed_exams: ExamRecord[];
     intervention_events: InterventionRecord[];
     token_usage: TokenUsageRecord[];
@@ -254,7 +315,81 @@ export type LLMStatus = {
   message: string;
 };
 
+export type GuideStatus = 'done' | 'pending';
+
+export type GuideActionItem = {
+  id: string;
+  label: string;
+  why?: string;
+  status: GuideStatus;
+  required: boolean;
+};
+
+export type GuideHistoryItem = {
+  id: string;
+  topic: string;
+  prompt: string;
+  expected_response: string;
+  status: GuideStatus;
+};
+
+export type GuideResultInterpretation = {
+  order_id: string;
+  label: string;
+  expected_read: string;
+  source?: string;
+  status: GuideStatus;
+  required: boolean;
+};
+
+export type GuideSoapTemplate = {
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+};
+
+export type GuideAnswerKey = {
+  diagnosis: string;
+  validated_esi: number;
+  disposition: string;
+  case_summary: string;
+  history: GuideHistoryItem[];
+  interventions: GuideActionItem[];
+  exams: GuideActionItem[];
+  orders: GuideActionItem[];
+  avoid: GuideActionItem[];
+  differential: string[];
+  result_interpretations: GuideResultInterpretation[];
+  soap_template: GuideSoapTemplate;
+  key_points: string[];
+};
+
+export type TutorialStep = {
+  id: string;
+  title: string;
+  instruction: string;
+  rationale?: string;
+  target_type: string;
+  target_ids: string[];
+  target_labels: string[];
+  status: GuideStatus;
+  required: boolean;
+};
+
+export type TeachingGuide = {
+  case_id: string;
+  title: string;
+  mode_label: string;
+  progress: { completed: number; total: number };
+  next_step_id?: string | null;
+  answer_key: GuideAnswerKey;
+  tutorial_steps: TutorialStep[];
+};
+
 type EncounterState = {
+  runtimeMode: 'static';
+  staticBundleName: string;
   session: ApiSession | null;
   previousSnapshot: Snapshot | null;
   loading: boolean;
@@ -281,12 +416,15 @@ type EncounterState = {
   packageRecord: Record<string, unknown> | null;
   feedback: GraderFeedback | null;
   debriefBlockedReason: string;
+  teachingGuide: TeachingGuide | null;
+  teachingGuideLoading: boolean;
 };
 
 type EncounterAction =
   | { type: 'loading' }
   | { type: 'busy'; value: boolean }
   | { type: 'error'; value: string }
+  | { type: 'runtime'; mode: 'static'; bundleName?: string }
   | { type: 'session'; value: ApiSession; clearBusy?: boolean }
   | { type: 'simClockPaused'; value: boolean }
   | { type: 'llmStatus'; value: LLMStatus }
@@ -304,11 +442,15 @@ type EncounterAction =
   | { type: 'differentialDraft'; value: string }
   | { type: 'soapDraft'; field: keyof SoapDraft; value: string }
   | { type: 'package'; packageRecord: Record<string, unknown>; feedback: GraderFeedback | null }
-  | { type: 'debriefBlocked'; reason: string };
+  | { type: 'debriefBlocked'; reason: string }
+  | { type: 'teachingGuideLoading'; value: boolean }
+  | { type: 'teachingGuide'; value: TeachingGuide | null };
 
 const savedAIConfig = readSavedAIConfig();
 
 const initialState: EncounterState = {
+  runtimeMode: 'static',
+  staticBundleName: '',
   session: null,
   previousSnapshot: null,
   loading: true,
@@ -320,8 +462,8 @@ const initialState: EncounterState = {
   aiProviderDraft: savedAIConfig?.provider || 'openai_responses',
   aiKeyDraft: savedAIConfig?.apiKey || '',
   aiBaseUrlDraft: savedAIConfig?.baseUrl || '',
-  aiCheapModelDraft: savedAIConfig?.cheapModel || 'gpt-5.4-mini',
-  aiStrongModelDraft: savedAIConfig?.strongModel || 'gpt-5.5',
+  aiCheapModelDraft: savedAIConfig?.cheapModel || defaultCheapModel(savedAIConfig?.provider || 'openai_responses'),
+  aiStrongModelDraft: savedAIConfig?.strongModel || defaultStrongModel(savedAIConfig?.provider || 'openai_responses'),
   orderQuery: '',
   orderResults: [],
   examQuery: '',
@@ -334,22 +476,20 @@ const initialState: EncounterState = {
   soapDraft: { subjective: '', objective: '', assessment: '', plan: '' },
   packageRecord: null,
   feedback: null,
-  debriefBlockedReason: ''
+  debriefBlockedReason: '',
+  teachingGuide: null,
+  teachingGuideLoading: false
 };
 
 function hasSoapContent(soap?: SoapDraft | null) {
   return Boolean(soap && Object.values(soap).some((value) => value.trim()));
 }
 
-function caseIdFromUrl() {
-  if (typeof window === 'undefined') return '';
-  return new URLSearchParams(window.location.search).get('case_id')?.trim() || '';
-}
-
 function reducer(state: EncounterState, action: EncounterAction): EncounterState {
   if (action.type === 'loading') return { ...state, loading: true, error: '' };
   if (action.type === 'busy') return { ...state, busy: action.value };
   if (action.type === 'error') return { ...state, loading: false, busy: false, error: action.value };
+  if (action.type === 'runtime') return { ...state, runtimeMode: action.mode, staticBundleName: action.bundleName ?? state.staticBundleName };
   if (action.type === 'simClockPaused') return { ...state, simClockPaused: action.value };
   if (action.type === 'llmStatus') return { ...state, llmStatus: action.value };
   if (action.type === 'aiConfigSaved') return { ...state, aiConfigSaved: action.value };
@@ -377,7 +517,9 @@ function reducer(state: EncounterState, action: EncounterAction): EncounterState
       soapDraft,
       packageRecord: newSession ? null : state.packageRecord,
       feedback: newSession ? null : state.feedback,
-      debriefBlockedReason: newSession ? '' : state.debriefBlockedReason
+      debriefBlockedReason: newSession ? '' : state.debriefBlockedReason,
+      teachingGuide: newSession ? null : state.teachingGuide,
+      teachingGuideLoading: newSession ? false : state.teachingGuideLoading
     };
   }
   if (action.type === 'orders') return { ...state, orderQuery: action.query, orderResults: action.results };
@@ -389,17 +531,21 @@ function reducer(state: EncounterState, action: EncounterAction): EncounterState
   if (action.type === 'soapDraft') return { ...state, soapDraft: { ...state.soapDraft, [action.field]: action.value } };
   if (action.type === 'package') return { ...state, packageRecord: action.packageRecord, feedback: action.feedback, debriefBlockedReason: '', busy: false };
   if (action.type === 'debriefBlocked') return { ...state, packageRecord: null, feedback: null, debriefBlockedReason: action.reason, busy: false, loading: false, error: action.reason };
+  if (action.type === 'teachingGuideLoading') return { ...state, teachingGuideLoading: action.value };
+  if (action.type === 'teachingGuide') return { ...state, teachingGuide: action.value, teachingGuideLoading: false };
   return state;
 }
 
 type EncounterContextValue = EncounterState & {
   start: () => Promise<void>;
+  loadCaseBundle: (files: FileList | File[]) => Promise<void>;
   sendFreeText: () => Promise<void>;
   searchOrders: (query: string) => Promise<void>;
   searchExams: (query: string) => Promise<void>;
   placeOrder: (orderId: string) => Promise<void>;
   performExam: (maneuverId: string) => Promise<void>;
   addNote: (text: string) => Promise<void>;
+  recordResultInterpretation: (orderId: string, text: string) => Promise<void>;
   sendQuickText: (text: string) => Promise<void>;
   applyIntervention: (interventionId: string) => Promise<void>;
   advanceTime: (minutes: number) => Promise<void>;
@@ -409,6 +555,7 @@ type EncounterContextValue = EncounterState & {
   updateSoap: (field: keyof SoapDraft, value: string) => void;
   commitSoap: () => Promise<void>;
   completeCase: () => Promise<void>;
+  loadTeachingGuide: () => Promise<TeachingGuide | null>;
   configureAi: () => Promise<void>;
   forgetAiConfig: () => void;
   setChatDraft: (value: string) => void;
@@ -425,6 +572,7 @@ const EncounterContext = createContext<EncounterContextValue | null>(null);
 
 export function EncounterProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const staticRuntimeRef = useRef<StaticCaseRuntime | null>(null);
   const actionQueueRef = useRef<Promise<void>>(Promise.resolve());
   const latestSessionIdRef = useRef<string | null>(null);
   const lastAutoAdvanceAtRef = useRef<number | null>(null);
@@ -433,82 +581,103 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     latestSessionIdRef.current = state.session?.session_id || null;
   }, [state.session?.session_id]);
 
-  const request = useCallback(async <T,>(path: string, options?: RequestInit): Promise<T> => {
-    const headers = options?.body
-      ? { 'Content-Type': 'application/json', ...(options?.headers || {}) }
-      : options?.headers;
-    const response = await fetch(`${API_BASE}${path}`, {
-      headers,
-      ...options
-    });
-    if (!response.ok) {
-      const detail = await response.json().catch(() => ({}));
-      const message =
-        typeof detail.detail === 'string'
-          ? detail.detail
-          : typeof detail.detail?.message === 'string'
-            ? detail.detail.message
-            : `Request failed: ${response.status}`;
-      throw new Error(message);
-    }
-    return response.json();
-  }, []);
-
-  const requestAiConfiguration = useCallback(async (config: Omit<SavedAIConfig, 'version'>) => {
-    return request<LLMStatus>('/api/llm/config', {
-      method: 'POST',
-      body: JSON.stringify({
-        provider: config.provider,
-        api_key: config.apiKey,
-        base_url: config.provider === 'openai_responses' ? undefined : config.baseUrl || undefined,
-        cheap_model: config.cheapModel || undefined,
-        strong_model: config.strongModel || undefined
-      })
-    });
-  }, [request]);
-
   const start = useCallback(async () => {
     dispatch({ type: 'loading' });
-    let startupWarning = '';
     try {
-      let llmStatus = await request<LLMStatus>('/api/llm/status');
       const localConfig = readSavedAIConfig();
-      if (!llmStatus.ready && localConfig) {
-        try {
-          llmStatus = await requestAiConfiguration({
-            provider: localConfig.provider,
-            apiKey: localConfig.apiKey,
-            baseUrl: localConfig.baseUrl,
-            cheapModel: localConfig.cheapModel,
-            strongModel: localConfig.strongModel
-          });
-          dispatch({ type: 'aiConfigSaved', value: true });
-        } catch (error) {
-          startupWarning = error instanceof Error ? `Saved AI configuration failed: ${error.message}` : 'Saved AI configuration failed.';
-        }
+      if (staticRuntimeRef.current) {
+        const session = staticRuntimeRef.current.start();
+        dispatch({ type: 'runtime', mode: 'static', bundleName: staticRuntimeRef.current.bundleName });
+        dispatch({ type: 'llmStatus', value: localConfig ? browserAiConfiguredStatus(localConfig) : staticLlmStatus() });
+        dispatch({ type: 'session', value: session });
+        dispatch({ type: 'orders', query: '', results: staticRuntimeRef.current.searchOrders('') });
+        const exams = staticRuntimeRef.current.examCatalog();
+        dispatch({ type: 'examCatalog', results: exams });
+        dispatch({ type: 'exams', query: '', results: exams.slice(0, 12) });
+        return;
       }
-      dispatch({ type: 'llmStatus', value: llmStatus });
-      const caseId = caseIdFromUrl();
-      const session = await request<ApiSession>('/api/sessions', {
-        method: 'POST',
-        body: JSON.stringify(caseId ? { case_id: caseId } : {})
-      });
-      dispatch({ type: 'session', value: session });
-      const orders = await request<CatalogOrder[]>('/api/orders/search?q=');
-      dispatch({ type: 'orders', query: '', results: orders });
-      const examCatalog = await request<ExamCatalogPayload>('/api/exams/catalog');
-      const exams = examCatalog.items || [];
-      dispatch({ type: 'examCatalog', results: exams });
-      dispatch({ type: 'exams', query: '', results: exams.slice(0, 12) });
-      if (startupWarning) dispatch({ type: 'error', value: startupWarning });
+      dispatch({ type: 'runtime', mode: 'static' });
+      dispatch({ type: 'llmStatus', value: localConfig ? browserAiConfiguredStatus(localConfig) : staticLlmStatus() });
+      dispatch({ type: 'aiConfigSaved', value: Boolean(localConfig) });
+      dispatch({ type: 'error', value: staticNoBundleMessage() });
     } catch (error) {
       dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Could not start simulator session.' });
     }
-  }, [request, requestAiConfiguration]);
+  }, []);
+
+  const loadCaseBundle = useCallback(async (files: FileList | File[]) => {
+    dispatch({ type: 'loading' });
+    try {
+      const loaded = await loadStaticCaseBundle(files);
+      const localConfig = readSavedAIConfig();
+      staticRuntimeRef.current = loaded.runtime;
+      dispatch({ type: 'runtime', mode: 'static', bundleName: loaded.bundleName });
+      dispatch({ type: 'llmStatus', value: localConfig ? browserAiConfiguredStatus(localConfig) : staticLlmStatus() });
+      dispatch({ type: 'session', value: loaded.session });
+      dispatch({ type: 'orders', query: '', results: loaded.orders });
+      dispatch({ type: 'examCatalog', results: loaded.exams });
+      dispatch({ type: 'exams', query: '', results: loaded.exams.slice(0, 12) });
+    } catch (error) {
+      dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Could not load case bundle.' });
+    }
+  }, []);
 
   useEffect(() => {
     void start();
   }, [start]);
+
+  const activeBrowserAiConfig = useCallback((): BrowserAiConfig | null => {
+    const apiKey = state.aiKeyDraft.trim();
+    if (state.llmStatus?.configured && apiKey) {
+      return {
+        provider: state.aiProviderDraft,
+        apiKey,
+        baseUrl: state.aiProviderDraft === 'openai_responses' ? '' : state.aiBaseUrlDraft.trim(),
+        cheapModel: state.aiCheapModelDraft.trim() || defaultCheapModel(state.aiProviderDraft),
+        strongModel: state.aiStrongModelDraft.trim() || defaultStrongModel(state.aiProviderDraft)
+      };
+    }
+    const saved = readSavedAIConfig();
+    return saved
+      ? {
+          provider: saved.provider,
+          apiKey: saved.apiKey,
+          baseUrl: saved.baseUrl,
+          cheapModel: saved.cheapModel,
+          strongModel: saved.strongModel
+        }
+      : null;
+  }, [
+    state.aiBaseUrlDraft,
+    state.aiCheapModelDraft,
+    state.aiKeyDraft,
+    state.aiProviderDraft,
+    state.aiStrongModelDraft,
+    state.llmStatus?.configured
+  ]);
+
+  const withBrowserAiResponse = useCallback(async (payload: Record<string, unknown>) => {
+    if (payload.type !== 'free_text' || !staticRuntimeRef.current) return payload;
+    const config = activeBrowserAiConfig();
+    if (!config) return payload;
+    const text = String(payload.text || '').trim();
+    if (!text) return payload;
+    try {
+      const context = staticRuntimeRef.current.browserAiContext(text);
+      const reply = await buildBrowserAiReply(config, context);
+      return {
+        ...payload,
+        ai_response: {
+          text: reply,
+          provider: config.provider,
+          model: config.cheapModel
+        }
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Direct provider call failed.';
+      return { ...payload, browser_ai_error: `Direct AI call failed; local authored response used instead. ${message}` };
+    }
+  }, [activeBrowserAiConfig]);
 
   const postAction = useCallback(async (payload: Record<string, unknown>, options: { showBusy?: boolean; silentError?: boolean } = {}) => {
     if (!state.session?.session_id) return null;
@@ -517,12 +686,14 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     const runAction = async () => {
       if (showBusy) dispatch({ type: 'busy', value: true });
       try {
-        const session = await request<ApiSession>(`/api/sessions/${sessionId}/actions`, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
+        if (!staticRuntimeRef.current) throw new Error(staticNoBundleMessage());
+        const actionPayload = await withBrowserAiResponse(payload);
+        const session = staticRuntimeRef.current.action(actionPayload);
         if (!latestSessionIdRef.current || latestSessionIdRef.current === sessionId) {
           dispatch({ type: 'session', value: session, clearBusy: showBusy });
+          if (!options.silentError && typeof actionPayload.browser_ai_error === 'string') {
+            dispatch({ type: 'error', value: actionPayload.browser_ai_error });
+          }
         }
         return session;
       } catch (error) {
@@ -535,7 +706,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     const queuedAction = actionQueueRef.current.then(runAction, runAction);
     actionQueueRef.current = queuedAction.then(() => undefined, () => undefined);
     return queuedAction;
-  }, [request, state.session?.session_id]);
+  }, [state.session?.session_id, withBrowserAiResponse]);
 
   useEffect(() => {
     const sessionId = state.session?.session_id;
@@ -567,7 +738,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     const text = state.chatDraft.trim();
     if (!text) return;
     if (!state.llmStatus?.ready) {
-      dispatch({ type: 'error', value: state.llmStatus?.message || 'AI provider is not configured.' });
+      dispatch({ type: 'error', value: state.llmStatus?.message || 'Dialogue is not ready.' });
       return;
     }
     dispatch({ type: 'chatDraft', value: '' });
@@ -577,15 +748,17 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
   const configureAi = useCallback(async () => {
     const apiKey = state.aiKeyDraft.trim();
     if (!apiKey) {
-      dispatch({ type: 'error', value: 'API key is required to enable AI conversation.' });
+      dispatch({ type: 'error', value: 'API key is required to enable BYOK AI.' });
       return;
     }
     dispatch({ type: 'busy', value: true });
     try {
       const provider = state.aiProviderDraft;
-      const compatibleBaseUrl = provider === 'openrouter'
-        ? 'https://openrouter.ai/api/v1/chat/completions'
-        : state.aiBaseUrlDraft.trim();
+      const presetBaseUrl = defaultAIBaseUrl(provider);
+      const compatibleBaseUrl = presetBaseUrl || state.aiBaseUrlDraft.trim();
+      if (provider === 'openai_compatible' && !compatibleBaseUrl) {
+        throw new Error('Base URL is required for OpenAI-compatible providers.');
+      }
       const config = {
         provider,
         apiKey,
@@ -593,45 +766,37 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
         cheapModel: state.aiCheapModelDraft.trim() || defaultCheapModel(provider),
         strongModel: state.aiStrongModelDraft.trim() || defaultStrongModel(provider)
       };
-      const status = await requestAiConfiguration(config);
-      if (status.ready) {
-        saveAIConfig(config);
-        dispatch({ type: 'aiConfigSaved', value: true });
-      }
+      const status = browserAiConfiguredStatus(config);
+      saveAIConfig(config);
+      dispatch({ type: 'aiConfigSaved', value: true });
       dispatch({ type: 'llmStatus', value: status });
       dispatch({ type: 'aiBaseUrlDraft', value: config.baseUrl });
       dispatch({ type: 'aiCheapModelDraft', value: config.cheapModel });
       dispatch({ type: 'aiStrongModelDraft', value: config.strongModel });
-      dispatch({ type: 'error', value: status.ready ? '' : status.message });
+      dispatch({ type: 'error', value: '' });
     } catch (error) {
-      dispatch({ type: 'error', value: error instanceof Error ? error.message : 'AI configuration failed.' });
+      dispatch({ type: 'error', value: error instanceof Error ? error.message : 'BYOK configuration failed.' });
     } finally {
       dispatch({ type: 'busy', value: false });
     }
-  }, [
-    requestAiConfiguration,
-    state.aiBaseUrlDraft,
-    state.aiCheapModelDraft,
-    state.aiKeyDraft,
-    state.aiProviderDraft,
-    state.aiStrongModelDraft
-  ]);
+  }, [state.aiBaseUrlDraft, state.aiCheapModelDraft, state.aiKeyDraft, state.aiProviderDraft, state.aiStrongModelDraft]);
 
   const forgetAiConfig = useCallback(() => {
     clearSavedAIConfig();
     dispatch({ type: 'aiConfigSaved', value: false });
     dispatch({ type: 'aiKeyDraft', value: '' });
+    dispatch({ type: 'llmStatus', value: staticLlmStatus() });
   }, []);
 
   const searchOrders = useCallback(async (query: string) => {
     dispatch({ type: 'orders', query, results: state.orderResults });
     try {
-      const results = await request<CatalogOrder[]>(`/api/orders/search?q=${encodeURIComponent(query)}`);
+      const results = staticRuntimeRef.current ? staticRuntimeRef.current.searchOrders(query) : [];
       dispatch({ type: 'orders', query, results });
     } catch (error) {
       dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Order search failed.' });
     }
-  }, [request, state.orderResults]);
+  }, [state.orderResults]);
 
   const placeOrder = useCallback(async (orderId: string) => {
     await postAction({ type: 'order', order_id: orderId, dt_minutes: 0 });
@@ -640,12 +805,12 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
   const searchExams = useCallback(async (query: string) => {
     dispatch({ type: 'exams', query, results: state.examResults });
     try {
-      const results = await request<ExamManeuver[]>(`/api/exams/search?q=${encodeURIComponent(query)}`);
+      const results = staticRuntimeRef.current ? staticRuntimeRef.current.searchExams(query) : [];
       dispatch({ type: 'exams', query, results });
     } catch (error) {
       dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Exam search failed.' });
     }
-  }, [request, state.examResults]);
+  }, [state.examResults]);
 
   const performExam = useCallback(async (maneuverId: string) => {
     await postAction({ type: 'exam', exam_maneuver_id: maneuverId, dt_minutes: 0 });
@@ -657,11 +822,17 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     await postAction({ type: 'add_note', text: note, dt_minutes: 0 });
   }, [postAction]);
 
+  const recordResultInterpretation = useCallback(async (orderId: string, text: string) => {
+    const interpretation = text.trim();
+    if (!orderId || !interpretation) return;
+    await postAction({ type: 'record_result_interpretation', order_id: orderId, text: interpretation, dt_minutes: 0 });
+  }, [postAction]);
+
   const sendQuickText = useCallback(async (text: string) => {
     const turn = text.trim();
     if (!turn) return;
     if (!state.llmStatus?.ready) {
-      dispatch({ type: 'error', value: state.llmStatus?.message || 'AI provider is not configured.' });
+      dispatch({ type: 'error', value: state.llmStatus?.message || 'Dialogue is not ready.' });
       return;
     }
     await postAction({ type: 'free_text', text: turn, dt_minutes: 1 });
@@ -702,26 +873,42 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     const session = await postAction({ type: 'complete', dt_minutes: 0 });
     if (!session?.session_id) return;
     try {
-      const feedback = await request<GraderFeedback>(`/api/sessions/${session.session_id}/grade`, {
-        method: 'POST',
-        body: JSON.stringify({})
-      });
-      const gradedPackageRecord = await request<Record<string, unknown>>(`/api/sessions/${session.session_id}/package`);
+      if (!staticRuntimeRef.current) throw new Error(staticNoBundleMessage());
+      const feedback = staticRuntimeRef.current.feedback();
+      const gradedPackageRecord = staticRuntimeRef.current.completePackage();
       dispatch({ type: 'package', packageRecord: gradedPackageRecord, feedback });
     } catch (error) {
       dispatch({ type: 'debriefBlocked', reason: error instanceof Error ? error.message : 'Debrief failed.' });
     }
-  }, [postAction, request]);
+  }, [postAction]);
+
+  const loadTeachingGuide = useCallback(async () => {
+    const sessionId = state.session?.session_id;
+    if (!sessionId) return null;
+    dispatch({ type: 'teachingGuideLoading', value: true });
+    try {
+      if (!staticRuntimeRef.current) throw new Error(staticNoBundleMessage());
+      const guide = staticRuntimeRef.current.teachingGuide();
+      dispatch({ type: 'teachingGuide', value: guide });
+      return guide;
+    } catch (error) {
+      dispatch({ type: 'teachingGuideLoading', value: false });
+      dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Tutorial guide failed to load.' });
+      return null;
+    }
+  }, [state.session?.session_id]);
 
   const value = useMemo<EncounterContextValue>(() => ({
     ...state,
     start,
+    loadCaseBundle,
     sendFreeText,
     searchOrders,
     searchExams,
     placeOrder,
     performExam,
     addNote,
+    recordResultInterpretation,
     sendQuickText,
     applyIntervention,
     advanceTime,
@@ -731,6 +918,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     updateSoap,
     commitSoap,
     completeCase,
+    loadTeachingGuide,
     configureAi,
     forgetAiConfig,
     setChatDraft: (next) => dispatch({ type: 'chatDraft', value: next }),
@@ -744,12 +932,14 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
   }), [
     state,
     start,
+    loadCaseBundle,
     sendFreeText,
     searchOrders,
     searchExams,
     placeOrder,
     performExam,
     addNote,
+    recordResultInterpretation,
     sendQuickText,
     applyIntervention,
     advanceTime,
@@ -759,6 +949,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
     updateSoap,
     commitSoap,
     completeCase,
+    loadTeachingGuide,
     configureAi,
     forgetAiConfig
   ]);

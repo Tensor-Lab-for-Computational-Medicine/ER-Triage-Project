@@ -1,17 +1,23 @@
 import React from 'react';
 import {
   ArrowClockwise,
+  ArrowCircleUp,
   ArrowsOut,
+  Buildings,
+  CaretRight,
   CaretUp,
+  ChartDonut,
   ChatCircleText,
   CheckCircle,
   ClipboardText,
   Clock,
   DotsThreeVertical,
   DownloadSimple,
+  Flag,
   FirstAidKit,
   Flask,
   GearSix,
+  ListBullets,
   MagnifyingGlass,
   NotePencil,
   Pause,
@@ -20,10 +26,15 @@ import {
   Pulse,
   SignOut,
   Stethoscope,
+  UploadSimple,
+  User,
   UserCircle,
-  Warning
+  Warning,
+  WarningCircle,
+  X
 } from '@phosphor-icons/react';
-import { CaseStatus, EncounterProvider, ExamManeuver, ExamRecord, OrderRecord, ResultBundle, Snapshot, TokenUsageRecord, TranscriptMessage, VitalSigns, useEncounter } from '../store/encounterStore';
+import { AIModelOption, AIProviderDraft, CaseStatus, EncounterProvider, ExamManeuver, ExamRecord, GuideActionItem, GuideHistoryItem, GuideResultInterpretation, OrderRecord, ResultBundle, Snapshot, TeachingGuide, TokenUsageRecord, TranscriptMessage, TutorialStep, VitalSigns, defaultAIBaseUrl, defaultCheapModel, defaultStrongModel, modelOptionsForProvider, useEncounter } from '../store/encounterStore';
+import { fetchOpenRouterModelOptions } from '../store/browserAiClient';
 import '../styles/encounter-tailwind.css';
 
 function ClinicalReasoningSimulator() {
@@ -37,6 +48,8 @@ function ClinicalReasoningSimulator() {
 function SimulatorScreen() {
   const encounter = useEncounter();
   const { session, loading, error, packageRecord, debriefBlockedReason } = encounter;
+  const [guideOpen, setGuideOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   if (loading) {
     return (
@@ -51,12 +64,12 @@ function SimulatorScreen() {
   if (!session) {
     return (
       <main className="min-h-screen bg-[#f4f7f8] p-4 text-[#17232b]">
-        <div className="mx-auto grid max-w-2xl gap-3 rounded-lg border border-[#d7dfdf] bg-white p-5">
-          <strong>Backend unavailable</strong>
-          <p className="m-0 text-sm text-[#607078]">{error || 'Start the FastAPI server and reload this route.'}</p>
-          <button type="button" className="inline-flex h-10 w-fit items-center gap-2 rounded-md border border-[#cdd8d8] px-3 text-sm font-semibold" onClick={encounter.start}>
-            <ArrowClockwise size={17} /> Retry
-          </button>
+        <div className="mx-auto grid max-w-2xl gap-4 rounded-lg border border-[#d7dfdf] bg-white p-5">
+          <div className="grid gap-1">
+            <strong>Load a case bundle</strong>
+            <p className="m-0 text-sm leading-6 text-[#607078]">{error || 'Choose a case bundle zip to start. Everything runs locally in this browser.'}</p>
+          </div>
+          <CaseBundlePanel />
         </div>
       </main>
     );
@@ -72,7 +85,13 @@ function SimulatorScreen() {
 
   return (
     <main className="ed-sim-font min-h-screen bg-[#f4f7f8] text-[#17232b]">
-      <Header snapshot={session.snapshot} caseStatus={session.case_status} />
+      <Header
+        snapshot={session.snapshot}
+        caseStatus={session.case_status}
+        guideOpen={guideOpen}
+        onToggleGuide={() => setGuideOpen((current) => !current)}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
       {error ? (
         <div className="border-b border-[#e6dddd] bg-[#fff7f7] px-4 py-2 text-sm font-semibold text-[#7f1d1d]">{error}</div>
       ) : null}
@@ -84,6 +103,8 @@ function SimulatorScreen() {
         </section>
         <CommitRail />
       </div>
+      {guideOpen ? <TeachingGuideDrawer onClose={() => setGuideOpen(false)} /> : null}
+      {settingsOpen ? <SettingsDrawer onClose={() => setSettingsOpen(false)} /> : null}
     </main>
   );
 }
@@ -115,7 +136,59 @@ function DebriefLockedScreen() {
   );
 }
 
-function Header({ snapshot, caseStatus }: { snapshot: Snapshot; caseStatus?: CaseStatus }) {
+function CaseBundlePanel() {
+  const encounter = useEncounter();
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const loadFiles = (files: FileList | null) => {
+    if (!files || !files.length) return;
+    void encounter.loadCaseBundle(files);
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  return (
+    <section className="grid gap-3 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3" data-testid="case-bundle-panel">
+      <div className="flex min-w-0 items-center justify-between gap-3">
+        <div className="min-w-0">
+          <strong className="block text-sm">Case Bundle</strong>
+          <span className="block truncate text-xs font-semibold text-[#607078]" data-testid="case-bundle-status">
+            {encounter.staticBundleName || 'No bundle loaded'}
+          </span>
+        </div>
+        <input
+          ref={inputRef}
+          data-testid="case-bundle-file"
+          type="file"
+          accept=".zip,application/zip,application/x-zip-compressed,.json"
+          className="hidden"
+          onChange={(event) => loadFiles(event.currentTarget.files)}
+        />
+        <button
+          type="button"
+          data-testid="case-bundle-open"
+          className="inline-flex h-10 flex-none items-center gap-2 rounded-md border border-[#cdd8d8] bg-white px-3 text-sm font-extrabold text-[#17232b] disabled:text-[#87949b]"
+          disabled={encounter.loading || encounter.busy}
+          onClick={() => inputRef.current?.click()}
+        >
+          <UploadSimple size={16} weight="bold" /> Load
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Header({
+  snapshot,
+  caseStatus,
+  guideOpen,
+  onToggleGuide,
+  onOpenSettings
+}: {
+  snapshot: Snapshot;
+  caseStatus?: CaseStatus;
+  guideOpen: boolean;
+  onToggleGuide: () => void;
+  onOpenSettings: () => void;
+}) {
   const encounter = useEncounter();
   const demographics = snapshot.visible_start.demographics;
   const clockPaused = encounter.simClockPaused;
@@ -166,7 +239,23 @@ function Header({ snapshot, caseStatus }: { snapshot: Snapshot; caseStatus?: Cas
         <Pulse size={18} /> Triage
       </div>
       <div className="flex min-h-[48px] flex-none items-center gap-2 py-2 sm:px-3 xl:border-l">
-        <button type="button" className="grid h-9 w-9 place-items-center rounded-md border border-[#cdd8d8] bg-white text-[#17232b]" title="Settings">
+        <button
+          type="button"
+          data-testid="tutorial-mode-toggle"
+          className={`inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-extrabold ${guideOpen ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] bg-white text-[#17232b]'}`}
+          aria-pressed={guideOpen}
+          onClick={onToggleGuide}
+        >
+          <ClipboardText size={16} /> Tutorial
+        </button>
+        <button
+          type="button"
+          data-testid="settings-button"
+          className="grid h-9 w-9 place-items-center rounded-md border border-[#cdd8d8] bg-white text-[#17232b]"
+          title="Settings"
+          aria-label="Open settings"
+          onClick={onOpenSettings}
+        >
           <GearSix size={17} />
         </button>
         <button type="button" className="inline-flex h-9 items-center gap-2 rounded-md border border-[#f0c2c2] bg-white px-3 text-sm font-extrabold text-[#c22929]" disabled={!encounter.session?.state.can_complete || encounter.busy} onClick={() => void encounter.completeCase()}>
@@ -188,6 +277,259 @@ function CaseStatusBadge({ status }: { status: CaseStatus }) {
       {locked ? 'Feedback locked' : 'Feedback ready'}
     </span>
   );
+}
+
+function TeachingGuideDrawer({ onClose }: { onClose: () => void }) {
+  const encounter = useEncounter();
+  const guide = encounter.teachingGuide;
+  const session = encounter.session;
+  const [tab, setTab] = React.useState<'tutorial' | 'answer'>('tutorial');
+  const refreshKey = React.useMemo(() => teachingGuideRefreshKey(session), [session]);
+
+  React.useEffect(() => {
+    void encounter.loadTeachingGuide();
+  }, [encounter.loadTeachingGuide, refreshKey]);
+
+  return (
+    <div className="fixed inset-0 z-40 bg-black/30" data-testid="teaching-guide-overlay">
+      <aside className="ml-auto grid h-full w-full max-w-[460px] grid-rows-[auto_auto_minmax(0,1fr)] border-l border-[#cdd8d8] bg-white text-[#17232b] shadow-lg" data-testid="teaching-guide-drawer">
+        <header className="flex items-start justify-between gap-3 border-b border-[#e4e9e9] px-4 py-3">
+          <div className="min-w-0">
+            <h2 className="m-0 text-base font-extrabold">Tutorial Mode</h2>
+            <p className="m-0 mt-1 truncate text-sm font-semibold text-[#607078]">{guide?.title || session?.snapshot.title}</p>
+          </div>
+          <button type="button" className="rounded-md border border-[#cdd8d8] px-3 py-2 text-sm font-bold" onClick={onClose}>
+            Close
+          </button>
+        </header>
+        <div className="flex gap-5 border-b border-[#e4e9e9] px-4 text-sm font-bold">
+          {([
+            ['tutorial', 'Steps'],
+            ['answer', 'Answer Key']
+          ] as Array<['tutorial' | 'answer', string]>).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              data-testid={`teaching-guide-tab-${id}`}
+              className={`border-x-0 border-t-0 border-b-2 bg-transparent px-0 pb-3 pt-3 ${tab === id ? 'border-[#0f766e] text-[#0f5f58]' : 'border-transparent text-[#26323a]'}`}
+              onClick={() => setTab(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="min-h-0 overflow-auto p-4">
+          {encounter.teachingGuideLoading && !guide ? (
+            <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-4 text-sm font-semibold text-[#607078]">Loading tutorial...</div>
+          ) : guide ? (
+            tab === 'tutorial' ? <TutorialSteps guide={guide} /> : <AnswerKeyView guide={guide} />
+          ) : (
+            <div className="rounded-md border border-[#e8b5b5] bg-[#fff7f7] p-4 text-sm font-semibold text-[#7f1d1d]">Tutorial guide is unavailable.</div>
+          )}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function TutorialSteps({ guide }: { guide: TeachingGuide }) {
+  const currentStep = guide.tutorial_steps.find((step) => step.id === guide.next_step_id);
+  return (
+    <div className="grid gap-4" data-testid="tutorial-steps-view">
+      <section className="rounded-md border border-[#cdd8d8] bg-[#fbfcfc] p-3">
+        <div className="flex items-center justify-between gap-3">
+          <strong className="text-sm">Progress</strong>
+          <span className="text-xs font-extrabold text-[#607078]">{guide.progress.completed}/{guide.progress.total}</span>
+        </div>
+        <div className="mt-2 h-2 overflow-hidden rounded-sm bg-[#e4e9e9]">
+          <div className="h-full bg-[#0f766e]" style={{ width: guide.progress.total ? `${Math.round((guide.progress.completed / guide.progress.total) * 100)}%` : '0%' }} />
+        </div>
+      </section>
+      <section className="rounded-md border border-[#0f766e] bg-[#f2faf7] p-3" data-testid="tutorial-next-step">
+        <span className="text-xs font-extrabold text-[#0f5f58]">Next</span>
+        <h3 className="m-0 mt-1 text-base font-extrabold">{currentStep?.title || 'All required steps complete'}</h3>
+        <p className="m-0 mt-2 text-sm font-semibold leading-6 text-[#27313a]">
+          {currentStep?.instruction || 'Review the answer key, then complete the case when you are ready.'}
+        </p>
+        {currentStep?.target_labels.length ? <p className="m-0 mt-2 text-xs font-bold leading-5 text-[#607078]">{currentStep.target_labels.join(', ')}</p> : null}
+      </section>
+      <section className="grid gap-2">
+        {guide.tutorial_steps.map((step) => (
+          <TutorialStepCard key={step.id} step={step} />
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function TutorialStepCard({ step }: { step: TutorialStep }) {
+  const done = step.status === 'done';
+  return (
+    <article className={`rounded-md border p-3 ${done ? 'border-[#c8e3dd] bg-[#f7fcfa]' : step.required ? 'border-[#dfe7e7] bg-white' : 'border-[#e7dcc8] bg-[#fffaf0]'}`} data-testid={`tutorial-step-${step.id}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <strong className="block text-sm">{step.title}</strong>
+          <span className="text-xs font-semibold text-[#607078]">{step.required ? 'Required' : 'Optional'}</span>
+        </div>
+        <GuideStatusPill status={step.status} />
+      </div>
+      <p className="m-0 mt-2 text-sm leading-6 text-[#27313a]">{step.instruction}</p>
+      {step.rationale ? <p className="m-0 mt-2 text-xs font-semibold leading-5 text-[#607078]">{step.rationale}</p> : null}
+      {step.target_labels.length ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {step.target_labels.map((label) => (
+            <span key={label} className="rounded-md border border-[#dfe7e7] bg-[#fbfcfc] px-2 py-1 text-xs font-bold text-[#52636b]">{label}</span>
+          ))}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function AnswerKeyView({ guide }: { guide: TeachingGuide }) {
+  const key = guide.answer_key;
+  return (
+    <div className="grid gap-4" data-testid="answer-key-view">
+      <section className="rounded-md border border-[#cdd8d8] bg-[#fbfcfc] p-3">
+        <dl className="grid gap-2 text-sm">
+          <GuideFact label="Diagnosis" value={key.diagnosis} />
+          <GuideFact label="ESI" value={String(key.validated_esi)} />
+          <GuideFact label="Disposition" value={key.disposition} />
+          <GuideFact label="Case" value={key.case_summary} />
+        </dl>
+      </section>
+      <GuideListSection title="History" items={key.history} renderItem={(item) => <HistoryGuideItem item={item} />} />
+      <GuideListSection title="Interventions" items={key.interventions} renderItem={(item) => <ActionGuideItem item={item} />} />
+      <GuideListSection title="Exams" items={key.exams} renderItem={(item) => <ActionGuideItem item={item} />} />
+      <GuideListSection title="Orders" items={key.orders} renderItem={(item) => <ActionGuideItem item={item} />} />
+      <GuideListSection title="Result Reads" items={key.result_interpretations} renderItem={(item) => <ResultGuideItem item={item} />} />
+      <section className="rounded-md border border-[#dfe7e7] bg-white p-3">
+        <h3 className="m-0 mb-2 text-sm font-extrabold">Differential</h3>
+        <ul className="m-0 grid gap-1 p-0 text-sm">
+          {key.differential.map((item) => <li key={item} className="list-none leading-6 text-[#27313a]">{item}</li>)}
+        </ul>
+      </section>
+      <section className="rounded-md border border-[#dfe7e7] bg-white p-3">
+        <h3 className="m-0 mb-2 text-sm font-extrabold">SOAP Template</h3>
+        <div className="grid gap-2 text-sm">
+          <GuideFact label="Subjective" value={key.soap_template.subjective} />
+          <GuideFact label="Objective" value={key.soap_template.objective} />
+          <GuideFact label="Assessment" value={key.soap_template.assessment} />
+          <GuideFact label="Plan" value={key.soap_template.plan} />
+        </div>
+      </section>
+      {key.avoid.length ? <GuideListSection title="Avoid" items={key.avoid} renderItem={(item) => <ActionGuideItem item={item} />} /> : null}
+      {key.key_points.length ? (
+        <section className="rounded-md border border-[#dfe7e7] bg-white p-3">
+          <h3 className="m-0 mb-2 text-sm font-extrabold">Key Points</h3>
+          <ul className="m-0 grid gap-1 p-0 text-sm">
+            {key.key_points.map((item) => <li key={item} className="list-none leading-6 text-[#27313a]">{item}</li>)}
+          </ul>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+function GuideListSection<T>({ title, items, renderItem }: { title: string; items: T[]; renderItem: (item: T) => React.ReactNode }) {
+  return (
+    <section className="rounded-md border border-[#dfe7e7] bg-white p-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h3 className="m-0 text-sm font-extrabold">{title}</h3>
+        <span className="text-xs font-bold text-[#607078]">{items.length}</span>
+      </div>
+      {items.length ? <div className="grid gap-2">{items.map((item, index) => <React.Fragment key={guideItemKey(item, index)}>{renderItem(item)}</React.Fragment>)}</div> : <p className="m-0 text-sm font-semibold text-[#607078]">No items.</p>}
+    </section>
+  );
+}
+
+function HistoryGuideItem({ item }: { item: GuideHistoryItem }) {
+  return (
+    <article className="rounded-md border border-[#eef2f2] bg-[#fbfcfc] p-2.5">
+      <div className="flex items-start justify-between gap-3">
+        <strong className="text-sm capitalize">{item.topic}</strong>
+        <GuideStatusPill status={item.status} />
+      </div>
+      <p className="m-0 mt-1 text-sm leading-6 text-[#27313a]">{item.prompt}</p>
+      <p className="m-0 mt-1 text-xs font-semibold leading-5 text-[#607078]">{item.expected_response}</p>
+    </article>
+  );
+}
+
+function ActionGuideItem({ item }: { item: GuideActionItem }) {
+  return (
+    <article className="rounded-md border border-[#eef2f2] bg-[#fbfcfc] p-2.5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <strong className="block text-sm">{item.label}</strong>
+          <span className="text-xs font-semibold text-[#607078]">{item.required ? 'Required' : 'Optional'}</span>
+        </div>
+        <GuideStatusPill status={item.status} />
+      </div>
+      {item.why ? <p className="m-0 mt-1 text-xs font-semibold leading-5 text-[#607078]">{item.why}</p> : null}
+    </article>
+  );
+}
+
+function ResultGuideItem({ item }: { item: GuideResultInterpretation }) {
+  return (
+    <article className="rounded-md border border-[#eef2f2] bg-[#fbfcfc] p-2.5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <strong className="block text-sm">{item.label}</strong>
+          {item.source ? <span className="text-xs font-semibold text-[#607078]">{item.source}</span> : null}
+        </div>
+        <GuideStatusPill status={item.status} />
+      </div>
+      <p className="m-0 mt-1 text-sm leading-6 text-[#27313a]">{item.expected_read}</p>
+    </article>
+  );
+}
+
+function GuideFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid gap-1">
+      <span className="text-xs font-extrabold text-[#607078]">{label}</span>
+      <p className="m-0 text-sm font-semibold leading-6 text-[#27313a]">{value}</p>
+    </div>
+  );
+}
+
+function GuideStatusPill({ status }: { status: 'done' | 'pending' }) {
+  return (
+    <span className={`rounded-md border px-2 py-1 text-xs font-extrabold ${status === 'done' ? 'border-[#bcd9c1] bg-[#edf8ef] text-[#1d6b34]' : 'border-[#e6c6a0] bg-[#fff8e8] text-[#7c4a00]'}`}>
+      {status === 'done' ? 'Done' : 'Pending'}
+    </span>
+  );
+}
+
+function teachingGuideRefreshKey(session: ReturnType<typeof useEncounter>['session']) {
+  if (!session) return '';
+  const orders = session.snapshot.active_orders.map((order) => `${order.order_id}:${order.status}`).join('|');
+  const exams = session.snapshot.performed_exams.map((exam) => exam.maneuver_id).join('|');
+  const interventions = session.snapshot.interventions.join('|');
+  const esi = session.state.esi_history.map((item) => item.level).join('|');
+  const interpretations = Object.keys(session.state.result_interpretations || {}).join('|');
+  return [
+    session.session_id,
+    orders,
+    exams,
+    interventions,
+    esi,
+    session.state.differential.join('|'),
+    session.state.soap.assessment,
+    session.state.soap.plan,
+    interpretations,
+    String(session.state.ended)
+  ].join('::');
+}
+
+function guideItemKey(item: unknown, index: number) {
+  if (item && typeof item === 'object') {
+    const maybeItem = item as { id?: unknown; order_id?: unknown; label?: unknown; topic?: unknown };
+    return String(maybeItem.id || maybeItem.order_id || maybeItem.label || maybeItem.topic || index);
+  }
+  return String(index);
 }
 
 function VitalsRail() {
@@ -450,6 +792,7 @@ function AiConnectionPanel() {
   const encounter = useEncounter();
   const status = encounter.llmStatus;
   const connected = Boolean(status?.ready);
+  const byok = Boolean(status?.configured);
 
   if (connected) {
     return (
@@ -457,7 +800,7 @@ function AiConnectionPanel() {
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <ChatCircleText size={16} weight="bold" />
           <p className="m-0 min-w-0 flex-1 truncate text-xs font-semibold text-[#31534f]" data-testid="ai-status-message">
-            Connected: {status?.provider} / {status?.cheap_model}
+            {byok ? `BYOK: ${providerLabel(status?.provider || '')} / ${status?.cheap_model}` : 'Local authored responses active'}
           </p>
           {encounter.aiConfigSaved ? (
             <div className="flex items-center gap-2 text-xs font-semibold text-[#52636b]" data-testid="ai-local-key-status">
@@ -483,7 +826,7 @@ function AiConnectionPanel() {
         <h2 className="m-0 text-base font-extrabold">AI</h2>
       </div>
       <p className="m-0 text-sm font-semibold leading-6 text-[#7f1d1d]" data-testid="ai-status-message">
-        {status?.message || 'AI provider is not configured.'}
+        {status?.message || 'Local authored responses are active.'}
       </p>
       {encounter.aiConfigSaved ? (
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#d7dfdf] bg-white px-3 py-2 text-xs font-semibold text-[#52636b]" data-testid="ai-local-key-status">
@@ -497,74 +840,252 @@ function AiConnectionPanel() {
           </button>
         </div>
       ) : null}
-      <form
-        className="mt-3 grid gap-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void encounter.configureAi();
-        }}
+      <AiSettingsForm testIdPrefix="ai" />
+    </section>
+  );
+}
+
+function SettingsDrawer({ onClose }: { onClose: () => void }) {
+  const encounter = useEncounter();
+  const connected = Boolean(encounter.llmStatus?.ready);
+  const byok = Boolean(encounter.llmStatus?.configured);
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/30"
+      data-testid="settings-overlay"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
+        className="ml-auto grid h-full w-full max-w-[460px] grid-rows-[auto_minmax(0,1fr)] border-l border-[#cdd8d8] bg-white text-[#17232b] shadow-lg"
+        data-testid="settings-drawer"
+        onMouseDown={(event) => event.stopPropagation()}
       >
+        <header className="flex items-start justify-between gap-3 border-b border-[#e4e9e9] px-4 py-3">
+          <div className="min-w-0">
+            <h2 id="settings-title" className="m-0 text-base font-extrabold">Settings</h2>
+            <p className="m-0 mt-1 text-sm font-semibold text-[#607078]">Case bundle and AI connection</p>
+          </div>
+          <button
+            type="button"
+            data-testid="settings-close"
+            className="grid h-9 w-9 place-items-center rounded-md border border-[#cdd8d8] text-[#17232b]"
+            aria-label="Close settings"
+            title="Close settings"
+            onClick={onClose}
+          >
+            <X size={17} weight="bold" />
+          </button>
+        </header>
+        <div className="min-h-0 overflow-auto p-4">
+          <CaseBundlePanel />
+          <section className={`mb-3 rounded-md border p-3 ${connected ? 'border-[#c8e3dd] bg-[#f7fcfa]' : 'border-[#e8b5b5] bg-[#fff7f7]'}`}>
+            <div className="mb-1 flex items-center gap-2">
+              <ChatCircleText size={17} weight="bold" />
+              <strong className="text-sm">{byok ? 'BYOK enabled' : connected ? 'Local responses' : 'Not ready'}</strong>
+            </div>
+            <p className={`m-0 text-sm font-semibold leading-6 ${connected ? 'text-[#31534f]' : 'text-[#7f1d1d]'}`} data-testid="settings-ai-status-message">
+              {byok
+                ? `${providerLabel(encounter.llmStatus?.provider || '')} / ${encounter.llmStatus?.cheap_model || 'model'}`
+                : encounter.llmStatus?.message || 'Local authored responses are active.'}
+            </p>
+            {encounter.aiConfigSaved ? (
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-[#52636b]" data-testid="settings-ai-local-key-status">
+                <span>API key saved locally</span>
+                <button
+                  type="button"
+                  className="rounded-md border border-[#cdd8d8] bg-white px-2 py-1 text-xs font-extrabold text-[#27313a]"
+                  onClick={encounter.forgetAiConfig}
+                >
+                  Forget
+                </button>
+              </div>
+            ) : null}
+          </section>
+          <AiSettingsForm testIdPrefix="settings-ai" />
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function AiSettingsForm({ testIdPrefix }: { testIdPrefix: 'ai' | 'settings-ai' }) {
+  const encounter = useEncounter();
+  const [openRouterOptions, setOpenRouterOptions] = React.useState<AIModelOption[]>([]);
+  const [openRouterLoading, setOpenRouterLoading] = React.useState(false);
+  const [openRouterRefreshTried, setOpenRouterRefreshTried] = React.useState(false);
+  const [modelStatus, setModelStatus] = React.useState('');
+  const lockedBaseUrl = encounter.aiProviderDraft !== 'openai_compatible';
+  const visibleBaseUrl = lockedBaseUrl
+    ? defaultAIBaseUrl(encounter.aiProviderDraft)
+    : encounter.aiBaseUrlDraft;
+  const inputClass = 'h-10 rounded-md border border-[#cdd8d8] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20 disabled:bg-[#f5f7f7] disabled:text-[#607078]';
+  const baseModelOptions = modelOptionsForProvider(encounter.aiProviderDraft, openRouterOptions);
+  const dialogueModelOptions = modelOptionsWithCurrent(baseModelOptions, encounter.aiCheapModelDraft);
+  const strongModelOptions = modelOptionsWithCurrent(baseModelOptions, encounter.aiStrongModelDraft);
+  const showOpenRouterRefresh = encounter.aiProviderDraft === 'openrouter';
+
+  const refreshOpenRouterModels = React.useCallback(async () => {
+    setOpenRouterLoading(true);
+    setOpenRouterRefreshTried(true);
+    setModelStatus('Refreshing OpenRouter models...');
+    try {
+      const options = await fetchOpenRouterModelOptions();
+      setOpenRouterOptions(options);
+      setModelStatus(options.length ? `${options.length} OpenRouter models loaded` : 'OpenRouter returned no text models; showing curated defaults.');
+    } catch {
+      setModelStatus('OpenRouter catalog unavailable; showing curated defaults.');
+    } finally {
+      setOpenRouterLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (encounter.aiProviderDraft === 'openrouter' && !openRouterOptions.length && !openRouterRefreshTried && !openRouterLoading) {
+      void refreshOpenRouterModels();
+    }
+  }, [encounter.aiProviderDraft, openRouterLoading, openRouterOptions.length, openRouterRefreshTried, refreshOpenRouterModels]);
+
+  const handleProviderChange = (next: AIProviderDraft) => {
+    encounter.setAiProviderDraft(next);
+    encounter.setAiBaseUrlDraft(defaultAIBaseUrl(next));
+    encounter.setAiCheapModelDraft(defaultCheapModel(next));
+    encounter.setAiStrongModelDraft(defaultStrongModel(next));
+    if (next !== 'openrouter') setModelStatus('');
+  };
+
+  return (
+    <form
+      className="mt-3 grid gap-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void encounter.configureAi();
+      }}
+    >
+      <label className="grid gap-1 text-xs font-bold text-[#52636b]">
+        Provider
         <select
-          data-testid="ai-provider"
+          data-testid={`${testIdPrefix}-provider`}
           value={encounter.aiProviderDraft}
           onChange={(event) => {
-            const next = event.target.value as 'openai_responses' | 'openai_compatible' | 'openrouter';
-            encounter.setAiProviderDraft(next);
-            if (next === 'openrouter') {
-              encounter.setAiBaseUrlDraft('https://openrouter.ai/api/v1/chat/completions');
-              encounter.setAiCheapModelDraft('openai/gpt-4o-mini');
-              encounter.setAiStrongModelDraft('openai/gpt-4o');
-            }
-            if (next === 'openai_responses') {
-              encounter.setAiBaseUrlDraft('');
-              encounter.setAiCheapModelDraft('gpt-5.4-mini');
-              encounter.setAiStrongModelDraft('gpt-5.5');
-            }
+            const next = event.target.value as AIProviderDraft;
+            handleProviderChange(next);
           }}
-          className="h-10 rounded-md border border-[#e8b5b5] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
+          className={inputClass}
         >
           <option value="openai_responses">OpenAI</option>
+          <option value="deepseek">DeepSeek</option>
           <option value="openrouter">OpenRouter</option>
           <option value="openai_compatible">OpenAI-compatible</option>
         </select>
+      </label>
+      <label className="grid gap-1 text-xs font-bold text-[#52636b]">
+        API key
         <input
-          data-testid="ai-api-key"
+          data-testid={`${testIdPrefix}-api-key`}
           type="password"
           value={encounter.aiKeyDraft}
           onChange={(event) => encounter.setAiKeyDraft(event.target.value)}
-          placeholder="OpenAI API key"
-          className="h-10 rounded-md border border-[#e8b5b5] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
+          placeholder={`${providerLabel(encounter.aiProviderDraft)} API key`}
+          className={inputClass}
         />
+      </label>
+      <label className="grid gap-1 text-xs font-bold text-[#52636b]">
+        Base URL
         <input
-          data-testid="ai-base-url"
-          value={encounter.aiBaseUrlDraft}
+          data-testid={`${testIdPrefix}-base-url`}
+          value={visibleBaseUrl}
           onChange={(event) => encounter.setAiBaseUrlDraft(event.target.value)}
-          disabled={encounter.aiProviderDraft === 'openai_responses' || encounter.aiProviderDraft === 'openrouter'}
-          placeholder={encounter.aiProviderDraft === 'openai_responses' ? 'OpenAI Responses API' : 'Compatible base URL'}
-          className="h-10 rounded-md border border-[#e8b5b5] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
+          disabled={lockedBaseUrl}
+          placeholder={encounter.aiProviderDraft === 'openai_responses' ? 'OpenAI Responses API' : 'Compatible chat-completions endpoint'}
+          className={inputClass}
         />
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <input
-            data-testid="ai-cheap-model"
+      </label>
+      {showOpenRouterRefresh ? (
+        <div className="flex min-w-0 items-center justify-between gap-2 rounded-md border border-[#d7dfdf] bg-[#f8fbfb] px-3 py-2">
+          <span className="min-w-0 truncate text-xs font-bold text-[#52636b]" data-testid={`${testIdPrefix}-model-status`}>
+            {modelStatus || 'OpenRouter curated models shown'}
+          </span>
+          <button
+            type="button"
+            data-testid={`${testIdPrefix}-refresh-models`}
+            title="Refresh OpenRouter models"
+            disabled={openRouterLoading}
+            onClick={() => void refreshOpenRouterModels()}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-[#cdd8d8] bg-white text-[#27313a] disabled:bg-[#eef3f3] disabled:text-[#8b989e]"
+          >
+            <ArrowClockwise size={16} weight="bold" />
+          </button>
+        </div>
+      ) : null}
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <label className="grid gap-1 text-xs font-bold text-[#52636b]">
+          Dialogue model
+          <select
+            data-testid={`${testIdPrefix}-cheap-model`}
             value={encounter.aiCheapModelDraft}
             onChange={(event) => encounter.setAiCheapModelDraft(event.target.value)}
-            placeholder="Dialogue model"
-            className="h-10 min-w-0 rounded-md border border-[#e8b5b5] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
-          />
-          <input
-            data-testid="ai-strong-model"
+            className={`${inputClass} min-w-0`}
+          >
+            {dialogueModelOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {modelOptionText(option)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-1 text-xs font-bold text-[#52636b]">
+          Strong model
+          <select
+            data-testid={`${testIdPrefix}-strong-model`}
             value={encounter.aiStrongModelDraft}
             onChange={(event) => encounter.setAiStrongModelDraft(event.target.value)}
-            placeholder="Strong model"
-            className="h-10 min-w-0 rounded-md border border-[#e8b5b5] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
-          />
-        </div>
-        <button data-testid="ai-connect" type="submit" disabled={encounter.busy} className="h-10 rounded-md bg-[#0f766e] text-sm font-extrabold text-white disabled:bg-[#dce4e4] disabled:text-[#738088]">
-          {encounter.busy ? 'Checking...' : 'Connect AI'}
-        </button>
-      </form>
-    </section>
+            className={`${inputClass} min-w-0`}
+          >
+            {strongModelOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {modelOptionText(option)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <button data-testid={`${testIdPrefix}-connect`} type="submit" disabled={encounter.busy} className="h-10 rounded-md bg-[#0f766e] text-sm font-extrabold text-white disabled:bg-[#dce4e4] disabled:text-[#738088]">
+        {encounter.busy ? 'Saving...' : 'Enable BYOK'}
+      </button>
+    </form>
   );
+}
+
+function modelOptionsWithCurrent(options: AIModelOption[], current: string) {
+  const trimmed = current.trim();
+  if (!trimmed || options.some((option) => option.id === trimmed)) return options;
+  return [{ id: trimmed, label: `${trimmed} saved` }, ...options];
+}
+
+function modelOptionText(option: AIModelOption) {
+  return option.label === option.id ? option.id : `${option.label} (${option.id})`;
+}
+
+function providerLabel(provider: string) {
+  if (provider === 'openai_responses' || provider === 'openai' || provider === 'responses') return 'OpenAI';
+  if (provider === 'deepseek') return 'DeepSeek';
+  if (provider === 'openrouter') return 'OpenRouter';
+  if (provider === 'openai_compatible' || provider === 'chat_completions') return 'OpenAI-compatible';
+  return provider || 'AI';
 }
 
 function ConversationPanel() {
@@ -594,7 +1115,7 @@ function ConversationPanel() {
   };
 
   return (
-    <section className="grid min-h-0 min-w-0 grid-rows-[auto_auto_minmax(0,1fr)_auto] rounded-lg border border-[#d7dfdf] bg-white">
+    <section className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-[#d7dfdf] bg-white" data-testid="conversation-panel">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4e9e9] px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
           <ChatCircleText size={19} weight="bold" />
@@ -691,7 +1212,7 @@ function ConversationPanel() {
           ) : null}
         </div>
       ) : null}
-      <div className="min-h-0 overflow-auto p-4">
+      <div className="min-h-0 flex-1 overflow-auto p-4">
         {messages.length ? (
           <div className="grid gap-3">
             {messages.map((message, index) => (
@@ -705,6 +1226,7 @@ function ConversationPanel() {
         )}
       </div>
       <form
+        data-testid="chat-composer"
         className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-t border-[#e4e9e9] p-3"
         onSubmit={(event) => {
           event.preventDefault();
@@ -1077,6 +1599,7 @@ function OrderPanel() {
 function OrderQueueItem({ order, selected, onSelect }: { order: OrderResultItem; selected: boolean; onSelect: () => void }) {
   const canOpen = true;
   const isDefaultEcg = isDefaultEcgResult(order.display_name, order.result);
+  const isEcg = isEcgDisplayName(order.display_name);
   return (
     <button
       type="button"
@@ -1090,7 +1613,8 @@ function OrderQueueItem({ order, selected, onSelect }: { order: OrderResultItem;
       </div>
       <p className="m-0 text-xs leading-5 text-[#607078]">{orderStatusSummary(order)}</p>
       {order.result ? <p className="m-0 text-xs font-bold leading-5 text-[#52636b]">{resultDisplayLabel(order.display_name, order.result)}</p> : null}
-      {order.result?.values.length && !isDefaultEcg ? <ResultValueSummary result={order.result} /> : null}
+      {order.result ? <ResultQualityMarkers result={order.result} compact /> : null}
+      {order.result?.values.length && !isDefaultEcg && !isEcg ? <ResultValueSummary result={order.result} /> : null}
       {order.unavailable_reason ? <p className="m-0 text-xs leading-5 text-[#7f1d1d]">{order.unavailable_reason}</p> : null}
     </button>
   );
@@ -1197,7 +1721,8 @@ function ResultReportCard({
   const result = item.result;
   const hasSourceBackedResult = item.status === 'resulted' && Boolean(result);
   const isDefaultEcg = isDefaultEcgResult(item.display_name, result);
-  const showArtifactPreview = Boolean(primary && artifactKind && hasSourceBackedResult && !isDefaultEcg);
+  const showSourceEcgTracing = Boolean(primary && isEcg && hasSourceBackedResult && !isDefaultEcg);
+  const showImagingPreview = Boolean(primary && artifactKind === 'imaging' && hasSourceBackedResult);
   const canOpenArtifact = Boolean(artifactKind && hasSourceBackedResult && onOpenViewer);
   const pendingDue = item.result_due_at_min !== undefined ? ` Due at ${formatClock(item.result_due_at_min)}.` : '';
 
@@ -1209,19 +1734,22 @@ function ResultReportCard({
           <span className="text-xs font-semibold text-[#607078]">
             {hasSourceBackedResult ? resultDisplayLabel(item.display_name, result) : item.status === 'unavailable' ? 'source result unavailable' : 'awaiting result'}
           </span>
+          {hasSourceBackedResult && result ? <ResultQualityMarkers result={result} /> : null}
         </div>
         <div className="flex items-center gap-2">
           <span className={`rounded-md px-2 py-1 text-xs font-extrabold ${statusClass(item.status)}`}>{titleCase(item.status)}</span>
           {primary ? <span className="text-xs font-bold text-[#607078]">{formatMinuteStamp(item.result_due_at_min ?? item.ordered_at_min ?? 0)}</span> : null}
         </div>
       </div>
-      <div className={`grid gap-3 p-3 ${showArtifactPreview ? 'sm:grid-cols-[170px_minmax(0,1fr)]' : ''}`}>
+      <div className={`grid gap-3 p-3 ${showImagingPreview ? 'sm:grid-cols-[170px_minmax(0,1fr)]' : ''}`}>
         {isDefaultEcg && result ? (
           <DefaultEcgTracing compact={!primary} />
-        ) : showArtifactPreview && artifactKind && result ? (
-          <ResultArtifactPreview kind={artifactKind} result={result} />
+        ) : showSourceEcgTracing ? (
+          <SourceEcgTracing orderId={item.order_id} compact={!primary} />
+        ) : showImagingPreview && result ? (
+          <ResultArtifactPreview kind="imaging" result={result} />
         ) : null}
-        {!isDefaultEcg ? <div className="min-w-0">
+        {!isDefaultEcg && !isEcg ? <div className="min-w-0">
           {item.status === 'unavailable' ? (
             <div className="rounded-md border border-[#f0c2c2] bg-[#fff7f7] p-3 text-sm font-semibold leading-6 text-[#7f1d1d]">
               {item.unavailable_reason || 'No source-recorded result is available for this order; no value was fabricated.'}
@@ -1238,6 +1766,16 @@ function ResultReportCard({
             </div>
           ) : null}
         </div> : null}
+        {isEcg && !result && item.status !== 'unavailable' ? (
+          <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 text-sm font-semibold leading-6 text-[#607078]">
+            Result pending.{pendingDue} The tracing will release when the delay elapses.
+          </div>
+        ) : null}
+        {isEcg && item.status === 'unavailable' ? (
+          <div className="rounded-md border border-[#f0c2c2] bg-[#fff7f7] p-3 text-sm font-semibold leading-6 text-[#7f1d1d]">
+            {item.unavailable_reason || 'ECG tracing is unavailable.'}
+          </div>
+        ) : null}
       </div>
       {primary ? (
         <div className="flex items-center gap-2 border-t border-[#eef2f2] px-3 py-2">
@@ -1267,9 +1805,9 @@ function ResultReportCard({
   );
 }
 
-function ResultArtifactPreview({ kind, result }: { kind: 'imaging' | 'ecg'; result: ResultBundle }) {
+function ResultArtifactPreview({ kind, result }: { kind: 'imaging'; result: ResultBundle }) {
   const reference = result.source_reference || {};
-  const label = kind === 'ecg' ? 'ECG report' : 'Imaging report';
+  const label = 'Imaging report';
   const charttime = typeof reference.charttime === 'string' ? reference.charttime : null;
   const studyId = typeof reference.study_id === 'string' || typeof reference.study_id === 'number' ? String(reference.study_id) : null;
   const noteId = typeof reference.note_id === 'string' || typeof reference.note_id === 'number' ? String(reference.note_id) : null;
@@ -1280,11 +1818,6 @@ function ResultArtifactPreview({ kind, result }: { kind: 'imaging' | 'ecg'; resu
       <span>{sourceLabel(result)}</span>
       {charttime ? <span>Charted {formatSourceTimestamp(charttime)}</span> : null}
       {studyId || noteId ? <span>{studyId ? `Study ${studyId}` : `Note ${noteId}`}</span> : null}
-      {kind === 'ecg' ? (
-        <span className="rounded-md border border-dashed border-[#cdd8d8] bg-white p-2 font-semibold">
-          ECG waveform/image viewer appears only when a source ECG artifact is attached.
-        </span>
-      ) : null}
     </div>
   );
 }
@@ -1341,6 +1874,44 @@ function DefaultEcgTracing({ compact = false, expanded = false }: { compact?: bo
   );
 }
 
+function SourceEcgTracing({ orderId, compact = false, expanded = false }: { orderId: string; compact?: boolean; expanded?: boolean }) {
+  const encounter = useEncounter();
+  const { session } = encounter;
+  const [failed, setFailed] = React.useState(false);
+  React.useEffect(() => {
+    setFailed(false);
+  }, [session?.session_id, orderId]);
+  const result = session?.snapshot.active_orders.find((order) => order.order_id === orderId)?.result
+    || session?.snapshot.resulted_orders.find((item) => item.order_id === orderId)
+    || null;
+  const staticSvgUrl = typeof result?.source_reference?.static_ecg_svg_url === 'string' ? result.source_reference.static_ecg_svg_url : '';
+  if (!staticSvgUrl) return <DefaultEcgTracing compact={compact} expanded={expanded} />;
+  const src = staticSvgUrl;
+  if (!src || failed) {
+    return (
+      <div
+        data-testid="source-ecg-unavailable"
+        className="grid min-h-[220px] place-items-center rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-4 text-center text-sm font-semibold text-[#607078]"
+      >
+        ECG tracing unavailable.
+      </div>
+    );
+  }
+  return (
+    <figure
+      data-testid="source-ecg-tracing"
+      className={`m-0 overflow-auto rounded-md border border-[#d7dfdf] bg-white ${expanded ? 'min-h-[520px]' : compact ? 'min-h-[150px]' : 'min-h-[300px]'}`}
+    >
+      <img
+        src={src}
+        alt="12-lead ECG tracing"
+        className={`block min-w-[920px] w-full ${expanded ? 'h-auto' : compact ? 'max-h-[190px] object-cover object-top' : 'h-auto'}`}
+        onError={() => setFailed(true)}
+      />
+    </figure>
+  );
+}
+
 function ResultViewerModal({ item, onClose }: { item: OrderResultItem; onClose: () => void }) {
   const result = item.result;
   if (!result) return null;
@@ -1356,6 +1927,7 @@ function ResultViewerModal({ item, onClose }: { item: OrderResultItem; onClose: 
           <div className="min-w-0">
             <h2 className="m-0 truncate text-base font-extrabold">{item.display_name}</h2>
             <p className="m-0 mt-1 text-sm font-semibold text-[#607078]">{resultDisplayLabel(item.display_name, result)}</p>
+            <ResultQualityMarkers result={result} />
           </div>
           <button type="button" className="rounded-md border border-[#cdd8d8] px-3 py-2 text-sm font-bold" onClick={onClose}>
             Close
@@ -1365,12 +1937,11 @@ function ResultViewerModal({ item, onClose }: { item: OrderResultItem; onClose: 
           {isDefaultEcg ? (
             <DefaultEcgTracing expanded />
           ) : isEcg ? (
-            <div className="mb-3 rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 text-sm font-semibold leading-6 text-[#52636b]">
-              No source waveform image is attached to this prepared case. The viewer is showing the encounter-linked ECG report metadata only.
-            </div>
+            <SourceEcgTracing orderId={item.order_id} expanded />
           ) : null}
-          {result.values.length && !isDefaultEcg ? <ResultTable result={result} /> : null}
-          {result.narrative && !isDefaultEcg ? (
+          {isEcg ? <EcgInterpretationEditor orderId={item.order_id} displayName={item.display_name} /> : null}
+          {result.values.length && !isDefaultEcg && !isEcg ? <ResultTable result={result} /> : null}
+          {result.narrative && !isDefaultEcg && !isEcg ? (
             <section className="mt-3">
               <h3 className="m-0 mb-2 text-sm font-extrabold">Report</h3>
               <ResultNarrative narrative={result.narrative} constrain={false} />
@@ -1400,13 +1971,57 @@ function ResultViewerModal({ item, onClose }: { item: OrderResultItem; onClose: 
   );
 }
 
+function EcgInterpretationEditor({ orderId, displayName }: { orderId: string; displayName: string }) {
+  const encounter = useEncounter();
+  const saved = encounter.session?.state.result_interpretations?.[orderId]?.text || '';
+  const [draft, setDraft] = React.useState(saved);
+  React.useEffect(() => {
+    setDraft(saved);
+  }, [saved, orderId]);
+  const canSave = Boolean(draft.trim()) && draft.trim() !== saved.trim() && !encounter.busy;
+
+  return (
+    <section className="mt-3 grid gap-2 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3" data-testid="ecg-interpretation-editor">
+      <label className="grid gap-2 text-sm font-extrabold text-[#26323a]">
+        Your ECG interpretation
+        <textarea
+          data-testid="ecg-interpretation-input"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          rows={4}
+          placeholder="Rate, rhythm, axis, intervals, ST/T changes..."
+          className="min-h-[104px] resize-y rounded-md border border-[#cdd8d8] bg-white p-3 text-sm font-normal leading-6 outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#0f766e]/20"
+        />
+      </label>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-semibold text-[#607078]">{saved ? `${displayName} interpretation saved.` : ''}</span>
+        <button
+          type="button"
+          data-testid="save-ecg-interpretation"
+          className="h-9 rounded-md bg-[#0f766e] px-3 text-sm font-extrabold text-white disabled:bg-[#dce4e4] disabled:text-[#738088]"
+          disabled={!canSave}
+          onClick={() => void encounter.recordResultInterpretation(orderId, draft)}
+        >
+          Save interpretation
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function resultDisplayLabel(displayName: string, result?: ResultBundle | null) {
-  if (isDefaultEcgResult(displayName, result)) return 'ECG tracing';
+  if (isEcgDisplayName(displayName)) {
+    if (isSubjectLevelReference(result)) return 'ECG tracing (historical subject-level reference)';
+    return 'ECG tracing';
+  }
   return sourceLabel(result);
 }
 
 function sourceLabel(result?: ResultBundle | null) {
   if (isSimulatorDefaultResult(result)) return 'Result available';
+  if (result?.source_reference?.encounter_link_status === 'subject_only') {
+    return result?.source ? `Source: ${result.source} (subject-level reference)` : 'Subject-level source result';
+  }
   return result?.source ? `Source: ${result.source}` : 'Source-recorded result';
 }
 
@@ -1420,6 +2035,81 @@ function isEcgDisplayName(displayName: string) {
 
 function isSimulatorDefaultResult(result?: ResultBundle | null) {
   return result?.source === 'simulator-default';
+}
+
+function isSubjectLevelReference(result?: ResultBundle | null) {
+  const reference = result?.source_reference || {};
+  return reference.encounter_link_status === 'subject_only' || reference.requires_manual_verification === true;
+}
+
+function ResultQualityMarkers({ result, compact = false }: { result: ResultBundle; compact?: boolean }) {
+  const markers = resultQualityMarkers(result);
+  if (!markers.length) return null;
+  return (
+    <div className={`flex flex-wrap gap-1 ${compact ? '' : 'mt-1'}`} data-testid="result-quality-markers">
+      {markers.map((marker) => (
+        <span
+          key={marker.id}
+          className={`rounded-sm border px-1.5 font-extrabold ${compact ? 'text-[10px] leading-4' : 'text-[11px] leading-5'} ${marker.className}`}
+          title={marker.title}
+          data-testid={`result-marker-${marker.id}`}
+        >
+          {marker.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function resultQualityMarkers(result: ResultBundle) {
+  const markers: Array<{ id: string; label: string; title: string; className: string }> = [];
+  if (isSimulatorDefaultResult(result)) {
+    markers.push({
+      id: 'default',
+      label: 'Default',
+      title: 'SIMULATOR DEFAULT.',
+      className: 'border-[#e6c6a0] bg-[#fff8e8] text-[#7c4a00]'
+    });
+  }
+  if (isSubjectLevelReference(result)) {
+    markers.push({
+      id: 'historical-reference',
+      label: 'Historical',
+      title: 'This source is linked at the subject level and is not verified as a same-encounter ED result.',
+      className: 'border-[#e6c6a0] bg-[#fff8e8] text-[#7c4a00]'
+    });
+  }
+  if (isAllNegativeResult(result)) {
+    markers.push({
+      id: 'all-negative',
+      label: 'All negative',
+      title: 'All structured values are normal/negative, or the narrative reads as no acute abnormality.',
+      className: 'border-[#bcd9c1] bg-[#edf8ef] text-[#1d6b34]'
+    });
+  }
+  return markers;
+}
+
+function isAllNegativeResult(result: ResultBundle) {
+  const values = result.values || [];
+  if (values.length) return values.every(isNegativeOrNormalValue);
+  const narrative = normalizeMarkerText(result.narrative || '');
+  if (!narrative) return false;
+  return NEGATIVE_RESULT_PATTERN.test(narrative) && !POSITIVE_RESULT_PATTERN.test(narrative);
+}
+
+function isNegativeOrNormalValue(value: ResultBundle['values'][number]) {
+  const flag = String(value.flag || '').toLowerCase();
+  if (flag && flag !== 'normal') return false;
+  if (flag === 'normal') return true;
+  return NEGATIVE_RESULT_PATTERN.test(normalizeMarkerText(`${value.name} ${value.value} ${value.reference_range || ''}`));
+}
+
+const NEGATIVE_RESULT_PATTERN = /\b(negative|absent|none|no acute|no evidence|no growth|not elevated|not detected|not identified|not visualized|within reference range|within normal|grossly normal|normal sinus rhythm)\b/;
+const POSITIVE_RESULT_PATTERN = /\b(abnormal|critical|positive|elevated|high|low|ischemia|infarct|filling defect|wall thickening|obstruction|volvulus|effusion|fracture|hemorrhage)\b/;
+
+function normalizeMarkerText(value: string) {
+  return value.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
 function formatSourceTimestamp(value: string) {
@@ -1450,6 +2140,10 @@ const LOCAL_PATH_PROVENANCE_KEYS = new Set([
   'mimic_note_dir',
   'mimic_cxr_dir',
   'mimic_ecg_dir',
+  'record_list_file',
+  'waveform_base_path',
+  'waveform_header_file',
+  'waveform_data_file',
   'command',
   'sql'
 ]);
@@ -1579,7 +2273,8 @@ function saveResultReport(item: OrderResultItem) {
   if (typeof window === 'undefined' || typeof document === 'undefined' || !item.result) return;
   const result = item.result;
   const isDefaultEcg = isDefaultEcgResult(item.display_name, result);
-  const values = result.values.length && !isDefaultEcg
+  const isEcg = isEcgDisplayName(item.display_name);
+  const values = result.values.length && !isDefaultEcg && !isEcg
     ? [
         '',
         'Values',
@@ -1591,7 +2286,7 @@ function saveResultReport(item: OrderResultItem) {
         })
       ]
     : [];
-  const provenance = result.source_reference && !isDefaultEcg
+  const provenance = result.source_reference && !isDefaultEcg && !isEcg
     ? [
         '',
         'Source Provenance',
@@ -1602,9 +2297,9 @@ function saveResultReport(item: OrderResultItem) {
     item.display_name,
     resultDisplayLabel(item.display_name, result),
     result.resulted_at_min !== undefined && result.resulted_at_min !== null ? `Released at: ${formatClock(result.resulted_at_min)}` : '',
-    isDefaultEcg ? 'ECG tracing available in the simulation viewer.' : '',
+    isEcg ? 'ECG tracing available in the simulation viewer.' : '',
     ...values,
-    ...(result.narrative && !isDefaultEcg ? ['', 'Report', ...formatReportForDownload(result.narrative)] : []),
+    ...(result.narrative && !isDefaultEcg && !isEcg ? ['', 'Report', ...formatReportForDownload(result.narrative)] : []),
     ...provenance
   ].filter(Boolean).join('\n');
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -1764,15 +2459,72 @@ function CommitRail() {
 
 function DebriefScreen() {
   const { session, packageRecord, feedback, error, start } = useEncounter();
+  const [activeTab, setActiveTab] = React.useState<DebriefTab>('replay');
+  const [promptStatus, setPromptStatus] = React.useState('');
   const transcript = (packageRecord?.transcript || []) as TranscriptMessage[];
   const realTimeline = (packageRecord?.real_timeline || []) as Array<{ elapsed_min: number; label: string; detail: string }>;
   const hiddenTruth = (packageRecord?.hidden_truth || {}) as Record<string, unknown>;
+  const packageOrders = (packageRecord?.orders || []) as OrderResultItem[];
+  const differential = stringList(packageRecord?.differential);
+  const soap = (isPlainRecord(packageRecord?.soap) ? packageRecord?.soap : {}) as Record<string, unknown>;
+  const esiHistory = (Array.isArray(packageRecord?.esi_history) ? packageRecord?.esi_history : []) as Array<{ level?: number; elapsed_minutes?: number }>;
+  const resultInterpretations = (packageRecord?.result_interpretations || {}) as Record<string, { text?: string; elapsed_minutes?: number }>;
+  const ecgInterpretationReviews = packageOrders
+    .filter((order) => isEcgDisplayName(order.display_name) && resultInterpretations[order.order_id]?.text)
+    .map((order) => ({
+      order,
+      studentText: String(resultInterpretations[order.order_id]?.text || ''),
+      elapsedMinutes: resultInterpretations[order.order_id]?.elapsed_minutes,
+      datasetText: order.result?.narrative || ''
+    }));
   const completenessFlags = ((feedback?.completeness?.flags || packageRecord?.completeness_flags || {}) as Record<string, unknown>);
   const omissions = ((feedback?.completeness?.omissions || completenessFlags.omissions || []) as string[]);
   const actionFeedback = normalizeActionFeedback(feedback?.action_feedback);
+  const reviewItems = buildDebriefReviewItems(actionFeedback, feedback, packageOrders, omissions);
+  const missedWorkupLabels = stringList(feedback?.workup_judgment?.missed).map((id) => labelForDebriefOrder(packageOrders, id));
+  const expectedWorkupLabels = stringList(feedback?.workup_judgment?.expected_orders).map((id) => labelForDebriefOrder(packageOrders, id));
+  const orderedWorkupLabels = stringList(feedback?.workup_judgment?.ordered).map((id) => labelForDebriefOrder(packageOrders, id));
   const examLog = (packageRecord?.exams || []) as Array<{ maneuver_id: string; display_name: string; performed_at_min: number; finding: string }>;
   const interventionLog = (packageRecord?.interventions || []) as Array<{ intervention_id: string; display_name: string; applied_at_min: number; effect_summary: string }>;
   const usageRows = ((packageRecord?.token_usage || session?.state.token_usage || []) as TokenUsageRecord[]);
+  const sourceEnrichment = normalizeSourceEnrichment(packageRecord?.source_enrichment);
+  const replayRows = buildDebriefReplayRows(transcript, realTimeline);
+  const truth = {
+    diagnosis: readableValue(hiddenTruth.final_diagnosis),
+    esi: readableValue(hiddenTruth.validated_esi),
+    disposition: readableValue(hiddenTruth.actual_disposition)
+  };
+  const diagnosticMatched = Boolean(feedback?.diagnostic_accuracy?.matched);
+  const esiDefensible = Boolean(feedback?.acuity?.defensible);
+  const lastEsi = esiHistory.at(-1)?.level ?? null;
+  const summary = debriefPerformanceSummary({
+    diagnosticMatched,
+    esiDefensible,
+    missedWorkupCount: missedWorkupLabels.length,
+    reviewItemCount: reviewItems.filter((item) => item.severity !== 'positive').length
+  });
+  const highPriorityCount = reviewItems.filter((item) => item.severity === 'high').length;
+  const mediumPriorityCount = reviewItems.filter((item) => item.severity === 'medium').length;
+  const positiveCount = reviewItems.filter((item) => item.severity === 'positive').length;
+  const missedEssentials = reviewItems.filter((item) => item.severity !== 'positive');
+  const groupedReviewItems = groupDebriefReviewItems(reviewItems);
+  const missedPreview = (missedEssentials.length ? missedEssentials : reviewItems).slice(0, 3);
+  const openEvidencePrompt = buildOpenEvidencePrompt({
+    caseTitle: session?.snapshot.title || '',
+    truth,
+    feedback,
+    missedWorkupLabels,
+    expectedWorkupLabels,
+    orderedWorkupLabels,
+    reviewItems,
+    transcript,
+    realTimeline,
+    packageOrders,
+    differential,
+    soap,
+    lastEsi,
+    sourceEnrichment
+  });
   const usageTotals = usageRows.reduce(
     (totals, row) => ({
       tokens: totals.tokens + row.prompt_tokens + row.completion_tokens,
@@ -1781,129 +2533,1146 @@ function DebriefScreen() {
     { tokens: 0, cost: 0 }
   );
 
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+  }, []);
+
+  const copyPrompt = async (openEvidence = false) => {
+    try {
+      await copyTextToClipboard(openEvidencePrompt);
+      setPromptStatus(openEvidence ? 'Prompt copied. OpenEvidence opened in a new tab.' : 'Prompt copied.');
+    } catch {
+      setPromptStatus('Could not copy automatically. Select the prompt text below.');
+    }
+    if (openEvidence) window.open('https://www.openevidence.com/', '_blank', 'noopener,noreferrer');
+  };
+
   return (
-    <main className="ed-sim-font min-h-screen bg-[#f4f7f8] p-4 text-[#17232b]">
-      <div className="mx-auto grid max-w-7xl gap-4">
-        <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#d7dfdf] bg-white p-4">
+    <main className="ed-sim-font min-h-screen bg-[#f5f7f7] text-[#17232b]">
+      <header className="border-b border-[#dbe3e3] bg-white">
+        <div className="mx-auto flex max-w-[1560px] flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
-            <h1 className="m-0 text-xl font-extrabold">Debrief</h1>
+            <div className="flex items-center gap-2">
+              <FirstAidKit size={24} weight="bold" className="text-[#27313a]" />
+              <h1 className="m-0 text-xl font-extrabold">Debrief</h1>
+            </div>
             <p className="m-0 mt-1 text-sm text-[#607078]">{session?.snapshot.title}</p>
           </div>
-          <button type="button" className="inline-flex h-10 items-center gap-2 rounded-md border border-[#cdd8d8] px-3 text-sm font-bold" onClick={() => void start()}>
-            <ArrowClockwise size={17} /> New run
-          </button>
-        </header>
-
-        <section className="grid gap-4 xl:grid-cols-[380px_minmax(0,1fr)]">
-          <div className="grid content-start gap-4">
-            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
-              <h2 className="m-0 mb-3 text-base font-extrabold">Ground Truth</h2>
-              <dl className="grid gap-2 text-sm">
-                <DebriefFact label="Diagnosis" value={String(hiddenTruth.final_diagnosis || '')} />
-                <DebriefFact label="ESI" value={String(hiddenTruth.validated_esi || '')} />
-                <DebriefFact label="Disposition" value={String(hiddenTruth.actual_disposition || '')} />
-              </dl>
-            </article>
-            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
-              <h2 className="m-0 mb-3 text-base font-extrabold">Feedback</h2>
-              {feedback ? (
-                <div className="grid gap-3 text-sm">
-                  <FeedbackRow label="Diagnostic match" value={String(feedback.diagnostic_accuracy?.matched ?? false)} />
-                  <FeedbackRow label="ESI defensible" value={String(feedback.acuity?.defensible ?? false)} />
-                  <FeedbackRow label="Missed workup" value={JSON.stringify(feedback.workup_judgment?.missed || [])} />
-                </div>
-              ) : (
-                <div className="rounded-md border border-[#e8b5b5] bg-[#fff7f7] p-3 text-sm font-semibold leading-6 text-[#7f1d1d]" data-testid="feedback-validation-gate">
-                  {error || 'Grader feedback is unavailable until this case has passed clinician validation.'}
-                </div>
-              )}
-            </article>
-            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4" data-testid="action-feedback">
-              <h2 className="m-0 mb-3 text-base font-extrabold">Action Review</h2>
-              <div className="grid gap-3 text-sm">
-                <ActionFeedbackSection title="Omissions" items={actionFeedback.omissions_that_mattered} empty="No exam omissions scored." testId="feedback-omissions" />
-                <ActionFeedbackSection title="Timing" items={actionFeedback.timing_sequence} empty="No timing issues scored." testId="feedback-timing" />
-                <ActionFeedbackSection
-                  title="Interventions"
-                  items={[...actionFeedback.interventions.appropriate, ...actionFeedback.interventions.missed, ...actionFeedback.interventions.excessive]}
-                  empty="No intervention judgments scored."
-                  testId="feedback-interventions"
-                />
-                <ActionFeedbackSection title="Positives" items={actionFeedback.positive_reinforcement} empty="No positive exam feedback scored." testId="feedback-positives" />
-              </div>
-            </article>
-            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
-              <h2 className="m-0 mb-3 text-base font-extrabold">Completeness</h2>
-              <div className="mb-3 grid gap-2 text-sm">
-                <FeedbackRow label="ABCDE" value={flagLabel(completenessFlags.abcde_addressed)} />
-                <FeedbackRow label="ESI" value={flagLabel(completenessFlags.esi_committed)} />
-                <FeedbackRow label="Assessment" value={flagLabel(completenessFlags.assessment_committed)} />
-                <FeedbackRow label="Plan" value={flagLabel(completenessFlags.plan_committed)} />
-              </div>
-              <div className="grid gap-2 text-sm" data-testid="completeness-gaps">
-                {omissions.length ? omissions.map((omission) => (
-                  <div key={omission} className="rounded-md border border-[#e8b5b5] bg-[#fff7f7] p-3 font-semibold text-[#7f1d1d]">{omission}</div>
-                )) : (
-                  <div className="rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 font-semibold text-[#31534f]">No omissions recorded.</div>
-                )}
-              </div>
-            </article>
-            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
-              <h2 className="m-0 mb-3 text-base font-extrabold">Action Log</h2>
-              <div className="grid gap-3 text-sm" data-testid="timed-action-log">
-                <TimedActionList
-                  title="Exams"
-                  rows={examLog.map((item) => ({ id: item.maneuver_id, label: item.display_name, elapsed: item.performed_at_min, detail: item.finding }))}
-                  empty="No exams performed."
-                />
-                <TimedActionList
-                  title="Interventions"
-                  rows={interventionLog.map((item) => ({ id: item.intervention_id, label: item.display_name, elapsed: item.applied_at_min, detail: item.effect_summary }))}
-                  empty="No interventions applied."
-                />
-              </div>
-            </article>
-            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
-              <h2 className="m-0 mb-3 text-base font-extrabold">Teaching Points</h2>
-              <ul className="m-0 grid gap-2 p-0 text-sm">
-                {(feedback?.teaching_points || []).map((point, index) => (
-                  <li key={index} className="list-none rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3">
-                    {point.grounded ? <CheckCircle size={16} className="mr-2 inline text-[#0f766e]" weight="fill" /> : null}
-                    {point.claim}
-                  </li>
-                ))}
-              </ul>
-            </article>
-            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
-              <h2 className="m-0 mb-3 text-base font-extrabold">Usage</h2>
-              <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
-                <FeedbackRow label="Tokens" value={String(usageTotals.tokens)} />
-                <FeedbackRow label="Cost" value={formatCost(usageTotals.cost)} />
-              </div>
-              <div className="grid gap-2 text-xs" data-testid="usage-log">
-                {usageRows.length ? usageRows.map((row, index) => (
-                  <div key={`${row.purpose}-${index}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-2">
-                    <span className="font-bold text-[#394951]">{row.purpose}</span>
-                    <span className="font-semibold text-[#607078]">{row.tier} - {row.prompt_tokens + row.completion_tokens} tokens - {formatCost(row.estimated_cost_usd)}</span>
-                  </div>
-                )) : (
-                  <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 font-semibold text-[#607078]">No model usage recorded.</div>
-                )}
-              </div>
-            </article>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              data-testid="copy-open-evidence-prompt"
+              className="inline-flex h-10 items-center gap-2 rounded-md bg-[#0f766e] px-3 text-sm font-extrabold text-white"
+              onClick={() => void copyPrompt(true)}
+            >
+              <ClipboardText size={17} weight="bold" /> Copy Prompt & OpenEvidence
+            </button>
+            <button type="button" className="inline-flex h-10 items-center gap-2 rounded-md border border-[#cdd8d8] px-3 text-sm font-bold" onClick={() => void start()}>
+              <ArrowClockwise size={17} /> New run
+            </button>
           </div>
+        </div>
+      </header>
 
-          <article className="rounded-lg border border-[#d7dfdf] bg-white p-4">
-            <h2 className="m-0 mb-3 text-base font-extrabold">Replay</h2>
-            <div className="grid gap-3 lg:grid-cols-2">
-              <TimelineColumn title="Student" items={transcript.map((item) => ({ elapsed_min: item.elapsed_minutes, label: labelForMessage(item), detail: item.text }))} />
-              <TimelineColumn title="Real Encounter" items={realTimeline} />
+      <div className="mx-auto grid max-w-[1560px] gap-2 p-3 sm:gap-3 sm:p-4">
+        {promptStatus ? (
+          <div className="rounded-md border border-[#c8e3dd] bg-[#f2faf7] px-3 py-2 text-sm font-bold text-[#0f5f58]" data-testid="open-evidence-copy-status">
+            {promptStatus}
+          </div>
+        ) : null}
+
+        <section className="grid gap-2 md:grid-cols-2 md:gap-3 xl:grid-cols-[1.35fr_1fr_1.1fr_1fr_1fr_1fr]" data-testid="debrief-summary-band">
+          <DebriefSummaryCard icon={<ChartDonut size={19} weight="bold" />} title="Performance" value={summary.label} detail={summary.message} />
+          <DebriefSummaryCard icon={<Stethoscope size={19} weight="bold" />} title="Diagnosis" value={truth.diagnosis} status={diagnosticMatched ? 'Correct' : 'Needs review'} tone={diagnosticMatched ? 'good' : 'danger'} />
+          <DebriefSummaryCard icon={<User size={19} weight="bold" />} title="ESI" value={lastEsi ? `${lastEsi} submitted; key ${truth.esi}` : `Not submitted; key ${truth.esi}`} status={esiDefensible ? 'Defensible' : 'Needs review'} tone={esiDefensible ? 'good' : 'danger'} />
+          <DebriefSummaryCard icon={<Buildings size={19} weight="bold" />} title="Disposition" value={truth.disposition} status="Answer key" tone="neutral" />
+          <DebriefSummaryCard icon={<Flag size={19} weight="fill" />} title="High-priority gaps" value={String(highPriorityCount)} detail="Items to review" tone={highPriorityCount ? 'danger' : 'good'} />
+          <DebriefSummaryCard icon={<ListBullets size={19} weight="bold" />} title="Missed workup" value={missedWorkupLabels.length ? `${missedWorkupLabels.length} items` : 'None'} detail={missedWorkupLabels.length ? 'Source-backed workup not ordered' : 'Expected workup covered'} tone={missedWorkupLabels.length ? 'danger' : 'good'} />
+        </section>
+
+        <section className="grid gap-3 xl:h-[calc(100vh-250px)] xl:min-h-[620px] xl:grid-cols-[minmax(360px,5fr)_minmax(0,12fr)]">
+          <aside className="grid min-h-0 gap-3 xl:grid-rows-[auto_minmax(0,1fr)]">
+            <article className="rounded-lg border border-[#d7dfdf] bg-white p-4" data-testid="action-feedback">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h2 className="m-0 text-base font-extrabold">Action Review</h2>
+                <button type="button" className="text-sm font-extrabold text-[#0f5f58]" onClick={() => setActiveTab('missed')}>
+                  View all
+                </button>
+              </div>
+              <div className="overflow-hidden rounded-md border border-[#dfe7e7] text-sm">
+                <PriorityCountRow icon={<Flag size={17} weight="fill" />} label="High priority" count={highPriorityCount} tone="danger" />
+                <PriorityCountRow icon={<WarningCircle size={17} weight="fill" />} label="Needs attention" count={mediumPriorityCount} tone="warning" />
+                <PriorityCountRow icon={<ArrowCircleUp size={17} weight="fill" />} label="Reinforce" count={positiveCount} tone="good" />
+              </div>
+              <ol className="m-0 mt-3 grid gap-2 p-0 text-sm">
+                <NextActionRow index={1} text={highPriorityCount ? 'Review missed high-priority items.' : 'Review timing and sequence.'} onClick={() => setActiveTab(highPriorityCount ? 'missed' : 'replay')} />
+                <NextActionRow index={2} text="Copy evidence prompt for outside review." onClick={() => setActiveTab('prompt')} />
+              </ol>
+            </article>
+
+            <article className="min-w-0 rounded-lg border border-[#d7dfdf] bg-white">
+              <div className="flex items-center justify-between gap-3 border-b border-[#e4e9e9] p-4">
+                <div>
+                  <h2 className="m-0 text-base font-extrabold">Missed workup</h2>
+                  <p className="m-0 mt-1 text-sm font-semibold text-[#607078]">
+                    {missedWorkupLabels.length ? `${missedWorkupLabels.length} source-backed gaps` : 'No expected workup missed'}
+                  </p>
+                </div>
+                <button type="button" className="text-sm font-extrabold text-[#0f5f58]" onClick={() => setActiveTab('missed')}>
+                  Details
+                </button>
+              </div>
+              <div className="p-4" data-testid="feedback-omissions">
+                <div className="grid gap-2">
+                  {missedPreview.length ? missedPreview.map((item, index) => (
+                    <DebriefReviewItem key={`${item.label}-${index}`} item={item} compact />
+                  )) : (
+                    <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 text-sm font-semibold text-[#607078]">No action gaps recorded.</div>
+                  )}
+                  {missedEssentials.length > missedPreview.length ? (
+                    <button type="button" className="rounded-md border border-[#dfe7e7] bg-white px-3 py-2 text-left text-sm font-extrabold text-[#0f5f58]" onClick={() => setActiveTab('missed')}>
+                      View {missedEssentials.length - missedPreview.length} more items
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            </article>
+          </aside>
+
+          <article className="flex min-h-[620px] min-w-0 flex-col rounded-lg border border-[#d7dfdf] bg-white xl:min-h-0">
+            <div className="border-b border-[#e4e9e9] px-4 pt-3">
+              <div className="flex flex-wrap gap-5">
+                {([
+                  ['replay', 'Replay'],
+                  ['missed', 'Missed essentials'],
+                  ['prompt', 'Evidence prompt'],
+                  ['source', 'Source context']
+                ] as Array<[DebriefTab, string]>).map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    data-testid={`debrief-tab-${id}`}
+                    className={`border-x-0 border-t-0 border-b-2 bg-transparent px-0 pb-3 text-sm font-extrabold ${activeTab === id ? 'border-[#0f766e] text-[#0f5f58]' : 'border-transparent text-[#394951]'}`}
+                    onClick={() => setActiveTab(id)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="min-h-0 flex-1 overflow-hidden p-4">
+              {activeTab === 'replay' ? (
+                <DebriefReplayTable rows={replayRows} />
+              ) : null}
+              {activeTab === 'missed' ? (
+                <div className="h-full overflow-auto pr-1">
+                <div className="grid gap-4">
+                  <section className="grid gap-3 lg:grid-cols-2">
+                    <CompletenessPanel flags={completenessFlags} omissions={omissions} />
+                    <WorkupPanel expected={expectedWorkupLabels} ordered={orderedWorkupLabels} missed={missedWorkupLabels} />
+                  </section>
+                  <section className="grid gap-3 text-sm">
+                    <h2 className="m-0 text-base font-extrabold">Action review</h2>
+                    <div className="grid gap-3" data-testid="feedback-interventions">
+                      {groupedReviewItems.length ? groupedReviewItems.map((group) => (
+                        <DebriefReviewGroup key={group.id} group={group} />
+                      )) : (
+                        <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 font-semibold text-[#607078]">No scored action review items.</div>
+                      )}
+                    </div>
+                  </section>
+                  <section className="grid gap-3 text-sm" data-testid="timed-action-log">
+                    <h2 className="m-0 text-base font-extrabold">Performed actions</h2>
+                    <div className="grid gap-3 lg:grid-cols-2">
+                      <TimedActionList
+                        title="Exams"
+                        rows={examLog.map((item) => ({ id: item.maneuver_id, label: item.display_name, elapsed: item.performed_at_min, detail: item.finding }))}
+                        empty="No exams performed."
+                      />
+                      <TimedActionList
+                        title="Interventions"
+                        rows={interventionLog.map((item) => ({ id: item.intervention_id, label: item.display_name, elapsed: item.applied_at_min, detail: item.effect_summary }))}
+                        empty="No interventions applied."
+                      />
+                    </div>
+                  </section>
+                  {ecgInterpretationReviews.length ? (
+                    <article className="rounded-lg border border-[#d7dfdf] bg-white p-4" data-testid="ecg-interpretation-review">
+                      <h2 className="m-0 mb-3 text-base font-extrabold">ECG Review</h2>
+                      <div className="grid gap-3 text-sm">
+                        {ecgInterpretationReviews.map(({ order, studentText, elapsedMinutes, datasetText }) => (
+                          <section key={order.order_id} className="grid gap-2 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <strong>{order.display_name}</strong>
+                              {typeof elapsedMinutes === 'number' ? <span className="text-xs font-bold text-[#607078]">{formatClock(elapsedMinutes)}</span> : null}
+                            </div>
+                            <FeedbackRow label="Your read" value={studentText} />
+                            <FeedbackRow label="Dataset read" value={datasetText || 'No dataset interpretation available.'} />
+                          </section>
+                        ))}
+                      </div>
+                    </article>
+                  ) : null}
+                  <section className="grid gap-3 text-sm">
+                    <h2 className="m-0 text-base font-extrabold">Teaching points</h2>
+                    <ul className="m-0 grid gap-2 p-0">
+                      {(feedback?.teaching_points || []).map((point, index) => (
+                        <li key={index} className="list-none rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3">
+                          {point.grounded ? <CheckCircle size={16} className="mr-2 inline text-[#0f766e]" weight="fill" /> : null}
+                          {point.claim}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                </div>
+                </div>
+              ) : null}
+              {activeTab === 'prompt' ? (
+                <div className="h-full overflow-auto pr-1">
+                <div className="grid gap-4">
+                  <EvidencePromptPreview
+                    truth={truth}
+                    feedback={feedback}
+                    missedWorkupLabels={missedWorkupLabels}
+                    reviewItems={reviewItems}
+                    realTimeline={realTimeline}
+                    sourceEnrichment={sourceEnrichment}
+                    lastEsi={lastEsi}
+                  />
+                  <section className="rounded-md border border-[#d7dfdf] bg-[#fbfcfc] p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h2 className="m-0 text-base font-extrabold">OpenEvidence handoff</h2>
+                        <p className="m-0 mt-1 text-sm font-semibold leading-6 text-[#52636b]">Concise case details and student performance, ready to paste for external evidence feedback.</p>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="copy-evidence-prompt-only"
+                        className="inline-flex h-10 items-center gap-2 rounded-md border border-[#cdd8d8] bg-white px-3 text-sm font-extrabold"
+                        onClick={() => void copyPrompt(false)}
+                      >
+                        <ClipboardText size={16} weight="bold" /> Copy Prompt
+                      </button>
+                    </div>
+                    <textarea
+                      data-testid="open-evidence-prompt"
+                      readOnly
+                      value={openEvidencePrompt}
+                      className="mt-3 min-h-[380px] w-full resize-y rounded-md border border-[#cdd8d8] bg-white p-3 font-mono text-xs leading-5 text-[#27313a] outline-none"
+                    />
+                  </section>
+                  <section className="rounded-lg border border-[#d7dfdf] bg-white p-4">
+                    <h2 className="m-0 mb-3 text-base font-extrabold">Usage</h2>
+                    <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
+                      <FeedbackRow label="Tokens" value={String(usageTotals.tokens)} />
+                      <FeedbackRow label="Cost" value={formatCost(usageTotals.cost)} />
+                    </div>
+                    <div className="grid gap-2 text-xs" data-testid="usage-log">
+                      {usageRows.length ? usageRows.map((row, index) => (
+                        <div key={`${row.purpose}-${index}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-2">
+                          <span className="font-bold text-[#394951]">{row.purpose}</span>
+                          <span className="font-semibold text-[#607078]">{row.tier} - {row.prompt_tokens + row.completion_tokens} tokens - {formatCost(row.estimated_cost_usd)}</span>
+                        </div>
+                      )) : (
+                        <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] p-3 font-semibold text-[#607078]">No model usage recorded.</div>
+                      )}
+                    </div>
+                  </section>
+                </div>
+                </div>
+              ) : null}
+              {activeTab === 'source' ? (
+                <div className="h-full overflow-auto pr-1">
+                  <SourceCaseContext enrichment={sourceEnrichment} />
+                </div>
+              ) : null}
             </div>
           </article>
         </section>
       </div>
     </main>
   );
+}
+
+type DebriefTab = 'replay' | 'missed' | 'prompt' | 'source';
+
+type DebriefReviewItemModel = {
+  label: string;
+  message: string;
+  detail: string;
+  severity: 'high' | 'medium' | 'positive';
+  group: 'exam' | 'workup' | 'reassessment' | 'reinforce';
+  elapsed_minutes?: number | null;
+};
+
+function DebriefSummaryCard({
+  icon,
+  title,
+  value,
+  detail,
+  status,
+  tone = 'neutral'
+}: {
+  icon?: React.ReactNode;
+  title: string;
+  value: string;
+  detail?: string;
+  status?: string;
+  tone?: 'good' | 'danger' | 'neutral';
+}) {
+  const toneClass = tone === 'good'
+    ? 'border-[#bcd9c1] bg-[#edf8ef] text-[#1d6b34]'
+    : tone === 'danger'
+      ? 'border-[#f0c2c2] bg-[#fff7f7] text-[#7f1d1d]'
+      : 'border-[#dfe7e7] bg-[#fbfcfc] text-[#394951]';
+
+  return (
+    <article className="grid min-h-[96px] content-start gap-2 rounded-lg border border-[#d7dfdf] bg-white p-3 md:min-h-[118px] md:p-4">
+      <div className={`flex items-center gap-2 text-sm font-extrabold ${tone === 'danger' ? 'text-[#9f1d1d]' : tone === 'good' ? 'text-[#0f5f58]' : 'text-[#27313a]'}`}>
+        {icon ? <span className="grid h-5 w-5 place-items-center">{icon}</span> : null}
+        <h2 className="m-0 text-sm font-extrabold">{title}</h2>
+      </div>
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+        <strong className="min-w-0 text-base leading-6 text-[#17232b]">{value}</strong>
+        {status ? <span className={`rounded-md border px-2 py-1 text-xs font-extrabold ${toneClass}`}>{status}</span> : null}
+      </div>
+      {detail ? <p className="m-0 text-sm font-semibold leading-5 text-[#52636b]">{detail}</p> : null}
+    </article>
+  );
+}
+
+function DebriefVerdictRow({ label, value, status, tone }: { label: string; value: string; status: string; tone: 'good' | 'danger' | 'neutral' }) {
+  const toneClass = tone === 'good'
+    ? 'border-[#bcd9c1] bg-[#edf8ef] text-[#1d6b34]'
+    : tone === 'danger'
+      ? 'border-[#f0c2c2] bg-[#fff7f7] text-[#7f1d1d]'
+      : 'border-[#dfe7e7] bg-[#fbfcfc] text-[#394951]';
+  return (
+    <div className="grid gap-2 px-4 py-3">
+      <dt className="text-sm font-extrabold">{label}</dt>
+      <dd className="m-0 flex min-w-0 flex-wrap items-center justify-between gap-2">
+        <span className="min-w-0 text-sm font-semibold leading-6 text-[#27313a]">{value}</span>
+        <span className={`rounded-md border px-2 py-1 text-xs font-extrabold ${toneClass}`}>{status}</span>
+      </dd>
+    </div>
+  );
+}
+
+function PriorityCountRow({ icon, label, count, tone = 'neutral' }: { icon: React.ReactNode; label: string; count: number; tone?: 'danger' | 'warning' | 'good' | 'neutral' }) {
+  const iconClass = tone === 'danger'
+    ? 'text-[#c22929]'
+    : tone === 'warning'
+      ? 'text-[#d97706]'
+      : tone === 'good'
+        ? 'text-[#0f766e]'
+        : 'text-[#607078]';
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-[#e4e9e9] bg-[#fbfcfc] px-3 py-2 last:border-b-0">
+      <span className="inline-flex min-w-0 items-center gap-2 font-semibold text-[#27313a]">
+        <span className={`grid h-5 w-5 place-items-center ${iconClass}`}>{icon}</span>
+        {label}
+      </span>
+      <strong className="text-[#17232b]">{count}</strong>
+    </div>
+  );
+}
+
+function NextActionRow({ index, text, onClick }: { index: number; text: string; onClick: () => void }) {
+  return (
+    <li className="list-none">
+      <button type="button" className="grid w-full grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-2 rounded-md border border-[#dfe7e7] bg-white px-3 py-2 text-left hover:border-[#0f766e]" onClick={onClick}>
+        <span className="grid h-7 w-7 place-items-center rounded-md bg-[#eef2f2] text-xs font-extrabold text-[#52636b]">{index}</span>
+        <span className="text-sm font-semibold leading-5 text-[#27313a]">{text}</span>
+        <CaretRight size={15} className="text-[#607078]" weight="bold" />
+      </button>
+    </li>
+  );
+}
+
+function CompletenessPanel({ flags, omissions }: { flags: Record<string, unknown>; omissions: string[] }) {
+  return (
+    <section className="rounded-lg border border-[#d7dfdf] bg-white p-4">
+      <h2 className="m-0 mb-3 text-base font-extrabold">Completeness</h2>
+      <div className="grid gap-2 text-sm">
+        <FeedbackRow label="ABCDE" value={flagLabel(flags.abcde_addressed)} />
+        <FeedbackRow label="ESI" value={flagLabel(flags.esi_committed)} />
+        <FeedbackRow label="Assessment" value={flagLabel(flags.assessment_committed)} />
+        <FeedbackRow label="Plan" value={flagLabel(flags.plan_committed)} />
+      </div>
+      <div className="mt-3 grid gap-2 text-sm" data-testid="completeness-gaps">
+        {omissions.length ? omissions.map((omission) => (
+          <div key={omission} className="rounded-md border border-[#e8b5b5] bg-[#fff7f7] p-3 font-semibold text-[#7f1d1d]">{omission}</div>
+        )) : (
+          <div className="rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 font-semibold text-[#31534f]">No omissions recorded.</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function WorkupPanel({ expected, ordered, missed }: { expected: string[]; ordered: string[]; missed: string[] }) {
+  return (
+    <section className="rounded-lg border border-[#d7dfdf] bg-white p-4">
+      <h2 className="m-0 mb-3 text-base font-extrabold">Workup</h2>
+      <div className="grid gap-3 text-sm">
+        <ReadableList label="Expected" items={expected} empty="No expected workup listed." />
+        <ReadableList label="Ordered" items={ordered} empty="No orders placed." />
+        <ReadableList label="Missed" items={missed} empty="No expected workup missed." danger={missed.length > 0} />
+      </div>
+    </section>
+  );
+}
+
+function ReadableList({ label, items, empty, danger = false }: { label: string; items: string[]; empty: string; danger?: boolean }) {
+  return (
+    <div className="grid gap-1">
+      <strong className="text-sm">{label}</strong>
+      {items.length ? (
+        <ul className="m-0 grid gap-1 p-0">
+          {items.map((item) => (
+            <li key={item} className={`list-none rounded-md border px-3 py-2 font-semibold ${danger ? 'border-[#f0c2c2] bg-[#fff7f7] text-[#7f1d1d]' : 'border-[#dfe7e7] bg-[#fbfcfc] text-[#27313a]'}`}>
+              {item}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="rounded-md border border-dashed border-[#cdd8d8] bg-[#fbfcfc] px-3 py-2 font-semibold text-[#607078]">{empty}</div>
+      )}
+    </div>
+  );
+}
+
+function DebriefReviewItem({ item, compact = false }: { item: DebriefReviewItemModel; compact?: boolean }) {
+  const toneClass = item.severity === 'high'
+    ? 'border-[#efcaca] bg-[#fffafa]'
+    : item.severity === 'positive'
+      ? 'border-[#c8e3dd] bg-[#f2faf7]'
+      : 'border-[#ead6b9] bg-[#fffaf0]';
+  const severityLabel = item.severity === 'high' ? 'High impact' : item.severity === 'medium' ? 'Needs attention' : 'Reinforce';
+  const severityIcon = item.severity === 'high'
+    ? <Flag size={16} weight="fill" />
+    : item.severity === 'medium'
+      ? <WarningCircle size={16} weight="fill" />
+      : <ArrowCircleUp size={16} weight="fill" />;
+  const severityIconClass = item.severity === 'high' ? 'text-[#c22929]' : item.severity === 'medium' ? 'text-[#d97706]' : 'text-[#0f766e]';
+  return (
+    <article className={`rounded-md border px-3 py-2.5 ${toneClass}`}>
+      <div className="flex items-start justify-between gap-3">
+        <strong className="inline-flex min-w-0 items-center gap-2 text-sm text-[#27313a]">
+          <span className={`grid h-5 w-5 flex-none place-items-center ${severityIconClass}`}>{severityIcon}</span>
+          <span className="min-w-0">{item.label}</span>
+        </strong>
+        {typeof item.elapsed_minutes === 'number' ? <span className="text-xs font-bold text-[#607078]">{formatClock(item.elapsed_minutes)}</span> : null}
+      </div>
+      <p className={`m-0 mt-1 text-sm font-semibold text-[#27313a] ${compact ? 'leading-5' : 'leading-6'}`}>{item.message}</p>
+      {compact ? (
+        <p className={`m-0 mt-2 text-xs font-extrabold ${item.severity === 'high' ? 'text-[#9f1d1d]' : item.severity === 'positive' ? 'text-[#0f5f58]' : 'text-[#607078]'}`}>{severityLabel}</p>
+      ) : item.detail ? (
+        <p className="m-0 mt-1 text-xs font-bold leading-5 text-[#607078]">{item.detail}</p>
+      ) : null}
+    </article>
+  );
+}
+
+type DebriefReviewGroupModel = {
+  id: DebriefReviewItemModel['group'];
+  title: string;
+  description: string;
+  items: DebriefReviewItemModel[];
+  defaultOpen: boolean;
+};
+
+function DebriefReviewGroup({ group }: { group: DebriefReviewGroupModel }) {
+  const visibleItems = group.items.slice(0, 5);
+  const hiddenItems = group.items.slice(5);
+  return (
+    <details className="rounded-md border border-[#d7dfdf] bg-white" open={group.defaultOpen} data-testid={`review-group-${group.id}`}>
+      <summary className="grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] gap-3 px-3 py-2.5">
+        <span>
+          <strong className="block text-sm text-[#17232b]">{group.title}</strong>
+          <span className="mt-1 block text-xs font-semibold leading-5 text-[#607078]">{group.description}</span>
+        </span>
+        <span className="text-sm font-extrabold text-[#52636b]">{group.items.length}</span>
+      </summary>
+      <div className="grid gap-2 border-t border-[#e4e9e9] bg-[#fbfcfc] p-3">
+        {visibleItems.map((item, index) => (
+          <DebriefReviewItem key={`${item.label}-${index}`} item={item} />
+        ))}
+        {hiddenItems.length ? (
+          <details className="rounded-md border border-[#dfe7e7] bg-white">
+            <summary className="cursor-pointer px-3 py-2 text-sm font-extrabold text-[#0f5f58]">
+              Show {hiddenItems.length} more
+            </summary>
+            <div className="grid gap-2 border-t border-[#e4e9e9] p-3">
+              {hiddenItems.map((item, index) => (
+                <DebriefReviewItem key={`${item.label}-hidden-${index}`} item={item} />
+              ))}
+            </div>
+          </details>
+        ) : null}
+      </div>
+    </details>
+  );
+}
+
+function ReplayActorIcon({ who, source }: { who: string; source: 'student' | 'real' | 'result' }) {
+  if (source === 'real') return <Buildings size={16} weight="bold" className="text-[#52636b]" />;
+  if (source === 'result') return <Pulse size={16} weight="bold" className="text-[#0f766e]" />;
+  if (who === 'System') return <FirstAidKit size={16} weight="bold" className="text-[#607078]" />;
+  return <User size={16} weight={who === 'Patient' ? 'fill' : 'bold'} className={who === 'Patient' ? 'text-[#0f766e]' : 'text-[#607078]'} />;
+}
+
+function DebriefReplayTable({ rows }: { rows: Array<{ elapsed_min: number; who: string; event: string; detail: string; source: 'student' | 'real' | 'result' }> }) {
+  return (
+    <div className="flex h-full min-h-[460px] min-w-0 flex-col overflow-hidden rounded-md border border-[#d7dfdf]" data-testid="debrief-replay-table">
+      <div className="min-w-0 overflow-x-auto">
+        <div className="grid min-w-[820px] grid-cols-[74px_150px_minmax(160px,0.8fr)_minmax(220px,1fr)] border-b border-[#d7dfdf] bg-[#fbfcfc] px-3 py-2 text-xs font-extrabold text-[#52636b]">
+          <span>Time</span>
+          <span>Who</span>
+          <span>Event</span>
+          <span>Details</span>
+        </div>
+      </div>
+      <div className="min-h-0 flex-1 overflow-auto">
+        <div className="min-w-[820px]">
+          {rows.length ? rows.map((row, index) => (
+            <div key={`${row.elapsed_min}-${row.who}-${index}`} className="grid grid-cols-[74px_150px_minmax(160px,0.8fr)_minmax(220px,1fr)] gap-3 border-b border-[#eef2f2] px-3 py-2 text-sm last:border-b-0">
+              <span className="font-semibold text-[#52636b]">{formatMinuteStamp(row.elapsed_min)}</span>
+              <span className={`inline-flex min-w-0 items-center gap-2 font-bold ${row.source === 'student' ? 'text-[#394951]' : row.source === 'result' ? 'text-[#0f5f58]' : 'text-[#52636b]'}`}>
+                <ReplayActorIcon who={row.who} source={row.source} />
+                <span className="min-w-0 truncate">{row.who}</span>
+              </span>
+              <span className="font-semibold text-[#27313a]">{row.event}</span>
+              <span className="leading-6 text-[#27313a]">{row.detail || '-'}</span>
+            </div>
+          )) : (
+            <div className="p-4 text-sm font-semibold text-[#607078]">No replay events recorded.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function buildDebriefReplayRows(transcript: TranscriptMessage[], realTimeline: Array<{ elapsed_min: number; label: string; detail: string }>) {
+  const studentRows = transcript.map((message) => ({
+    elapsed_min: message.elapsed_minutes,
+    who: labelForMessage(message),
+    event: message.speaker === 'student' ? message.text : replayEventLabel(message),
+    detail: message.speaker === 'student' ? '' : message.text,
+    source: message.speaker === 'results' ? 'result' as const : 'student' as const
+  }));
+  const realRows = realTimeline.map((item) => ({
+    elapsed_min: item.elapsed_min,
+    who: 'Real encounter',
+    event: item.label,
+    detail: item.detail,
+    source: 'real' as const
+  }));
+  return [...studentRows, ...realRows].sort((a, b) => a.elapsed_min - b.elapsed_min || sourceSort(a.source) - sourceSort(b.source));
+}
+
+function replayEventLabel(message: TranscriptMessage) {
+  if (message.speaker === 'results') return 'Result released';
+  if (message.speaker === 'system') return 'System event';
+  if (message.speaker === 'exam') return 'Exam finding';
+  return `${labelForMessage(message)} response`;
+}
+
+function sourceSort(source: 'student' | 'real' | 'result') {
+  if (source === 'real') return 0;
+  if (source === 'student') return 1;
+  return 2;
+}
+
+function buildDebriefReviewItems(
+  actionFeedback: ReturnType<typeof normalizeActionFeedback>,
+  feedback: GraderFeedback | null,
+  packageOrders: OrderResultItem[],
+  omissions: string[]
+): DebriefReviewItemModel[] {
+  const missedOrders = stringList(feedback?.workup_judgment?.missed).map((id) => ({
+    label: labelForDebriefOrder(packageOrders, id),
+    message: 'Expected source-backed workup was not ordered.',
+    detail: 'Case rubric',
+    severity: 'high' as const,
+    group: 'workup' as const
+  }));
+  const completeness = omissions.map((omission) => ({
+    label: 'Completeness',
+    message: omission,
+    detail: 'Completion gate',
+    severity: 'high' as const,
+    group: 'reassessment' as const
+  }));
+  const omissionsThatMattered = actionFeedback.omissions_that_mattered.map((item) => fromActionFeedback(item, 'high' as const));
+  const missedInterventions = actionFeedback.interventions.missed.map((item) => fromActionFeedback(item, 'high' as const, 'reassessment'));
+  const timing = actionFeedback.timing_sequence.map((item) => fromActionFeedback(item, 'medium' as const, 'reassessment'));
+  const excessive = actionFeedback.interventions.excessive.map((item) => fromActionFeedback(item, 'medium' as const, 'reassessment'));
+  const positives = [...actionFeedback.interventions.appropriate, ...actionFeedback.positive_reinforcement].map((item) => fromActionFeedback(item, 'positive' as const, 'reinforce'));
+  return uniqueReviewItems([...missedOrders, ...completeness, ...omissionsThatMattered, ...missedInterventions, ...timing, ...excessive, ...positives]);
+}
+
+function fromActionFeedback(item: ActionFeedbackItem, severity: DebriefReviewItemModel['severity'], group?: DebriefReviewItemModel['group']): DebriefReviewItemModel {
+  return {
+    label: item.label || humanizeId(item.action_id || 'Action'),
+    message: item.message,
+    detail: item.grounded ? sourceEvidenceLabel(item.evidence_id || item.evidence_note || 'case-rubric') : sourceEvidenceLabel(item.evidence_note),
+    severity,
+    group: group || inferReviewGroup(item, severity),
+    elapsed_minutes: item.elapsed_minutes
+  };
+}
+
+function uniqueReviewItems(items: DebriefReviewItemModel[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = `${item.severity}:${item.label}:${item.message}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function inferReviewGroup(item: ActionFeedbackItem, severity: DebriefReviewItemModel['severity']): DebriefReviewItemModel['group'] {
+  if (severity === 'positive') return 'reinforce';
+  const text = `${item.action_id || ''} ${item.label || ''} ${item.message || ''}`.toLowerCase();
+  if (/\b(lft|lipase|ct|cbc|bmp|cmp|lab|imaging|x-ray|workup|order)\b/.test(text)) return 'workup';
+  if (/\b(abdomen|abdominal|guarding|rebound|bowel|percussion|palpation|inspection|exam|appearance|tenderness)\b/.test(text)) return 'exam';
+  return 'reassessment';
+}
+
+function groupDebriefReviewItems(items: DebriefReviewItemModel[]): DebriefReviewGroupModel[] {
+  const groupMeta: Array<Omit<DebriefReviewGroupModel, 'items'> & { id: DebriefReviewItemModel['group'] }> = [
+    { id: 'exam', title: 'Abdominal exam omissions', description: 'Physical exam findings that would sharpen the acute-abdomen branch point.', defaultOpen: true },
+    { id: 'workup', title: 'Missed workup', description: 'Source-backed labs or imaging expected for this presentation.', defaultOpen: true },
+    { id: 'reassessment', title: 'Reassessment and escalation', description: 'Acuity, timing, intervention, and disposition behaviors to tighten.', defaultOpen: false },
+    { id: 'reinforce', title: 'Reinforced strengths', description: 'Actions worth repeating in the next run.', defaultOpen: false }
+  ];
+  return groupMeta
+    .map((group) => ({ ...group, items: items.filter((item) => item.group === group.id) }))
+    .filter((group) => group.items.length > 0);
+}
+
+function sourceEvidenceLabel(value: string | null | undefined) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const normalized = raw.toLowerCase();
+  const map: Record<string, string> = {
+    'case-rubric': 'Case rubric',
+    'case rubric': 'Case rubric',
+    'case-answer-key': 'Case answer key',
+    'completion gate finding.': 'Completion gate',
+    'completion gate finding': 'Completion gate',
+    'workup item from the case rubric.': 'Case rubric'
+  };
+  if (map[normalized]) return map[normalized];
+  if (normalized.includes('mimic-iv-note') || normalized.includes('discharge')) return 'MIMIC-IV discharge summary';
+  if (normalized.includes('vitals')) return 'MIMIC-IV ED vitals';
+  if (normalized.includes('medication') || normalized.includes('medrecon') || normalized.includes('emar') || normalized.includes('pyxis')) return 'MIMIC-IV medication record';
+  return humanizeId(raw);
+}
+
+function debriefPerformanceSummary({
+  diagnosticMatched,
+  esiDefensible,
+  missedWorkupCount,
+  reviewItemCount
+}: {
+  diagnosticMatched: boolean;
+  esiDefensible: boolean;
+  missedWorkupCount: number;
+  reviewItemCount: number;
+}) {
+  if (diagnosticMatched && esiDefensible && missedWorkupCount === 0 && reviewItemCount <= 1) {
+    return { label: 'Strong performance', message: 'Core diagnosis, acuity, and source-backed workup were aligned.' };
+  }
+  if (diagnosticMatched || esiDefensible) {
+    return { label: 'Partial performance', message: 'Some key reasoning was present. Address the missed essentials before repeating the case.' };
+  }
+  return { label: 'Needs focused review', message: 'High-impact gaps affected diagnosis, acuity, or essential workup.' };
+}
+
+function buildOpenEvidencePrompt({
+  caseTitle,
+  truth,
+  feedback,
+  missedWorkupLabels,
+  expectedWorkupLabels,
+  orderedWorkupLabels,
+  reviewItems,
+  transcript,
+  realTimeline,
+  packageOrders,
+  differential,
+  soap,
+  lastEsi,
+  sourceEnrichment
+}: {
+  caseTitle: string;
+  truth: { diagnosis: string; esi: string; disposition: string };
+  feedback: GraderFeedback | null;
+  missedWorkupLabels: string[];
+  expectedWorkupLabels: string[];
+  orderedWorkupLabels: string[];
+  reviewItems: DebriefReviewItemModel[];
+  transcript: TranscriptMessage[];
+  realTimeline: Array<{ elapsed_min: number; label: string; detail: string }>;
+  packageOrders: OrderResultItem[];
+  differential: string[];
+  soap: Record<string, unknown>;
+  lastEsi: number | null;
+  sourceEnrichment: SourceEnrichment;
+}) {
+  const resultSummaries = packageOrders
+    .filter((order) => order.result)
+    .slice(0, 8)
+    .map((order) => `${order.display_name}: ${resultBrief(order.result)}`);
+  const transcriptExcerpt = transcript
+    .slice(0, 12)
+    .map((message) => `${formatClock(message.elapsed_minutes)} ${labelForMessage(message)}: ${message.text}`);
+  const realEvents = realTimeline
+    .slice(0, 8)
+    .map((item) => `${formatClock(item.elapsed_min)} ${item.label}: ${item.detail}`);
+  const highPriority = reviewItems
+    .filter((item) => item.severity === 'high')
+    .slice(0, 8)
+    .map((item) => `${item.label}: ${item.message}`);
+  const noteDigest = prioritizedNoteDigests(sourceEnrichment.noteDigests)
+    .slice(0, 6)
+    .map((item) => `${recordString(item, 'section') || 'Source note'}: ${stripLeadingSectionLabel(recordString(item, 'summary'), recordString(item, 'section'))}`);
+  const sourceVitals = sourceEnrichment.sourceVitals
+    .slice(0, 5)
+    .map((item) => `${formatClock(recordNumber(item, 'elapsed_min'))}: ${formatSourceVitals(item)}`);
+  const edMedications = sourceEnrichment.edMedications
+    .slice(0, 6)
+    .map((item) => `${formatClock(recordNumber(item, 'elapsed_min'))}: ${medicationLine(item)}${recordString(item, 'event') ? ` (${recordString(item, 'event')})` : ''}`);
+  return [
+    'You are reviewing an emergency medicine simulation performance. Provide concise, evidence-based feedback for the instructor to use during debrief. Do not invent missing case facts.',
+    '',
+    `Case: ${caseTitle || 'ED abdominal pain simulation'}`,
+    `Answer key: diagnosis ${truth.diagnosis}; ESI ${truth.esi}; disposition ${truth.disposition}.`,
+    `Student ESI: ${lastEsi ?? 'not submitted'}. Diagnosis matched expected diagnosis: ${feedback?.diagnostic_accuracy?.matched ? 'yes' : 'no'}. ESI defensible: ${feedback?.acuity?.defensible ? 'yes' : 'no'}.`,
+    '',
+    `Student differential: ${differential.length ? differential.join('; ') : 'not committed'}.`,
+    `Student assessment: ${readableValue(soap.assessment, 'not documented')}.`,
+    `Student plan: ${readableValue(soap.plan, 'not documented')}.`,
+    '',
+    `Expected workup: ${expectedWorkupLabels.length ? expectedWorkupLabels.join('; ') : 'not specified'}.`,
+    `Ordered workup: ${orderedWorkupLabels.length ? orderedWorkupLabels.join('; ') : 'none'}.`,
+    `Missed workup: ${missedWorkupLabels.length ? missedWorkupLabels.join('; ') : 'none'}.`,
+    '',
+    'High-priority feedback:',
+    ...(highPriority.length ? highPriority.map((item) => `- ${item}`) : ['- No high-priority gaps recorded.']),
+    '',
+    'Key resulted studies:',
+    ...(resultSummaries.length ? resultSummaries.map((item) => `- ${item}`) : ['- No resulted studies recorded.']),
+    '',
+    'Student transcript excerpt:',
+    ...(transcriptExcerpt.length ? transcriptExcerpt.map((item) => `- ${item}`) : ['- No transcript recorded.']),
+    '',
+    'Source-recorded real encounter anchors:',
+    ...(realEvents.length ? realEvents.map((item) => `- ${item}`) : ['- No real encounter timeline attached.']),
+    '',
+    'Physician discharge-summary digest:',
+    ...(noteDigest.length ? noteDigest.map((item) => `- ${item}`) : ['- No discharge-summary digest attached.']),
+    '',
+    'Source-recorded ED reassessment anchors:',
+    ...(sourceVitals.length ? sourceVitals.map((item) => `- ${item}`) : ['- No repeat ED vitals attached.']),
+    ...(edMedications.length ? edMedications.map((item) => `- ${item}`) : ['- No source-recorded ED medications attached.']),
+    '',
+    'Please return: 1. the highest-yield teaching point, 2. what the learner should have done next in the ED, 3. any evidence-based management nuance for this diagnosis, and 4. a one-paragraph debrief script.'
+  ].join('\n');
+}
+
+function EvidencePromptPreview({
+  truth,
+  feedback,
+  missedWorkupLabels,
+  reviewItems,
+  realTimeline,
+  sourceEnrichment,
+  lastEsi
+}: {
+  truth: { diagnosis: string; esi: string; disposition: string };
+  feedback: GraderFeedback | null;
+  missedWorkupLabels: string[];
+  reviewItems: DebriefReviewItemModel[];
+  realTimeline: Array<{ elapsed_min: number; label: string; detail: string }>;
+  sourceEnrichment: SourceEnrichment;
+  lastEsi: number | null;
+}) {
+  const sourceNotes = prioritizedNoteDigests(sourceEnrichment.noteDigests).slice(0, 3);
+  const highPriority = reviewItems.filter((item) => item.severity === 'high').slice(0, 3);
+  const realOutcome = realTimeline.slice(-3).map((item) => `${formatClock(item.elapsed_min)} ${item.label}`).join('; ') || 'No real encounter timeline attached.';
+  return (
+    <section className="grid gap-2 rounded-md border border-[#d7dfdf] bg-white p-4" data-testid="evidence-prompt-preview">
+      <h2 className="m-0 text-base font-extrabold">Prompt preview</h2>
+      <div className="grid gap-2 text-sm lg:grid-cols-2">
+        <PromptPreviewRow label="Case summary" value={`Diagnosis ${truth.diagnosis}; ESI key ${truth.esi}; disposition ${truth.disposition}.`} />
+        <PromptPreviewRow label="Student performance" value={`ESI ${lastEsi ?? 'not submitted'}; diagnosis match ${feedback?.diagnostic_accuracy?.matched ? 'yes' : 'no'}; acuity defensible ${feedback?.acuity?.defensible ? 'yes' : 'no'}.`} />
+        <PromptPreviewRow label="Missed essentials" value={missedWorkupLabels.length ? missedWorkupLabels.join(', ') : highPriority.map((item) => item.label).join(', ') || 'No high-priority gaps recorded.'} />
+        <PromptPreviewRow label="Real encounter outcome" value={realOutcome} />
+        <PromptPreviewRow
+          label="Source note digest"
+          value={sourceNotes.length ? sourceNotes.map((item) => `${recordString(item, 'section')}: ${stripLeadingSectionLabel(recordString(item, 'summary'), recordString(item, 'section'))}`).join(' ') : 'No physician note digest attached.'}
+          wide
+        />
+      </div>
+    </section>
+  );
+}
+
+function PromptPreviewRow({ label, value, wide = false }: { label: string; value: string; wide?: boolean }) {
+  return (
+    <div className={`rounded-md border border-[#dfe7e7] bg-[#fbfcfc] px-3 py-2 ${wide ? 'lg:col-span-2' : ''}`}>
+      <strong className="block text-xs text-[#607078]">{label}</strong>
+      <span className="mt-1 block text-sm font-semibold leading-6 text-[#27313a]">{value}</span>
+    </div>
+  );
+}
+
+function resultBrief(result: ResultBundle | null | undefined) {
+  if (!result) return 'No result.';
+  if (result.narrative) return result.narrative;
+  if (result.values.length) {
+    return result.values.slice(0, 5).map((value) => `${value.name} ${value.value}${value.unit ? ` ${value.unit}` : ''}${value.flag ? ` (${value.flag})` : ''}`).join('; ');
+  }
+  return 'Result available without structured values.';
+}
+
+function labelForDebriefOrder(orders: OrderResultItem[], id: string) {
+  const order = orders.find((item) => item.order_id === id);
+  return order?.display_name || humanizeId(id);
+}
+
+function humanizeId(value: string) {
+  const map: Record<string, string> = {
+    lft: 'Liver function tests',
+    lipase: 'Lipase',
+    ct_abdomen_pelvis_with_contrast: 'CT abdomen/pelvis with contrast',
+    ct_abdomen_pelvis_contrast: 'CT abdomen/pelvis with contrast',
+    cbc: 'CBC',
+    bmp: 'Basic metabolic panel',
+    cmp: 'Comprehensive metabolic panel',
+    cardiac_monitor: 'Cardiac monitoring',
+    iv_access: 'IV access',
+    iv_fluids: 'IV crystalloid bolus',
+    analgesia: 'Analgesia'
+  };
+  if (map[value]) return map[value];
+  return value
+    .split(/[_-]+/)
+    .filter(Boolean)
+    .map((part) => part.length <= 3 ? part.toUpperCase() : part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function stringList(value: unknown) {
+  return Array.isArray(value) ? value.map((item) => String(item).trim()).filter(Boolean) : [];
+}
+
+function readableValue(value: unknown, fallback = 'Not recorded') {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (Array.isArray(value)) return value.length ? value.map((item) => readableValue(item, '')).filter(Boolean).join(', ') : fallback;
+  if (typeof value === 'object') return fallback;
+  const text = String(value).trim();
+  return text || fallback;
+}
+
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand('copy');
+  document.body.removeChild(textarea);
+  if (!copied) throw new Error('Clipboard copy failed.');
+}
+
+type SourceEnrichment = {
+  homeMedications: Record<string, unknown>[];
+  edMedications: Record<string, unknown>[];
+  sourceVitals: Record<string, unknown>[];
+  debriefTimeline: Record<string, unknown>[];
+  noteDigests: Record<string, unknown>[];
+  historicalReferences: Record<string, unknown>[];
+  provenanceNotes: string[];
+};
+
+function normalizeSourceEnrichment(value: unknown): SourceEnrichment {
+  const record = isPlainRecord(value) ? value : {};
+  return {
+    homeMedications: recordArray(record.home_medications),
+    edMedications: recordArray(record.ed_medications),
+    sourceVitals: recordArray(record.source_vitals),
+    debriefTimeline: recordArray(record.debrief_timeline),
+    noteDigests: recordArray(record.note_digests),
+    historicalReferences: recordArray(record.historical_references),
+    provenanceNotes: Array.isArray(record.provenance_notes) ? record.provenance_notes.map((item) => String(item)).filter(Boolean) : []
+  };
+}
+
+function recordArray(value: unknown) {
+  return Array.isArray(value) ? value.filter(isPlainRecord) : [];
+}
+
+function SourceCaseContext({ enrichment }: { enrichment: SourceEnrichment }) {
+  const timelineItems = prioritizedTimelineItems(enrichment.debriefTimeline);
+  const noteItems = prioritizedNoteDigests(enrichment.noteDigests);
+  const physicianNoteItems = noteItems.filter((item) => recordString(item, 'source_table') === 'note.discharge' || recordString(item, 'note_type').toLowerCase().includes('discharge') || recordString(item, 'section'));
+  const hasContent = [
+    enrichment.homeMedications,
+    enrichment.edMedications,
+    enrichment.sourceVitals,
+    enrichment.debriefTimeline,
+    enrichment.noteDigests,
+    enrichment.historicalReferences
+  ].some((items) => items.length) || enrichment.provenanceNotes.length > 0;
+  if (!hasContent) return null;
+
+  return (
+    <article className="rounded-lg border border-[#d7dfdf] bg-white p-4" data-testid="source-enrichment-debrief">
+      <div className="mb-3 flex items-center gap-2">
+        <ClipboardText size={18} weight="bold" />
+        <h2 className="m-0 text-base font-extrabold">Source context</h2>
+      </div>
+      <div className="grid gap-4 text-sm">
+        <SourceContextSection title="Physician discharge summary" items={physicianNoteItems.slice(0, 8)} empty="No physician note digest attached." defaultOpen>
+          {(item) => (
+            <SourceContextRow
+              key={`${recordString(item, 'section')}-${recordString(item, 'summary').slice(0, 20)}`}
+              title={recordString(item, 'section') || 'Note section'}
+              detail={stripLeadingSectionLabel(recordString(item, 'summary'), recordString(item, 'section'))}
+              meta={sourceTableLabel(item)}
+            />
+          )}
+        </SourceContextSection>
+
+        <SourceContextSection title="ED medications" items={enrichment.edMedications.slice(0, 8)} empty="No ED medication rows attached." defaultOpen>
+          {(item) => (
+            <SourceContextRow
+              key={`${recordString(item, 'name')}-${recordString(item, 'charttime')}-${recordString(item, 'source_table')}`}
+              title={medicationLine(item)}
+              meta={[recordString(item, 'event'), formatClock(recordNumber(item, 'elapsed_min')), sourceTableLabel(item)].filter(Boolean).join(' - ')}
+            />
+          )}
+        </SourceContextSection>
+
+        <SourceContextSection title="Repeat vitals" items={enrichment.sourceVitals.slice(0, 6)} empty="No repeat ED vitals attached." defaultOpen>
+          {(item) => (
+            <SourceContextRow
+              key={`${recordString(item, 'charttime')}-${recordString(item, 'elapsed_min')}`}
+              title={formatSourceVitals(item)}
+              meta={[formatClock(recordNumber(item, 'elapsed_min')), sourceTableLabel(item)].filter(Boolean).join(' - ')}
+            />
+          )}
+        </SourceContextSection>
+
+        <SourceContextSection title="Home medications" items={enrichment.homeMedications.slice(0, 8)} empty="No ED medrec rows attached.">
+          {(item) => (
+            <SourceContextRow
+              key={`${recordString(item, 'name')}-${recordString(item, 'charttime')}`}
+              title={recordString(item, 'name') || 'Medication'}
+              meta={[recordString(item, 'medication_class'), sourceTableLabel(item)].filter(Boolean).join(' - ')}
+            />
+          )}
+        </SourceContextSection>
+
+        <SourceContextSection title="Source caveats" items={enrichment.historicalReferences.slice(0, 5)} empty="No historical source caveats attached.">
+          {(item) => (
+            <SourceContextRow
+              key={`${recordString(item, 'kind')}-${recordString(item, 'label')}`}
+              title={recordString(item, 'label') || 'Historical reference'}
+              detail={recordString(item, 'summary')}
+              meta={[recordString(item, 'encounter_link_status'), sourceTableLabel(item)].filter(Boolean).join(' - ')}
+              tone="warning"
+            />
+          )}
+        </SourceContextSection>
+
+        <SourceContextSection title="Real encounter timeline" items={timelineItems.slice(0, 24)} empty="No post-ED course rows attached.">
+          {(item, index) => (
+            <SourceContextRow
+              key={`${recordString(item, 'label')}-${recordString(item, 'elapsed_min')}-${index}`}
+              title={`${formatClock(recordNumber(item, 'elapsed_min'))} ${recordString(item, 'label') || 'Source event'}`}
+              detail={recordString(item, 'detail')}
+              meta={[recordString(item, 'category'), sourceTableLabel(item)].filter(Boolean).join(' - ')}
+            />
+          )}
+        </SourceContextSection>
+
+        {enrichment.provenanceNotes.length ? (
+          <div className="grid gap-2">
+            <strong className="text-sm">Provenance Notes</strong>
+            <ul className="m-0 grid gap-2 p-0">
+              {enrichment.provenanceNotes.slice(0, 4).map((note, index) => (
+                <li key={`${note}-${index}`} className="list-none rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 font-semibold leading-6 text-[#394951]">
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+function prioritizedTimelineItems(items: Record<string, unknown>[]) {
+  const priority = items.filter((item) => {
+    const label = recordString(item, 'label').toLowerCase();
+    const category = recordString(item, 'category').toLowerCase();
+    return label.includes('physician discharge summary')
+      || category === 'procedure'
+      || category === 'disposition'
+      || category === 'diagnosis';
+  });
+  return uniqueRecords([...items.slice(0, 10), ...priority])
+    .sort((a, b) => recordNumber(a, 'elapsed_min') - recordNumber(b, 'elapsed_min'));
+}
+
+function prioritizedNoteDigests(items: Record<string, unknown>[]) {
+  const priority = [
+    'Brief Hospital Course',
+    'Discharge Disposition',
+    'Discharge Diagnosis',
+    'Major Surgical or Invasive Procedure',
+    'History of Present Illness',
+    'Physical Exam',
+    'Imaging Studies',
+    'Discharge Instructions'
+  ];
+  return [...items].sort((a, b) => {
+    const aIndex = priority.indexOf(recordString(a, 'section'));
+    const bIndex = priority.indexOf(recordString(b, 'section'));
+    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+  });
+}
+
+function uniqueRecords(items: Record<string, unknown>[]) {
+  const seen = new Set<string>();
+  const output: Record<string, unknown>[] = [];
+  items.forEach((item) => {
+    const key = JSON.stringify(item);
+    if (seen.has(key)) return;
+    seen.add(key);
+    output.push(item);
+  });
+  return output;
+}
+
+function SourceContextSection({
+  title,
+  items,
+  empty,
+  children,
+  defaultOpen = false
+}: {
+  title: string;
+  items: Record<string, unknown>[];
+  empty: string;
+  children: (item: Record<string, unknown>, index: number) => React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <details className="rounded-md border border-[#d7dfdf] bg-white" open={defaultOpen}>
+      <summary className="cursor-pointer px-3 py-2 text-sm font-extrabold text-[#17232b]">
+        {title}
+      </summary>
+      <div className="grid gap-2 border-t border-[#e4e9e9] bg-[#fbfcfc] p-3">
+        {items.length ? items.map((item, index) => children(item, index)) : (
+          <div className="rounded-md border border-dashed border-[#cdd8d8] bg-white p-3 font-semibold text-[#607078]">{empty}</div>
+        )}
+      </div>
+    </details>
+  );
+}
+
+function SourceContextRow({
+  title,
+  detail = '',
+  meta = '',
+  tone = 'default'
+}: {
+  title: string;
+  detail?: string;
+  meta?: string;
+  tone?: 'default' | 'warning';
+}) {
+  const toneClass = tone === 'warning' ? 'border-[#e6c6a0] bg-[#fff8e8]' : 'border-[#dfe7e7] bg-[#fbfcfc]';
+  return (
+    <div className={`rounded-md border px-3 py-2.5 ${toneClass}`}>
+      <div className="font-extrabold text-[#27313a]">{title}</div>
+      {detail ? <p className="m-0 mt-1 leading-6 text-[#394951]">{detail}</p> : null}
+      {meta ? <div className="mt-1 text-xs font-bold text-[#607078]">{meta}</div> : null}
+    </div>
+  );
+}
+
+function recordString(record: Record<string, unknown>, key: string) {
+  const value = record[key];
+  if (value === null || value === undefined || typeof value === 'object') return '';
+  return String(value);
+}
+
+function recordNumber(record: Record<string, unknown>, key: string) {
+  const value = record[key];
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sourceTableLabel(record: Record<string, unknown>) {
+  const module = recordString(record, 'source_module');
+  const table = recordString(record, 'source_table');
+  const normalized = `${module} ${table}`.toLowerCase();
+  if (normalized.includes('note.discharge')) return 'MIMIC-IV discharge summary';
+  if (normalized.includes('ed.medrecon')) return 'MIMIC-IV ED medication reconciliation';
+  if (normalized.includes('ed.vitalsign')) return 'MIMIC-IV ED vitals';
+  if (normalized.includes('ed.pyxis')) return 'MIMIC-IV ED medication pull';
+  if (normalized.includes('emar')) return 'MIMIC-IV hospital medication record';
+  if (normalized.includes('diagnoses_icd')) return 'MIMIC-IV hospital diagnoses';
+  if (normalized.includes('procedures_icd')) return 'MIMIC-IV hospital procedures';
+  if (normalized.includes('transfers')) return 'MIMIC-IV hospital transfers';
+  if (normalized.includes('services')) return 'MIMIC-IV hospital service';
+  if (normalized.includes('mimic-iv-ecg')) return 'MIMIC-IV ECG';
+  if (!module && recordString(record, 'note_type').toLowerCase().includes('discharge')) return 'MIMIC-IV discharge summary';
+  return [module, table].filter(Boolean).join(' ');
+}
+
+function stripLeadingSectionLabel(summary: string, section: string) {
+  const text = summary.trim();
+  const label = section.trim();
+  if (!text || !label) return text;
+  const prefix = `${label}:`;
+  return text.toLowerCase().startsWith(prefix.toLowerCase()) ? text.slice(prefix.length).trim() : text;
+}
+
+function medicationLine(record: Record<string, unknown>) {
+  const pieces = [recordString(record, 'name'), recordString(record, 'dose'), recordString(record, 'route') ? `via ${recordString(record, 'route')}` : ''];
+  return pieces.filter(Boolean).join(' ');
+}
+
+function formatSourceVitals(record: Record<string, unknown>) {
+  const vitals = isPlainRecord(record.vitals) ? record.vitals : {};
+  const bp = recordString(vitals, 'sbp') && recordString(vitals, 'dbp') ? `${recordString(vitals, 'sbp')}/${recordString(vitals, 'dbp')}` : '';
+  const pieces = [
+    recordString(vitals, 'temp_f') ? `T ${recordString(vitals, 'temp_f')} F` : recordString(vitals, 'temp_c') ? `T ${recordString(vitals, 'temp_c')} C` : '',
+    recordString(vitals, 'hr') ? `HR ${recordString(vitals, 'hr')}` : '',
+    bp ? `BP ${bp}` : '',
+    recordString(vitals, 'rr') ? `RR ${recordString(vitals, 'rr')}` : '',
+    recordString(vitals, 'spo2') ? `SpO2 ${recordString(vitals, 'spo2')}%` : '',
+    recordString(vitals, 'pain') ? `Pain ${recordString(vitals, 'pain')}/10` : ''
+  ];
+  return pieces.filter(Boolean).join(', ') || 'Vital signs row';
 }
 
 function TimelineColumn({ title, items }: { title: string; items: Array<{ elapsed_min: number; label: string; detail: string }> }) {
@@ -1985,9 +3754,9 @@ function DebriefFact({ label, value }: { label: string; value: string }) {
 
 function FeedbackRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-3 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3">
+    <div className="grid gap-1 rounded-md border border-[#dfe7e7] bg-[#fbfcfc] p-3 sm:grid-cols-[140px_minmax(0,1fr)]">
       <span className="font-bold text-[#607078]">{label}</span>
-      <strong>{value}</strong>
+      <strong className="min-w-0 whitespace-pre-wrap break-words">{value}</strong>
     </div>
   );
 }
@@ -2017,7 +3786,7 @@ function formatCost(cost: number) {
 }
 
 function flagLabel(value: unknown) {
-  return value ? 'done' : 'missing';
+  return value ? 'Complete' : 'Missing';
 }
 
 function titleCase(value: string) {

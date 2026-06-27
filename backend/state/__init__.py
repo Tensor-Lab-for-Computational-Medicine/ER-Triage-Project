@@ -1,1 +1,0 @@
-"""Deterministic live encounter state."""

@@ -6,6 +6,7 @@
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
     "@phosphor-icons/react": "^2.1.10",
+    "jszip": "^3.10.1",
     "kokoro-js": "^1.2.1",
     "pdfjs-dist": "^5.7.284",
     "react": "^19.2.0",
@@ -27,9 +28,9 @@
     "start": "vite --host 0.0.0.0",
     "build": "vite build && node ../scripts/create_static_spa_fallback.mjs",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "npm run build && npm run test:e2e",
-    "test:e2e": "playwright test",
-    "test:e2e:simulator": "playwright test tests/ai-simulator.spec.js",
+    "test": "npm run test:e2e",
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:simulator": "npm run build && playwright test tests/ai-simulator.spec.js",
     "test:e2e:headed": "playwright test --headed"
   }
 }
