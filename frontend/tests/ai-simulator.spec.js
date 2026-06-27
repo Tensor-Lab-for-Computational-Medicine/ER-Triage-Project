@@ -112,11 +112,16 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await expect(page.getByTestId('review-group-reinforce')).toContainText('Reinforced strengths');
   await page.getByTestId('debrief-tab-prompt').click();
   await expect(page.getByTestId('evidence-prompt-preview')).toContainText('Source note digest');
+  await expect(page.getByTestId('evidence-prompt-preview')).toContainText('Original note included');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('sigmoid volvulus');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Missed workup: none');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Physician discharge-summary digest');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original physician note text');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original discharge note text for external review.');
   await page.getByTestId('debrief-tab-source').click();
-  await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Physician discharge summary');
+  await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Original physician note');
+  await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Physician discharge summary sections');
+  await expect(page.getByTestId('source-original-note')).toContainText('Original discharge note text for external review.');
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Home medications');
   expect(consoleProblems).toEqual([]);
 });
@@ -293,6 +298,16 @@ function sampleCase() {
         { name: 'Hydromorphone', elapsed_min: 5, visibility: 'debrief' }
       ],
       source_vitals: [],
+      note_documents: [
+        {
+          title: 'Discharge summary note',
+          note_type: 'DS',
+          source_module: 'MIMIC-IV-Note',
+          source_table: 'note.discharge',
+          source_reference: { note_id: 'test-note-1', charttime: '2145-10-08 00:00:00' },
+          text: 'Original discharge note text for external review. Hospital course included sigmoid volvulus decompression and surgical planning.'
+        }
+      ],
       note_digests: [
         { note_type: 'Discharge summary', summary: 'Hospital course included decompression and discharge planning.', visibility: 'debrief' }
       ]

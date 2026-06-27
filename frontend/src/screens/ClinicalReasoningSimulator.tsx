@@ -3239,8 +3239,10 @@ function buildOpenEvidencePrompt({
     .slice(0, 8)
     .map((item) => `${item.label}: ${item.message}`);
   const noteDigest = prioritizedNoteDigests(sourceEnrichment.noteDigests)
-    .slice(0, 6)
     .map((item) => `${recordString(item, 'section') || 'Source note'}: ${stripLeadingSectionLabel(recordString(item, 'summary'), recordString(item, 'section'))}`);
+  const noteDocuments = prioritizedNoteDocuments(sourceEnrichment.noteDocuments)
+    .map((item) => noteDocumentTextForPrompt(item))
+    .filter(Boolean);
   const sourceVitals = sourceEnrichment.sourceVitals
     .slice(0, 5)
     .map((item) => `${formatClock(recordNumber(item, 'elapsed_min'))}: ${formatSourceVitals(item)}`);
@@ -3277,6 +3279,9 @@ function buildOpenEvidencePrompt({
     'Physician discharge-summary digest:',
     ...(noteDigest.length ? noteDigest.map((item) => `- ${item}`) : ['- No discharge-summary digest attached.']),
     '',
+    'Original physician note text:',
+    ...(noteDocuments.length ? noteDocuments : ['No original physician note text attached.']),
+    '',
     'Source-recorded ED reassessment anchors:',
     ...(sourceVitals.length ? sourceVitals.map((item) => `- ${item}`) : ['- No repeat ED vitals attached.']),
     ...(edMedications.length ? edMedications.map((item) => `- ${item}`) : ['- No source-recorded ED medications attached.']),
@@ -3302,7 +3307,8 @@ function EvidencePromptPreview({
   sourceEnrichment: SourceEnrichment;
   lastEsi: number | null;
 }) {
-  const sourceNotes = prioritizedNoteDigests(sourceEnrichment.noteDigests).slice(0, 3);
+  const sourceNotes = prioritizedNoteDigests(sourceEnrichment.noteDigests).slice(0, 5);
+  const noteDocument = prioritizedNoteDocuments(sourceEnrichment.noteDocuments)[0];
   const highPriority = reviewItems.filter((item) => item.severity === 'high').slice(0, 3);
   const realOutcome = realTimeline.slice(-3).map((item) => `${formatClock(item.elapsed_min)} ${item.label}`).join('; ') || 'No real encounter timeline attached.';
   return (
@@ -3316,6 +3322,11 @@ function EvidencePromptPreview({
         <PromptPreviewRow
           label="Source note digest"
           value={sourceNotes.length ? sourceNotes.map((item) => `${recordString(item, 'section')}: ${stripLeadingSectionLabel(recordString(item, 'summary'), recordString(item, 'section'))}`).join(' ') : 'No physician note digest attached.'}
+          wide
+        />
+        <PromptPreviewRow
+          label="Original note included"
+          value={noteDocument ? `${noteDocumentTitle(noteDocument)} (${recordLongText(noteDocument).length.toLocaleString()} characters copied into the prompt).` : 'No original note document attached.'}
           wide
         />
       </div>
@@ -3404,6 +3415,7 @@ type SourceEnrichment = {
   sourceVitals: Record<string, unknown>[];
   debriefTimeline: Record<string, unknown>[];
   noteDigests: Record<string, unknown>[];
+  noteDocuments: Record<string, unknown>[];
   historicalReferences: Record<string, unknown>[];
   provenanceNotes: string[];
 };
@@ -3416,6 +3428,7 @@ function normalizeSourceEnrichment(value: unknown): SourceEnrichment {
     sourceVitals: recordArray(record.source_vitals),
     debriefTimeline: recordArray(record.debrief_timeline),
     noteDigests: recordArray(record.note_digests),
+    noteDocuments: recordArray(record.note_documents),
     historicalReferences: recordArray(record.historical_references),
     provenanceNotes: Array.isArray(record.provenance_notes) ? record.provenance_notes.map((item) => String(item)).filter(Boolean) : []
   };
@@ -3428,6 +3441,7 @@ function recordArray(value: unknown) {
 function SourceCaseContext({ enrichment }: { enrichment: SourceEnrichment }) {
   const timelineItems = prioritizedTimelineItems(enrichment.debriefTimeline);
   const noteItems = prioritizedNoteDigests(enrichment.noteDigests);
+  const noteDocuments = prioritizedNoteDocuments(enrichment.noteDocuments);
   const physicianNoteItems = noteItems.filter((item) => recordString(item, 'source_table') === 'note.discharge' || recordString(item, 'note_type').toLowerCase().includes('discharge') || recordString(item, 'section'));
   const hasContent = [
     enrichment.homeMedications,
@@ -3435,6 +3449,7 @@ function SourceCaseContext({ enrichment }: { enrichment: SourceEnrichment }) {
     enrichment.sourceVitals,
     enrichment.debriefTimeline,
     enrichment.noteDigests,
+    enrichment.noteDocuments,
     enrichment.historicalReferences
   ].some((items) => items.length) || enrichment.provenanceNotes.length > 0;
   if (!hasContent) return null;
@@ -3446,7 +3461,13 @@ function SourceCaseContext({ enrichment }: { enrichment: SourceEnrichment }) {
         <h2 className="m-0 text-base font-extrabold">Source context</h2>
       </div>
       <div className="grid gap-4 text-sm">
-        <SourceContextSection title="Physician discharge summary" items={physicianNoteItems.slice(0, 8)} empty="No physician note digest attached." defaultOpen>
+        <SourceContextSection title="Original physician note" items={noteDocuments} empty="No original physician note text attached." defaultOpen>
+          {(item, index) => (
+            <SourceNoteDocumentRow key={`${noteDocumentTitle(item)}-${index}`} item={item} />
+          )}
+        </SourceContextSection>
+
+        <SourceContextSection title="Physician discharge summary sections" items={physicianNoteItems} empty="No physician note digest attached." defaultOpen>
           {(item) => (
             <SourceContextRow
               key={`${recordString(item, 'section')}-${recordString(item, 'summary').slice(0, 20)}`}
@@ -3558,6 +3579,63 @@ function prioritizedNoteDigests(items: Record<string, unknown>[]) {
   });
 }
 
+function prioritizedNoteDocuments(items: Record<string, unknown>[]) {
+  return [...items].sort((a, b) => {
+    const aType = `${recordString(a, 'note_type')} ${recordString(a, 'source_table')} ${recordString(a, 'title')}`.toLowerCase();
+    const bType = `${recordString(b, 'note_type')} ${recordString(b, 'source_table')} ${recordString(b, 'title')}`.toLowerCase();
+    const aPriority = aType.includes('discharge') || aType.includes(' ds') ? 0 : 1;
+    const bPriority = bType.includes('discharge') || bType.includes(' ds') ? 0 : 1;
+    return aPriority - bPriority || noteDocumentTitle(a).localeCompare(noteDocumentTitle(b));
+  });
+}
+
+function SourceNoteDocumentRow({ item }: { item: Record<string, unknown> }) {
+  const text = recordLongText(item);
+  return (
+    <article className="rounded-md border border-[#dfe7e7] bg-[#fbfcfc]">
+      <div className="border-b border-[#e4e9e9] px-3 py-2">
+        <strong className="block text-[#27313a]">{noteDocumentTitle(item)}</strong>
+        <span className="mt-1 block text-xs font-bold text-[#607078]">
+          {[noteDocumentMetadata(item), text ? `${text.length.toLocaleString()} characters` : 'No note text'].filter(Boolean).join(' - ')}
+        </span>
+      </div>
+      {text ? (
+        <pre className="m-0 max-h-[520px] overflow-auto whitespace-pre-wrap break-words px-3 py-3 font-mono text-xs leading-5 text-[#27313a]" data-testid="source-original-note">
+          {text}
+        </pre>
+      ) : (
+        <p className="m-0 px-3 py-3 font-semibold text-[#607078]">No note text attached.</p>
+      )}
+    </article>
+  );
+}
+
+function noteDocumentTitle(record: Record<string, unknown>) {
+  return recordString(record, 'title')
+    || recordString(record, 'section')
+    || (recordString(record, 'note_type') === 'DS' ? 'Discharge summary note' : recordString(record, 'note_type'))
+    || 'Source note document';
+}
+
+function noteDocumentMetadata(record: Record<string, unknown>) {
+  const reference = isPlainRecord(record.source_reference) ? record.source_reference : {};
+  return [
+    sourceTableLabel(record),
+    recordString(record, 'note_id') || recordString(reference, 'note_id'),
+    recordString(record, 'charttime') || recordString(reference, 'charttime')
+  ].filter(Boolean).join(' - ');
+}
+
+function noteDocumentTextForPrompt(record: Record<string, unknown>) {
+  const text = recordLongText(record);
+  if (!text) return '';
+  return [
+    `--- ${noteDocumentTitle(record)} ---`,
+    noteDocumentMetadata(record),
+    text
+  ].filter(Boolean).join('\n');
+}
+
 function uniqueRecords(items: Record<string, unknown>[]) {
   const seen = new Set<string>();
   const output: Record<string, unknown>[] = [];
@@ -3622,6 +3700,17 @@ function recordString(record: Record<string, unknown>, key: string) {
   const value = record[key];
   if (value === null || value === undefined || typeof value === 'object') return '';
   return String(value);
+}
+
+function recordLongText(record: Record<string, unknown>) {
+  return [
+    'text',
+    'full_text',
+    'note_text',
+    'raw_text',
+    'original_text',
+    'document_text'
+  ].map((key) => recordString(record, key)).find((value) => value.trim()) || '';
 }
 
 function recordNumber(record: Record<string, unknown>, key: string) {
