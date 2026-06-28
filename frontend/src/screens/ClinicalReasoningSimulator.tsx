@@ -1308,8 +1308,7 @@ function ExamPanel() {
   const maneuverTypes = React.useMemo(() => uniqueSorted(encounter.examCatalog.map((item) => item.maneuver_type)), [encounter.examCatalog]);
   const visibleExams = encounter.examResults
     .filter((item) => regionFilter === 'all' || item.region === regionFilter)
-    .filter((item) => typeFilter === 'all' || item.maneuver_type === typeFilter)
-    .slice(0, 14);
+    .filter((item) => typeFilter === 'all' || item.maneuver_type === typeFilter);
   const latestFindings = [...performed].reverse();
 
   return (
@@ -1319,7 +1318,7 @@ function ExamPanel() {
           <Stethoscope size={19} weight="bold" />
           <h2 className="m-0 text-base font-extrabold">Physical Exam</h2>
         </div>
-        <span className="rounded-md bg-[#eef2f2] px-2 py-1 text-xs font-extrabold text-[#52636b]">{performed.length} findings</span>
+        <span className="rounded-md bg-[#eef2f2] px-2 py-1 text-xs font-extrabold text-[#52636b]">{encounter.examCatalog.length} options</span>
       </div>
       <div className="grid min-h-0 min-w-0 grid-cols-1 overflow-hidden lg:grid-cols-[minmax(240px,290px)_minmax(0,1fr)]">
         <aside className="min-h-0 min-w-0 overflow-auto border-r border-[#e4e9e9]">
@@ -1341,6 +1340,7 @@ function ExamPanel() {
                 <button
                   key={region}
                   type="button"
+                  data-testid={`exam-region-filter-${region}`}
                   className={`rounded-md border px-2 py-1 text-xs font-bold capitalize ${regionFilter === region ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] bg-white text-[#26323a]'}`}
                   onClick={() => setRegionFilter(region)}
                 >
@@ -1353,6 +1353,7 @@ function ExamPanel() {
                 <button
                   key={maneuverType}
                   type="button"
+                  data-testid={`exam-type-filter-${maneuverType}`}
                   className={`rounded-md border px-2 py-1 text-xs font-bold capitalize ${typeFilter === maneuverType ? 'border-[#0f766e] bg-[#eef8f5] text-[#0f5f58]' : 'border-[#cdd8d8] bg-white text-[#26323a]'}`}
                   onClick={() => setTypeFilter(maneuverType)}
                 >
@@ -1361,7 +1362,7 @@ function ExamPanel() {
               ))}
             </div>
           </div>
-          <div className="grid content-start gap-1.5 p-3" data-testid="exam-search-results">
+          <div className="grid content-start gap-1.5 p-3" data-testid="exam-search-results" aria-label={`${visibleExams.length} exam maneuvers available`}>
             {visibleExams.length ? visibleExams.map((exam) => (
               <ExamManeuverButton key={exam.id} exam={exam} disabled={encounter.busy} onClick={() => void encounter.performExam(exam.id)} />
             )) : (
@@ -4264,6 +4265,9 @@ function asActionFeedbackItems(raw: unknown): ActionFeedbackItem[] {
 
 function regionLabel(region: string) {
   if (region === 'cardiovascular') return 'CV';
+  if (region === 'heent') return 'HEENT';
+  if (region === 'genitourinary') return 'GU';
+  if (region === 'psychiatric') return 'Psych';
   return region;
 }
 

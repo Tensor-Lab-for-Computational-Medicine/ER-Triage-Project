@@ -46,6 +46,9 @@ test('case bundle loads when catalog files are omitted', async ({ page }) => {
   await expect(page.getByText('IV access established.')).toBeVisible();
 
   await page.getByTestId('structured-tab-exam').click();
+  await page.getByTestId('exam-region-filter-heent').click();
+  await expect(page.getByTestId('exam-search-results')).toContainText('Head and eyes');
+  await page.getByTestId('exam-region-filter-all').click();
   await page.getByTestId('exam-search').fill('distention');
   await page.getByText('Abdominal distention inspection').click();
   await expect(page.getByTestId('exam-findings-list')).toContainText('visibly distended');
@@ -84,6 +87,12 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await page.getByTestId('quick-analgesia').click();
 
   await page.getByTestId('structured-tab-exam').click();
+  await expect(page.getByTestId('exam-panel')).toContainText('20 options');
+  await page.getByTestId('exam-region-filter-cardiovascular').click();
+  await expect(page.getByTestId('exam-search-results')).toContainText('Heart sounds');
+  await page.getByText('Heart sounds').click();
+  await expect(page.getByTestId('exam-findings-list')).toContainText('irregularly irregular');
+  await page.getByTestId('exam-region-filter-all').click();
   await page.getByTestId('exam-search').fill('distention');
   await page.getByText('Abdominal distention inspection').click();
   await expect(page.getByTestId('exam-findings-list')).toContainText('visibly distended');
@@ -413,6 +422,13 @@ function orderCatalog() {
 function examCatalog() {
   return [
     {
+      id: 'general_inspection_appearance',
+      region: 'general',
+      maneuver_type: 'inspection',
+      name: 'General appearance',
+      aliases: ['appearance', 'distress']
+    },
+    {
       id: 'abdomen_inspection_distention',
       region: 'abdomen',
       maneuver_type: 'inspection',
@@ -425,6 +441,125 @@ function examCatalog() {
       maneuver_type: 'palpation',
       name: 'Light abdominal palpation',
       aliases: ['tenderness']
+    },
+    {
+      id: 'abdomen_auscultation_bowel_sounds',
+      region: 'abdomen',
+      maneuver_type: 'auscultation',
+      name: 'Bowel sounds',
+      aliases: ['bowel sounds']
+    },
+    {
+      id: 'abdomen_percussion_tympany',
+      region: 'abdomen',
+      maneuver_type: 'percussion',
+      name: 'Percussion for tympany',
+      aliases: ['tympany']
+    },
+    {
+      id: 'abdomen_palpation_guarding',
+      region: 'abdomen',
+      maneuver_type: 'palpation',
+      name: 'Guarding',
+      aliases: ['guarding']
+    },
+    {
+      id: 'abdomen_palpation_rebound',
+      region: 'abdomen',
+      maneuver_type: 'palpation',
+      name: 'Rebound tenderness',
+      aliases: ['rebound']
+    },
+    {
+      id: 'abdomen_special_murphy',
+      region: 'abdomen',
+      maneuver_type: 'special tests',
+      name: 'Murphy sign',
+      aliases: ['murphy']
+    },
+    {
+      id: 'abdomen_special_rosving',
+      region: 'abdomen',
+      maneuver_type: 'special tests',
+      name: 'Rovsing sign',
+      aliases: ['rosving']
+    },
+    {
+      id: 'abdomen_special_psoas',
+      region: 'abdomen',
+      maneuver_type: 'special tests',
+      name: 'Psoas sign',
+      aliases: ['psoas']
+    },
+    {
+      id: 'abdomen_special_obturator',
+      region: 'abdomen',
+      maneuver_type: 'special tests',
+      name: 'Obturator sign',
+      aliases: ['obturator']
+    },
+    {
+      id: 'abdomen_percussion_cva_tenderness',
+      region: 'abdomen',
+      maneuver_type: 'percussion',
+      name: 'Costovertebral angle tenderness',
+      aliases: ['cva']
+    },
+    {
+      id: 'abdomen_palpation_deep',
+      region: 'abdomen',
+      maneuver_type: 'palpation',
+      name: 'Deep abdominal palpation',
+      aliases: ['deep palpation']
+    },
+    {
+      id: 'abdomen_auscultation_bruits',
+      region: 'abdomen',
+      maneuver_type: 'auscultation',
+      name: 'Abdominal bruits',
+      aliases: ['bruit']
+    },
+    {
+      id: 'abdomen_inspection_scars',
+      region: 'abdomen',
+      maneuver_type: 'inspection',
+      name: 'Abdominal scars and skin',
+      aliases: ['scars']
+    },
+    {
+      id: 'cardiovascular_auscultation_heart_sounds',
+      region: 'cardiovascular',
+      maneuver_type: 'auscultation',
+      name: 'Heart sounds',
+      aliases: ['heart', 'cardiac auscultation']
+    },
+    {
+      id: 'respiratory_auscultation_breath_sounds',
+      region: 'respiratory',
+      maneuver_type: 'auscultation',
+      name: 'Breath sounds',
+      aliases: ['lungs', 'breath sounds']
+    },
+    {
+      id: 'heent_inspection_head_eyes',
+      region: 'heent',
+      maneuver_type: 'inspection',
+      name: 'Head and eyes',
+      aliases: ['head', 'eyes']
+    },
+    {
+      id: 'skin_inspection_rash',
+      region: 'skin',
+      maneuver_type: 'inspection',
+      name: 'Rash and lesions',
+      aliases: ['rash', 'skin']
+    },
+    {
+      id: 'extremities_inspection_edema',
+      region: 'extremities',
+      maneuver_type: 'inspection',
+      name: 'Edema and symmetry',
+      aliases: ['edema', 'swelling']
     }
   ];
 }

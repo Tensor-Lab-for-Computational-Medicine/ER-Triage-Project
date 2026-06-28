@@ -191,15 +191,34 @@ const CORE_ORDERS: CatalogOrder[] = [
 
 const CORE_EXAMS: ExamManeuver[] = [
   { id: 'general_inspection_appearance', region: 'general', maneuver_type: 'inspection', name: 'General appearance', aliases: ['appearance', 'general inspection', 'distress'] },
+  { id: 'general_inspection_skin_color', region: 'general', maneuver_type: 'inspection', name: 'Skin color and diaphoresis', aliases: ['skin color', 'diaphoresis', 'sweaty', 'pale'] },
+  { id: 'general_palpation_temperature', region: 'general', maneuver_type: 'palpation', name: 'Skin temperature', aliases: ['temperature', 'warm', 'cool extremities'] },
+  { id: 'general_special_mental_status', region: 'general', maneuver_type: 'special tests', name: 'Brief mental status', aliases: ['mental status', 'orientation', 'alert'] },
+  { id: 'heent_inspection_head_eyes', region: 'heent', maneuver_type: 'inspection', name: 'Head and eyes', aliases: ['head', 'eyes', 'pupils', 'sclera', 'anicteric'] },
+  { id: 'heent_inspection_oropharynx', region: 'heent', maneuver_type: 'inspection', name: 'Oropharynx and mucous membranes', aliases: ['mouth', 'oropharynx', 'mucous membranes', 'dry mucosa'] },
+  { id: 'neck_palpation_lymph_nodes', region: 'neck', maneuver_type: 'palpation', name: 'Neck tenderness and lymph nodes', aliases: ['neck', 'lymph nodes', 'adenopathy'] },
+  { id: 'neck_special_airway_voice', region: 'neck', maneuver_type: 'special tests', name: 'Airway and voice screen', aliases: ['airway', 'voice', 'stridor', 'hoarseness'] },
   { id: 'respiratory_auscultation_breath_sounds', region: 'respiratory', maneuver_type: 'auscultation', name: 'Breath sounds', aliases: ['lungs', 'auscultate lungs', 'breath sounds'] },
+  { id: 'respiratory_inspection_work_of_breathing', region: 'respiratory', maneuver_type: 'inspection', name: 'Work of breathing', aliases: ['respiratory effort', 'work of breathing', 'distress'] },
   { id: 'cardiovascular_auscultation_heart_sounds', region: 'cardiovascular', maneuver_type: 'auscultation', name: 'Heart sounds', aliases: ['heart', 'cardiac auscultation', 'murmur'] },
+  { id: 'cardiovascular_inspection_jvp', region: 'cardiovascular', maneuver_type: 'inspection', name: 'Jugular venous pressure inspection', aliases: ['jvp', 'neck veins', 'jugular'] },
+  { id: 'cardiovascular_palpation_pulses', region: 'cardiovascular', maneuver_type: 'palpation', name: 'Peripheral pulses', aliases: ['pulses', 'radial pulse', 'dp pulse'] },
   { id: 'abdomen_inspection_distention', region: 'abdomen', maneuver_type: 'inspection', name: 'Abdominal distention inspection', aliases: ['inspect abdomen', 'distended abdomen', 'bloating'] },
+  { id: 'abdomen_inspection_scars', region: 'abdomen', maneuver_type: 'inspection', name: 'Abdominal scars and skin', aliases: ['abdominal scars', 'surgical scars', 'skin changes'] },
   { id: 'abdomen_auscultation_bowel_sounds', region: 'abdomen', maneuver_type: 'auscultation', name: 'Bowel sounds', aliases: ['auscultate abdomen', 'listen abdomen', 'bowel sounds'] },
+  { id: 'abdomen_auscultation_bruits', region: 'abdomen', maneuver_type: 'auscultation', name: 'Abdominal bruits', aliases: ['abdominal bruit', 'aortic bruit', 'renal bruit'] },
   { id: 'abdomen_percussion_tympany', region: 'abdomen', maneuver_type: 'percussion', name: 'Percussion for tympany', aliases: ['percuss abdomen', 'tympany', 'dullness abdomen'] },
+  { id: 'abdomen_percussion_cva_tenderness', region: 'abdomen', maneuver_type: 'percussion', name: 'Costovertebral angle tenderness', aliases: ['cva tenderness', 'flank percussion', 'kidney tenderness'] },
   { id: 'abdomen_palpation_light', region: 'abdomen', maneuver_type: 'palpation', name: 'Light abdominal palpation', aliases: ['palpate abdomen', 'light palpation', 'abdominal tenderness'] },
+  { id: 'abdomen_palpation_deep', region: 'abdomen', maneuver_type: 'palpation', name: 'Deep abdominal palpation', aliases: ['deep palpation', 'mass', 'deep tenderness'] },
   { id: 'abdomen_palpation_guarding', region: 'abdomen', maneuver_type: 'palpation', name: 'Guarding', aliases: ['guarding', 'peritoneal signs'] },
   { id: 'abdomen_palpation_rebound', region: 'abdomen', maneuver_type: 'palpation', name: 'Rebound tenderness', aliases: ['rebound', 'peritonitis'] },
-  { id: 'abdomen_special_murphy', region: 'abdomen', maneuver_type: 'special tests', name: 'Murphy sign', aliases: ['murphy', 'ruq pain'] }
+  { id: 'abdomen_special_murphy', region: 'abdomen', maneuver_type: 'special tests', name: 'Murphy sign', aliases: ['murphy', 'ruq pain'] },
+  { id: 'rectal_special_digital_rectal_exam', region: 'rectal', maneuver_type: 'special tests', name: 'Digital rectal exam', aliases: ['rectal', 'dre', 'stool', 'gross blood'] },
+  { id: 'extremities_inspection_edema', region: 'extremities', maneuver_type: 'inspection', name: 'Edema and symmetry', aliases: ['edema', 'leg swelling', 'symmetry'] },
+  { id: 'skin_inspection_rash', region: 'skin', maneuver_type: 'inspection', name: 'Rash and lesions', aliases: ['rash', 'lesions', 'skin'] },
+  { id: 'neurologic_inspection_speech', region: 'neurologic', maneuver_type: 'inspection', name: 'Speech and facial symmetry', aliases: ['speech', 'facial droop', 'neuro'] },
+  { id: 'psychiatric_special_affect', region: 'psychiatric', maneuver_type: 'special tests', name: 'Mood, affect, and judgment', aliases: ['psych', 'mood', 'affect', 'judgment'] }
 ];
 
 function buildOrderCatalog(caseJson: PreparedCase): CatalogOrder[] {
@@ -390,11 +409,15 @@ function defaultDelayFor(type: string, id: string, name: string) {
 function inferExamRegion(id: string, name: string) {
   const text = normalizeText(`${id} ${name}`);
   if (text.includes('abdomen') || text.includes('abdominal') || text.includes('cva') || text.includes('murphy')) return 'abdomen';
+  if (text.includes('heent') || text.includes('head') || text.includes('eye') || text.includes('oropharynx') || text.includes('mucous')) return 'heent';
+  if (text.includes('neck') || text.includes('airway') || text.includes('voice') || text.includes('stridor')) return 'neck';
   if (text.includes('respiratory') || text.includes('lung') || text.includes('breath')) return 'respiratory';
   if (text.includes('cardiovascular') || text.includes('cardiac') || text.includes('heart') || text.includes('pulse')) return 'cardiovascular';
   if (text.includes('neuro') || text.includes('mental')) return 'neurologic';
+  if (text.includes('psych') || text.includes('mood') || text.includes('affect') || text.includes('judgment')) return 'psychiatric';
   if (text.includes('skin')) return 'skin';
   if (text.includes('extremity') || text.includes('leg') || text.includes('arm')) return 'extremities';
+  if (text.includes('rectal') || text.includes('dre') || text.includes('stool')) return 'rectal';
   if (text.includes('pelvic')) return 'pelvic';
   return 'general';
 }
@@ -1255,13 +1278,74 @@ function nurseResponse(caseJson: PreparedCase, state: StaticState) {
 function defaultExamFinding(caseJson: PreparedCase, state: StaticState, maneuver: ExamManeuver) {
   const text = normalizeText(`${caseJson.visible_start?.chief_complaint || ''} ${caseJson.visible_start?.triage_context || ''} ${caseJson.visible_start?.appearance || ''}`);
   const abdominal = ['abd', 'belly', 'distention', 'distended', 'bowel', 'vomit'].some((term) => text.includes(term));
+  const caseText = normalizeText(JSON.stringify({
+    title: caseJson.title,
+    visible_start: caseJson.visible_start,
+    hpi_facts: caseJson.hpi_facts,
+    safe_hpi_facts: caseJson.source_enrichment?.safe_hpi_facts,
+    diagnoses: caseJson.hidden_truth
+  }));
+  const atrialRhythm = ['atrial fibrillation', 'atrial flutter', 'afib', 'a fib'].some((term) => caseText.includes(term));
   if (maneuver.id === 'abdomen_inspection_distention') return abdominal ? 'Abdomen inspected from bedside: visibly distended.' : 'Abdomen inspected from bedside: flat to mildly rounded, without visible distention.';
+  if (maneuver.id === 'abdomen_inspection_scars') return 'Abdominal skin inspected: distended abdomen with well-healed prior surgical scars and no erythema, ecchymosis, or open wound at presentation.';
+  if (maneuver.id === 'abdomen_auscultation_bowel_sounds') return abdominal ? 'Auscultation reveals high-pitched, intermittent bowel sounds over the distended abdomen.' : 'Bowel sounds are present and non-obstructive in character.';
+  if (maneuver.id === 'abdomen_auscultation_bruits') return 'No abdominal bruit is appreciated over the aorta or renal artery areas.';
+  if (maneuver.id === 'abdomen_percussion_tympany') return abdominal ? 'Percussion is diffusely tympanitic over the distended abdomen, supporting bowel gas distention.' : 'Percussion is nonfocal without marked tympany.';
+  if (maneuver.id === 'abdomen_percussion_cva_tenderness') return 'No costovertebral angle tenderness is elicited on either side.';
   if (maneuver.id === 'abdomen_palpation_light') return abdominal ? 'Light palpation performed in all quadrants: diffuse tenderness over the distended abdomen, greatest in the lower abdomen; no involuntary guarding on light touch.' : 'Light palpation performed in all quadrants: abdomen soft and non-tender, without guarding.';
+  if (maneuver.id === 'abdomen_palpation_deep') return abdominal ? 'Deep palpation is limited by distention and pain; no pulsatile mass is appreciated, and tenderness remains greatest in the lower abdomen.' : 'Deep palpation reveals no focal tenderness or mass.';
   if (maneuver.id === 'abdomen_palpation_guarding') return 'Guarding assessed with gentle palpation: no involuntary guarding or board-like rigidity appreciated.';
   if (maneuver.id === 'abdomen_palpation_rebound') return 'Rebound tenderness checked gently: no clear rebound pain elicited.';
   if (maneuver.id === 'abdomen_special_murphy') return 'Murphy sign assessed with right upper quadrant palpation during inspiration: negative, without inspiratory arrest.';
+  if (maneuver.id === 'abdomen_special_rosving') return 'Rovsing sign is negative; left lower quadrant palpation does not provoke focal right lower quadrant pain.';
+  if (maneuver.id === 'abdomen_special_psoas') return 'Psoas sign is negative; hip extension does not reproduce focal right lower quadrant pain.';
+  if (maneuver.id === 'abdomen_special_obturator') return 'Obturator sign is negative; internal rotation of the flexed hip does not reproduce focal pelvic or right lower quadrant pain.';
+  if (maneuver.id === 'heent_inspection_head_eyes') return 'Head and eye inspection: normocephalic and atraumatic, extraocular movements grossly intact, sclerae anicteric.';
+  if (maneuver.id === 'heent_inspection_oropharynx') return 'Oropharynx is clear; mucous membranes are mildly dry, without visible swelling, bleeding, or pooling secretions.';
+  if (maneuver.id === 'neck_palpation_lymph_nodes') return 'Neck palpation: supple neck without focal tenderness or palpable cervical lymphadenopathy.';
+  if (maneuver.id === 'neck_special_airway_voice') return 'Airway and voice screen: speaking in full sentences without stridor or acute upper-airway distress.';
+  if (maneuver.id === 'general_inspection_skin_color') return 'Skin color and diaphoresis: uncomfortable but not cyanotic; no marked diaphoresis observed.';
+  if (maneuver.id === 'general_palpation_temperature') return 'Skin is warm and reasonably well perfused on bedside palpation.';
+  if (maneuver.id === 'general_special_mental_status') return 'Brief mental status: alert, interactive, and oriented to person, place, and situation.';
+  if (maneuver.id === 'respiratory_inspection_work_of_breathing') return 'Respiratory inspection: normal chest excursion without accessory muscle use or acute respiratory distress.';
   if (maneuver.id === 'respiratory_auscultation_breath_sounds') return 'Auscultated anterior and posterior lung fields: breath sounds present bilaterally, without focal wheeze or crackles.';
-  if (maneuver.id === 'cardiovascular_auscultation_heart_sounds') return `Heart auscultated at standard listening posts: ${state.current_vitals.hr >= 100 ? 'tachycardic' : 'regular rate'} with regular rhythm; no obvious murmur, rub, or gallop heard.`;
+  if (maneuver.id === 'respiratory_palpation_chest_wall') return 'Chest wall palpation: no focal chest wall tenderness or crepitus.';
+  if (maneuver.id === 'respiratory_palpation_tactile_fremitus') return 'Tactile fremitus is symmetric without focal increase or decrease.';
+  if (maneuver.id === 'respiratory_percussion_lung_fields') return 'Lung field percussion is symmetric without focal dullness.';
+  if (maneuver.id === 'respiratory_special_egophony') return 'Egophony is not appreciated over either lung field.';
+  if (maneuver.id === 'cardiovascular_inspection_jvp') return 'Jugular venous pressure is not visibly elevated at bedside.';
+  if (maneuver.id === 'cardiovascular_palpation_pulses') return 'Peripheral pulses are palpable and symmetric; distal extremities are warm and perfused.';
+  if (maneuver.id === 'cardiovascular_palpation_precordium') return 'Precordial palpation: no heave, thrill, or focal chest wall tenderness.';
+  if (maneuver.id === 'cardiovascular_auscultation_heart_sounds') return `Heart auscultated at standard listening posts: ${state.current_vitals.hr >= 100 ? 'mildly tachycardic' : 'normal rate'}${atrialRhythm ? ' with an irregularly irregular rhythm' : ' with regular rhythm'}; no obvious murmur, rub, or gallop heard.`;
+  if (maneuver.id === 'cardiovascular_percussion_cardiac_dullness') return 'Cardiac percussion does not suggest gross cardiomegaly on this focused bedside exam.';
+  if (maneuver.id === 'cardiovascular_special_orthostatics') return 'Orthostatic screen: no immediate dizziness with position change; bedside vitals do not suggest overt orthostatic shock.';
+  if (maneuver.id === 'neurologic_inspection_speech') return 'Neurologic inspection: speech is clear, facial movements are symmetric, and the patient follows commands.';
+  if (maneuver.id === 'neurologic_palpation_spine') return 'Spine palpation: no midline spinal tenderness.';
+  if (maneuver.id === 'neurologic_auscultation_carotids') return 'Carotid auscultation: no carotid bruits appreciated.';
+  if (maneuver.id === 'neurologic_percussion_reflexes') return 'Deep tendon reflexes are grossly symmetric on limited bedside screening.';
+  if (maneuver.id === 'neurologic_special_pronator_drift') return 'Pronator drift is absent; no focal upper-extremity motor asymmetry is evident.';
+  if (maneuver.id === 'skin_inspection_rash') return 'Skin inspection: no diffuse rash, petechiae, or mottling is seen.';
+  if (maneuver.id === 'skin_palpation_turgor') return 'Skin turgor is mildly reduced but distal perfusion remains warm.';
+  if (maneuver.id === 'skin_auscultation_bruit_over_lesion') return 'No vascular skin lesion or overlying bruit is identified.';
+  if (maneuver.id === 'skin_percussion_tender_area') return 'Percussion over visibly normal skin does not elicit focal soft-tissue tenderness.';
+  if (maneuver.id === 'skin_special_nikolsky') return 'Nikolsky sign is negative; no bullous or sloughing rash is present.';
+  if (maneuver.id === 'extremities_inspection_edema') return 'Extremities are warm and symmetric without clubbing, cyanosis, or edema.';
+  if (maneuver.id === 'extremities_palpation_calf') return 'Calves are soft and nontender without asymmetric swelling.';
+  if (maneuver.id === 'extremities_auscultation_bruit') return 'No peripheral vascular bruit is heard over the examined extremities.';
+  if (maneuver.id === 'extremities_percussion_bony_tenderness') return 'No focal bony percussion tenderness is elicited in the extremities.';
+  if (maneuver.id === 'extremities_special_homan') return 'Homan sign is not suggestive of calf pain; no asymmetric calf swelling is present.';
+  if (maneuver.id === 'rectal_inspection_external') return 'External rectal inspection shows no gross bleeding or prolapse on this limited bedside check.';
+  if (maneuver.id === 'rectal_special_digital_rectal_exam') return 'Digital rectal exam: no gross blood is seen; rectal tone is present, with no impacted stool ball appreciated on limited exam.';
+  if (maneuver.id === 'psychiatric_special_affect') return 'Mood, affect, and judgment are appropriate to the painful situation; the patient is cooperative with care.';
+  if (maneuver.region === 'heent') return 'HEENT exam is grossly nonfocal without an acute abnormality explaining the abdominal presentation.';
+  if (maneuver.region === 'neck') return 'Neck exam is grossly nonfocal without meningismus, stridor, or focal tenderness.';
+  if (maneuver.region === 'respiratory') return 'Focused respiratory exam is grossly nonfocal without respiratory distress.';
+  if (maneuver.region === 'cardiovascular') return `Focused cardiovascular exam shows warm perfusion${atrialRhythm ? ' with an irregular rhythm consistent with the known atrial arrhythmia' : ''}.`;
+  if (maneuver.region === 'neurologic') return 'Focused neurologic screen is grossly nonfocal; the patient is alert and follows commands.';
+  if (maneuver.region === 'skin') return 'Focused skin exam shows no rash, mottling, or soft-tissue source for the presentation.';
+  if (maneuver.region === 'extremities') return 'Focused extremity exam shows warm symmetric limbs without edema, calf tenderness, or focal deformity.';
+  if (maneuver.region === 'rectal') return 'Focused rectal exam shows no gross bleeding on this limited bedside assessment.';
+  if (maneuver.region === 'psychiatric') return 'Focused psychiatric screen is appropriate for acute pain, without confusion or agitation.';
   return `${maneuver.name} performed: no acute abnormality appreciated on this focused bedside assessment.`;
 }
 

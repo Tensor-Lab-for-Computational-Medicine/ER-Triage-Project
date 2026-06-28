@@ -524,7 +524,7 @@ function reducer(state: EncounterState, action: EncounterAction): EncounterState
   }
   if (action.type === 'orders') return { ...state, orderQuery: action.query, orderResults: action.results };
   if (action.type === 'exams') return { ...state, examQuery: action.query, examResults: action.results };
-  if (action.type === 'examCatalog') return { ...state, examCatalog: action.results, examResults: state.examResults.length ? state.examResults : action.results.slice(0, 12) };
+  if (action.type === 'examCatalog') return { ...state, examCatalog: action.results, examResults: state.examResults.length ? state.examResults : action.results };
   if (action.type === 'chatDraft') return { ...state, chatDraft: action.value };
   if (action.type === 'esiDraft') return { ...state, esiDraft: action.level, esiRationale: action.rationale ?? state.esiRationale };
   if (action.type === 'differentialDraft') return { ...state, differentialDraft: action.value };
@@ -593,7 +593,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: 'orders', query: '', results: staticRuntimeRef.current.searchOrders('') });
         const exams = staticRuntimeRef.current.examCatalog();
         dispatch({ type: 'examCatalog', results: exams });
-        dispatch({ type: 'exams', query: '', results: exams.slice(0, 12) });
+        dispatch({ type: 'exams', query: '', results: exams });
         return;
       }
       dispatch({ type: 'runtime', mode: 'static' });
@@ -616,7 +616,7 @@ export function EncounterProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'session', value: loaded.session });
       dispatch({ type: 'orders', query: '', results: loaded.orders });
       dispatch({ type: 'examCatalog', results: loaded.exams });
-      dispatch({ type: 'exams', query: '', results: loaded.exams.slice(0, 12) });
+      dispatch({ type: 'exams', query: '', results: loaded.exams });
     } catch (error) {
       dispatch({ type: 'error', value: error instanceof Error ? error.message : 'Could not load case bundle.' });
     }
