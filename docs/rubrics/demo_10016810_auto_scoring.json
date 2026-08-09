@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "method": "binary_additive_with_critical_caps",
+  "role": "observation_map_for_openevidence_debrief",
+  "teaching_focus": [
+    "Recognition and early management of hypoxemia and hypotension",
+    "Focused abdominal examination for distention and peritoneal signs",
+    "Construction and prioritization of a dangerous acute-abdomen differential",
+    "Contextual interpretation of leukocytosis, hypokalemia, and the remaining laboratory results",
+    "Selection and interpretation of contrast CT, including the limitation of the templated placeholder report",
+    "Urgent surgical consultation, reassessment, source control, and safe disposition",
+    "Learner-specific reasoning feedback supported by action timestamps",
+    "Socratic follow-up questions about imaging, laboratories, management, and contingency planning"
+  ],
+  "domains": [
+    {
+      "id": "triage",
+      "label": "Initial triage and physiologic threat recognition",
+      "criteria": [
+        { "id": "esi_2_early", "label": "Committed ESI 2 by minute 5", "points": 6, "observable": { "type": "esi", "accepted_levels": [2], "max_minutes": 5 } },
+        { "id": "general_appearance", "label": "Assessed general appearance by minute 2", "points": 3, "observable": { "type": "exam", "target_id": "general_inspection_appearance", "max_minutes": 2 } },
+        { "id": "work_of_breathing", "label": "Assessed work of breathing by minute 5", "points": 3, "observable": { "type": "exam", "target_id": "respiratory_inspection_work_of_breathing", "max_minutes": 5 } }
+      ]
+    },
+    {
+      "id": "history",
+      "label": "Available focused history",
+      "criteria": [
+        { "id": "chief_concern_history", "label": "Asked the authored chief-concern question", "points": 3, "observable": { "type": "history_fact", "target_id": "chief_concern", "triggers": ["why", "here", "brought", "complaint", "problem"] } },
+        { "id": "pain_severity_history", "label": "Asked about pain severity", "points": 3, "observable": { "type": "history_fact", "target_id": "pain_severity", "triggers": ["pain", "severity", "rate", "score", "bad"] } }
+      ]
+    },
+    {
+      "id": "exam",
+      "label": "Focused abdominal and respiratory examination",
+      "criteria": [
+        { "id": "abdomen_inspection", "label": "Inspected the abdomen by minute 5", "points": 4, "observable": { "type": "exam", "target_id": "abdomen_inspection_distention", "max_minutes": 5 } },
+        { "id": "abdomen_palpation", "label": "Performed light abdominal palpation by minute 6", "points": 4, "observable": { "type": "exam", "target_id": "abdomen_palpation_light", "max_minutes": 6 } },
+        { "id": "guarding", "label": "Assessed guarding by minute 8", "points": 3, "observable": { "type": "exam", "target_id": "abdomen_palpation_guarding", "max_minutes": 8 } },
+        { "id": "rebound", "label": "Assessed rebound tenderness by minute 8", "points": 3, "observable": { "type": "exam", "target_id": "abdomen_palpation_rebound", "max_minutes": 8 } },
+        { "id": "bowel_sounds", "label": "Assessed bowel sounds", "points": 2, "observable": { "type": "exam", "target_id": "abdomen_auscultation_bowel_sounds" } },
+        { "id": "breath_sounds", "label": "Assessed breath sounds", "points": 2, "observable": { "type": "exam", "target_id": "respiratory_auscultation_breath_sounds" } }
+      ]
+    },
+    {
+      "id": "stabilization",
+      "label": "Immediate stabilization",
+      "criteria": [
+        { "id": "cardiac_monitor", "label": "Applied cardiac monitoring by minute 3", "points": 4, "observable": { "type": "intervention", "target_id": "cardiac_monitor", "max_minutes": 3 } },
+        { "id": "continuous_pulse_ox", "label": "Applied continuous pulse oximetry by minute 3", "points": 2, "observable": { "type": "intervention", "target_id": "continuous_pulse_ox", "max_minutes": 3 } },
+        { "id": "oxygen", "label": "Provided supplemental oxygen for SpO2 90% by minute 3", "points": 6, "observable": { "type": "intervention", "target_id": "oxygen", "max_minutes": 3 } },
+        { "id": "iv_access", "label": "Established IV access by minute 5", "points": 5, "observable": { "type": "intervention", "target_id": "iv_access", "max_minutes": 5 } },
+        { "id": "iv_fluids", "label": "Provided IV crystalloid for hypotension by minute 8", "points": 3, "observable": { "type": "intervention", "target_id": "iv_fluids", "max_minutes": 8 } }
+      ]
+    },
+    {
+      "id": "diagnostics",
+      "label": "Diagnostic strategy and orders",
+      "criteria": [
+        { "id": "cbc", "label": "Ordered CBC by minute 10", "points": 3, "observable": { "type": "order", "target_id": "cbc", "max_minutes": 10 } },
+        { "id": "bmp", "label": "Ordered metabolic panel by minute 10", "points": 3, "observable": { "type": "order", "target_id": "bmp", "max_minutes": 10 } },
+        { "id": "lft", "label": "Ordered hepatic function panel by minute 10", "points": 2, "observable": { "type": "order", "target_id": "lft", "max_minutes": 10 } },
+        { "id": "lipase", "label": "Ordered lipase by minute 10", "points": 2, "observable": { "type": "order", "target_id": "lipase", "max_minutes": 10 } },
+        { "id": "lactate", "label": "Ordered lactate by minute 10", "points": 3, "observable": { "type": "order", "target_id": "lactate", "max_minutes": 10 } },
+        { "id": "coagulation", "label": "Ordered coagulation studies by minute 10", "points": 2, "observable": { "type": "order", "target_id": "coagulation_panel", "max_minutes": 10 } },
+        { "id": "type_screen", "label": "Ordered type and screen by minute 10", "points": 2, "observable": { "type": "order", "target_id": "type_and_screen", "max_minutes": 10 } },
+        { "id": "ct_imaging", "label": "Ordered contrast CT abdomen/pelvis by minute 10", "points": 8, "observable": { "type": "order", "target_id": "ct_abdomen_pelvis_with_contrast", "max_minutes": 10 } }
+      ]
+    },
+    {
+      "id": "reasoning",
+      "label": "Clinical reasoning and disposition plan",
+      "criteria": [
+        { "id": "appendicitis_differential", "label": "Included appendicitis or a complicated acute-abdomen diagnosis", "points": 8, "observable": { "type": "differential_text", "any_terms": ["appendicitis", "peritonitis", "perforated viscus", "bowel perforation", "intra-abdominal infection", "acute abdomen"] } },
+        { "id": "safe_disposition", "label": "Documented admission and urgent surgical evaluation", "points": 4, "observable": { "type": "soap_text", "any_terms": ["admit", "admission", "general surgery", "surgery consult", "surgical consult", "operating room", "critical care", "icu"] } }
+      ]
+    },
+    {
+      "id": "interpretation",
+      "label": "Recorded result interpretation",
+      "criteria": [
+        { "id": "ct_interpretation", "label": "Recorded a CT interpretation", "points": 3, "observable": { "type": "result_interpretation", "target_id": "ct_abdomen_pelvis_with_contrast", "any_terms": ["placeholder", "normal", "no acute", "nondiagnostic", "appendicitis", "peritonitis"] } },
+        { "id": "cbc_interpretation", "label": "Recognized leukocytosis", "points": 2, "observable": { "type": "result_interpretation", "target_id": "cbc", "any_terms": ["wbc", "white blood", "leukocytosis", "18.5"] } },
+        { "id": "bmp_interpretation", "label": "Recognized hypokalemia", "points": 2, "observable": { "type": "result_interpretation", "target_id": "bmp", "any_terms": ["potassium", "hypokalemia", "3.0"] } }
+      ]
+    }
+  ],
+  "score_caps": [
+    { "if_missed": "ct_imaging", "cap": 59, "reason": "Definitive available abdominal imaging was not ordered." },
+    { "if_missed": "iv_access", "cap": 69, "reason": "IV access was not established in a hypotensive high-risk patient." },
+    { "if_missed": "safe_disposition", "cap": 59, "reason": "No admission or urgent surgical evaluation plan was documented." }
+  ]
+}

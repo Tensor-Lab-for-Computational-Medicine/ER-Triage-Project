@@ -296,6 +296,20 @@ export type SoapDraft = {
 };
 
 export type GraderFeedback = {
+  scoring?: {
+    score: number;
+    raw_score: number;
+    max_score: number;
+    percent: number;
+    domains: Array<{
+      id: string;
+      label: string;
+      earned: number;
+      possible: number;
+      criteria: Array<{ id: string; label: string; earned: number; possible: number; met: boolean; evidence: string }>;
+    }>;
+    applied_caps: Array<{ criterion_id: string; cap: number; reason: string }>;
+  };
   diagnostic_accuracy?: Record<string, unknown>;
   acuity?: Record<string, unknown>;
   completeness?: { flags?: Record<string, unknown>; omissions?: string[] };

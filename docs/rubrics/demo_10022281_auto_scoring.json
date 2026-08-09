@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "method": "binary_additive_with_critical_caps",
+  "domains": [
+    {
+      "id": "triage",
+      "label": "Initial triage and threat recognition",
+      "criteria": [
+        { "id": "esi_2_early", "label": "Committed ESI 2 by minute 5", "points": 6, "observable": { "type": "esi", "accepted_levels": [2], "max_minutes": 5 } },
+        { "id": "general_appearance", "label": "Assessed general appearance by minute 2", "points": 4, "observable": { "type": "exam", "target_id": "general_inspection_appearance", "max_minutes": 2 } }
+      ]
+    },
+    {
+      "id": "history",
+      "label": "Available focused history",
+      "criteria": [
+        { "id": "chief_concern_history", "label": "Asked the authored chief-concern question", "points": 3, "observable": { "type": "history_fact", "target_id": "chief_concern", "triggers": ["why", "here", "brought", "complaint", "problem"] } },
+        { "id": "pain_severity_history", "label": "Asked about pain severity", "points": 3, "observable": { "type": "history_fact", "target_id": "pain_severity", "triggers": ["pain", "severity", "rate", "score", "bad"] } }
+      ]
+    },
+    {
+      "id": "exam",
+      "label": "Focused examination",
+      "criteria": [
+        { "id": "peripheral_pulses", "label": "Assessed peripheral pulses", "points": 7, "observable": { "type": "exam", "target_id": "cardiovascular_palpation_pulses", "max_minutes": 8 } },
+        { "id": "heart_sounds", "label": "Assessed heart sounds", "points": 3, "observable": { "type": "exam", "target_id": "cardiovascular_auscultation_heart_sounds", "max_minutes": 8 } },
+        { "id": "abdomen_inspection", "label": "Inspected the abdomen", "points": 3, "observable": { "type": "exam", "target_id": "abdomen_inspection_distention", "max_minutes": 8 } },
+        { "id": "abdomen_palpation", "label": "Performed light abdominal palpation", "points": 4, "observable": { "type": "exam", "target_id": "abdomen_palpation_light", "max_minutes": 8 } },
+        { "id": "mental_status", "label": "Assessed mental status", "points": 3, "observable": { "type": "exam", "target_id": "general_special_mental_status", "max_minutes": 8 } }
+      ]
+    },
+    {
+      "id": "stabilization",
+      "label": "Immediate stabilization and symptom control",
+      "criteria": [
+        { "id": "cardiac_monitor", "label": "Applied cardiac monitoring", "points": 6, "observable": { "type": "intervention", "target_id": "cardiac_monitor", "max_minutes": 5 } },
+        { "id": "iv_access", "label": "Established IV access", "points": 6, "observable": { "type": "intervention", "target_id": "iv_access", "max_minutes": 5 } },
+        { "id": "analgesia", "label": "Provided analgesia", "points": 6, "observable": { "type": "intervention", "target_id": "analgesia", "max_minutes": 8 } },
+        { "id": "avoid_oxygen", "label": "Avoided non-indicated supplemental oxygen", "points": 2, "observable": { "type": "not_intervention", "target_id": "oxygen" } }
+      ]
+    },
+    {
+      "id": "diagnostics",
+      "label": "Diagnostic strategy and orders",
+      "criteria": [
+        { "id": "cbc", "label": "Ordered CBC", "points": 3, "observable": { "type": "order", "target_id": "cbc", "max_minutes": 10 } },
+        { "id": "bmp", "label": "Ordered metabolic panel", "points": 3, "observable": { "type": "order", "target_id": "bmp", "max_minutes": 10 } },
+        { "id": "coagulation", "label": "Ordered coagulation studies", "points": 4, "observable": { "type": "order", "target_id": "coagulation_panel", "max_minutes": 10 } },
+        { "id": "type_screen", "label": "Ordered type and screen", "points": 4, "observable": { "type": "order", "target_id": "type_and_screen", "max_minutes": 10 } },
+        { "id": "ecg", "label": "Ordered 12-lead ECG", "points": 3, "observable": { "type": "order", "target_id": "ecg_12_lead", "max_minutes": 10 } },
+        { "id": "ct_imaging", "label": "Ordered available contrast CT abdomen/pelvis", "points": 8, "observable": { "type": "order", "target_id": "ct_abdomen_pelvis_with_contrast", "max_minutes": 10 } }
+      ]
+    },
+    {
+      "id": "reasoning",
+      "label": "Clinical reasoning and disposition plan",
+      "criteria": [
+        { "id": "vascular_differential", "label": "Included an acute aortic or limb-ischemia diagnosis", "points": 8, "observable": { "type": "differential_text", "any_terms": ["aortic dissection", "acute aortic syndrome", "aortic aneurysm", "acute limb ischemia", "arterial occlusion", "arterial thrombosis"] } },
+        { "id": "safe_disposition", "label": "Documented admission, urgent consultation, or transfer", "points": 4, "observable": { "type": "soap_text", "any_terms": ["admit", "admission", "vascular surgery", "vascular consult", "surgical consult", "transfer", "critical care", "icu"] } }
+      ]
+    },
+    {
+      "id": "interpretation",
+      "label": "Recorded result interpretation",
+      "criteria": [
+        { "id": "ct_interpretation", "label": "Recorded a CT interpretation", "points": 4, "observable": { "type": "result_interpretation", "target_id": "ct_abdomen_pelvis_with_contrast", "any_terms": ["placeholder", "normal", "no acute", "nondiagnostic", "dissection", "aortic"] } },
+        { "id": "bmp_interpretation", "label": "Recognized renal indices in the metabolic panel", "points": 3, "observable": { "type": "result_interpretation", "target_id": "bmp", "any_terms": ["creatinine", "renal", "bun", "urea nitrogen", "kidney"] } }
+      ]
+    }
+  ],
+  "score_caps": [
+    { "if_missed": "ct_imaging", "cap": 59, "reason": "Definitive available imaging was not ordered." },
+    { "if_missed": "peripheral_pulses", "cap": 69, "reason": "No recorded vascular examination of the painful extremity." },
+    { "if_missed": "safe_disposition", "cap": 69, "reason": "No safe admission, urgent consultation, or transfer plan was documented." }
+  ]
+}

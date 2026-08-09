@@ -585,6 +585,11 @@ export class StaticCaseRuntime {
     return {
       session_id: this.state.session_id,
       case_id: this.state.case_id,
+      visible_start: this.case.visible_start || {},
+      hpi_facts: this.case.hpi_facts || [],
+      exam_facts: this.case.exam_facts || [],
+      trajectory: this.case.trajectory || null,
+      review_status: this.case.review_status || null,
       transcript: this.state.transcript,
       orders: Object.values(this.state.active_orders),
       result_interpretations: this.state.result_interpretations,
@@ -623,8 +628,10 @@ export class StaticCaseRuntime {
     const ordered = new Set(Object.keys(this.state.active_orders));
     const performedExams = new Set(this.state.performed_exams.map((item) => item.maneuver_id));
     const interventions = new Set(this.state.intervention_events.map((item) => item.intervention_id));
+    const scoring = rubric.auto_scoring ? automaticScore(rubric, this.state) : undefined;
 
     return {
+      scoring,
       diagnostic_accuracy: {
         expected: expectedDiagnoses,
         matched: matchedDiagnoses.length > 0,
@@ -1123,6 +1130,95 @@ export class StaticCaseRuntime {
       key_points: truth.clinician_key_points || []
     };
   }
+}
+
+function automaticScore(rubric: Record<string, any>, state: StaticState) {
+  const domains = asArray(rubric.auto_scoring?.domains).map((domain: any) => {
+    const criteria = asArray(domain.criteria).map((criterion: any) => scoreCriterion(criterion, state));
+    return {
+      id: String(domain.id || ''),
+      label: String(domain.label || domain.id || 'Scored domain'),
+      earned: criteria.reduce((sum: number, item: any) => sum + item.earned, 0),
+      possible: criteria.reduce((sum: number, item: any) => sum + item.possible, 0),
+      criteria
+    };
+  });
+  const rawScore = domains.reduce((sum: number, domain: any) => sum + domain.earned, 0);
+  const maxScore = domains.reduce((sum: number, domain: any) => sum + domain.possible, 0);
+  const missedIds = new Set(domains.flatMap((domain: any) => domain.criteria.filter((item: any) => !item.met).map((item: any) => item.id)));
+  const appliedCaps = asArray(rubric.auto_scoring?.score_caps)
+    .filter((item: any) => missedIds.has(String(item.if_missed)))
+    .map((item: any) => ({ criterion_id: String(item.if_missed), cap: Number(item.cap), reason: String(item.reason || 'Critical action missed.') }))
+    .filter((item: any) => Number.isFinite(item.cap));
+  const cap = appliedCaps.length ? Math.min(...appliedCaps.map((item: any) => item.cap)) : maxScore;
+  const score = Math.min(rawScore, cap);
+  return {
+    score,
+    raw_score: rawScore,
+    max_score: maxScore,
+    percent: maxScore ? Math.round((score / maxScore) * 100) : 0,
+    domains,
+    applied_caps: appliedCaps
+  };
+}
+
+function scoreCriterion(criterion: any, state: StaticState) {
+  const observable = criterion.observable || {};
+  const type = String(observable.type || '');
+  const targetId = String(observable.target_id || '');
+  let met = false;
+  let elapsed: number | null = null;
+  let evidence = 'No matching recorded action.';
+  const setMatch = (record: any, label: string) => {
+    if (!record) return;
+    elapsed = Number(record.elapsed_minutes ?? record.applied_at_min ?? record.performed_at_min ?? record.ordered_at_min ?? 0);
+    met = true;
+    evidence = `${label} at minute ${elapsed}.`;
+  };
+
+  if (type === 'esi') {
+    const record = state.esi_history.at(-1);
+    const accepted = asArray(observable.accepted_levels).map(Number);
+    if (record && accepted.includes(Number(record.level))) setMatch(record, `ESI ${record.level} committed`);
+    else if (record) evidence = `ESI ${record.level} committed; accepted: ${accepted.join(', ')}.`;
+  } else if (type === 'intervention') {
+    setMatch(state.intervention_events.find((item) => item.intervention_id === targetId), targetId.replace(/_/g, ' '));
+  } else if (type === 'not_intervention') {
+    met = !state.intervention_events.some((item) => item.intervention_id === targetId);
+    evidence = met ? `${targetId.replace(/_/g, ' ')} was not used.` : `${targetId.replace(/_/g, ' ')} was used.`;
+  } else if (type === 'exam') {
+    setMatch(state.performed_exams.find((item) => item.maneuver_id === targetId), targetId.replace(/_/g, ' '));
+  } else if (type === 'order') {
+    setMatch(state.active_orders[targetId], targetId.replace(/_/g, ' '));
+  } else if (type === 'history_fact') {
+    const fact = asArray(observable.triggers).map(String);
+    met = historyFactCompleted(fact, state);
+    if (met) evidence = `Student question matched an authored history topic: ${targetId}.`;
+  } else if (type === 'differential_text' || type === 'soap_text' || type === 'result_interpretation') {
+    const sourceText = type === 'differential_text'
+      ? [...state.differential, state.soap.assessment].join(' ')
+      : type === 'soap_text'
+        ? [state.soap.subjective, state.soap.objective, state.soap.assessment, state.soap.plan].join(' ')
+        : String(state.result_interpretations[targetId]?.text || '');
+    const terms = asArray(observable.any_terms).map((item) => normalizeText(String(item))).filter(Boolean);
+    const normalized = normalizeText(sourceText);
+    met = terms.some((term) => normalized.includes(term));
+    if (met) evidence = `Recorded text matched: ${terms.find((term) => normalized.includes(term))}.`;
+  }
+
+  if (met && observable.max_minutes !== undefined && observable.max_minutes !== null && elapsed !== null && elapsed > Number(observable.max_minutes)) {
+    met = false;
+    evidence = `Recorded at minute ${elapsed}; required by minute ${observable.max_minutes}.`;
+  }
+  const possible = Number(criterion.points || 0);
+  return {
+    id: String(criterion.id || ''),
+    label: String(criterion.label || criterion.id || 'Criterion'),
+    earned: met ? possible : 0,
+    possible,
+    met,
+    evidence
+  };
 }
 
 function searchCatalog(items: CatalogOrder[], query: string, limit: number) {

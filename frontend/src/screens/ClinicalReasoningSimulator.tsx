@@ -2489,6 +2489,7 @@ function DebriefScreen() {
     disposition: readableValue(hiddenTruth.actual_disposition)
   };
   const diagnosticMatched = Boolean(feedback?.diagnostic_accuracy?.matched);
+  const automaticScoring = feedback?.scoring;
   const esiDefensible = Boolean(feedback?.acuity?.defensible);
   const lastEsi = esiHistory.at(-1)?.level ?? null;
   const summary = debriefPerformanceSummary({
@@ -2505,6 +2506,7 @@ function DebriefScreen() {
   const missedPreview = (missedEssentials.length ? missedEssentials : reviewItems).slice(0, 3);
   const openEvidencePrompt = buildOpenEvidencePrompt({
     caseTitle: session?.snapshot.title || '',
+    caseRecord: (isPlainRecord(packageRecord) ? packageRecord : {}) as Record<string, unknown>,
     truth,
     feedback,
     missedWorkupLabels,
@@ -2577,7 +2579,13 @@ function DebriefScreen() {
         ) : null}
 
         <section className="grid gap-2 md:grid-cols-2 md:gap-3 xl:grid-cols-[1.35fr_1fr_1.1fr_1fr_1fr_1fr]" data-testid="debrief-summary-band">
-          <DebriefSummaryCard icon={<ChartDonut size={19} weight="bold" />} title="Performance" value={summary.label} detail={summary.message} />
+          <DebriefSummaryCard
+            icon={<ChartDonut size={19} weight="bold" />}
+            title="Score"
+            value={automaticScoring ? `${automaticScoring.score}/${automaticScoring.max_score}` : summary.label}
+            detail={automaticScoring ? `${automaticScoring.percent}% · ${summary.label}` : summary.message}
+            tone={automaticScoring ? (automaticScoring.percent >= 80 ? 'good' : automaticScoring.percent >= 70 ? 'warning' : 'danger') : 'neutral'}
+          />
           <DebriefSummaryCard icon={<Stethoscope size={19} weight="bold" />} title="Diagnosis" value={truth.diagnosis} status={diagnosticMatched ? 'Correct' : 'Needs review'} tone={diagnosticMatched ? 'good' : 'danger'} />
           <DebriefSummaryCard icon={<User size={19} weight="bold" />} title="ESI" value={lastEsi ? `${lastEsi} submitted; key ${truth.esi}` : `Not submitted; key ${truth.esi}`} status={esiDefensible ? 'Defensible' : 'Needs review'} tone={esiDefensible ? 'good' : 'danger'} />
           <DebriefSummaryCard icon={<Buildings size={19} weight="bold" />} title="Disposition" value={truth.disposition} status="Answer key" tone="neutral" />
@@ -2669,6 +2677,7 @@ function DebriefScreen() {
                     <CompletenessPanel flags={completenessFlags} omissions={omissions} />
                     <WorkupPanel expected={expectedWorkupLabels} ordered={orderedWorkupLabels} missed={missedWorkupLabels} />
                   </section>
+                  {automaticScoring ? <AutomaticScoreBreakdown scoring={automaticScoring} /> : null}
                   <section className="grid gap-3 text-sm">
                     <h2 className="m-0 text-base font-extrabold">Action review</h2>
                     <div className="grid gap-3" data-testid="feedback-interventions">
@@ -2922,6 +2931,46 @@ function WorkupPanel({ expected, ordered, missed }: { expected: string[]; ordere
         <ReadableList label="Expected" items={expected} empty="No expected workup listed." />
         <ReadableList label="Ordered" items={ordered} empty="No orders placed." />
         <ReadableList label="Missed" items={missed} empty="No expected workup missed." danger={missed.length > 0} />
+      </div>
+    </section>
+  );
+}
+
+function AutomaticScoreBreakdown({ scoring }: { scoring: NonNullable<GraderFeedback['scoring']> }) {
+  return (
+    <section className="rounded-lg border border-[#d7dfdf] bg-white p-4" data-testid="automatic-score-breakdown">
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="m-0 text-base font-extrabold">Rubric score</h2>
+          <p className="m-0 mt-1 text-sm font-semibold text-[#607078]">Every point below is tied to a recorded simulation action.</p>
+        </div>
+        <strong className="text-xl text-[#0f5f58]">{scoring.score}/{scoring.max_score} ({scoring.percent}%)</strong>
+      </div>
+      <div className="grid gap-3">
+        {scoring.domains.map((domain) => (
+          <article key={domain.id} className="overflow-hidden rounded-md border border-[#dfe7e7]">
+            <div className="flex items-center justify-between gap-3 bg-[#f7f9f9] px-3 py-2 text-sm">
+              <strong>{domain.label}</strong>
+              <strong>{domain.earned}/{domain.possible}</strong>
+            </div>
+            <div className="divide-y divide-[#e4e9e9]">
+              {domain.criteria.map((criterion) => (
+                <div key={criterion.id} className="grid gap-1 px-3 py-2 text-sm sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <div>
+                    <span className="font-bold">{criterion.met ? '✓' : '○'} {criterion.label}</span>
+                    <span className="mt-1 block text-xs font-semibold text-[#607078]">{criterion.evidence}</span>
+                  </div>
+                  <strong className={criterion.met ? 'text-[#0f5f58]' : 'text-[#7f1d1d]'}>{criterion.earned}/{criterion.possible}</strong>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+        {scoring.applied_caps.map((cap) => (
+          <div key={cap.criterion_id} className="rounded-md border border-[#e8b5b5] bg-[#fff7f7] p-3 text-sm font-bold text-[#7f1d1d]">
+            Score capped at {cap.cap}: {cap.reason}
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -3199,6 +3248,7 @@ function debriefPerformanceSummary({
 
 function buildOpenEvidencePrompt({
   caseTitle,
+  caseRecord,
   truth,
   feedback,
   missedWorkupLabels,
@@ -3215,6 +3265,7 @@ function buildOpenEvidencePrompt({
   ecgInterpretationReviews
 }: {
   caseTitle: string;
+  caseRecord: Record<string, unknown>;
   truth: { diagnosis: string; esi: string; disposition: string };
   feedback: GraderFeedback | null;
   missedWorkupLabels: string[];
@@ -3233,14 +3284,12 @@ function buildOpenEvidencePrompt({
   const ecgReviewByOrderId = new Map(ecgInterpretationReviews.map((review) => [review.orderId, review]));
   const resultSummaries = packageOrders
     .filter((order) => order.result)
-    .slice(0, 8)
     .map((order) => {
       const ecgReview = ecgReviewByOrderId.get(order.order_id);
       if (ecgReview) return `${order.display_name}: ${ecgResultLineForPrompt(ecgReview)}`;
-      return `${order.display_name}: ${resultBrief(order.result)}`;
+      return `${order.display_name}: ${JSON.stringify(order.result)}`;
     });
   const transcriptExcerpt = transcript
-    .slice(0, 12)
     .map((message) => `${formatClock(message.elapsed_minutes)} ${labelForMessage(message)}: ${message.text}`);
   const realEvents = realTimeline
     .slice(0, 8)
@@ -3261,12 +3310,41 @@ function buildOpenEvidencePrompt({
     .slice(0, 6)
     .map((item) => `${formatClock(recordNumber(item, 'elapsed_min'))}: ${medicationLine(item)}${recordString(item, 'event') ? ` (${recordString(item, 'event')})` : ''}`);
   const ecgComparisons = ecgInterpretationReviews.map((review) => ecgComparisonTextForPrompt(review));
+  const scoring = feedback?.scoring;
+  const rubricGuide = scoring?.domains.flatMap((domain) => [
+    `${domain.label}: ${domain.earned}/${domain.possible}`,
+    ...domain.criteria.map((criterion) => `  - ${criterion.met ? 'MET' : 'MISSED'} | ${criterion.label} | ${criterion.earned}/${criterion.possible} | ${criterion.evidence}`)
+  ]) || [];
+  const bundleContext = {
+    visible_start: caseRecord.visible_start || null,
+    authored_hpi_facts: caseRecord.hpi_facts || [],
+    authored_exam_facts: caseRecord.exam_facts || [],
+    trajectory: caseRecord.trajectory || null,
+    evidence_corpus: caseRecord.evidence_corpus || [],
+    review_status: caseRecord.review_status || null,
+    rubric_observation_and_teaching_guide: caseRecord.rubric || {},
+    performed_exams: caseRecord.exams || [],
+    interventions: caseRecord.interventions || [],
+    learner_result_interpretations: caseRecord.result_interpretations || {}
+  };
   return [
-    'You are reviewing an emergency medicine simulation performance. Provide concise, evidence-based feedback for the instructor to use during debrief. Do not invent missing case facts.',
+    'You are an evidence-based emergency medicine clinical educator conducting an individualized learner debrief. The local rubric below is an observation map, not the teaching content and not the final authority. Use current clinical evidence to provide the substantive feedback.',
+    '',
+    'NON-NEGOTIABLE GROUNDING RULES',
+    '- Separate learner-visible facts, learner actions, hidden answer-key facts, source-recorded outcomes, and placeholder or unavailable data.',
+    '- Do not invent symptoms, examination findings, imaging findings, treatments, or outcomes.',
+    '- An action marked MET proves only that the action was recorded; assess its interpretation, timing, sequence, and clinical quality yourself.',
+    '- Explicitly identify contradictions or missing data that limit fair evaluation.',
+    '- Treat any result labeled templated, placeholder, source-limited, subject-only, or requiring verification as nondiagnostic unless supported elsewhere.',
+    '- Cite the clinical sources used for substantive teaching claims. State when recommendations depend on local protocol or clinician judgment.',
     '',
     `Case: ${caseTitle || 'ED abdominal pain simulation'}`,
     `Answer key: diagnosis ${truth.diagnosis}; ESI ${truth.esi}; disposition ${truth.disposition}.`,
     `Student ESI: ${lastEsi ?? 'not submitted'}. Diagnosis matched expected diagnosis: ${feedback?.diagnostic_accuracy?.matched ? 'yes' : 'no'}. ESI defensible: ${feedback?.acuity?.defensible ? 'yes' : 'no'}.`,
+    scoring ? `Local observation score: ${scoring.score}/${scoring.max_score} (${scoring.percent}%). Use this only to locate topics for review.` : 'No automatic observation score is available.',
+    '',
+    'CASE BUNDLE CONTEXT',
+    JSON.stringify(bundleContext, null, 2),
     '',
     `Student differential: ${differential.length ? differential.join('; ') : 'not committed'}.`,
     `Student assessment: ${readableValue(soap.assessment, 'not documented')}.`,
@@ -3279,13 +3357,13 @@ function buildOpenEvidencePrompt({
     'High-priority feedback:',
     ...(highPriority.length ? highPriority.map((item) => `- ${item}`) : ['- No high-priority gaps recorded.']),
     '',
-    'Key resulted studies:',
+    'COMPLETE RESULTED STUDIES (including values, units, flags, reference ranges, narratives, and provenance):',
     ...(resultSummaries.length ? resultSummaries.map((item) => `- ${item}`) : ['- No resulted studies recorded.']),
     '',
     'ECG interpretation comparison:',
     ...(ecgComparisons.length ? ecgComparisons.map((item) => `- ${item}`) : ['- No saved ECG interpretation/source comparison attached.']),
     '',
-    'Student transcript excerpt:',
+    'COMPLETE STUDENT/PATIENT/ACTION TRANSCRIPT:',
     ...(transcriptExcerpt.length ? transcriptExcerpt.map((item) => `- ${item}`) : ['- No transcript recorded.']),
     '',
     'Source-recorded real encounter anchors:',
@@ -3301,7 +3379,24 @@ function buildOpenEvidencePrompt({
     ...(sourceVitals.length ? sourceVitals.map((item) => `- ${item}`) : ['- No repeat ED vitals attached.']),
     ...(edMedications.length ? edMedications.map((item) => `- ${item}`) : ['- No source-recorded ED medications attached.']),
     '',
-    'Please return: 1. the highest-yield teaching point, 2. what the learner should have done next in the ED, 3. any evidence-based management nuance for this diagnosis, and 4. a one-paragraph debrief script.'
+    'LOCAL RUBRIC OBSERVATION MAP:',
+    ...(rubricGuide.length ? rubricGuide : ['No machine-scored rubric breakdown attached.']),
+    '',
+    'TEACHING TASK',
+    'Create a detailed, learner-facing debrief with these sections:',
+    '1. Case synthesis: reconstruct the presentation and illness script using only supported facts.',
+    '2. Immediate priorities: explain acuity, ABC concerns, stabilization, and what should happen in the first 2, 5, and 10 minutes.',
+    '3. History and examination: identify what the learner asked/performed, what was missing, why each item matters, and how the answers would change decisions.',
+    '4. Differential diagnosis: compare the learner differential with dangerous and likely alternatives; show how evidence raises or lowers each possibility.',
+    '5. Laboratory walkthrough: interpret every resulted value in context, including normal results, abnormalities, limitations, and whether each value changes management. Do not merely repeat flags.',
+    '6. Imaging walkthrough: explain the appropriate imaging strategy, what findings should be sought, how those findings would be interpreted, and the limitations of the actual attached report. Never fabricate absent images or findings.',
+    '7. Treatment and disposition: explain appropriate medications, fluids, monitoring, consultation, reassessment, source control or procedures, and disposition, including sequencing and contraindications.',
+    '8. Performance feedback: identify specific strengths, missed or delayed actions, reasoning errors, documentation gaps, and the three highest-yield improvements for the next attempt. Refer to timestamps and recorded evidence.',
+    '9. Model approach: provide a concise model assessment and plan that would be appropriate for this simulation.',
+    '10. Knowledge check: write 5 case-specific questions spanning interpretation, reasoning, and management. Include an answer key with explanations after a divider so the learner can hide it initially.',
+    '',
+    'INTERACTIVE TUTOR MODE',
+    'After the written debrief, invite the learner to continue interactively. Ask one Socratic question at a time, wait for the learner response, then give targeted feedback and a follow-up question. Adapt difficulty to the learner. Use the attached case to explore CT interpretation, individual laboratory values, differential diagnosis, next actions, and contingency planning. Do not reveal the answer before the learner attempts the question.'
   ].join('\n');
 }
 

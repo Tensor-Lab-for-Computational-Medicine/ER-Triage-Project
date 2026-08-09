@@ -126,6 +126,9 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await expect(page.getByText('["')).toHaveCount(0);
   await expect(page.getByTestId('copy-open-evidence-prompt')).toBeVisible();
   await page.getByTestId('debrief-tab-missed').click();
+  await expect(page.getByTestId('automatic-score-breakdown')).toContainText('10/10 (100%)');
+  await expect(page.getByTestId('automatic-score-breakdown')).toContainText('Committed ESI 2');
+  await expect(page.getByTestId('automatic-score-breakdown')).toContainText('Applied cardiac monitoring');
   await expect(page.getByTestId('review-group-reinforce')).toContainText('Reinforced strengths');
   await expect(page.getByTestId('ecg-interpretation-review')).toContainText('ECG Interpretation Comparison');
   await expect(page.getByTestId('ecg-learner-read')).toContainText('Atrial fibrillation without acute ST elevation.');
@@ -147,6 +150,10 @@ test('case bundle runs locally from triage to debrief', async ({ page }) => {
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Physician discharge-summary digest');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original physician note text');
   await expect(page.getByTestId('open-evidence-prompt')).toContainText('Original discharge note text for external review.');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('LOCAL RUBRIC OBSERVATION MAP');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('Laboratory walkthrough');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('Imaging walkthrough');
+  await expect(page.getByTestId('open-evidence-prompt')).toContainText('INTERACTIVE TUTOR MODE');
   await page.getByTestId('debrief-tab-source').click();
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Original physician note');
   await expect(page.getByTestId('source-enrichment-debrief')).toContainText('Physician discharge summary sections');
@@ -345,7 +352,19 @@ function sampleCase() {
       ],
       critical_actions: ['cardiac_monitor', 'iv_access', 'analgesia'],
       excessive_interventions: [],
-      esi_tolerance: 0
+      esi_tolerance: 0,
+      auto_scoring: {
+        version: 1,
+        domains: [{
+          id: 'triage',
+          label: 'Triage',
+          criteria: [
+            { id: 'esi', label: 'Committed ESI 2', points: 5, observable: { type: 'esi', accepted_levels: [2] } },
+            { id: 'monitor', label: 'Applied cardiac monitoring', points: 5, observable: { type: 'intervention', target_id: 'cardiac_monitor' } }
+          ]
+        }],
+        score_caps: []
+      }
     },
     hidden_truth: {
       final_diagnosis: 'sigmoid volvulus',
