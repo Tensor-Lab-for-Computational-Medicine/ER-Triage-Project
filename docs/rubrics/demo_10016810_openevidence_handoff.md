@@ -61,7 +61,7 @@ The local rubric supplies an auditable map of recorded actions. OpenEvidence sup
 - Trusted evidence corpus supplied with the case
 - Current external evidence OpenEvidence retrieves
 - Local-protocol dependencies that cannot be resolved from the bundle
-- Known contradictions, such as this case's severe-discomfort narrative with pain 0/10, SpO₂ 90% despite the original rubric calling oxygen excessive, and a templated normal CT report despite the hidden diagnosis
+- Known limitations and resolved corrections. For this case, the pain score has been corrected to 8/10, oxygen is expected for SpO₂ 90%, and the physical examination now contains authored generalized-peritonitis and appendiceal findings. The templated normal CT report remains unresolved and must be treated as nondiagnostic.
 
 ## Export prompt
 

@@ -1,103 +1,118 @@
-# Automatically Scored Rubric: demo_10016810
+# Student Rubric and OpenEvidence Feedback Guide: demo_10016810
 
-## Case
+## Case at a glance
 
-- **Learner-facing presentation:** 66-year-old woman with abdominal pain, blood pressure 98/48 mm Hg, oxygen saturation 90%, abdominal distention, and visible discomfort
-- **Answer-key diagnosis:** Acute appendicitis with generalized peritonitis
-- **Expected disposition:** Admission with urgent surgical evaluation
-- **Maximum score:** 100 points
-- **Scoring method:** Binary, additive criteria with critical-action score caps
-- **Machine-readable specification:** `demo_10016810_auto_scoring.json`
+**Presentation:** 66-year-old woman with severe abdominal pain, blood pressure 98/48 mm Hg, oxygen saturation 90%, abdominal distention, and visible discomfort
 
-Every point is tied to a structured event or saved learner entry. This rubric is an observation map for OpenEvidence, not the primary source of teaching feedback. Its score identifies topics that OpenEvidence should explore using the complete case record, learner transcript, current evidence, and interactive questions.
+**Answer-key diagnosis:** Acute appendicitis with generalized peritonitis
 
-## Scoring summary
+**Expected disposition:** Admission with urgent surgical evaluation
 
-| Domain | Points | Verifiable actions |
-|---|---:|---|
-| Initial triage and physiologic threat recognition | 12 | ESI 2 by minute 5; general appearance by minute 2; work of breathing by minute 5 |
-| Available focused history | 6 | Authored chief-concern and pain-severity questions |
-| Focused abdominal and respiratory examination | 18 | Abdominal inspection, light palpation, guarding, rebound, bowel sounds, and breath sounds |
-| Immediate stabilization | 20 | Cardiac monitoring, continuous pulse oximetry, supplemental oxygen, IV access, and crystalloid |
-| Diagnostic strategy and orders | 25 | CBC, BMP, LFT, lipase, lactate, coagulation studies, type and screen, and contrast CT abdomen/pelvis |
-| Clinical reasoning and disposition | 12 | Appendicitis/complicated acute-abdomen differential and admission/urgent surgery plan |
-| Result interpretation | 7 | Saved CT, CBC, and BMP interpretations |
-| **Total** | **100** | |
+**Observation score:** 100 points
 
-## Timing and point details
+This rubric records what the student did and identifies topics for OpenEvidence to teach. OpenEvidence supplies the detailed clinical interpretation, feedback, and interactive questions.
 
-### Triage — 12 points
+## 1. Triage and immediate recognition — 12 points
 
-- ESI 2 by minute 5: 6 points
-- General appearance by minute 2: 3 points
-- Work of breathing by minute 5: 3 points
+| Student action | Deadline | Points |
+|---|---:|---:|
+| Commit ESI 2 | Minute 5 | 6 |
+| Assess general appearance | Minute 2 | 3 |
+| Assess work of breathing | Minute 5 | 3 |
 
-### Available history — 6 points
+**OpenEvidence focus:** Explain why hypotension, hypoxemia, severe pain, advanced age, and an acute abdominal presentation justify high-risk triage and immediate reassessment.
 
-- Ask the authored chief-concern question: 3 points
-- Ask about pain severity: 3 points
+## 2. Focused history — 6 points
 
-Only these history topics are authored in the current bundle. Other useful appendicitis questions cannot be scored reliably until their responses and triggers are added.
+| Student action | Points |
+|---|---:|
+| Ask why the patient came to the ED | 3 |
+| Ask about pain severity | 3 |
 
-### Focused examination — 18 points
+**OpenEvidence focus:** Discuss the additional history that should be obtained—onset, migration, location, quality, associated gastrointestinal and urinary symptoms, prior operations, medications, allergies, and functional change. These are teaching items rather than scored items until the case contains authored responses.
 
-- Abdominal inspection by minute 5: 4 points
-- Light abdominal palpation by minute 6: 4 points
-- Guarding assessment by minute 8: 3 points
-- Rebound assessment by minute 8: 3 points
-- Bowel-sound assessment: 2 points
-- Breath-sound assessment: 2 points
+## 3. Physical examination — 18 points
 
-### Stabilization — 20 points
+| Student action | Deadline | Points |
+|---|---:|---:|
+| Inspect the abdomen | Minute 5 | 2 |
+| Perform light abdominal palpation | Minute 6 | 2 |
+| Assess involuntary guarding/rigidity | Minute 8 | 3 |
+| Assess rebound tenderness | Minute 8 | 3 |
+| Perform Rovsing sign maneuver | — | 2 |
+| Perform psoas sign maneuver | — | 2 |
+| Perform obturator sign maneuver | — | 1 |
+| Assess bowel sounds | — | 1 |
+| Assess breath sounds | — | 2 |
 
-- Cardiac monitoring by minute 3: 4 points
-- Continuous pulse oximetry by minute 3: 2 points
-- Supplemental oxygen for SpO₂ 90% by minute 3: 6 points
-- IV access by minute 5: 5 points
-- IV crystalloid for hypotension by minute 8: 3 points
+**Expected case findings:** Ill and uncomfortable appearance; preference to lie still; mild-to-moderate distention; diffuse tenderness maximal in the right lower quadrant; involuntary guarding and rigidity; diffuse rebound and percussion tenderness greatest in the right lower quadrant; hypoactive bowel sounds; positive Rovsing, psoas, and obturator maneuvers; negative Murphy sign.
 
-Analgesia is clinically reasonable if the learner confirms meaningful pain, but it is not scored because the bundle simultaneously reports severe abdominal discomfort and pain 0/10.
+**OpenEvidence focus:** Explain what each finding means, its limitations, how appendix position affects named signs, and why generalized peritoneal findings carry more urgency than any single appendiceal maneuver.
 
-### Diagnostic orders — 25 points
+## 4. Stabilization and symptom control — 20 points
 
-All scored diagnostic orders must be placed by minute 10.
+| Student action | Deadline | Points |
+|---|---:|---:|
+| Apply cardiac monitoring | Minute 3 | 3 |
+| Apply continuous pulse oximetry | Minute 3 | 2 |
+| Provide supplemental oxygen for SpO₂ 90% | Minute 3 | 4 |
+| Establish IV access | Minute 5 | 4 |
+| Provide IV crystalloid for hypotension | Minute 8 | 3 |
+| Provide analgesia for severe pain | Minute 8 | 4 |
 
-- CBC: 3 points
-- BMP: 3 points
-- Hepatic function panel: 2 points
-- Lipase: 2 points
-- Lactate: 3 points
-- Coagulation studies: 2 points
-- Type and screen: 2 points
-- Contrast CT abdomen/pelvis: 8 points
+**OpenEvidence focus:** Evaluate sequence, response targets, need for repeat vital signs, fluid reassessment, analgesic choice, contraindications, and escalation if hypotension or hypoxemia persists.
 
-### Reasoning and disposition — 12 points
+## 5. Diagnostic workup — 25 points
 
-- Differential or assessment includes appendicitis, peritonitis, perforated viscus/bowel, intra-abdominal infection, or acute abdomen: 8 points
-- SOAP note documents admission and urgent surgery/critical-care escalation: 4 points
+All scored orders should be placed by minute 10.
 
-### Result interpretation — 7 points
+| Student action | Points |
+|---|---:|
+| Order CBC | 3 |
+| Order basic metabolic panel | 3 |
+| Order hepatic function panel | 2 |
+| Order lipase | 2 |
+| Order lactate | 3 |
+| Order coagulation studies | 2 |
+| Order type and screen | 2 |
+| Order contrast CT abdomen/pelvis | 8 |
 
-- Save an interpretation of the CT result: 3 points
-- Recognize WBC 18.5 K/µL/leukocytosis: 2 points
-- Recognize potassium 3.0 mEq/L/hypokalemia: 2 points
+**OpenEvidence focus:** Interpret every resulted value, explain why each test was or was not useful, discuss CT protocol and expected appendicitis/peritonitis findings, and identify the attached CT report as a placeholder that cannot exclude disease.
+
+## 6. Clinical reasoning and disposition — 12 points
+
+| Student action | Points |
+|---|---:|
+| Include appendicitis or another complicated acute-abdomen diagnosis in the differential or assessment | 8 |
+| Document admission and urgent surgical/critical-care escalation | 4 |
+
+Accepted diagnostic concepts include appendicitis, peritonitis, perforated viscus, bowel perforation, intra-abdominal infection, and acute abdomen.
+
+**OpenEvidence focus:** Compare dangerous alternatives, explain how the findings modify probability, address antibiotics and source control, and critique consultation, reassessment, and disposition planning.
+
+## 7. Interpretation of returned results — 7 points
+
+| Student action | Points |
+|---|---:|
+| Save an interpretation of the CT result | 3 |
+| Recognize WBC 18.5 K/µL as leukocytosis | 2 |
+| Recognize potassium 3.0 mEq/L as hypokalemia | 2 |
+
+**OpenEvidence focus:** Go beyond identifying abnormal flags. Explain severity, differential implications, relationships among values, management consequences, and which normal findings do not rule out complicated appendicitis.
 
 ## Critical-action score caps
 
-| Missed criterion | Maximum final score |
+| Missed action | Maximum final score |
 |---|---:|
 | Contrast CT abdomen/pelvis not ordered | 59 |
 | IV access not established | 69 |
 | No admission or urgent surgical-evaluation plan documented | 59 |
 
-Caps are applied after raw points are totaled. The lowest applicable cap controls.
+The lowest applicable cap controls. The observation score is not the complete feedback; it determines which areas OpenEvidence should explore in depth.
 
-## Case limitations
+## Known limitations requiring faculty awareness
 
-- The record says the abdomen “hurts badly” and describes severe discomfort, while its structured pain score is 0/10.
-- SpO₂ is 90%, contradicting the source rubric's statement that oxygenation is normal and oxygen is excessive.
-- The CT result is explicitly a templated normal placeholder despite the hidden appendicitis diagnosis.
-- The history lacks onset, migration, associated gastrointestinal symptoms, prior surgery, medications, allergies, and other essential topics.
-- The catalog does not provide structured antibiotics or an explicit surgical-consult action, so these are teaching expectations rather than separately scored actions; escalation is verified through the SOAP plan.
-
-The clinical framing follows the WSES Jerusalem guidelines for acute appendicitis and contemporary emergency stabilization principles. The automated criteria are intentionally limited to actions the simulator can reproduce and audit.
+- The CT narrative remains a templated normal placeholder and must not be treated as definitive.
+- The available history contains only chief concern and pain severity.
+- The catalog lacks structured antibiotics and a dedicated surgery-consult action, so OpenEvidence should discuss these even though they are not separately scored.
+- Named appendiceal signs have limited sensitivity and vary with appendix position. Their inclusion makes this authored teaching case internally coherent but should not imply that all real patients demonstrate every sign.

@@ -34,11 +34,14 @@
       "id": "exam",
       "label": "Focused abdominal and respiratory examination",
       "criteria": [
-        { "id": "abdomen_inspection", "label": "Inspected the abdomen by minute 5", "points": 4, "observable": { "type": "exam", "target_id": "abdomen_inspection_distention", "max_minutes": 5 } },
-        { "id": "abdomen_palpation", "label": "Performed light abdominal palpation by minute 6", "points": 4, "observable": { "type": "exam", "target_id": "abdomen_palpation_light", "max_minutes": 6 } },
+        { "id": "abdomen_inspection", "label": "Inspected the abdomen by minute 5", "points": 2, "observable": { "type": "exam", "target_id": "abdomen_inspection_distention", "max_minutes": 5 } },
+        { "id": "abdomen_palpation", "label": "Performed light abdominal palpation by minute 6", "points": 2, "observable": { "type": "exam", "target_id": "abdomen_palpation_light", "max_minutes": 6 } },
         { "id": "guarding", "label": "Assessed guarding by minute 8", "points": 3, "observable": { "type": "exam", "target_id": "abdomen_palpation_guarding", "max_minutes": 8 } },
         { "id": "rebound", "label": "Assessed rebound tenderness by minute 8", "points": 3, "observable": { "type": "exam", "target_id": "abdomen_palpation_rebound", "max_minutes": 8 } },
-        { "id": "bowel_sounds", "label": "Assessed bowel sounds", "points": 2, "observable": { "type": "exam", "target_id": "abdomen_auscultation_bowel_sounds" } },
+        { "id": "rovsing", "label": "Performed Rovsing sign maneuver", "points": 2, "observable": { "type": "exam", "target_id": "abdomen_special_rosving" } },
+        { "id": "psoas", "label": "Performed psoas sign maneuver", "points": 2, "observable": { "type": "exam", "target_id": "abdomen_special_psoas" } },
+        { "id": "obturator", "label": "Performed obturator sign maneuver", "points": 1, "observable": { "type": "exam", "target_id": "abdomen_special_obturator" } },
+        { "id": "bowel_sounds", "label": "Assessed bowel sounds", "points": 1, "observable": { "type": "exam", "target_id": "abdomen_auscultation_bowel_sounds" } },
         { "id": "breath_sounds", "label": "Assessed breath sounds", "points": 2, "observable": { "type": "exam", "target_id": "respiratory_auscultation_breath_sounds" } }
       ]
     },
@@ -46,11 +49,12 @@
       "id": "stabilization",
       "label": "Immediate stabilization",
       "criteria": [
-        { "id": "cardiac_monitor", "label": "Applied cardiac monitoring by minute 3", "points": 4, "observable": { "type": "intervention", "target_id": "cardiac_monitor", "max_minutes": 3 } },
+        { "id": "cardiac_monitor", "label": "Applied cardiac monitoring by minute 3", "points": 3, "observable": { "type": "intervention", "target_id": "cardiac_monitor", "max_minutes": 3 } },
         { "id": "continuous_pulse_ox", "label": "Applied continuous pulse oximetry by minute 3", "points": 2, "observable": { "type": "intervention", "target_id": "continuous_pulse_ox", "max_minutes": 3 } },
-        { "id": "oxygen", "label": "Provided supplemental oxygen for SpO2 90% by minute 3", "points": 6, "observable": { "type": "intervention", "target_id": "oxygen", "max_minutes": 3 } },
-        { "id": "iv_access", "label": "Established IV access by minute 5", "points": 5, "observable": { "type": "intervention", "target_id": "iv_access", "max_minutes": 5 } },
-        { "id": "iv_fluids", "label": "Provided IV crystalloid for hypotension by minute 8", "points": 3, "observable": { "type": "intervention", "target_id": "iv_fluids", "max_minutes": 8 } }
+        { "id": "oxygen", "label": "Provided supplemental oxygen for SpO2 90% by minute 3", "points": 4, "observable": { "type": "intervention", "target_id": "oxygen", "max_minutes": 3 } },
+        { "id": "iv_access", "label": "Established IV access by minute 5", "points": 4, "observable": { "type": "intervention", "target_id": "iv_access", "max_minutes": 5 } },
+        { "id": "iv_fluids", "label": "Provided IV crystalloid for hypotension by minute 8", "points": 3, "observable": { "type": "intervention", "target_id": "iv_fluids", "max_minutes": 8 } },
+        { "id": "analgesia", "label": "Provided analgesia for severe pain by minute 8", "points": 4, "observable": { "type": "intervention", "target_id": "analgesia", "max_minutes": 8 } }
       ]
     },
     {
